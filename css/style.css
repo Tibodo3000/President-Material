@@ -1,0 +1,1786 @@
+/* ==========================================================================
+   President Material
+   Direction artistique : nuit institutionnelle et or, typographie éditoriale
+   (Fraunces pour l'apparat, Inter pour l'exécution). Peu de cadres, beaucoup
+   d'air : les sections sont posées sur la page, pas rangées dans des boîtes.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap");
+
+:root {
+  /* Fonds, du plus profond au plus proche */
+  --bg: #06080f;
+  --surface: #0b101d;
+  --raised: #121a2c;
+
+  /* Traits */
+  --line: #1b2336;
+  --line-2: #293450;
+
+  /* Encres */
+  --ink: #f1f4fa;
+  --muted: #9aa6c0;
+  --faint: #6e7a96;
+
+  /* Accents */
+  --gold: #c9a24b;
+  --gold-2: #e9c877;
+  --gold-dim: rgba(201, 162, 75, 0.35);
+  --gold-ghost: rgba(201, 162, 75, 0.08);
+  --blue: #6d8fd4;
+  --green: #6ec08a;
+  --amber: #cf9455;
+  --red: #d16a72;
+
+  /* Typographies */
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  --max-width: 1140px;
+  --transition: 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(ellipse 65% 42% at 50% -8%, rgba(201, 162, 75, 0.11), transparent 70%),
+    linear-gradient(180deg, #0a0e19 0%, var(--bg) 50%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+::selection { background: var(--gold-dim); }
+
+/* Focus clavier : un anneau doré, jamais supprimé. */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   Boutons
+   ========================================================================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0.85rem 2rem;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform var(--transition), box-shadow var(--transition),
+              filter var(--transition), border-color var(--transition);
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--gold-2), var(--gold));
+  color: #14161a;
+  box-shadow: 0 8px 24px -10px rgba(201, 162, 75, 0.5);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+  box-shadow: 0 12px 30px -10px rgba(201, 162, 75, 0.65);
+}
+
+.btn-primary:active { transform: translateY(0); }
+
+.btn-xl { padding: 1.1rem 3rem; font-size: 0.85rem; }
+
+.btn-block { width: 100%; }
+
+/* Bouton discret */
+.ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.ghost-btn:hover { color: var(--gold); border-color: var(--gold-dim); }
+
+/* ==========================================================================
+   Switch de langue
+   ========================================================================== */
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.1rem;
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  justify-self: end;
+}
+
+.lang-switch-floating {
+  position: absolute;
+  top: 1.3rem;
+  right: 1.5rem;
+  z-index: 20;
+}
+
+.lang-sep { color: var(--faint); }
+
+.lang-btn {
+  min-width: 44px;
+  min-height: 44px;
+  background: none;
+  border: none;
+  color: var(--faint);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  border-radius: 6px;
+  transition: color var(--transition);
+}
+
+.lang-btn:hover { color: var(--ink); }
+.lang-btn.is-active { color: var(--gold); }
+
+/* ==========================================================================
+   Page d'accueil
+   ========================================================================== */
+
+.page-landing {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Cadre filet, comme une couverture de dossier officiel */
+.page-landing::after {
+  content: "";
+  position: fixed;
+  inset: 14px;
+  border: 1px solid rgba(41, 52, 80, 0.55);
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.landing {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(4rem, 12vh, 7rem) 1.5rem clamp(2rem, 6vh, 3rem);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Colonnes en filigrane */
+.landing::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0 130px,
+    rgba(201, 162, 75, 0.045) 130px 131px
+  );
+  mask-image: radial-gradient(ellipse 58% 52% at 50% 44%, #000, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 58% 52% at 50% 44%, #000, transparent 75%);
+  pointer-events: none;
+}
+
+.landing-inner {
+  position: relative;
+  text-align: center;
+  max-width: 620px;
+}
+
+.brand { margin: 0 0 0.9rem; font-weight: 400; }
+
+.brand-star {
+  display: block;
+  color: var(--gold);
+  font-size: 1.35rem;
+  line-height: 1;
+  margin-bottom: 1.4rem;
+  text-shadow: 0 0 22px rgba(201, 162, 75, 0.5);
+}
+
+.brand-name {
+  display: block;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.7rem, 8.5vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+}
+
+.brand-name em {
+  display: block;
+  font-style: italic;
+  font-weight: 400;
+  background: linear-gradient(100deg, var(--gold-2), var(--gold) 45%, #977631);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.brand-sub {
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 2.6rem;
+}
+
+.landing-desc { margin-bottom: 2.8rem; }
+
+.landing-desc p {
+  color: var(--muted);
+  font-size: 1rem;
+  max-width: 480px;
+  margin: 0 auto 0.9rem;
+}
+
+.landing-desc p:first-child {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+
+.landing-desc p:last-child { margin-bottom: 0; }
+
+.landing-footer {
+  position: relative;
+  text-align: center;
+  padding: 1.6rem;
+  color: var(--faint);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.landing-footer p { margin: 0; }
+
+/* ==========================================================================
+   Header des pages du flux
+   ========================================================================== */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--line);
+  background: rgba(6, 8, 15, 0.8);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.header-inner {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  min-height: 60px;
+  gap: 1rem;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: var(--ink);
+  justify-self: start;
+}
+
+.logo-star { color: var(--gold); font-size: 0.9rem; line-height: 1; }
+
+.logo-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* Fil des étapes, au centre du header */
+.steps {
+  display: flex;
+  gap: 1.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.55rem;
+  height: 1.55rem;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.step.is-current { color: var(--gold); }
+
+.step.is-current .step-num {
+  border-color: var(--gold);
+  background: var(--gold);
+  color: #14161a;
+  font-weight: 700;
+}
+
+.step.is-done { color: var(--muted); }
+.step.is-done .step-num { border-color: var(--gold-dim); color: var(--gold); }
+
+/* ==========================================================================
+   Tête de page et mise en page à deux colonnes
+   ========================================================================== */
+
+.page-main { padding: clamp(2.2rem, 5vw, 3.6rem) 0 clamp(3rem, 7vw, 5rem); }
+
+.page-head {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto clamp(2.4rem, 5vw, 3.6rem);
+}
+
+.eyebrow {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 0.8rem;
+}
+
+.page-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 5vw, 2.7rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.9rem;
+}
+
+.page-sub {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.page-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  gap: clamp(2rem, 4vw, 3.2rem);
+  align-items: start;
+}
+
+.form-col { margin: 0; }
+
+/* ==========================================================================
+   Sections du formulaire — pas de boîtes, des chapitres
+   ========================================================================== */
+
+.form-section { margin-bottom: clamp(2.4rem, 5vw, 3.2rem); }
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem;
+  margin-bottom: 1.3rem;
+}
+
+/* Numéro fantôme, en creux */
+.section-index {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 2.1rem;
+  line-height: 1;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--line-2);
+  user-select: none;
+}
+
+@supports not (-webkit-text-stroke: 1px black) {
+  .section-index { color: var(--line-2); }
+}
+
+.section-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink);
+  margin: 0;
+}
+
+.section-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--line), transparent);
+}
+
+.micro-label {
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 0.55rem;
+}
+
+/* ---------- Identité ---------- */
+
+.identity-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: 1.6rem;
+  align-items: start;
+}
+
+.input-row { display: flex; gap: 0.5rem; }
+
+.input-row .text-input { flex: 1; min-width: 0; }
+
+.text-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.7rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.text-input::placeholder { color: var(--faint); }
+
+.text-input:focus {
+  outline: none;
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 0 3px var(--gold-ghost);
+}
+
+.icon-btn {
+  flex: none;
+  width: 48px;
+  min-height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.icon-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+.icon-btn.is-rolling svg { animation: roll 0.45s cubic-bezier(0.4, 0, 0.2, 1); }
+
+@keyframes roll {
+  from { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(0.82); }
+  to   { transform: rotate(360deg) scale(1); }
+}
+
+/* Pastilles (sexe) */
+.choice-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.choice-pill input { position: absolute; opacity: 0; pointer-events: none; }
+
+.choice-pill span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition),
+              background-color var(--transition);
+}
+
+.choice-pill span:hover { border-color: var(--gold-dim); color: var(--ink); }
+
+.choice-pill input:checked + span {
+  border-color: var(--gold);
+  background: var(--gold-ghost);
+  color: var(--gold-2);
+}
+
+.choice-pill input:focus-visible + span {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ---------- Tuiles de choix ---------- */
+
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+  gap: 0.6rem;
+}
+
+.tile { position: relative; }
+
+.tile input { position: absolute; opacity: 0; pointer-events: none; }
+
+.tile-face {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 54px;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+  line-height: 1.3;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color var(--transition), color var(--transition),
+              background-color var(--transition), transform var(--transition);
+}
+
+.tile-face:hover {
+  border-color: var(--line-2);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.tile input:checked + .tile-face {
+  border-color: var(--gold);
+  background: var(--gold-ghost);
+  color: var(--gold-2);
+  font-weight: 600;
+}
+
+.tile input:focus-visible + .tile-face {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* Panneau de description : une seule zone de texte par section */
+.pick-desc {
+  min-height: 2.9em;
+  margin: 1rem 2px 0;
+  padding-left: 0.95rem;
+  border-left: 2px solid var(--gold-dim);
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Partis
+   ========================================================================== */
+
+.party-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(252px, 1fr));
+  gap: 0.6rem;
+}
+
+.party-row { position: relative; }
+
+.party-row input { position: absolute; opacity: 0; pointer-events: none; }
+
+.party-face {
+  display: block;
+  padding: 0.8rem 0.95rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color var(--transition), background-color var(--transition),
+              transform var(--transition);
+}
+
+.party-face:hover { border-color: var(--line-2); transform: translateY(-1px); }
+
+.party-row input:checked + .party-face {
+  border-color: var(--gold);
+  background: var(--gold-ghost);
+  box-shadow: inset 3px 0 0 var(--gold);
+}
+
+.party-row input:focus-visible + .party-face {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.party-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+
+.party-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.party-row input:checked + .party-face .party-name { color: var(--gold-2); }
+
+.party-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex: none;
+}
+
+/* Pastille de compatibilité (dépend du personnage) */
+.fit-badge {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+
+.fit-natural  { color: var(--green); }
+.fit-credible { color: var(--gold); }
+.fit-uphill   { color: var(--amber); }
+.fit-hostile  { color: var(--red); }
+
+/* Points de difficulté (propriété du parti) */
+.diff-dots { display: inline-flex; gap: 3px; align-items: center; }
+
+.diff-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--line-2);
+}
+
+.diff-dot.on { background: currentColor; }
+
+.diff-1 { color: var(--green); }
+.diff-2 { color: #9db96f; }
+.diff-3 { color: var(--gold); }
+.diff-4 { color: var(--amber); }
+.diff-5 { color: var(--red); }
+
+/* Positionnement : une étiquette par position tenue. Un axe sans position
+   n'apparaît pas, et c'est l'absence qui porte l'information. Les jauges
+   précises restent dans la fiche de droite. */
+.party-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--line);
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+  padding: 0.26rem 0.6rem 0.26rem 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.tag svg { flex: none; opacity: 0.8; }
+
+.party-row input:checked + .party-face .tag {
+  border-color: var(--gold-dim);
+  background: var(--gold-ghost);
+  color: var(--gold-2);
+}
+
+.party-row input:checked + .party-face .tag svg { opacity: 1; }
+
+/* Difficulté, sur sa propre ligne */
+.party-diff {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.75rem;
+}
+
+.party-diff-label {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.axis-track {
+  position: relative;
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(109, 143, 212, 0.4), var(--line-2), rgba(201, 162, 75, 0.4));
+}
+
+.axis-track::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  bottom: -2px;
+  width: 1px;
+  background: var(--line-2);
+}
+
+.axis-dot {
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: var(--ink);
+  transform: translateY(-50%);
+  box-shadow: 0 0 0 2px var(--bg);
+}
+
+.back-link {
+  margin: 0.6rem 0 0;
+  font-size: 0.84rem;
+}
+
+.back-link a {
+  color: var(--faint);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.back-link a:hover { color: var(--gold); border-bottom-color: var(--gold-dim); }
+
+/* ==========================================================================
+   Fiche du candidat
+   ========================================================================== */
+
+.sheet { position: sticky; top: 84px; }
+
+.sheet-inner {
+  position: relative;
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #151d31, #0c1220);
+  overflow: hidden;
+}
+
+/* Filet doré en tête de fiche */
+.sheet-inner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.6;
+}
+
+.sheet-head {
+  text-align: center;
+  padding: 1.7rem 1.4rem 1.3rem;
+  border-bottom: 1px solid var(--line);
+  background: radial-gradient(ellipse 85% 70% at 50% 0%, rgba(201, 162, 75, 0.1), transparent 70%);
+}
+
+.sheet-star {
+  display: block;
+  color: var(--gold);
+  font-size: 1.05rem;
+  line-height: 1;
+  margin-bottom: 0.7rem;
+  text-shadow: 0 0 16px rgba(201, 162, 75, 0.45);
+}
+
+.sheet-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 0.4rem;
+}
+
+.sheet-name {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.sheet-meta {
+  font-size: 0.76rem;
+  color: var(--muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.sheet-stats { padding: 1.3rem 1.4rem; }
+
+.sheet-group-title {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0 0 0.8rem;
+}
+
+.sheet-group-title-ext { color: var(--blue); margin-top: 1.4rem; }
+.sheet-group-title-party { color: var(--muted); }
+
+.stat-rows { display: grid; gap: 0.6rem; }
+
+.stat-row {
+  display: grid;
+  grid-template-columns: 5.4rem 1fr 1.5rem;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.stat-row-name { font-size: 0.78rem; color: var(--muted); }
+
+.stat-bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-stat-scope="external"] .stat-bar-fill {
+  background: linear-gradient(90deg, rgba(109, 143, 212, 0.45), var(--blue));
+}
+
+.stat-row-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* Fortune : un solde, pas une jauge */
+.sheet-money {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  margin-top: 1.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.sheet-money-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.sheet-money-value {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--gold-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Parti sélectionné dans la fiche */
+.sheet-party {
+  margin-top: 1.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.sheet-party-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0 0 0.9rem;
+}
+
+.sheet-axes { display: grid; gap: 0.75rem; }
+
+.sheet-axis-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin-bottom: 0.3rem;
+}
+
+.sheet-diff {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.5rem;
+  border: 1px solid var(--line-2);
+  border-radius: 7px;
+  color: var(--muted);
+}
+
+.sheet-diff .diff-dots { position: relative; top: -1px; }
+
+.sheet-fit {
+  margin: 0.5rem 0 0;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 7px;
+}
+
+.sheet-actions { padding: 0 1.4rem 1.4rem; }
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+
+@media (max-width: 960px) {
+  .page-layout { grid-template-columns: 1fr; }
+  .sheet { position: static; }
+  .identity-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+}
+
+@media (max-width: 620px) {
+  .step-label { display: none; }
+  .steps { gap: 0.8rem; }
+
+  .tile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  .party-grid { grid-template-columns: 1fr; }
+
+  .pick-desc { min-height: 4.4em; }
+
+  .btn-xl { width: 100%; }
+
+  .page-landing::after { inset: 8px; }
+}
+
+
+/* ==========================================================================
+   Page de jeu (game.html)
+   ========================================================================== */
+
+/* La fiche passe à gauche, la carte d'événement à droite. Dans le DOM la
+   fiche vient en premier ; sur mobile la carte remonte au-dessus. */
+.game-layout { grid-template-columns: 340px minmax(0, 1fr); }
+
+.game-sheet { order: 0; }
+.game-col { order: 1; }
+
+.sheet-position { color: var(--gold-2); font-weight: 600; }
+
+/* Le monde autour : échéance, Élysée, rivaux */
+.sheet-world {
+  margin-top: 1.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+}
+
+.world-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin: 0 0 0.55rem;
+}
+
+.world-label {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+  white-space: nowrap;
+}
+
+.world-value {
+  font-size: 0.78rem;
+  color: var(--ink);
+  text-align: right;
+}
+
+/* ---------- Le panneau à onglets sous la carte ---------- */
+
+.side-panel {
+  margin-top: 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.panel-title {
+  margin: 0;
+  padding: 0.75rem 1.1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+
+/* Le journal compte moins : il ferme la colonne, en gris. */
+.side-panel-quiet .panel-title { color: var(--faint); }
+
+.panel-pane { padding: 1rem 1.1rem; }
+
+
+/* ---------- Budget, en bas de la fiche ---------- */
+
+.sheet-budget { margin-top: 1.4rem; }
+
+/* La colonne est étroite : tout y est plus resserré qu'ailleurs. */
+.sheet-budget .budget-line { font-size: 0.7rem; }
+.sheet-budget .budget-title { font-size: 0.56rem; letter-spacing: 0.16em; }
+.sheet-budget .budget-total { font-size: 0.78rem; }
+.sheet-budget .budget-next { font-size: 0.58rem; line-height: 1.4; }
+.sheet-budget .budget-level-name { font-size: 0.66rem; }
+
+.budget-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0.9rem 0 0.4rem;
+}
+
+.budget-title:first-child { margin-top: 0; }
+
+.budget-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 0.16rem 0;
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.budget-line span:last-child { color: var(--ink); white-space: nowrap; }
+
+/* Le solde : la ligne qu'on regarde en premier. */
+.budget-total {
+  margin-top: 0.7rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.budget-total span:last-child { color: var(--green); }
+.budget-total.is-negative span:last-child { color: var(--red); }
+
+.budget-post {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.budget-post:last-of-type { border-bottom: 0; }
+
+.budget-level {
+  display: grid;
+  grid-template-columns: 28px 1fr 28px;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+}
+
+.budget-level-name {
+  font-size: 0.7rem;
+  color: var(--ink);
+  text-align: center;
+}
+
+.budget-level-fx {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--faint);
+}
+
+.budget-next {
+  margin: 0.25rem 0 0;
+  font-size: 0.62rem;
+  color: var(--faint);
+  text-align: center;
+}
+
+/* Deux boutons carrés, assez grands pour le doigt. */
+.budget-btn {
+  min-width: 28px;
+  min-height: 28px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.budget-btn:hover:not(:disabled) { border-color: var(--gold-dim); color: var(--gold-2); }
+.budget-btn:disabled { opacity: 0.3; cursor: default; }
+
+/* Le solde annuel sous la fortune, sur la fiche */
+.sheet-money-balance {
+  display: block;
+  width: 100%;
+  text-align: right;
+  font-size: 0.68rem;
+  color: var(--green);
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet-money-balance.is-negative { color: var(--red); }
+
+
+/* ---------- Rapport de force entre les partis ---------- */
+
+.force-row { padding: 0.55rem 0; border-bottom: 1px solid var(--line); }
+.force-row:last-child { border-bottom: 0; }
+
+.force-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.force-party { font-size: 0.78rem; font-weight: 600; color: var(--ink); }
+
+/* Le camp du joueur se repère d'un coup d'œil. */
+.force-row.is-mine .force-party { color: var(--gold-2); }
+
+.force-tag {
+  margin-left: 0.35rem;
+  padding: 0.05rem 0.4rem;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  vertical-align: middle;
+}
+
+.force-share {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Un parti allié se repère au même endroit que le camp au pouvoir. */
+.force-tag.is-ally { color: var(--gold-2); border-color: var(--gold-2); }
+
+/* Qui monte, qui descend depuis le tour précédent. */
+.force-trend {
+  margin-right: 0.4rem;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.force-trend.is-up { color: var(--green); }
+.force-trend.is-down { color: var(--red); }
+
+.force-track {
+  display: block;
+  height: 5px;
+  margin: 0.35rem 0 0.4rem;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.force-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--gold));
+}
+
+.force-row.is-mine .force-fill { background: linear-gradient(90deg, var(--gold), var(--gold-2)); }
+
+.force-person {
+  display: grid;
+  grid-template-columns: 1fr auto 2rem;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.12rem 0;
+  font-size: 0.7rem;
+  color: var(--muted);
+}
+
+.force-person.is-player .force-name { color: var(--gold-2); font-weight: 600; }
+.force-person.is-leader .force-name { font-weight: 600; }
+.force-name { color: var(--ink); }
+
+.force-role {
+  color: var(--faint);
+  font-size: 0.63rem;
+  white-space: nowrap;
+}
+
+.force-pop { text-align: right; font-variant-numeric: tabular-nums; }
+
+
+/* Les deux jauges de carrière, en tête de fiche pendant la partie */
+.gauges {
+  display: grid;
+  gap: 0.85rem;
+  padding-bottom: 1.2rem;
+  margin-bottom: 1.3rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.gauge-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-bottom: 0.35rem;
+}
+
+.gauge-label {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.gauge-value {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge-track {
+  display: block;
+  height: 7px;
+  border-radius: 4px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.gauge-fill {
+  display: block;
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Le pays en or, l'appareil en bleu : les deux camps à convaincre. */
+.gauge-fill-pop { background: linear-gradient(90deg, var(--gold-dim), var(--gold-2)); }
+.gauge-fill-standing { background: linear-gradient(90deg, rgba(109, 143, 212, 0.5), var(--blue)); }
+
+/* ---------- Carte d'événement ---------- */
+
+.event-card {
+  border: 1px solid var(--line-2);
+  border-radius: 14px;
+  background: linear-gradient(180deg, #131a2d, #0c1120);
+  padding: 1.7rem 1.8rem 1.6rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.event-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.45;
+}
+
+.event-card-election::before { opacity: 0.9; }
+
+.event-tag {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: center;
+  margin: 0 0 1.2rem;
+}
+
+.event-text {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--ink);
+  margin: 0 0 1.5rem;
+}
+
+.event-result { color: var(--muted); font-style: italic; }
+
+.event-choices { display: grid; gap: 0.6rem; }
+
+.event-choice {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  padding: 0.85rem 1.4rem;
+  border: 1px solid var(--line-2);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color var(--transition), background-color var(--transition),
+              transform var(--transition);
+}
+
+.event-choice:hover {
+  border-color: var(--gold-dim);
+  background: var(--gold-ghost);
+  transform: translateY(-1px);
+}
+
+.event-continue {
+  border-color: var(--gold);
+  color: var(--gold-2);
+}
+
+.choice-label { display: block; }
+
+/* Sous le libellé : ce qui ouvre l'option, et l'avertissement quand le jet
+   est très mal engagé. Deux informations de nature différente, deux couleurs. */
+.choice-notes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+}
+
+.choice-why {
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--gold);
+  opacity: 0.85;
+}
+
+.choice-risky {
+  padding: 0.06rem 0.45rem;
+  border: 1px solid rgba(209, 106, 114, 0.4);
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--red);
+}
+
+.event-choice.is-risky:hover { border-color: rgba(209, 106, 114, 0.45); }
+
+
+/* ---------- Conséquences annoncées et constatées ---------- */
+
+/* Rien n'est annoncé avant le choix : ces pastilles ne s'affichent qu'une
+   fois la décision prise, sous le texte de résultat. */
+.fx-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+}
+
+.fx {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.14rem 0.5rem;
+  border: 1px solid var(--line-2);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.fx-up { color: var(--green); border-color: rgba(110, 192, 138, 0.32); }
+.fx-down { color: var(--red); border-color: rgba(209, 106, 114, 0.32); }
+.fx-trait { border-style: dashed; cursor: help; }
+
+.event-changes {
+  display: flex;
+  justify-content: center;
+  margin: -0.4rem 0 1.1rem;
+}
+
+
+/* ---------- Traits sur la fiche ---------- */
+
+.sheet-traits { margin-top: 1.2rem; }
+
+#trait-rows { display: grid; gap: 0.45rem; }
+
+/* Un trait dit son nom et ce qu'il change, sans survol : c'est une pièce du
+   personnage, pas une décoration. */
+.trait-row {
+  border-left: 2px solid var(--line-2);
+  padding-left: 0.6rem;
+}
+
+.trait-row.trait-asset { border-left-color: var(--green); }
+.trait-row.trait-mark { border-left-color: var(--red); }
+
+.trait-name {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.trait-fx {
+  display: block;
+  font-size: 0.68rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.trait-empty {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--faint);
+}
+
+/* ---------- Campagne présidentielle ---------- */
+
+.event-card-campaign::before { opacity: 1; height: 3px; }
+
+.event-sub-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 0.8rem;
+}
+
+/* Le sondage : l'information centrale pendant la campagne */
+.poll {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 1rem 1.1rem 0.9rem;
+  margin: 0 0 1.4rem;
+}
+
+.poll-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 0.7rem;
+}
+
+.poll-row {
+  display: grid;
+  grid-template-columns: minmax(0, 8.5rem) 1fr 2.4rem;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.4rem;
+}
+
+.poll-name {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.poll-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.poll-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--line-2);
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.poll-share {
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--muted);
+}
+
+/* Le joueur ressort en or */
+.poll-row.is-player .poll-name { color: var(--gold-2); font-weight: 600; }
+.poll-row.is-player .poll-share { color: var(--gold-2); font-weight: 700; }
+.poll-row.is-player .poll-fill {
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold-2));
+}
+
+@media (max-width: 560px) {
+  .poll-row { grid-template-columns: minmax(0, 6.5rem) 1fr 2.2rem; }
+}
+
+
+/* Choix débloqué par la situation : un liseré doré et un losange. Le
+   joueur doit voir que cette option lui est ouverte parce qu'il est ce
+   qu'il est — son parcours, son argent, son caractère. */
+.event-choice.is-unlocked {
+  border-color: var(--gold-dim);
+  background: var(--gold-ghost);
+  color: var(--gold-2);
+}
+
+.event-choice.is-unlocked:hover { border-color: var(--gold); }
+
+.choice-key {
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.62rem;
+  vertical-align: middle;
+  opacity: 0.85;
+}
+
+
+/* L'épuisement ferme des portes : on le dit sous les choix restants. */
+.fatigue-note {
+  margin: 0.5rem 0 0;
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--faint);
+  text-align: center;
+}
+
+/* ---------- Journal ---------- */
+
+.journal { margin-top: 1.6rem; }
+
+.journal-title {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 0.6rem;
+}
+
+.journal-line {
+  display: flex;
+  gap: 0.7rem;
+  align-items: baseline;
+  font-size: 0.8rem;
+  color: var(--faint);
+  margin: 0 0 0.35rem;
+  padding-left: 0.8rem;
+  border-left: 1px solid var(--line);
+}
+
+.journal-line:first-of-type { color: var(--muted); }
+
+.journal-turn {
+  flex: none;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* ---------- Fins de partie ---------- */
+
+.end-title {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 1rem;
+}
+
+.end-victory .end-title { color: var(--gold-2); }
+.end-conviction .end-title { color: var(--red); }
+
+.end-recap {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 1rem 0;
+  margin: 0 0 1.4rem;
+}
+
+.end-recap p {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.3rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.end-recap strong { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* Ce que la carrière a laissé sur le personnage, sous le récapitulatif */
+.end-traits-title {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 0.5rem;
+  text-align: center;
+}
+
+.end-traits {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: start;
+  max-width: 24rem;
+  margin: 0 auto 1.4rem;
+}
+
+@media (max-width: 960px) {
+  .game-layout { grid-template-columns: 1fr; }
+  /* Sur mobile, la carte du tour passe avant la fiche. */
+  .game-sheet { order: 1; }
+  .game-col { order: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

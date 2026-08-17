@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choix du parti · President Material</title>
+  <meta name="description" content="Choisissez le parti dans lequel votre personnage commencera sa carrière.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='78' font-size='80' text-anchor='middle' fill='%23c9a24b'%3E%E2%98%85%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-create" data-page-title="page_title_party">
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-star" aria-hidden="true">★</span>
+        <span class="logo-text">President Material</span>
+      </a>
+
+      <ol class="steps" aria-label="Étapes">
+        <li class="step is-done">
+          <span class="step-num">1</span>
+          <span class="step-label" data-i18n="step_character">Personnage</span>
+        </li>
+        <li class="step is-current">
+          <span class="step-num">2</span>
+          <span class="step-label" data-i18n="step_party">Parti</span>
+        </li>
+      </ol>
+
+      <nav class="lang-switch" aria-label="Language switch">
+        <button type="button" class="lang-btn is-active" data-lang="fr">FR</button>
+        <span class="lang-sep" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="container">
+
+      <div class="page-head">
+        <p class="eyebrow" data-i18n="party_eyebrow">Entrée en politique</p>
+        <h1 class="page-title" data-i18n="party_title">Choix du parti</h1>
+        <p class="page-sub" data-i18n="party_sub">Choisissez le parti dans lequel vous vous lancez. Ce ne sera pas forcément celui dans lequel vous finirez.</p>
+      </div>
+
+      <div class="page-layout">
+
+        <!-- ===== Colonne partis ===== -->
+        <form id="party-form" class="form-col" autocomplete="off">
+
+          <section class="form-section">
+            <header class="section-head">
+              <span class="section-index" aria-hidden="true">05</span>
+              <h2 class="section-title" data-i18n="field_party">Parti</h2>
+            </header>
+
+            <!-- Cartes générées par js/party.js -->
+            <div class="party-grid" id="party-grid" role="radiogroup" data-i18n-aria="field_party" aria-label="Parti"></div>
+
+            <p class="pick-desc" id="party-desc" aria-live="polite"></p>
+          </section>
+
+          <p class="back-link">
+            <a href="create.html" data-i18n="back_to_character">Revenir au personnage</a>
+          </p>
+        </form>
+
+        <!-- ===== Colonne fiche personnage ===== -->
+        <aside class="sheet" aria-live="polite">
+          <div class="sheet-inner">
+            <div class="sheet-head">
+              <span class="sheet-star" aria-hidden="true">★</span>
+              <p class="sheet-label" data-i18n="sheet_label">Fiche du candidat</p>
+              <p class="sheet-name" id="sheet-name" data-i18n="sheet_name_empty">Sans nom</p>
+              <p class="sheet-meta" id="sheet-meta"></p>
+              <p class="sheet-meta" id="sheet-meta-2"></p>
+            </div>
+
+            <div class="sheet-stats">
+              <!-- Jauges générées par js/data.js -->
+              <div id="sheet-stat-groups"></div>
+
+              <div class="sheet-money">
+                <span class="sheet-money-label" data-i18n="money_label">Fortune</span>
+                <span class="sheet-money-value" id="sheet-money">0 €</span>
+              </div>
+
+              <!-- Parti sélectionné : positionnement, difficulté et compatibilité. -->
+              <div class="sheet-party">
+                <p class="sheet-group-title sheet-group-title-party" data-i18n="field_party">Parti</p>
+                <p class="sheet-party-name" id="sheet-party-name"></p>
+                <div class="sheet-axes" id="sheet-axes"></div>
+                <p class="sheet-diff" id="sheet-diff"></p>
+                <p class="sheet-fit" id="sheet-fit"></p>
+              </div>
+            </div>
+
+            <div class="sheet-actions">
+              <button type="submit" form="party-form" class="btn btn-primary btn-block" data-i18n="cta_begin">Commencer la partie</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="js/script.js"></script>
+  <script src="js/names.data.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/party.js"></script>
+</body>
+</html>

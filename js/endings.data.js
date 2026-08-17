@@ -1,0 +1,168 @@
+/*
+ * President Material — LES FINS.
+ * ============================================================================
+ *
+ * Une partie se termine toujours d'une des quatre façons prévues par le
+ * moteur : victoire, retraite, mort, condamnation. Mais la fin AFFICHÉE
+ * dépend de l'état dans lequel la carrière s'arrête. Gagner l'Élysée sans
+ * s'être sali les mains n'est pas la même histoire que le gagner avec une
+ * caisse noire dans le dos, et le jeu doit le dire.
+ *
+ * Comme les autres fichiers de données, celui-ci est en syntaxe JSON stricte
+ * et porte l'extension .js pour que le jeu s'ouvre sans serveur.
+ *
+ * ----------------------------------------------------------------------------
+ * COMMENT C'EST LU
+ * ----------------------------------------------------------------------------
+ * La liste est parcourue DANS L'ORDRE et la première fin dont les conditions
+ * sont remplies gagne. Les fins ordinaires, sans "when", ferment donc chaque
+ * famille : mettez toujours les cas particuliers avant.
+ *
+ *   "from"    la fin du moteur à laquelle celle-ci se substitue
+ *   "when"    mêmes conditions que les événements, plus "trait" / "notTrait"
+ *   "title"   et "text" : { fr, en }
+ *
+ * Comme partout, on ne cite aucun chiffre de jauge dans le texte.
+ */
+const ENDING_DATA = [
+
+  /* ---------- Victoires ---------- */
+
+  {
+    "id": "irreprochable",
+    "from": "victory",
+    "when": {
+      "notTrait": ["caisse_noire", "casserole", "menteur", "traitre"],
+      "stat": { "reputation": { "min": 14 } },
+      "flag": { "dirtyMoney": false }
+    },
+    "title": { "fr": "Président irréprochable", "en": "The clean president" },
+    "text": {
+      "fr": "Vous arrivez au sommet sans dossier, sans dette et sans casserole. Les journalistes qui ont fouillé votre passé pendant la campagne en sont revenus les mains vides, et cela restera votre plus belle victoire.",
+      "en": "You reach the top with no file, no debt and no baggage. The reporters who dug through your past during the campaign came back empty-handed, and that will remain your finest victory."
+    }
+  },
+
+  {
+    "id": "sous_influence",
+    "from": "victory",
+    "when": { "trait": ["caisse_noire"] },
+    "title": { "fr": "Président sous influence", "en": "The president they own" },
+    "text": {
+      "fr": "Vous entrez à l'Élysée avec une comptabilité que personne ne doit ouvrir. Les gens qui l'ont tenue pour vous connaissent le chemin de votre bureau, et ils prendront rendez-vous.",
+      "en": "You enter office with a set of books nobody must ever open. The people who kept them for you know the way to your desk, and they will make appointments."
+    }
+  },
+
+  {
+    "id": "irruption",
+    "from": "victory",
+    "when": { "party": ["radical_left", "identitarians"] },
+    "title": { "fr": "L'irruption", "en": "The breakthrough" },
+    "text": {
+      "fr": "On vous promettait une carrière de témoin. Le pays a préféré vous confier les clés, et la moitié des éditorialistes qui commentent votre victoire écrivaient il y a six mois qu'elle était impossible.",
+      "en": "They promised you a career as a witness to history. The country handed you the keys instead, and half the columnists explaining your win were writing six months ago that it could not happen."
+    }
+  },
+
+  {
+    "id": "dernier_train",
+    "from": "victory",
+    "when": { "minAge": 64 },
+    "title": { "fr": "Le dernier train", "en": "The last train" },
+    "text": {
+      "fr": "Vous avez commencé jeune et fini vieux, et tous ceux qui vous avaient enterré en cours de route sont venus vous féliciter. Le mandat sera court, la revanche est complète.",
+      "en": "You started young and finished old, and everyone who buried you along the way turned up to congratulate you. The term will be short; the vindication is total."
+    }
+  },
+
+  {
+    "id": "victory",
+    "from": "victory",
+    "title": { "fr": "Président de la République", "en": "President of the Republic" },
+    "text": {
+      "fr": "Le pays vous a choisi. L'ascension s'achève au sommet de l'État : tout ce qui suit s'appelle l'Histoire.",
+      "en": "The country has chosen you. The climb ends at the top of the state: everything that follows is called history."
+    }
+  },
+
+  /* ---------- Retraites ---------- */
+
+  {
+    "id": "faiseur_rois",
+    "from": "retire",
+    "when": { "position": ["chef"], "minStanding": 62 },
+    "title": { "fr": "Faiseur de rois", "en": "Kingmaker" },
+    "text": {
+      "fr": "Vous quittez la scène sans avoir été élu et sans avoir été battu. Ceux qui gouvernent vous doivent leur investiture, et vous savez très bien ce que cela vaut.",
+      "en": "You leave the stage having never been elected and never been beaten. The people in power owe you their nomination, and you know exactly what that is worth."
+    }
+  },
+
+  {
+    "id": "eminence",
+    "from": "retire",
+    "when": { "minStanding": 58, "maxPopularity": 38 },
+    "title": { "fr": "Éminence grise", "en": "The grey eminence" },
+    "text": {
+      "fr": "Le pays n'a jamais vraiment su qui vous étiez, l'appareil ne s'est jamais posé la question. On vous consultera encore longtemps, dans des pièces sans caméra.",
+      "en": "The country never quite worked out who you were; the party never had to ask. They will keep consulting you for years, in rooms without cameras."
+    }
+  },
+
+  {
+    "id": "retire",
+    "from": "retire",
+    "title": { "fr": "Retraite politique", "en": "Political retirement" },
+    "text": {
+      "fr": "Vous quittez la vie publique de votre plein gré. Peu de gens peuvent en dire autant.",
+      "en": "You leave public life of your own accord. Not many people can say the same."
+    }
+  },
+
+  /* ---------- Morts ---------- */
+
+  {
+    "id": "en_pleine_gloire",
+    "from": "death",
+    "when": { "minPopularity": 72 },
+    "title": { "fr": "Mort en pleine gloire", "en": "Died at the summit" },
+    "text": {
+      "fr": "Vous partez au moment où le pays vous aimait le plus. Les hommages seront sincères, les biographies élogieuses, et personne ne saura jamais ce que vous auriez fait du pouvoir.",
+      "en": "You go at the moment the country loved you most. The tributes will be sincere, the biographies kind, and nobody will ever know what you would have done with power."
+    }
+  },
+
+  {
+    "id": "death",
+    "from": "death",
+    "title": { "fr": "Fin de parcours", "en": "End of the road" },
+    "text": {
+      "fr": "La mort vous rattrape avant l'Élysée. Les hommages sont unanimes, comme toujours quand il est trop tard.",
+      "en": "Death catches you before the palace does. The tributes are unanimous, as they always are once it is too late."
+    }
+  },
+
+  /* ---------- Condamnations ---------- */
+
+  {
+    "id": "bouc_emissaire",
+    "from": "conviction",
+    "when": { "maxStanding": 30 },
+    "title": { "fr": "Bouc émissaire", "en": "The fall guy" },
+    "text": {
+      "fr": "Vous tombez seul pour un système qui vous survivra. Ceux qui ont signé les mêmes papiers que vous se sont trouvé des avocats plus tôt, et un parti pour les défendre.",
+      "en": "You go down alone for a system that will outlive you. The people who signed the same papers found lawyers earlier, and a party willing to defend them."
+    }
+  },
+
+  {
+    "id": "conviction",
+    "from": "conviction",
+    "title": { "fr": "Condamnation", "en": "Conviction" },
+    "text": {
+      "fr": "La justice met un terme à votre carrière. En politique, tout se paie, parfois avec intérêts.",
+      "en": "The courts end your career. In politics everything gets paid for, sometimes with interest."
+    }
+  }
+];

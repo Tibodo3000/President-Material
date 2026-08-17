@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Création de personnage · President Material</title>
+  <meta name="description" content="Créez votre personnage et commencez votre ascension politique.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='78' font-size='80' text-anchor='middle' fill='%23c9a24b'%3E%E2%98%85%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-create" data-page-title="page_title_create">
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-star" aria-hidden="true">★</span>
+        <span class="logo-text">President Material</span>
+      </a>
+
+      <ol class="steps" aria-label="Étapes">
+        <li class="step is-current">
+          <span class="step-num">1</span>
+          <span class="step-label" data-i18n="step_character">Personnage</span>
+        </li>
+        <li class="step">
+          <span class="step-num">2</span>
+          <span class="step-label" data-i18n="step_party">Parti</span>
+        </li>
+      </ol>
+
+      <nav class="lang-switch" aria-label="Language switch">
+        <button type="button" class="lang-btn is-active" data-lang="fr">FR</button>
+        <span class="lang-sep" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="container">
+
+      <div class="page-head">
+        <p class="eyebrow" data-i18n="create_eyebrow">Dossier du candidat</p>
+        <h1 class="page-title" data-i18n="create_title">Création de personnage</h1>
+        <p class="page-sub" data-i18n="create_sub">Votre personnage a trente ans et tout à construire. Ses origines et son parcours déterminent ses atouts de départ, sans qu'aucun profil ne l'emporte vraiment sur les autres.</p>
+      </div>
+
+      <div class="page-layout">
+
+        <!-- ===== Colonne formulaire ===== -->
+        <form id="character-form" class="form-col" autocomplete="off">
+
+          <!-- 01 · Identité -->
+          <section class="form-section">
+            <header class="section-head">
+              <span class="section-index" aria-hidden="true">01</span>
+              <h2 class="section-title" data-i18n="field_identity">Identité</h2>
+            </header>
+
+            <div class="identity-grid">
+              <div class="identity-cell">
+                <label class="micro-label" for="char-name" data-i18n="label_name">Nom du personnage</label>
+                <div class="input-row">
+                  <input class="text-input" type="text" id="char-name" name="name"
+                         data-i18n-placeholder="placeholder_name" placeholder="Entrez un nom…" maxlength="32">
+                  <button type="button" class="icon-btn" id="random-name"
+                          data-i18n-title="random_name_label" data-i18n-aria="random_name_label"
+                          title="Générer un nom au hasard" aria-label="Générer un nom au hasard">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                         stroke-width="1.6" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="3.5" y="3.5" width="17" height="17" rx="4"/>
+                      <circle cx="8.6" cy="8.6" r="1.35" fill="currentColor" stroke="none"/>
+                      <circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/>
+                      <circle cx="15.4" cy="15.4" r="1.35" fill="currentColor" stroke="none"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="identity-cell">
+                <p class="micro-label" data-i18n="label_sex">Sexe</p>
+                <div class="choice-row" role="radiogroup" data-i18n-aria="label_sex" aria-label="Sexe">
+                  <label class="choice-pill">
+                    <input type="radio" name="sex" value="female" checked>
+                    <span data-i18n="sex_female">Femme</span>
+                  </label>
+                  <label class="choice-pill">
+                    <input type="radio" name="sex" value="male">
+                    <span data-i18n="sex_male">Homme</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 02 · Origine sociale -->
+          <section class="form-section">
+            <header class="section-head">
+              <span class="section-index" aria-hidden="true">02</span>
+              <h2 class="section-title" data-i18n="field_origin">Origine sociale</h2>
+            </header>
+
+            <div class="tile-grid" role="radiogroup" data-i18n-aria="field_origin" aria-label="Origine sociale">
+              <label class="tile">
+                <input type="radio" name="origin" value="modest" checked>
+                <span class="tile-face" data-i18n="origin_modest">Milieu modeste</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="origin" value="middle">
+                <span class="tile-face" data-i18n="origin_middle">Classe moyenne</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="origin" value="bourgeois">
+                <span class="tile-face" data-i18n="origin_bourgeois">Grande bourgeoisie</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="origin" value="dynasty">
+                <span class="tile-face" data-i18n="origin_dynasty">Dynastie politique</span>
+              </label>
+            </div>
+
+            <p class="pick-desc" id="origin-desc" aria-live="polite"></p>
+          </section>
+
+          <!-- 03 · Parcours -->
+          <section class="form-section">
+            <header class="section-head">
+              <span class="section-index" aria-hidden="true">03</span>
+              <h2 class="section-title" data-i18n="field_background">Parcours</h2>
+            </header>
+
+            <div class="tile-grid" role="radiogroup" data-i18n-aria="field_background" aria-label="Parcours">
+              <label class="tile">
+                <input type="radio" name="background" value="law" checked>
+                <span class="tile-face" data-i18n="bg_law">Droit</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="background" value="business">
+                <span class="tile-face" data-i18n="bg_business">Monde de l'entreprise</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="background" value="journalism">
+                <span class="tile-face" data-i18n="bg_journalism">Journalisme</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="background" value="activism">
+                <span class="tile-face" data-i18n="bg_activism">Militantisme</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="background" value="civil">
+                <span class="tile-face" data-i18n="bg_civil">Haute fonction publique</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="background" value="academia">
+                <span class="tile-face" data-i18n="bg_academia">Université</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="background" value="celebrity">
+                <span class="tile-face" data-i18n="bg_celebrity">Personnalité des réseaux</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="background" value="comms">
+                <span class="tile-face" data-i18n="bg_comms">Communication</span>
+              </label>
+            </div>
+
+            <p class="pick-desc" id="background-desc" aria-live="polite"></p>
+          </section>
+
+          <!-- 04 · Personnalité -->
+          <section class="form-section">
+            <header class="section-head">
+              <span class="section-index" aria-hidden="true">04</span>
+              <h2 class="section-title" data-i18n="field_personality">Personnalité</h2>
+            </header>
+
+            <div class="tile-grid" role="radiogroup" data-i18n-aria="field_personality" aria-label="Personnalité">
+              <label class="tile">
+                <input type="radio" name="personality" value="hardworking" checked>
+                <span class="tile-face" data-i18n="perso_hardworking">Acharné</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="personality" value="charming">
+                <span class="tile-face" data-i18n="perso_charming">Charmeur</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="personality" value="clever">
+                <span class="tile-face" data-i18n="perso_clever">Brillant</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="personality" value="provocative">
+                <span class="tile-face" data-i18n="perso_provocative">Provocateur</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="personality" value="principled">
+                <span class="tile-face" data-i18n="perso_principled">Intègre</span>
+              </label>
+              <label class="tile">
+                <input type="radio" name="personality" value="calculating">
+                <span class="tile-face" data-i18n="perso_calculating">Calculateur</span>
+              </label>
+            </div>
+
+            <p class="pick-desc" id="personality-desc" aria-live="polite"></p>
+          </section>
+
+        </form>
+
+        <!-- ===== Colonne fiche personnage ===== -->
+        <aside class="sheet" aria-live="polite">
+          <div class="sheet-inner">
+            <div class="sheet-head">
+              <span class="sheet-star" aria-hidden="true">★</span>
+              <p class="sheet-label" data-i18n="sheet_label">Fiche du candidat</p>
+              <p class="sheet-name" id="sheet-name" data-i18n="sheet_name_empty">Sans nom</p>
+              <p class="sheet-meta" id="sheet-meta"></p>
+              <p class="sheet-meta" id="sheet-meta-2"></p>
+            </div>
+
+            <div class="sheet-stats">
+              <!-- Jauges générées par js/data.js -->
+              <div id="sheet-stat-groups"></div>
+
+              <!-- La fortune n'est pas une jauge : c'est un capital de départ. -->
+              <div class="sheet-money">
+                <span class="sheet-money-label" data-i18n="money_label">Fortune</span>
+                <span class="sheet-money-value" id="sheet-money">0 €</span>
+              </div>
+            </div>
+
+            <div class="sheet-actions">
+              <button type="submit" form="character-form" class="btn btn-primary btn-block" data-i18n="cta_continue">Choisir un parti</button>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="js/script.js"></script>
+  <script src="js/names.data.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/create.js"></script>
+</body>
+</html>

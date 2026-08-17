@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>En campagne · President Material</title>
+  <meta name="description" content="Menez votre carrière politique jusqu'à la présidence.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='78' font-size='80' text-anchor='middle' fill='%23c9a24b'%3E%E2%98%85%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-create page-game" data-page-title="page_title_game">
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-star" aria-hidden="true">★</span>
+        <span class="logo-text">President Material</span>
+      </a>
+
+      <span aria-hidden="true"></span>
+
+      <nav class="lang-switch" aria-label="Language switch">
+        <button type="button" class="lang-btn is-active" data-lang="fr">FR</button>
+        <span class="lang-sep" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="container">
+      <div class="page-layout game-layout">
+
+        <!-- ===== Fiche du candidat, mise à jour en direct ===== -->
+        <aside class="sheet game-sheet" aria-live="polite">
+          <div class="sheet-inner">
+            <div class="sheet-head">
+              <span class="sheet-star" aria-hidden="true">★</span>
+              <p class="sheet-label" data-i18n="sheet_label">Fiche du candidat</p>
+              <p class="sheet-name" id="sheet-name"></p>
+              <p class="sheet-meta" id="sheet-meta"></p>
+              <p class="sheet-meta sheet-position" id="sheet-meta-2"></p>
+            </div>
+
+            <div class="sheet-stats">
+              <!-- Les deux jauges de carrière, propres à la partie en cours -->
+              <div class="gauges">
+                <div class="gauge">
+                  <div class="gauge-head">
+                    <span class="gauge-label" id="gauge-pop-label"></span>
+                    <span class="gauge-value" id="gauge-pop-value">0</span>
+                  </div>
+                  <span class="gauge-track"><span class="gauge-fill gauge-fill-pop" id="gauge-pop-fill"></span></span>
+                </div>
+                <div class="gauge">
+                  <div class="gauge-head">
+                    <span class="gauge-label" id="gauge-standing-label"></span>
+                    <span class="gauge-value" id="gauge-standing-value">0</span>
+                  </div>
+                  <span class="gauge-track"><span class="gauge-fill gauge-fill-standing" id="gauge-standing-fill"></span></span>
+                </div>
+              </div>
+
+              <!-- Jauges de statistiques générées par js/data.js -->
+              <div id="sheet-stat-groups"></div>
+
+              <div class="sheet-money">
+                <span class="sheet-money-label" data-i18n="money_label">Fortune</span>
+                <span class="sheet-money-value" id="sheet-money">0 €</span>
+                <span class="sheet-money-balance" id="sheet-balance"></span>
+              </div>
+
+              <!-- Ce que la carrière a laissé sur le personnage -->
+              <div class="sheet-traits">
+                <p class="sheet-group-title" data-i18n="label_traits">Traits</p>
+                <div id="trait-rows"></div>
+              </div>
+
+              <!-- La prochaine échéance : la seule date qui compte -->
+              <div class="sheet-world">
+                <p class="world-row">
+                  <span class="world-label" data-i18n="label_next">Prochaine échéance</span>
+                  <span class="world-value" id="sheet-deadline">—</span>
+                </p>
+              </div>
+
+              <!-- Le budget, piloté depuis la fiche -->
+              <div class="sheet-budget">
+                <p class="sheet-group-title" data-i18n="tab_budget">Budget</p>
+                <div id="sheet-budget"></div>
+              </div>
+            </div>
+
+            <div class="sheet-actions">
+              <button type="button" class="ghost-btn" id="retire-btn" data-i18n="game_retire">Prendre sa retraite</button>
+            </div>
+          </div>
+        </aside>
+
+        <!-- ===== La carte du tour, le pays autour, puis le journal ===== -->
+        <section class="form-col game-col">
+          <div id="event-area" aria-live="polite"></div>
+
+          <div class="side-panel">
+            <p class="panel-title" data-i18n="tab_landscape">Rapport de force</p>
+            <div class="panel-pane" id="pane-landscape"></div>
+          </div>
+
+          <div class="side-panel side-panel-quiet">
+            <p class="panel-title" data-i18n="label_journal">Journal</p>
+            <div class="panel-pane" id="pane-journal"></div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <script src="js/script.js"></script>
+  <script src="js/names.data.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/traits.data.js"></script>
+  <script src="js/budget.data.js"></script>
+  <script src="js/endings.data.js"></script>
+  <script src="js/events.data.js"></script>
+  <script src="js/game-data.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
