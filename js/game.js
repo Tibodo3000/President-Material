@@ -415,31 +415,40 @@ function nextElection() {
 function playerStake(electionId) {
   const pos = game.position;
 
+  /* Les seuils ne sont pas devinés : ils sont calés sur ce que valent
+     réellement les candidats au moment où ils se lancent, mesuré sur des
+     milliers de tentatives. Une marche à monter se gagne un peu moins d'une
+     fois sur deux, une défense un peu plus de trois fois sur quatre, et la
+     direction du parti reste le verrou de la partie. */
+
   if (electionId === "municipales") {
-    if (pos === "militant") return { target: "conseiller", threshold: 38 };
-    if (pos === "conseiller") return { target: "maire", threshold: 50 };
+    if (pos === "militant") return { target: "conseiller", threshold: 41 };
+    if (pos === "conseiller") return { target: "maire", threshold: 57 };
     return null;
   }
   if (electionId === "europeennes") {
-    // La liste européenne est le seul scrutin où l'on entre par la porte de
-    // service : elle est plus facile que la législative, et elle vaut moins.
-    if (pos === "euro") return { target: "euro", threshold: 38, defense: true };
-    if (pos === "conseiller" || pos === "maire") return { target: "euro", threshold: 46 };
-    if (pos === "militant") return { target: "euro", threshold: 60 };
+    // La liste européenne est la porte de service : elle s'ouvre plus
+    // facilement que les autres, et elle vaut moins cher.
+    if (pos === "euro") return { target: "euro", threshold: 22, defense: true };
+    if (pos === "maire") return { target: "euro", threshold: 20 };
+    if (pos === "conseiller") return { target: "euro", threshold: 14 };
+    if (pos === "militant") return { target: "euro", threshold: 12 };
     return null;
   }
   if (electionId === "legislatives") {
-    if (pos === "conseiller" || pos === "maire" || pos === "euro") return { target: "depute", threshold: 58 };
-    if (pos === "militant") return { target: "depute", threshold: 70 };
-    if (pos === "depute") return { target: "depute", threshold: 46, defense: true };
+    if (pos === "depute") return { target: "depute", threshold: 68, defense: true };
+    if (pos === "euro") return { target: "depute", threshold: 58 };
+    if (pos === "maire") return { target: "depute", threshold: 46 };
+    if (pos === "conseiller") return { target: "depute", threshold: 43 };
+    if (pos === "militant") return { target: "depute", threshold: 38 };
     return null;
   }
   if (electionId === "congres") {
-    // Un ministre part avec l'appareil dans la poche : il a distribué des
-    // postes pendant des années, et le congrès s'en souvient.
-    if (pos === "ministre") return { target: "chef", threshold: 62 };
-    if (pos === "depute" || pos === "maire" || pos === "euro") return { target: "chef", threshold: 70 };
-    if (pos === "chef") return { target: "chef", threshold: 62, defense: true };
+    // Le verrou de la partie : on ne prend pas la direction d'un parti parce
+    // qu'on est aimé du pays, mais parce que l'appareil n'a pas trouvé mieux.
+    if (pos === "chef") return { target: "chef", threshold: 72, defense: true };
+    if (pos === "ministre") return { target: "chef", threshold: 71 };
+    if (pos === "depute" || pos === "maire" || pos === "euro") return { target: "chef", threshold: 74 };
     return null;
   }
   if (electionId === "presidentielle") {
@@ -499,17 +508,29 @@ function electionBase(electionId) {
   const dice = 0;
 
   if (electionId === "municipales") {
-    // Un scrutin local : la personne compte plus que l'étiquette, mais
-    // l'étiquette compte quand même.
-    return game.popularity * 0.55 + statScore(game, "reseau") * 2 + statScore(game, "energie") + partyWind() * 0.9 + dice;
+    // UN SCRUTIN DE PERSONNES. On vote pour quelqu'un qu'on croise au marché,
+    // et l'étiquette ne pèse presque rien : un maire sortant peut survivre à
+    // l'effondrement national de son parti, et cela arrive tout le temps.
+    return game.popularity * 0.75 + statScore(game, "reseau") * 2.4 +
+      statScore(game, "energie") + partyWind() * 0.35 + dice;
+  }
+  if (electionId === "europeennes") {
+    // LE SCRUTIN LE PLUS NATIONAL DE TOUS. Personne ne connaît les candidats,
+    // on vote pour une étiquette et pour sanctionner le gouvernement. La
+    // personne du candidat ne fait presque rien, ce qui est bien le problème
+    // des européennes.
+    return game.popularity * 0.35 + statScore(game, "notoriete") * 0.8 +
+      partyWind() * 2.6 + dice;
   }
   if (electionId === "legislatives") {
-    // Un scrutin national : on est d'abord élu sous une couleur. Un parti qui
-    // s'effondre emporte ses députés avec lui, y compris les bons.
-    return game.popularity * 0.7 + statScore(game, "eloquence") + statScore(game, "reseau") + partyWind() * 1.7 + dice;
+    // Un scrutin national mais incarné : on est élu sous une couleur, dans une
+    // circonscription où l'on a un nom. Un parti qui s'effondre emporte ses
+    // députés avec lui, y compris les bons.
+    return game.popularity * 0.6 + statScore(game, "eloquence") + statScore(game, "reseau") + partyWind() * 2 + dice;
   }
-  // Le congrès se joue entre militants. Un parti qui s'effondre cherche
-  // toutefois un visage neuf, ce qui aide celui qui se présente.
+  // LE CONGRÈS. Il ne se joue pas devant le pays mais entre militants : la
+  // popularité n'y entre pas, la cote au parti y fait tout. Un parti qui
+  // s'effondre cherche toutefois un visage neuf, ce qui aide le candidat.
   return game.standing * 0.8 + statScore(game, "reseau") + statScore(game, "eloquence") * 0.5 - partyWind() * 0.25 + dice;
 }
 
@@ -1455,6 +1476,39 @@ function raceEventById(id) {
 }
 
 /**
+ * LE SONDAGE D'UNE CAMPAGNE ORDINAIRE.
+ *
+ * Ce n'est pas un second système : c'est la marge du dépouillement, mise en
+ * pourcentages. Ce que le joueur lit est donc exactement ce qui va se passer,
+ * au dé près, et le sondage ne peut pas mentir sans que le résultat mente
+ * aussi.
+ *
+ * Les adversaires n'ont pas de nom : dans une législative, on affronte le
+ * candidat d'un parti, et c'est précisément ce que le scrutin a de brutal.
+ * Le congrès, lui, n'a pas de sondage : on n'interroge pas le pays sur un
+ * vote de militants.
+ */
+function racePoll() {
+  const race = game.race;
+  if (race.id === "congres") return null;
+
+  const marge = electionBase(race.id) + race.bonus + 6 - race.stake.threshold;
+  const moi = Math.max(5, Math.min(58, 31 + marge * 0.85));
+
+  // Les concurrents sérieux : les partis les mieux placés, sans le vôtre.
+  const rivaux = sortedLandscape().filter((key) => key !== game.party).slice(0, 3);
+  const poids = rivaux.reduce((sum, key) => sum + game.landscape[key], 0) || 1;
+
+  const liste = [{ name: game.character.name || null,
+                   nameKey: game.character.name ? null : "sheet_name_empty",
+                   share: moi, isPlayer: true }];
+  rivaux.forEach((key) => {
+    liste.push({ nameKey: "party_" + key, share: (100 - moi) * (game.landscape[key] / poids) });
+  });
+  return liste.sort((a, b) => b.share - a.share);
+}
+
+/**
  * Où en est la campagne, en mots. Quatre degrés seulement : au-delà, on
  * donnerait au joueur une précision que personne n'a jamais dans une
  * campagne.
@@ -1470,6 +1524,7 @@ function raceMood() {
 /** Le dépouillement, une fois les temps de campagne joués. */
 function resolveRace() {
   const stake = game.race.stake;
+  const sondage = racePoll();
   const score = electionScore(game.race.id) + game.race.bonus;
   const won = score >= stake.threshold;
   const before = snapshot(game);
@@ -1498,7 +1553,7 @@ function resolveRace() {
         : { fr: "Défaite. La politique rend tout, mais jamais tout de suite.",
             en: "Defeat. Politics gives everything back, never right away." });
 
-  game.race.result = { won, text: texte, changes: diffSince(before, game) };
+  game.race.result = { won, text: texte, poll: sondage, changes: diffSince(before, game) };
   addLog(texte);
   return won;
 }
@@ -2023,9 +2078,11 @@ function renderRaceCard(host, card) {
   const race = game.race;
 
   if (race.result) {
+    const dernier = race.result.poll;
     host.innerHTML =
       '<div class="event-card event-card-election">' +
         '<p class="event-tag">' + t("race_result") + " · " + t("elec_" + race.id) + "</p>" +
+        (dernier ? pollHTML(dernier, "label_poll") : "") +
         '<p class="event-text event-result">' + logText({ text: race.result.text }) + "</p>" +
         changesHTML(race.result.changes) +
         continueButton("data-race-done") +
@@ -2037,9 +2094,12 @@ function renderRaceCard(host, card) {
   const entete = t("elec_" + race.id) + " · " +
     t("step_of").replace("{n}", race.step + 1).replace("{total}", raceSteps(race.id));
 
+  const sondage = racePoll();
+
   host.innerHTML =
     '<div class="event-card event-card-election">' +
       '<p class="event-tag">' + entete + "</p>" +
+      (sondage ? pollHTML(sondage, "label_poll") : "") +
       '<p class="race-mood">' + t(raceMood()) + "</p>" +
       '<p class="event-sub-tag">' + L(ev.tag) + "</p>" +
       '<p class="event-text' + (card.resolved ? " event-result" : "") + '">' +

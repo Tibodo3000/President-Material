@@ -3291,8 +3291,8 @@ const EVENT_DATA = {
   "when": { "position": ["maire", "euro", "depute", "ministre", "chef"], "minTurn": 8 },
   "tag": { "fr": "Face-à-face", "en": "Head to head" },
   "text": {
-    "fr": "Une chaîne d'information vous met face à {rival}, qui dirige {rival_party}. Une heure de direct, deux équipes qui ont préparé les mêmes phrases et un présentateur qui espère un incident.",
-    "en": "A news channel puts you opposite {rival}, who leads {rival_party}. One hour live, two teams that have prepared the same lines and a host hoping for an incident."
+    "fr": "Une chaîne d'information vous met face à {rival}. Une heure de direct, deux équipes qui ont préparé les mêmes phrases et un présentateur qui espère un incident.",
+    "en": "A news channel puts you opposite {rival}. One hour live, two teams that have prepared the same lines and a host hoping for an incident."
   },
   "choices": [
     { "label": { "fr": "Aller le chercher sur son terrain", "en": "Take them on their own ground" },
@@ -3337,8 +3337,8 @@ const EVENT_DATA = {
   "when": { "position": ["depute", "ministre", "chef"], "minTurn": 12, "minStanding": 45 },
   "tag": { "fr": "Débauchage", "en": "Poaching" },
   "text": {
-    "fr": "{rival} n'a plus d'avenir chez {rival_party} et le sait. Un déjeuner est organisé, sans témoin, par quelqu'un qui connaît vos deux numéros.",
-    "en": "{rival} has no future left at {rival_party} and knows it. A lunch is arranged, with no witnesses, by somebody who has both your numbers."
+    "fr": "{rival} n'a plus d'avenir chez lui et le sait. Un déjeuner est organisé, sans témoin, par quelqu'un qui connaît vos deux numéros.",
+    "en": "{rival} has no future left where he is, and knows it. A lunch is arranged, with no witnesses, by somebody who has both your numbers."
   },
   "choices": [
     { "label": { "fr": "Lui offrir une circonscription gagnable", "en": "Offer them a winnable seat" },
@@ -3368,8 +3368,8 @@ const EVENT_DATA = {
   "when": { "position": ["maire", "euro", "depute", "ministre"], "minTurn": 14, "maxStanding": 62, "notTrait": ["renegat"] },
   "tag": { "fr": "On vous fait signe", "en": "A hand is extended" },
   "text": {
-    "fr": "{rival} vous fait porter un message : chez {rival_party}, on vous trouve mal employé. Il ne parle pas d'un poste, il parle d'un avenir, ce qui coûte moins cher.",
-    "en": "{rival} sends word: at {rival_party}, they think you are being wasted. They do not mention a post, they mention a future, which costs less."
+    "fr": "{rival} vous fait porter un message : chez eux, on vous trouve mal employé. Il ne parle pas d'un poste, il parle d'un avenir, ce qui coûte moins cher.",
+    "en": "{rival} sends word: on their side, they think you are being wasted. They do not mention a post, they mention a future, which costs less."
   },
   "choices": [
     { "label": { "fr": "Refuser, et le raconter à votre parti", "en": "Refuse, and tell your own party" },
@@ -5168,6 +5168,225 @@ const EVENT_DATA = {
       "effects": { "score": -7, "energie": 3, "strike": "lache" },
       "result": { "fr": "Vous levez le pied et vous passez la semaine à préparer l'après, quel qu'il soit. C'est raisonnable, et ça se voit sur les affiches vides.",
                   "en": "You ease off and spend the week preparing for the aftermath, whatever it is. It is sensible, and it shows on the empty billboards." } }
+  ]
+}
+,
+
+{
+  "id": "race_liste",
+  "weight": 4,
+  "race": ["municipales"],
+  "tag": { "fr": "La liste", "en": "The slate" },
+  "text": {
+    "fr": "Trente-cinq noms à trouver, et deux fois plus de gens qui estiment y avoir droit. Une liste municipale est le seul document où l'on voit d'un coup d'œil qui vous devez remercier et qui vous avez décidé de perdre.",
+    "en": "Thirty-five names to find, and twice as many people who believe they are owed a place. A municipal slate is the only document where you can see at a glance who you have to thank and who you have decided to lose."
+  },
+  "choices": [
+    { "label": { "fr": "Une liste d'ouverture, avec des visages neufs", "en": "An open slate, with new faces" },
+      "effects": { "score": 6, "energie": -2, "standing": -6 },
+      "result": { "fr": "Une commerçante, un médecin, deux enseignantes et personne du parti. Les militants l'apprennent par le journal et la fédération met un an à digérer.",
+                  "en": "A shopkeeper, a doctor, two teachers and nobody from the party. The members find out from the paper and the federation takes a year to digest it." } },
+    { "label": { "fr": "Récompenser ceux qui ont tenu la permanence", "en": "Reward the people who kept the office open" },
+      "effects": { "score": -3, "standing": 8 },
+      "result": { "fr": "Une liste de fidèles, dont quatre qui ont déjà perdu deux fois. Ils le méritent tous, et c'est bien le problème.",
+                  "en": "A slate of loyalists, four of whom have already lost twice. They all deserve it, and that is exactly the problem." } },
+    { "label": { "fr": "Aller chercher une figure locale qui vous déteste", "en": "Go and get a local figure who dislikes you" },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "reseau": 0.4 }, "dice": 16 },
+      "success": { "effects": { "score": 9, "energie": -1 },
+        "result": { "fr": "Il accepte la troisième place et deux délégations. Son quartier bascule avec lui, et vous savez déjà ce qu'il vous coûtera dans trois ans.",
+                    "en": "He takes third place and two portfolios. His neighbourhood swings with him, and you already know what he will cost you in three years." } },
+      "failure": { "effects": { "score": -5, "energie": -1, "reputation": -1 },
+        "result": { "fr": "Il refuse, puis raconte votre visite en détail sur la radio locale. Vous avez fait sa campagne en une matinée.",
+                    "en": "He refuses, then describes your visit in detail on local radio. You made his campaign in a single morning." } } }
+  ]
+},
+
+{
+  "id": "race_parachute",
+  "weight": 4,
+  "race": ["municipales", "legislatives"],
+  "tag": { "fr": "D'où vous venez", "en": "Where you come from" },
+  "text": {
+    "fr": "Une affichette circule avec une carte, deux dates et une question : depuis quand habitez-vous vraiment ici ? Le fait est établi, la conclusion est fausse, et tout le monde s'en fiche.",
+    "en": "A flyer is going round with a map, two dates and a question: how long have you actually lived here? The fact is established, the conclusion is wrong, and nobody cares either way."
+  },
+  "choices": [
+    { "label": { "fr": "Raconter votre histoire ici, en détail", "en": "Tell your story here, in detail" },
+      "roll": { "base": 13, "stat": "eloquence", "plus": { "reputation": 0.4 }, "dice": 16 },
+      "success": { "effects": { "score": 7 },
+        "result": { "fr": "Vous citez l'école, la rue et le nom du boulanger d'avant. Ce n'est pas une réponse, c'est une preuve, et elle suffit.",
+                    "en": "You name the school, the street and the baker who was there before. It is not an answer, it is a proof, and it does the job." } },
+      "failure": { "effects": { "score": -4, "popularity": -3 },
+        "result": { "fr": "Vous vous justifiez pendant six minutes. Celui qui se justifie a déjà perdu la question.",
+                    "en": "You explain yourself for six minutes. Whoever explains himself has already lost the argument." } } },
+    { "label": { "fr": "Assumer et parler d'autre chose", "en": "Own it and talk about something else" },
+      "effects": { "score": 2, "sangfroid": 1 },
+      "result": { "fr": "Vous dites que vous êtes arrivé il y a onze ans et que vous comptez mourir ici. On passe au dossier suivant.",
+                  "en": "You say you arrived eleven years ago and intend to die here. Everyone moves on to the next question." } },
+    { "label": { "fr": "Répondre par le passé de votre adversaire", "en": "Answer with your opponent's own record" },
+      "effects": { "score": 4, "reputation": -2, "strike": "intrepide" },
+      "result": { "fr": "Vous rappelez qu'il a été candidat dans deux autres villes avant celle-ci. C'est vrai, c'est bas, et la campagne devient une affaire de cadastre.",
+                  "en": "You point out that he stood in two other towns before this one. It is true, it is cheap, and the campaign becomes an argument about land registry." } }
+  ]
+},
+
+{
+  "id": "race_vague",
+  "weight": 4,
+  "race": ["legislatives", "europeennes"],
+  "tag": { "fr": "La vague", "en": "The wave" },
+  "text": {
+    "fr": "Ce scrutin ne parle pas de vous. Il parle du gouvernement, d'un mot prononcé à Paris et d'une colère qui n'a rien à voir avec votre circonscription. Vous êtes un bulletin dans un référendum qui n'existe pas.",
+    "en": "This election is not about you. It is about the government, about a word said in the capital and about an anger that has nothing to do with your constituency. You are a ballot paper in a referendum that does not exist."
+  },
+  "choices": [
+    { "label": { "fr": "Épouser la vague nationale", "en": "Ride the national wave" },
+      "effects": { "score": 6, "standing": 4, "popularity": -3 },
+      "result": { "fr": "Vous reprenez mot pour mot les éléments de langage du parti, y compris celui auquel vous ne croyez pas. Ça marche, et vous n'aurez plus jamais l'air d'autre chose.",
+                  "en": "You repeat the party's talking points word for word, including the one you do not believe. It works, and you will never look like anything else again." } },
+    { "label": { "fr": "Localiser la campagne de force", "en": "Force the campaign back to local ground" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "energie": 0.4 }, "dice": 16 },
+      "success": { "effects": { "score": 8, "energie": -2, "reputation": 1 },
+        "result": { "fr": "Vous ne parlez que de la ligne de bus, du collège et de l'hôpital. À la fin, on vote pour vous en votant contre votre camp.",
+                    "en": "You talk about nothing but the bus route, the school and the hospital. In the end, people vote for you while voting against your side." } },
+      "failure": { "effects": { "score": -5, "energie": -2 },
+        "result": { "fr": "Personne ne veut parler du collège. Toutes les questions portent sur une phrase prononcée à quatre cents kilomètres d'ici.",
+                    "en": "Nobody wants to talk about the school. Every question is about a sentence said four hundred kilometres away." } } },
+    { "label": { "fr": "Prendre publiquement vos distances avec la direction", "en": "Publicly distance yourself from the leadership" },
+      "effects": { "score": 5, "standing": -11, "popularity": 4, "strike": "intrepide" },
+      "result": { "fr": "Vous dites tout haut ce que vos électeurs pensent de votre propre camp. Ils vous réélisent, et la direction vous fait payer pendant cinq ans.",
+                  "en": "You say out loud what your voters think of your own side. They re-elect you, and the leadership makes you pay for five years." } }
+  ]
+},
+
+{
+  "id": "race_gaffe_nationale",
+  "weight": 3,
+  "race": ["legislatives", "europeennes"],
+  "cast": "camp",
+  "tag": { "fr": "À quatre cents kilomètres", "en": "Four hundred kilometres away" },
+  "text": {
+    "fr": "À dix jours du scrutin, {rival} lâche une phrase que personne ne pourra rattraper. Elle passe en boucle, elle n'a rien à voir avec votre campagne, et elle vous coûtera des voix ici.",
+    "en": "Ten days out, {rival} says something nobody will be able to walk back. It runs on a loop, it has nothing to do with your campaign, and it will cost you votes here."
+  },
+  "choices": [
+    { "label": { "fr": "Le désavouer immédiatement", "en": "Disown him immediately" },
+      "effects": { "score": 5, "standing": -9, "reputation": 1 },
+      "result": { "fr": "Vous êtes le premier du parti à le dire, et le seul pendant six heures. Ces six heures-là compteront dans les deux sens.",
+                  "en": "You are the first in the party to say it, and the only one for six hours. Those six hours will count both ways." } },
+    { "label": { "fr": "Faire bloc", "en": "Close ranks" },
+      "effects": { "score": -6, "standing": 8 },
+      "result": { "fr": "Vous expliquez qu'on a sorti la phrase de son contexte, ce qui est faux et se voit. La direction vous en sera reconnaissante longtemps.",
+                  "en": "You explain that the sentence was taken out of context, which is untrue and shows. The leadership will remember it for a long time." } },
+    { "label": { "fr": "Ne pas commenter et rester sur le terrain", "en": "No comment, and stay on the ground" },
+      "effects": { "score": -1, "energie": -1, "sangfroid": 1, "strike": "lache" },
+      "result": { "fr": "Vous passez la journée dans une zone commerciale à ne répondre à aucun journaliste. C'est raisonnable et personne ne s'en souviendra.",
+                  "en": "You spend the day in a retail park refusing to answer any journalist. It is sensible and nobody will remember it." } }
+  ]
+},
+
+{
+  "id": "race_abstention",
+  "weight": 4,
+  "race": ["europeennes"],
+  "tag": { "fr": "Personne ne vote", "en": "Nobody votes" },
+  "text": {
+    "fr": "Les enquêtes annoncent une participation autour de quarante pour cent. La campagne n'intéresse personne, ce qui veut dire que le scrutin se jouera sur ceux qui se déplacent quand même, et on sait très bien qui ils sont.",
+    "en": "The surveys forecast a turnout around forty per cent. The campaign interests nobody, which means the result will be decided by the people who turn out anyway, and everybody knows exactly who they are."
+  },
+  "choices": [
+    { "label": { "fr": "Mobiliser votre base et elle seule", "en": "Mobilise your base and nobody else" },
+      "effects": { "score": 7, "popularity": -4, "strike": "radical" },
+      "result": { "fr": "Vous parlez cinq semaines à ceux qui votent déjà pour vous, avec les mots qu'ils attendent. C'est efficace et c'est exactement pour ça que ce scrutin est ce qu'il est.",
+                  "en": "You spend five weeks talking to people who already vote for you, in the words they expect. It works, and it is exactly why this election is what it is." } },
+    { "label": { "fr": "Faire campagne pour la participation elle-même", "en": "Campaign for turnout itself" },
+      "effects": { "score": -2, "reputation": 3, "energie": -2 },
+      "result": { "fr": "Vous expliquez pendant cinq semaines à quoi sert ce Parlement. Les salles sont vides et deux professeurs vous écrivent pour vous remercier.",
+                  "en": "You spend five weeks explaining what this Parliament is for. The halls are empty and two teachers write to thank you." } },
+    { "label": { "fr": "Transformer le scrutin en sanction du gouvernement", "en": "Turn the election into a verdict on the government" },
+      "effects": { "score": 8, "reputation": -2, "landscape": { "ruling": -1.2 } },
+      "result": { "fr": "Vous ne parlez pas une fois de l'Europe en cinq semaines. C'est la meilleure façon de gagner une européenne, et tout le monde le sait depuis quarante ans.",
+                  "en": "You do not mention Europe once in five weeks. It is the best way to win a European election, and everybody has known it for forty years." } }
+  ]
+},
+
+{
+  "id": "race_journal_local",
+  "weight": 3,
+  "race": ["municipales", "legislatives"],
+  "tag": { "fr": "Le journal local", "en": "The local paper" },
+  "text": {
+    "fr": "Le quotidien régional prépare son portrait de chaque candidat. Deux pages, une photo, et un journaliste qui couvre la ville depuis vingt-deux ans et connaît vos dossiers mieux que vous.",
+    "en": "The regional daily is preparing its profile of each candidate. Two pages, a photograph, and a reporter who has covered the town for twenty-two years and knows your files better than you do."
+  },
+  "choices": [
+    { "label": { "fr": "Lui ouvrir vos archives et vos comptes", "en": "Open your files and your accounts to him" },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "reputation": 0.4 }, "dice": 16 },
+      "success": { "effects": { "score": 7, "reputation": 2 },
+        "result": { "fr": "Il trouve deux erreurs et beaucoup de travail. Le portrait est honnête, un peu sévère, et il vaut trois pages de publicité.",
+                    "en": "He finds two mistakes and a great deal of work. The profile is honest, slightly severe, and it is worth three pages of advertising." } },
+      "failure": { "effects": { "score": -6, "reputation": -2 },
+        "result": { "fr": "Il trouve exactement ce que vous aviez oublié. Le portrait s'ouvre sur un chiffre et se referme sur une question sans réponse.",
+                    "en": "He finds exactly what you had forgotten. The profile opens on a figure and closes on an unanswered question." } } },
+    { "label": { "fr": "Ne répondre que par écrit", "en": "Answer only in writing" },
+      "effects": { "score": -3, "sangfroid": 1 },
+      "result": { "fr": "Vos réponses sont irréprochables et parfaitement mortes. Le journal publie le questionnaire tel quel, ce qui est une façon de vous punir.",
+                  "en": "Your answers are impeccable and completely dead. The paper prints the questionnaire as it is, which is its way of punishing you." } },
+    { "label": { "fr": "Acheter deux pages de publicité la même semaine", "en": "Buy two pages of advertising the same week" },
+      "when": { "minMoney": 25000 },
+      "effects": { "score": 5, "money": -14000, "reputation": -1 },
+      "result": { "fr": "Personne ne fera jamais le lien, et tout le monde le fera. Le portrait paraît, aimable, à côté de votre encart.",
+                  "en": "Nobody will ever make the connection, and everybody will. The profile appears, friendly, next to your advertisement." } }
+  ]
+},
+
+{
+  "id": "race_salle_vide",
+  "weight": 3,
+  "tag": { "fr": "La salle", "en": "The hall" },
+  "text": {
+    "fr": "Vous avez loué une salle de quatre cents places. Il y a soixante personnes, dont onze de votre équipe, et un photographe du journal qui prend la salle plutôt que la tribune.",
+    "en": "You booked a four-hundred-seat hall. Sixty people are there, eleven of them your own team, and a press photographer shooting the room rather than the platform."
+  },
+  "choices": [
+    { "label": { "fr": "Faire le meeting quand même, à fond", "en": "Do the rally anyway, full force" },
+      "effects": { "score": 3, "energie": -2 },
+      "result": { "fr": "Vous parlez cinquante minutes comme s'ils étaient quatre cents. Les soixante en parleront pendant un mois, chacun à vingt personnes.",
+                  "en": "You speak for fifty minutes as if there were four hundred of them. The sixty will talk about it for a month, each to twenty people." } },
+    { "label": { "fr": "Descendre de scène et faire un cercle", "en": "Come down from the platform and form a circle" },
+      "effects": { "score": 6, "energie": -1, "reputation": 1 },
+      "result": { "fr": "Vous renvoyez le pupitre en coulisses et vous vous asseyez au milieu d'eux. La photo du journal change complètement de sens.",
+                  "en": "You send the lectern backstage and sit down among them. The photograph in the paper takes on a completely different meaning." } },
+    { "label": { "fr": "Annuler et invoquer un contretemps", "en": "Cancel and cite a scheduling problem" },
+      "effects": { "score": -5, "energie": 2, "strike": "lache" },
+      "result": { "fr": "Vous partez avant le début en laissant votre suppléant lire un texte. Le photographe garde le cliché de la salle vide pour une autre fois.",
+                  "en": "You leave before it starts, letting your deputy read out a statement. The photographer keeps the empty-hall shot for another occasion." } }
+  ]
+},
+
+{
+  "id": "race_succession",
+  "weight": 4,
+  "race": ["congres"],
+  "cast": "camp",
+  "tag": { "fr": "La succession", "en": "The succession" },
+  "text": {
+    "fr": "{rival} ne se représentera pas, et il n'a désigné personne. Sa dernière semaine à la tête du parti vaut plus que toutes vos motions : ce qu'il dira de vous en partant décidera d'une partie des voix.",
+    "en": "{rival} will not stand again, and has designated nobody. His last week at the head of the party is worth more than all your motions: what he says about you on the way out will decide a share of the votes."
+  },
+  "choices": [
+    { "label": { "fr": "Lui rendre un hommage appuyé au congrès", "en": "Pay him a heavy tribute at the conference" },
+      "effects": { "score": 6, "reputation": -1 },
+      "result": { "fr": "Douze minutes sur son bilan, dont vous ne pensez pas un mot. Il vous cite le lendemain, sans vous désigner, et tout le monde comprend.",
+                  "en": "Twelve minutes on his record, not a word of which you believe. He quotes you the next day, without naming you, and everyone understands." } },
+    { "label": { "fr": "Faire campagne contre son bilan", "en": "Campaign against his record" },
+      "effects": { "score": -4, "popularity": 5, "reputation": 2, "strike": "intrepide" },
+      "result": { "fr": "Vous dites que le parti a perdu dix ans. C'est vrai, la presse le reprend, et les militants qui ont vécu ces dix ans votent contre vous.",
+                  "en": "You say the party lost ten years. It is true, the press picks it up, and the members who lived through those ten years vote against you." } },
+    { "label": { "fr": "Lui promettre de garder ses équipes", "en": "Promise to keep his people" },
+      "effects": { "score": 9, "standing": 3, "reputation": -2, "strike": "menteur" },
+      "result": { "fr": "Vous garantissez leurs postes à ses quatre fidèles. Vous en garderez deux, et les deux autres l'apprendront par un communiqué.",
+                  "en": "You guarantee the jobs of his four loyalists. You will keep two, and the other two will find out from a press release." } }
   ]
 }
 

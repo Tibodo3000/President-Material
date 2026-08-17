@@ -673,11 +673,30 @@ function eventMatches(ev, s) {
  * le nom ne change donc plus entre la question et le résultat, ni quand on
  * change de langue en cours de lecture.
  */
+/**
+ * Un nom propre ne dit rien tout seul. La première fois qu'une figure est
+ * nommée dans une carte, on la présente comme le ferait un journal : son nom,
+ * son parti, sa fonction. Les mentions suivantes s'en tiennent au nom, sinon
+ * la phrase devient une notice.
+ */
+function scenePresentation(scene) {
+  const parti = t("party_" + scene.party);
+  const fonction = scene.position ? t("pos_" + scene.position).toLowerCase() : null;
+  return scene.name + " (" + parti + (fonction ? ", " + fonction : "") + ")";
+}
+
 function fillText(obj, s) {
   let text = L(obj);
   const scene = s.scene || anyRival(s);
 
-  if (text.includes("{rival}")) text = text.replace(/\{rival\}/g, scene.name);
+  if (text.includes("{rival}")) {
+    let premiere = true;
+    text = text.replace(/\{rival\}/g, () => {
+      if (!premiere) return scene.name;
+      premiere = false;
+      return scenePresentation(scene);
+    });
+  }
   if (text.includes("{rival_party}")) {
     text = text.replace(/\{rival_party\}/g, t("party_" + scene.party));
   }
@@ -696,10 +715,20 @@ function fillText(obj, s) {
 function fillBoth(obj, s) {
   const scene = s.scene || anyRival(s);
 
-  const fill = (text) => String(text)
-    .replace(/\{rival\}/g, scene.name)
-    .replace(/\{rival_party\}/g, "{party:" + scene.party + "}")
-    .replace(/\{party\}/g, "{party:" + s.party + "}");
+  const presentation = scene.name + " ({party:" + scene.party + "}" +
+    (scene.position ? ", {pos_low:" + scene.position + "}" : "") + ")";
+
+  const fill = (text) => {
+    let premiere = true;
+    return String(text)
+      .replace(/\{rival\}/g, () => {
+        if (!premiere) return scene.name;
+        premiere = false;
+        return presentation;
+      })
+      .replace(/\{rival_party\}/g, "{party:" + scene.party + "}")
+      .replace(/\{party\}/g, "{party:" + s.party + "}");
+  };
 
   return { fr: fill(obj.fr), en: fill(obj.en || obj.fr) };
 }
