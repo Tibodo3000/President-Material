@@ -580,6 +580,19 @@ function recoverEnergy(s) {
 const EVENTS = EVENT_DATA.events;
 const CAMPAIGN_EVENTS = EVENT_DATA.campaign;
 
+/**
+ * Deux paquets à part, tirés seulement au moment d'une élection.
+ *
+ *   NOMINATION_EVENTS  quand l'appareil refuse de vous investir. Le jeu
+ *                      proposait toujours le même bouton, ce qui transformait
+ *                      un moment de carrière en formalité.
+ *   RACE_EVENTS        les deux ou trois temps d'une campagne locale. Une
+ *                      élection ne se joue plus en un clic : on fait campagne,
+ *                      puis on dépouille.
+ */
+const NOMINATION_EVENTS = EVENT_DATA.nomination || [];
+const RACE_EVENTS = EVENT_DATA.races || [];
+
 /** Les sept statistiques, pour distinguer un effet de stat d'un autre effet. */
 const STAT_KEYS = ["charisme", "eloquence", "energie", "sangfroid", "reseau", "notoriete", "reputation"];
 
@@ -729,6 +742,12 @@ function applyEffects(effects, s) {
       const before = s.money;
       pay(s, value);
       if (s.money !== before) changes.push({ kind: "money", delta: s.money - before });
+      return;
+    }
+    // L'avantage pris ou perdu dans une campagne ordinaire. On ne l'affiche
+    // pas en points : le joueur le lit dans la phrase qui décrit la campagne.
+    if (key === "score" && s.race) {
+      s.race.bonus += value;
       return;
     }
     if (key === "poll" && s.campaign) {

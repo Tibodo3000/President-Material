@@ -163,6 +163,7 @@ function newGame(character) {
     landscapeBefore: {},  // le même, au tour précédent : sert aux tendances
     alliance: null,       // { party, turn } : le pacte en cours, s'il y en a un
     scene: null,          // la figure mise en scène par la carte affichée
+    race: null,           // la campagne d'une élection ordinaire, en cours
     president: null,      // { name, party } ou { isPlayer: true }
     presidentTerms: 1,    // mandats consécutifs déjà faits par le sortant
     log: [],
@@ -415,30 +416,30 @@ function playerStake(electionId) {
   const pos = game.position;
 
   if (electionId === "municipales") {
-    if (pos === "militant") return { target: "conseiller", threshold: 34 };
-    if (pos === "conseiller") return { target: "maire", threshold: 46 };
+    if (pos === "militant") return { target: "conseiller", threshold: 38 };
+    if (pos === "conseiller") return { target: "maire", threshold: 50 };
     return null;
   }
   if (electionId === "europeennes") {
     // La liste européenne est le seul scrutin où l'on entre par la porte de
     // service : elle est plus facile que la législative, et elle vaut moins.
-    if (pos === "euro") return { target: "euro", threshold: 34, defense: true };
-    if (pos === "conseiller" || pos === "maire") return { target: "euro", threshold: 42 };
-    if (pos === "militant") return { target: "euro", threshold: 56 };
+    if (pos === "euro") return { target: "euro", threshold: 38, defense: true };
+    if (pos === "conseiller" || pos === "maire") return { target: "euro", threshold: 46 };
+    if (pos === "militant") return { target: "euro", threshold: 60 };
     return null;
   }
   if (electionId === "legislatives") {
-    if (pos === "conseiller" || pos === "maire" || pos === "euro") return { target: "depute", threshold: 54 };
-    if (pos === "militant") return { target: "depute", threshold: 66 };
-    if (pos === "depute") return { target: "depute", threshold: 42, defense: true };
+    if (pos === "conseiller" || pos === "maire" || pos === "euro") return { target: "depute", threshold: 58 };
+    if (pos === "militant") return { target: "depute", threshold: 70 };
+    if (pos === "depute") return { target: "depute", threshold: 46, defense: true };
     return null;
   }
   if (electionId === "congres") {
     // Un ministre part avec l'appareil dans la poche : il a distribué des
     // postes pendant des années, et le congrès s'en souvient.
-    if (pos === "ministre") return { target: "chef", threshold: 58 };
-    if (pos === "depute" || pos === "maire" || pos === "euro") return { target: "chef", threshold: 66 };
-    if (pos === "chef") return { target: "chef", threshold: 58, defense: true };
+    if (pos === "ministre") return { target: "chef", threshold: 62 };
+    if (pos === "depute" || pos === "maire" || pos === "euro") return { target: "chef", threshold: 70 };
+    if (pos === "chef") return { target: "chef", threshold: 62, defense: true };
     return null;
   }
   if (electionId === "presidentielle") {
@@ -485,7 +486,17 @@ function partyWind() {
 }
 
 function electionScore(electionId) {
-  const dice = Math.random() * 12;
+  return electionBase(electionId) + Math.random() * 12;
+}
+
+/**
+ * La part du score qui ne doit rien au hasard. C'est elle qui permet de dire
+ * au joueur, pendant une campagne, si c'est serré ou plié, sans jamais lui
+ * montrer un nombre : les jauges sont des abstractions, elles ne se récitent
+ * pas.
+ */
+function electionBase(electionId) {
+  const dice = 0;
 
   if (electionId === "municipales") {
     // Un scrutin local : la personne compte plus que l'étiquette, mais
@@ -1152,7 +1163,12 @@ function advanceTurn() {
   }
 
   if (election) {
-    game.card = { kind: "election", id: election.id, resolved: false };
+    // L'appareil ferme la porte : on ne propose plus un bouton unique, on
+    // joue une scène, et il y a plusieurs façons de forcer la serrure.
+    const stake = playerStake(election.id);
+    const refus = stake && nominationBlocked(stake) ? drawNomination() : null;
+    if (refus) game.card = { kind: "nomination", id: refus.id, resolved: false };
+    else game.card = { kind: "election", id: election.id, resolved: false };
   } else {
     game.card = { kind: "event", id: drawEvent().id, resolved: false };
   }
@@ -1190,6 +1206,22 @@ function drawEvent() {
   return ev;
 }
 
+/**
+ * Une scène d'investiture refusée. Le paquet est petit, donc on accepte de
+ * revoir une scène déjà jouée si tout a été vu : une carrière bloquée l'est
+ * souvent plusieurs fois, et toujours par les mêmes gens.
+ */
+function drawNomination() {
+  const eligible = NOMINATION_EVENTS.filter((ev) => eventMatches({ ...ev, id: null }, game));
+  if (!eligible.length) return null;
+
+  const fresh = eligible.filter((ev) => !game.seen[ev.id]);
+  const pool = fresh.length ? fresh : eligible;
+  const ev = pool[randInt(pool.length)];
+  setScene(ev);
+  return ev;
+}
+
 /** Un temps mort, en évitant celui du tour précédent. */
 function quietEvent() {
   const quiet = EVENTS.filter((ev) => ev.repeatable && eventMatches(ev, game));
@@ -1199,7 +1231,9 @@ function quietEvent() {
 }
 
 function eventById(id) {
-  return EVENTS.find((e) => e.id === id) || EVENTS[0];
+  return EVENTS.find((e) => e.id === id) ||
+    NOMINATION_EVENTS.find((e) => e.id === id) ||
+    EVENTS[0];
 }
 
 /**
@@ -1359,6 +1393,114 @@ function weightedParty(incumbentBonus) {
     if (draw <= 0) return w.key;
   }
   return weights[weights.length - 1].key;
+}
+
+
+/* ==========================================================================
+   La campagne d'une élection ordinaire
+   ==========================================================================
+   Une législative ne se joue pas en un clic. Depuis que la présidentielle a
+   ses six temps, tout le reste paraissait expédié : on cliquait, on avait le
+   résultat, et rien ne s'était passé entre les deux.
+
+   Une élection ordinaire dure donc deux ou trois temps. Chacun est une carte
+   avec ses choix, qui déplace un avantage cumulé, et le dépouillement vient
+   après. Le joueur sait où il en est parce qu'on le lui raconte, jamais parce
+   qu'on lui montre un chiffre.
+   ========================================================================== */
+
+/** Combien de temps dure une campagne, selon ce qui se joue. */
+const RACE_STEPS = {
+  municipales: 2,
+  congres: 2,
+  europeennes: 2,
+  legislatives: 3,
+};
+
+function raceSteps(electionId) {
+  return RACE_STEPS[electionId] || 2;
+}
+
+function startRace(electionId, stake) {
+  game.race = { id: electionId, step: 0, bonus: 0, used: [], stake };
+  game.card = { kind: "race", id: drawRaceEvent().id, resolved: false };
+}
+
+/**
+ * Un temps de campagne. On préfère toujours ce que le joueur n'a jamais vu,
+ * et on ne rejoue jamais deux fois la même scène dans une même campagne.
+ */
+function drawRaceEvent() {
+  const used = game.race.used;
+  const dernier = game.race.step === raceSteps(game.race.id) - 1;
+  const eligible = RACE_EVENTS.filter((ev) => {
+    if (used.includes(ev.id)) return false;
+    if (ev.race && !ev.race.includes(game.race.id)) return false;
+    // Une scène de dernière semaine n'a aucun sens au premier temps.
+    if (ev.last && !dernier) return false;
+    return eventMatches({ ...ev, id: null }, game);
+  });
+
+  const fresh = eligible.filter((ev) => !game.seen[ev.id]);
+  const pool = fresh.length ? fresh : eligible;
+  const ev = pool.length ? pool[randInt(pool.length)] : RACE_EVENTS[0];
+
+  used.push(ev.id);
+  setScene(ev);
+  return ev;
+}
+
+function raceEventById(id) {
+  return RACE_EVENTS.find((e) => e.id === id) || RACE_EVENTS[0];
+}
+
+/**
+ * Où en est la campagne, en mots. Quatre degrés seulement : au-delà, on
+ * donnerait au joueur une précision que personne n'a jamais dans une
+ * campagne.
+ */
+function raceMood() {
+  const marge = electionBase(game.race.id) + game.race.bonus + 6 - game.race.stake.threshold;
+  if (marge >= 10) return "race_mood_won";
+  if (marge >= 2) return "race_mood_ahead";
+  if (marge >= -6) return "race_mood_close";
+  return "race_mood_lost";
+}
+
+/** Le dépouillement, une fois les temps de campagne joués. */
+function resolveRace() {
+  const stake = game.race.stake;
+  const score = electionScore(game.race.id) + game.race.bonus;
+  const won = score >= stake.threshold;
+  const before = snapshot(game);
+
+  if (won) {
+    setOffice(game, stake.target);
+    bump(game, "notoriete", +1);
+    bumpPop(game, +5);
+    bumpStanding(game, +7);
+  } else if (stake.defense) {
+    setOffice(game, DEMOTION[game.position] || game.position);
+    bump(game, "reputation", -1);
+    bumpPop(game, -12);
+    bumpStanding(game, -18);
+  } else {
+    bumpPop(game, -5);
+    bumpStanding(game, -8);
+  }
+
+  const texte = won
+    ? { fr: "Victoire. Vous voici {pos_low:" + game.position + "}.",
+        en: "Victory. You are now {pos_low:" + game.position + "}." }
+    : (stake.defense
+        ? { fr: "Battu chez vous. Vous redevenez {pos_low:" + game.position + "}, et il faudra tout reprendre.",
+            en: "Beaten on your own ground. You are {pos_low:" + game.position + "} again, and everything has to be rebuilt." }
+        : { fr: "Défaite. La politique rend tout, mais jamais tout de suite.",
+            en: "Defeat. Politics gives everything back, never right away." });
+
+  game.race.result = { won, text: texte, changes: diffSince(before, game) };
+  addLog(texte);
+  return won;
 }
 
 /* ==========================================================================
@@ -1811,6 +1953,28 @@ function renderCard() {
     return;
   }
 
+  // Une investiture refusée se joue comme un événement ordinaire, avec ses
+  // choix, mais sous l'étiquette de l'élection qui l'a provoquée.
+  if (card.kind === "nomination") {
+    const ev = eventById(card.id);
+    host.innerHTML =
+      '<div class="event-card event-card-election">' +
+        '<p class="event-tag">' + L(ev.tag) + " · " + cardHeader() + "</p>" +
+        (card.resolved
+          ? '<p class="event-text event-result">' + card.resultText + "</p>" +
+            changesHTML(card.resultChanges) + continueButton("data-continue")
+          : '<p class="event-text">' + fillText(ev.text, game) + "</p>" +
+            '<div class="event-choices">' + choiceButtons(ev, game) + "</div>") +
+      "</div>";
+    return;
+  }
+
+  // Les temps d'une campagne ordinaire, puis le dépouillement.
+  if (card.kind === "race" && game.race) {
+    renderRaceCard(host, card);
+    return;
+  }
+
   if (card.kind === "election") {
     const stake = playerStake(card.id);
 
@@ -1849,6 +2013,42 @@ function renderCard() {
         "</div>";
     }
   }
+}
+
+/**
+ * Un temps de campagne, ou le résultat. L'état de la campagne est raconté,
+ * jamais chiffré : on dit « c'est serré », pas « il vous manque quatre points ».
+ */
+function renderRaceCard(host, card) {
+  const race = game.race;
+
+  if (race.result) {
+    host.innerHTML =
+      '<div class="event-card event-card-election">' +
+        '<p class="event-tag">' + t("race_result") + " · " + t("elec_" + race.id) + "</p>" +
+        '<p class="event-text event-result">' + logText({ text: race.result.text }) + "</p>" +
+        changesHTML(race.result.changes) +
+        continueButton("data-race-done") +
+      "</div>";
+    return;
+  }
+
+  const ev = raceEventById(card.id);
+  const entete = t("elec_" + race.id) + " · " +
+    t("step_of").replace("{n}", race.step + 1).replace("{total}", raceSteps(race.id));
+
+  host.innerHTML =
+    '<div class="event-card event-card-election">' +
+      '<p class="event-tag">' + entete + "</p>" +
+      '<p class="race-mood">' + t(raceMood()) + "</p>" +
+      '<p class="event-sub-tag">' + L(ev.tag) + "</p>" +
+      '<p class="event-text' + (card.resolved ? " event-result" : "") + '">' +
+        (card.resolved ? card.resultText : fillText(ev.text, game)) + "</p>" +
+      (card.resolved ? changesHTML(card.resultChanges) : "") +
+      (card.resolved
+        ? continueButton("data-race-next")
+        : '<div class="event-choices">' + choiceButtons(ev, game) + "</div>") +
+    "</div>";
 }
 
 /**
@@ -2209,6 +2409,40 @@ function handleClick(event) {
     return;
   }
 
+  // Un temps de campagne ordinaire : le choix déplace l'avantage.
+  if (target.hasAttribute("data-choice") && game.card.kind === "race") {
+    const ev = raceEventById(game.card.id);
+    const choice = ev.choices[Number(target.getAttribute("data-choice"))];
+    const outcome = resolveChoice(choice, game);
+    markSeen(ev, game);
+
+    game.card.resolved = true;
+    game.card.resultText = outcome.text;
+    game.card.resultChanges = outcome.changes;
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  if (target.hasAttribute("data-race-next")) {
+    game.race.step++;
+    if (game.race.step >= raceSteps(game.race.id)) resolveRace();
+    else game.card = { kind: "race", id: drawRaceEvent().id, resolved: false };
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  if (target.hasAttribute("data-race-done")) {
+    game.race = null;
+    game.card = null;
+    if (!game.ended) advanceTurn();
+    else game.card = { kind: "end" };
+    saveGame();
+    renderAll();
+    return;
+  }
+
   if (target.hasAttribute("data-choice")) {
     const ev = eventById(game.card.id);
     const choice = ev.choices[Number(target.getAttribute("data-choice"))];
@@ -2225,6 +2459,17 @@ function handleClick(event) {
 
   if (target.hasAttribute("data-run")) {
     const id = game.card.id;
+    const stake = playerStake(id);
+
+    // Tout sauf la présidentielle passe désormais par deux ou trois temps de
+    // campagne. La présidentielle, elle, a déjà les siens.
+    if (stake && id !== "presidentielle") {
+      startRace(id, stake);
+      saveGame();
+      renderAll();
+      return;
+    }
+
     const before = snapshot(game);
     const outcome = resolveElectionRun(id);
     game.card.resolved = true;
@@ -2329,6 +2574,7 @@ function renderAll() {
     if (!game.seen) game.seen = {};
     if (!game.traits) game.traits = [];
     if (!game.strikes) game.strikes = {};
+    if (game.race === undefined) game.race = null;
     if (!game.investments) game.investments = {};
     if (!game.pending) {
       game.pending = [];

@@ -4834,6 +4834,343 @@ const EVENT_DATA = {
   ]
 }
 
+],
+"nomination": [
+
+/* ==========================================================================
+   QUAND L'APPAREIL REFUSE DE VOUS INVESTIR
+   ==========================================================================
+   Ces cartes remplacent le bouton unique « travailler l'appareil », qui
+   transformait un moment de carrière en formalité. Elles ne se tirent que
+   lorsque la cote au parti est trop basse pour concourir, et elles rapportent
+   toutes de la cote, mais jamais de la même façon ni au même prix.
+   ========================================================================== */
+
+{
+  "id": "investiture_barons",
+  "weight": 4,
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "La commission a tranché sans vous. Restent les quatre secrétaires de fédération qui font et défont les listes, et qui dînent tous les mois au même endroit.",
+    "en": "The committee decided without you. What remains are the four federation secretaries who make and unmake the lists, and who dine at the same place every month."
+  },
+  "choices": [
+    { "label": { "fr": "S'inviter à leur dîner mensuel", "en": "Invite yourself to their monthly dinner" },
+      "roll": { "base": 14, "stat": "charisme", "plus": { "reseau": 0.5 }, "dice": 16 },
+      "success": { "effects": { "popularity": -3, "standing": 4, "reseau": 1, "energie": -1 },
+        "result": { "fr": "Trois heures à écouter des histoires de 1997 et à rire au bon moment. En repartant, l'un d'eux vous appelle par votre prénom.",
+                    "en": "Three hours listening to stories from 1997 and laughing in the right places. On the way out, one of them uses your first name." } },
+      "failure": { "effects": { "standing": -3, "energie": -1, "reputation": -1 },
+        "result": { "fr": "On vous place en bout de table, on parle devant vous comme si vous n'y étiez pas, et l'addition est partagée en cinq.",
+                    "en": "You are seated at the end of the table, they talk across you as if you were not there, and the bill is split five ways." } } },
+    { "label": { "fr": "Financer la fédération sur vos deniers", "en": "Fund the federation out of your own pocket" },
+      "when": { "minMoney": 60000 },
+      "effects": { "money": -40000, "popularity": -3, "standing": 5, "reputation": -1 },
+      "result": { "fr": "Un local repeint, deux permanents payés six mois, un car pour le congrès. Personne ne dira jamais que la place s'achète, et tout le monde saura ce qu'elle a coûté.",
+                  "en": "A repainted office, two staffers paid for six months, a coach to the party conference. Nobody will ever say the seat was bought, and everyone will know what it cost." } },
+    { "label": { "fr": "Faire le travail que personne ne veut faire", "en": "Do the work nobody wants to do" },
+      "effects": { "standing": 3, "energie": -3, "reseau": 1, "popularity": -1 },
+      "result": { "fr": "Six mois de commissions statutaires, de comptes rendus et de conflits de fédération. C'est long, c'est gris, et ça marche toujours.",
+                  "en": "Six months of rules committees, minutes and branch disputes. It is long, it is grey, and it always works." } },
+    { "label": { "fr": "Les menacer de partir", "en": "Threaten to leave" },
+      "when": { "minPopularity": 55 },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "popularity": 0.07 }, "dice": 16 },
+      "success": { "effects": { "popularity": -3, "standing": 6, "notoriete": 1, "reputation": -1 },
+        "result": { "fr": "Vous laissez entendre qu'ailleurs on vous attend. Ils vérifient, c'est vrai, et la commission se réunit de nouveau la semaine suivante.",
+                    "en": "You let it be understood that others are waiting for you. They check, it is true, and the committee meets again the following week." } },
+      "failure": { "effects": { "standing": -10, "strike": "traitre" },
+        "result": { "fr": "Ils vous répondent d'y aller. Vous restez, et la phrase circule dans toutes les fédérations avant la fin du mois.",
+                    "en": "They tell you to go ahead. You stay, and the line goes round every branch before the month is out." } } }
+  ]
+},
+
+{
+  "id": "investiture_concurrent",
+  "weight": 4,
+  "cast": "camp",
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "L'investiture vous passe sous le nez au profit de {rival}, qui n'a rien de plus que vous sinon d'avoir commencé plus tôt à la demander.",
+    "en": "The nomination goes past you to {rival}, who has nothing more than you except having started asking for it earlier."
+  },
+  "choices": [
+    { "label": { "fr": "Le soutenir bruyamment", "en": "Back them loudly" },
+      "effects": { "standing": 4, "reputation": 1, "popularity": -3 },
+      "result": { "fr": "Vous faites campagne pour lui, vous tenez trois réunions à sa place et vous êtes sur toutes les photos. La prochaine fois, ce sera difficile de vous refuser.",
+                  "en": "You campaign for him, you hold three meetings in his place and you are in every photograph. Next time it will be hard to refuse you." } },
+    { "label": { "fr": "Faire savoir ce qu'il vaut vraiment", "en": "Let people know what he is really worth" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.4 }, "dice": 16 },
+      "success": { "effects": { "popularity": -3, "standing": 3, "reputation": -2, "landscape": { "self": -0.5 } },
+        "result": { "fr": "Deux ou trois conversations dans les bons bureaux, jamais un mot par écrit. Sa candidature s'effrite toute seule et personne ne sait pourquoi.",
+                    "en": "Two or three conversations in the right offices, never a word in writing. His candidacy crumbles on its own and nobody knows why." } },
+      "failure": { "effects": { "standing": -12, "reputation": -2, "strike": "traitre" },
+        "result": { "fr": "L'une de vos conversations lui revient mot pour mot. Il ne dit rien, il attend, et il aura toute une carrière pour s'en souvenir.",
+                    "en": "One of your conversations gets back to him word for word. He says nothing, he waits, and he will have a whole career to remember it." } } },
+    { "label": { "fr": "Aller voir ailleurs pendant qu'il fait campagne", "en": "Look elsewhere while he campaigns" },
+      "effects": { "standing": 2, "reseau": 2, "energie": -1, "popularity": 2 },
+      "result": { "fr": "Vous passez la campagne dans deux autres fédérations, où l'on ne vous doit rien et où l'on vous découvre. Il gagne, et vous aussi, ailleurs.",
+                  "en": "You spend the campaign in two other federations, where nobody owes you anything and where people discover you. He wins, and so do you, elsewhere." } }
+  ]
+},
+
+{
+  "id": "investiture_militants",
+  "weight": 4,
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "La direction ne veut pas de vous, mais ce sont les adhérents qui votent, et il y en a onze mille dont personne ne s'occupe jamais entre deux congrès.",
+    "en": "The leadership does not want you, but it is the members who vote, and there are eleven thousand of them nobody ever bothers with between conferences."
+  },
+  "choices": [
+    { "label": { "fr": "Faire le tour des sections, une par une", "en": "Tour the branches, one by one" },
+      "effects": { "standing": 4, "energie": -3, "reseau": 2, "popularity": -2 },
+      "result": { "fr": "Quarante et une sections en cinq mois, des salles de quinze personnes et beaucoup de café tiède. Vous connaissez le parti mieux que ceux qui le dirigent.",
+                  "en": "Forty-one branches in five months, rooms of fifteen people and a great deal of lukewarm coffee. You know the party better than the people running it." } },
+    { "label": { "fr": "Monter une plateforme et récolter des signatures", "en": "Set up a platform and collect signatures" },
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "reseau": 0.4, "energie": 0.3 }, "dice": 16 },
+      "success": { "effects": { "popularity": -3, "standing": 5, "notoriete": 1, "reputation": 1 },
+        "result": { "fr": "Un texte de deux pages, six cents signatures en trois semaines et un titre dans la presse militante. La direction découvre qu'elle a un problème interne.",
+                    "en": "A two-page text, six hundred signatures in three weeks and a headline in the party press. The leadership discovers it has an internal problem." } },
+      "failure": { "effects": { "standing": -6, "energie": -2 },
+        "result": { "fr": "Cent quatre signatures, dont onze de gens qui ne sont plus à jour de cotisation. Le texte ne sort jamais du site.",
+                    "en": "One hundred and four signatures, eleven of them from people who have not paid their dues. The text never leaves the website." } } },
+    { "label": { "fr": "Attendre le prochain congrès", "en": "Wait for the next conference" },
+      "effects": { "energie": 2, "popularity": -3, "standing": 2, "sangfroid": 1, "strike": "lache" },
+      "result": { "fr": "Vous ne faites rien du tout et vous vous en tirez avec une année de repos. Personne ne vous en veut, ce qui est bien le problème.",
+                  "en": "You do nothing at all and come away with a year of rest. Nobody holds it against you, which is precisely the problem." } }
+  ]
+},
+
+{
+  "id": "investiture_dette",
+  "weight": 3,
+  "cast": "camp",
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "{rival} vous propose un arrangement : il fait pencher la commission en votre faveur, et vous lui devez une voix au moment où il en aura besoin. Il ne précise pas laquelle.",
+    "en": "{rival} offers you an arrangement: he tips the committee your way, and you owe him a vote when he needs one. He does not say which."
+  },
+  "choices": [
+    { "label": { "fr": "Accepter la dette", "en": "Take on the debt" },
+      "effects": { "popularity": -3, "standing": 6, "reseau": 1, "reputation": -1, "chain": "mentor_dette" },
+      "result": { "fr": "La commission se réunit de nouveau et votre nom passe sans discussion. Vous ne savez pas encore ce que vous venez de vendre.",
+                  "en": "The committee meets again and your name goes through without discussion. You do not yet know what you have just sold." } },
+    { "label": { "fr": "Refuser et le lui dire en face", "en": "Refuse, and say so to his face" },
+      "effects": { "reputation": 3, "standing": -3, "sangfroid": 1, "strike": "intrepide" },
+      "result": { "fr": "Vous lui répondez que vous préférez perdre. Il hausse les épaules et vous respecte un peu plus, ce qui ne vaut aucune investiture.",
+                  "en": "You tell him you would rather lose. He shrugs and respects you slightly more, which is worth no nomination at all." } },
+    { "label": { "fr": "Accepter, et enregistrer la conversation", "en": "Accept, and record the conversation" },
+      "when": { "personality": ["calculating"] },
+      "effects": { "popularity": -3, "standing": 5, "reseau": 1, "reputation": -2, "sangfroid": 1 },
+      "result": { "fr": "Vous acceptez, et vous gardez trois minutes de son offre dans un téléphone que vous ne changerez jamais. La dette existe des deux côtés maintenant.",
+                  "en": "You accept, and you keep three minutes of his offer on a phone you will never replace. The debt runs both ways now." } }
+  ]
+}
+
+],
+
+"races": [
+
+/* ==========================================================================
+   LES TEMPS D'UNE CAMPAGNE ORDINAIRE
+   ==========================================================================
+   Deux temps pour une municipale, un congrès ou une européenne, trois pour une
+   législative. Chaque carte déplace l'avantage par son effet "score", qui
+   n'est jamais montré au joueur en chiffres : il le lit dans la phrase qui
+   ouvre la carte. Le champ "race" limite une scène à certains scrutins.
+   ========================================================================== */
+
+{
+  "id": "race_terrain",
+  "weight": 3,
+  "tag": { "fr": "Terrain", "en": "On the ground" },
+  "text": {
+    "fr": "Cinq semaines de campagne, un budget qui ne permet pas tout, et une équipe qui attend que vous décidiez où mettre l'énergie.",
+    "en": "Five weeks of campaigning, a budget that does not stretch to everything, and a team waiting for you to decide where the energy goes."
+  },
+  "choices": [
+    { "label": { "fr": "Les marchés, tous les matins", "en": "The markets, every morning" },
+      "effects": { "score": 4, "energie": -2 },
+      "result": { "fr": "Six heures du matin, quatre marchés par semaine, des mains serrées jusqu'à ne plus sentir la vôtre. C'est démodé et ça n'a jamais cessé de marcher.",
+                  "en": "Six in the morning, four markets a week, hands shaken until you stop feeling your own. It is old-fashioned and it has never stopped working." } },
+    { "label": { "fr": "Une campagne en ligne, ciblée", "en": "A targeted online campaign" },
+      "when": { "minMoney": 30000 },
+      "effects": { "score": 6, "money": -18000 },
+      "result": { "fr": "Trois cents versions du même message, découpées par quartier et par âge. Vous touchez des gens qui ne vous verront jamais.",
+                  "en": "Three hundred versions of the same message, cut by neighbourhood and age. You reach people who will never see you in person." } },
+    { "label": { "fr": "Garder vos forces pour la fin", "en": "Save your strength for the end" },
+      "effects": { "score": -6, "energie": 2 },
+      "result": { "fr": "Vous levez le pied trois semaines. Votre adversaire occupe le terrain, et vous arrivez frais dans une campagne déjà écrite.",
+                  "en": "You ease off for three weeks. Your opponent holds the ground, and you arrive fresh in a campaign already written." } }
+  ]
+},
+
+{
+  "id": "race_debat_local",
+  "weight": 3,
+  "race": ["municipales", "legislatives", "europeennes"],
+  "cast": "opponent",
+  "tag": { "fr": "Débat", "en": "The debate" },
+  "text": {
+    "fr": "Le débat organisé par le journal local, dans une salle de deux cents places à moitié pleine. {rival} y sera, et la vidéo fera plus de vues que la salle n'a de sièges.",
+    "en": "The debate organised by the local paper, in a two-hundred-seat hall half full. {rival} will be there, and the video will get more views than the hall has seats."
+  },
+  "choices": [
+    { "label": { "fr": "Parler du dossier que vous connaissez par cœur", "en": "Talk about the file you know by heart" },
+      "roll": { "base": 13, "stat": "eloquence", "plus": { "reputation": 0.3 }, "dice": 16 },
+      "success": { "effects": { "score": 6 },
+        "result": { "fr": "Vous citez trois chiffres justes et une rue précise. Dans la salle, quelqu'un dit à voix haute que vous, au moins, vous savez de quoi vous parlez.",
+                    "en": "You quote three accurate figures and one specific street. Somebody in the hall says out loud that you, at least, know what you are talking about." } },
+      "failure": { "effects": { "score": -8, "popularity": -3 },
+        "result": { "fr": "Vous parlez douze minutes de sous-préfecture et de schéma directeur. La salle décroche à la quatrième.",
+                    "en": "You speak for twelve minutes about zoning and strategic plans. The hall gives up at the fourth." } } },
+    { "label": { "fr": "Attaquer son bilan", "en": "Attack his record" },
+      "effects": { "score": 3, "reputation": -1, "popularity": -1, "strike": "intrepide" },
+      "result": { "fr": "Vous sortez ses votes et ses absences, un par un. C'est efficace, c'est désagréable, et la salle vous en veut un peu de lui avoir fait ça.",
+                  "en": "You produce his votes and his absences, one by one. It works, it is unpleasant, and the hall holds it against you slightly." } },
+    { "label": { "fr": "Promettre ce qui ne dépend pas de vous", "en": "Promise what does not depend on you" },
+      "effects": { "score": 7, "reputation": -2, "strike": "menteur" },
+      "result": { "fr": "Vous annoncez la réouverture de la ligne et le maintien de l'école. Les deux relèvent de l'État, et la salle applaudit quand même.",
+                  "en": "You announce the line reopening and the school staying put. Both are national decisions, and the hall applauds anyway." } }
+  ]
+},
+
+{
+  "id": "race_soutien_national",
+  "weight": 3,
+  "race": ["municipales", "legislatives", "europeennes"],
+  "cast": "camp",
+  "tag": { "fr": "Renfort", "en": "Reinforcements" },
+  "text": {
+    "fr": "{rival} propose de venir tenir un meeting avec vous. Sa présence remplit une salle et sa signature au bas de vos affiches vaut ce que vaut sa popularité, dans les deux sens.",
+    "en": "{rival} offers to come and hold a rally with you. His presence fills a hall, and his name at the bottom of your posters is worth exactly what his popularity is worth, in both directions."
+  },
+  "choices": [
+    { "label": { "fr": "Le faire venir", "en": "Bring him in" },
+      "effects": { "score": 4, "popularity": -2 },
+      "result": { "fr": "La salle est pleine, les caméras sont là, et la moitié des questions portent sur lui. Vous gagnez des voix et vous perdez la campagne, qui devient la sienne.",
+                  "en": "The hall is full, the cameras are there, and half the questions are about him. You gain votes and lose the campaign, which becomes his." } },
+    { "label": { "fr": "Faire campagne seul", "en": "Campaign alone" },
+      "effects": { "score": -2, "standing": -5 },
+      "result": { "fr": "Ni logo, ni parrain, ni affiche nationale. On vous reproche votre distance à la direction, et on vote pour vous à cause d'elle.",
+                  "en": "No logo, no patron, no national poster. You are criticised for your distance from the leadership, and voted for because of it." } },
+    { "label": { "fr": "Le faire venir et le laisser parler du national", "en": "Bring him in and let him talk national" },
+      "effects": { "score": 1, "energie": 1, "popularity": -4 },
+      "result": { "fr": "Il fait quarante minutes de politique nationale devant des électeurs venus parler de leur rue. La fédération est ravie.",
+                  "en": "He does forty minutes of national politics in front of voters who came to talk about their street. The federation is delighted." } }
+  ]
+},
+
+{
+  "id": "race_incident",
+  "weight": 3,
+  "tag": { "fr": "Incident de campagne", "en": "Campaign incident" },
+  "text": {
+    "fr": "À dix jours du scrutin, un tract anonyme circule dans les boîtes aux lettres. Il ne dit rien de faux, il dit tout de travers, et il est très bien fait.",
+    "en": "Ten days out, an anonymous leaflet is going round the letterboxes. It says nothing false, it says everything crooked, and it is very well made."
+  },
+  "choices": [
+    { "label": { "fr": "Répondre par un tract de votre côté", "en": "Answer with a leaflet of your own" },
+      "effects": { "score": 0, "money": -6000, "energie": -1 },
+      "result": { "fr": "Vous répondez point par point sur quatre pages. Ceux qui lisent les quatre pages avaient déjà décidé de voter pour vous.",
+                  "en": "You answer point by point over four pages. The people who read all four pages had already decided to vote for you." } },
+    { "label": { "fr": "Porter plainte et le faire savoir", "en": "File a complaint and say so" },
+      "effects": { "score": -3, "popularity": -2 },
+      "result": { "fr": "La plainte fait trois lignes dans le journal, le tract en a fait dix mille dans les boîtes. Mais la prochaine fois, ils hésiteront.",
+                  "en": "The complaint gets three lines in the paper; the leaflet got ten thousand copies through letterboxes. But next time they will hesitate." } },
+    { "label": { "fr": "Trouver qui l'a payé", "en": "Find out who paid for it" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.4 }, "dice": 16 },
+      "success": { "effects": { "score": 6 },
+        "result": { "fr": "L'imprimeur est bavard et la facture porte un nom. Vous ne publiez rien, vous passez un coup de fil, et le tract disparaît des boîtes en deux jours.",
+                    "en": "The printer is talkative and the invoice carries a name. You publish nothing, you make one telephone call, and the leaflet vanishes from letterboxes in two days." } },
+      "failure": { "effects": { "score": -7, "energie": -2 },
+        "result": { "fr": "Vous passez la dernière semaine à enquêter au lieu de faire campagne. Vous ne trouvez rien et vous avez perdu six jours.",
+                    "en": "You spend the last week investigating instead of campaigning. You find nothing, and you have lost six days." } } }
+  ]
+},
+
+{
+  "id": "race_motion",
+  "weight": 4,
+  "race": ["congres"],
+  "cast": "camp",
+  "tag": { "fr": "Motion", "en": "The motion" },
+  "text": {
+    "fr": "Un congrès ne se gagne pas devant les militants, il se gagne dans le texte de la motion. Trois lignes sur l'Europe et deux sur la fiscalité décideront de qui peut voter pour vous.",
+    "en": "A party conference is not won in front of the members, it is won in the wording of the motion. Three lines on Europe and two on tax will decide who is able to vote for you."
+  },
+  "choices": [
+    { "label": { "fr": "Écrire un texte de rassemblement", "en": "Write a text everyone can live with" },
+      "effects": { "score": 4, "popularity": -3, "reputation": -1 },
+      "result": { "fr": "Quatre pages qui ne fâchent personne et qu'aucun militant ne relira. Deux courants s'y retrouvent, ce qui était tout l'objectif.",
+                  "en": "Four pages that upset nobody and that no member will read twice. Two factions can live with it, which was the entire point." } },
+    { "label": { "fr": "Écrire ce que vous pensez vraiment", "en": "Write what you actually think" },
+      "effects": { "score": -6, "standing": -2 },
+      "result": { "fr": "Un texte clair, tranchant, qui fait le tour de la presse et perd deux fédérations en une matinée.",
+                  "en": "A clear, sharp text that goes round the press and loses two federations in a morning." } },
+    { "label": { "fr": "Reprendre le texte du sortant en changeant trois mots", "en": "Take the incumbent's text and change three words" },
+      "when": { "personality": ["calculating"] },
+      "effects": { "score": 7, "reputation": -2, "strike": "menteur" },
+      "result": { "fr": "Personne ne peut vous reprocher un texte qu'ils ont tous voté l'an dernier. {rival} met trois semaines à comprendre ce qui lui arrive.",
+                  "en": "Nobody can attack you over a text they all voted for last year. {rival} takes three weeks to understand what is happening to him." } }
+  ]
+},
+
+{
+  "id": "race_couloirs",
+  "weight": 4,
+  "race": ["congres"],
+  "tag": { "fr": "Couloirs", "en": "The corridors" },
+  "text": {
+    "fr": "Deux jours de congrès, quatre mille militants, et l'essentiel qui se joue dans un couloir entre la salle et la buvette.",
+    "en": "Two days of conference, four thousand members, and everything that matters happening in a corridor between the hall and the bar."
+  },
+  "choices": [
+    { "label": { "fr": "Promettre des postes", "en": "Promise posts" },
+      "effects": { "score": 7, "reputation": -2 },
+      "result": { "fr": "Onze promesses pour sept postes. Vous réglerez ça après, et quatre personnes vous détesteront pour toujours.",
+                  "en": "Eleven promises for seven posts. You will sort that out afterwards, and four people will hate you for good." } },
+    { "label": { "fr": "Tenir la buvette jusqu'à trois heures du matin", "en": "Hold the bar until three in the morning" },
+      "effects": { "score": 3, "energie": -3 },
+      "result": { "fr": "Deux nuits, cent conversations, et le sentiment très net que rien de tout cela ne se serait dit à jeun.",
+                  "en": "Two nights, a hundred conversations, and the distinct sense that none of it would have been said sober." } },
+    { "label": { "fr": "Rester dans la salle et travailler le texte", "en": "Stay in the hall and work on the text" },
+      "effects": { "score": -2, "energie": 1 },
+      "result": { "fr": "Vous suivez les débats, vous prenez des notes et vous êtes le seul candidat à savoir ce qui a été voté. Ça ne sert à rien ce week-end.",
+                  "en": "You follow the debates, you take notes and you are the only candidate who knows what was voted. It is of no use whatsoever this weekend." } }
+  ]
+},
+
+{
+  "id": "race_derniere_semaine",
+  "weight": 3,
+  "last": true,
+  "tag": { "fr": "Dernière semaine", "en": "The last week" },
+  "text": {
+    "fr": "Sept jours, une caisse presque vide et une équipe qui n'en peut plus. Ce qui se décide maintenant ne se rattrapera pas.",
+    "en": "Seven days, an almost empty account and a team running on fumes. What gets decided now cannot be undone."
+  },
+  "choices": [
+    { "label": { "fr": "Tout mettre sur les indécis", "en": "Put everything into the undecided" },
+      "roll": { "base": 14, "stat": "energie", "plus": { "charisme": 0.4 }, "dice": 16 },
+      "success": { "effects": { "score": 8, "energie": -3 },
+        "result": { "fr": "Quatre mille portes en six jours. Les derniers jours d'une campagne appartiennent à ceux qui tiennent debout.",
+                    "en": "Four thousand doors in six days. The last days of a campaign belong to whoever is still standing." } },
+      "failure": { "effects": { "score": -6, "energie": -4, "trait": "use" },
+        "result": { "fr": "Vous finissez la campagne aphone, à deux réunions par jour, et la dernière est un désastre que trois cents personnes ont vu.",
+                    "en": "You finish the campaign with no voice, two meetings a day, and the last one is a disaster three hundred people watched." } } },
+    { "label": { "fr": "Sortir votre argent personnel", "en": "Put in your own money" },
+      "when": { "minMoney": 40000 },
+      "effects": { "score": 6, "money": -28000, "reputation": -1 },
+      "result": { "fr": "Un affichage complet, deux encarts et un envoi postal à tous les électeurs. La déclaration de compte de campagne posera des questions.",
+                  "en": "Full billboard coverage, two press inserts and a mailshot to every voter. The campaign accounts will raise questions." } },
+    { "label": { "fr": "Laisser courir et préparer la suite", "en": "Let it run and prepare for what comes next" },
+      "effects": { "score": -7, "energie": 3, "strike": "lache" },
+      "result": { "fr": "Vous levez le pied et vous passez la semaine à préparer l'après, quel qu'il soit. C'est raisonnable, et ça se voit sur les affiches vides.",
+                  "en": "You ease off and spend the week preparing for the aftermath, whatever it is. It is sensible, and it shows on the empty billboards." } }
+  ]
+}
+
 ]
 
 };
