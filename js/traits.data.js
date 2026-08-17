@@ -15,6 +15,10 @@
  * Chaque trait appartient à une famille, qui dit d'où il vient et sur quoi il
  * agit. La fiche du personnage les affiche groupés dans cet ordre.
  *
+ *   "caractere"   La personnalité choisie à la création. Elle n'est plus un
+ *                 simple paquet de modificateurs invisible : c'est un trait,
+ *                 il s'affiche sur la fiche avec les autres, et les événements
+ *                 peuvent s'y adosser. Un seul par personnage, pour toujours.
  *   "physique"    Le corps. Ce que les gens voient avant de vous écouter.
  *                 Deux traits sont distribués à la naissance et ne se
  *                 choisissent pas ; les autres s'attrapent en cours de
@@ -29,6 +33,13 @@
  * ----------------------------------------------------------------------------
  *   "family"        L'une des cinq ci-dessus. Obligatoire.
  *   "kind"          "asset" (atout) ou "mark" (marque). Donne la couleur.
+ *   "core"          Trait de caractère, choisi à la création : ni tiré, ni
+ *                   perdu, ni compté dans le tirage de départ.
+ *   "election"      Bonus ou malus au score d'un scrutin précis :
+ *                     { "municipales": 5, "europeennes": -3 }
+ *                   Un accent régional aide dans sa ville et dessert partout
+ *                   ailleurs : c'est le genre de chose qu'aucune statistique
+ *                   ne sait dire.
  *   "birth"         Poids de tirage à la naissance. Absent = ne se tire jamais.
  *   "axis"          L'axe sur lequel ce tirage se joue. Le jeu tire UNE FOIS
  *                   PAR AXE, indépendamment : on peut très bien être beau et
@@ -113,6 +124,76 @@
  *    corps, jamais les corps eux-mêmes.
  */
 const TRAIT_DATA = {
+
+  /* ==========================================================================
+     CARACTÈRE — ce que le joueur a choisi à la création
+     ==========================================================================
+     Ces six traits reprennent exactement les modificateurs qui étaient
+     autrefois cachés dans STAT_MODIFIERS : rien n'a changé dans les chiffres,
+     mais le joueur voit enfin d'où ils viennent. Ils portent tous le champ
+     "core" : ils ne se tirent pas, ne se perdent pas, et ne comptent pas dans
+     le tirage de départ.
+     ========================================================================== */
+
+  "hardworking": {
+    "family": "caractere", "kind": "asset", "core": true,
+    "label": { "fr": "Acharné", "en": "Hardworking" },
+    "desc": {
+      "fr": "Vous commencez vos journées avant tout le monde et vous les finissez après. Le travail vous tient lieu de méthode.",
+      "en": "You start your days before everyone else and finish them long after. Work serves as your method."
+    },
+    "stats": { "energie": 6, "sangfroid": 2, "charisme": -2 }
+  },
+
+  "charming": {
+    "family": "caractere", "kind": "asset", "core": true,
+    "label": { "fr": "Charmeur", "en": "Charming" },
+    "desc": {
+      "fr": "Vous mettez les gens à l'aise en quelques minutes. Vos adversaires y voient une technique, vos proches une qualité.",
+      "en": "You put people at ease within minutes. Your opponents call it a technique, those close to you call it a quality."
+    },
+    "stats": { "charisme": 6, "reseau": 2, "reputation": -2 }
+  },
+
+  "clever": {
+    "family": "caractere", "kind": "asset", "core": true,
+    "label": { "fr": "Brillant", "en": "Clever" },
+    "desc": {
+      "fr": "Vous comprenez vite et vous formulez mieux encore. Les dossiers les plus techniques ne vous effraient pas.",
+      "en": "You understand quickly and you put it better still. The most technical files do not frighten you."
+    },
+    "stats": { "eloquence": 6, "sangfroid": 2, "charisme": -2 }
+  },
+
+  "provocative": {
+    "family": "caractere", "kind": "asset", "core": true,
+    "label": { "fr": "Provocateur", "en": "Provocative" },
+    "desc": {
+      "fr": "Vous dites ce que les autres évitent de dire. Les caméras vous suivent et les états majors s'en inquiètent.",
+      "en": "You say what others avoid saying. The cameras follow you and the party leadership worries."
+    },
+    "stats": { "notoriete": 8, "charisme": 2, "reputation": -4 }
+  },
+
+  "principled": {
+    "family": "caractere", "kind": "asset", "core": true,
+    "label": { "fr": "Intègre", "en": "Principled" },
+    "desc": {
+      "fr": "Vous refusez les arrangements qui font gagner du temps. Cette réputation vous précède, pour le meilleur et pour le pire.",
+      "en": "You refuse the arrangements that save time. That reputation precedes you, for better and for worse."
+    },
+    "stats": { "reputation": 6, "sangfroid": 2, "reseau": -2 }
+  },
+
+  "calculating": {
+    "family": "caractere", "kind": "asset", "core": true,
+    "label": { "fr": "Calculateur", "en": "Calculating" },
+    "desc": {
+      "fr": "Vous pensez toujours au coup d'après. Peu de gens savent ce que vous préparez, y compris dans votre camp.",
+      "en": "You are always thinking one move ahead. Few people know what you are preparing, including on your own side."
+    },
+    "stats": { "sangfroid": 4, "reseau": 6, "reputation": -4 }
+  },
 
   /* ==========================================================================
      PHYSIQUE — ce qu'on voit avant de vous écouter
@@ -204,7 +285,7 @@ const TRAIT_DATA = {
   "intrepide": {
     "family": "physique",
     "kind": "asset",
-    "strikes": 2,
+    "strikes": 3,
     "label": { "fr": "Intrépide", "en": "Fearless" },
     "desc": {
       "fr": "Le conflit ne vous coûte rien, il vous réveille. Vos équipes vous suivent en serrant les dents et votre direction vous regarde partir au front avec inquiétude.",
@@ -217,7 +298,7 @@ const TRAIT_DATA = {
   "lache": {
     "family": "physique",
     "kind": "mark",
-    "strikes": 2,
+    "strikes": 3,
     "label": { "fr": "Lâche", "en": "Coward" },
     "desc": {
       "fr": "Devant un conflit, quelque chose en vous cherche la sortie. Vous avez fait une carrière entière sans jamais vous exposer, ce qui est une forme de longévité.",
@@ -225,6 +306,113 @@ const TRAIT_DATA = {
     },
     "stats": { "sangfroid": -4, "reputation": -2 },
     "target": { "standing": 4, "popularity": -3 }
+  },
+
+  "stature": {
+    "family": "physique",
+    "kind": "asset",
+    "birth": 4,
+    "axis": "stature",
+    "label": { "fr": "Grande taille", "en": "Tall" },
+    "desc": {
+      "fr": "On vous voit arriver de loin et l'on vous cède le micro sans savoir pourquoi. Aucune étude sérieuse n'explique cet avantage, toutes le constatent.",
+      "en": "People see you coming and hand you the microphone without knowing why. No serious study explains the advantage; every study finds it."
+    },
+    "stats": { "charisme": 2, "notoriete": 2, "sangfroid": -1 },
+    "target": { "popularity": 2 },
+    "blocks": ["petite_taille"]
+  },
+
+  "petite_taille": {
+    "family": "physique",
+    "kind": "mark",
+    "birth": 4,
+    "axis": "stature",
+    "label": { "fr": "Petite taille", "en": "Short" },
+    "desc": {
+      "fr": "Les photos officielles se prennent avec vous au premier rang, et les caricaturistes ont trouvé leur angle. En revanche, on vous sous-estime en réunion, ce qui a toujours été une bonne nouvelle.",
+      "en": "Official photographs put you in the front row, and the cartoonists have found their angle. On the other hand, people underestimate you in meetings, which has always been good news."
+    },
+    "stats": { "charisme": -2, "energie": 2 },
+    "target": { "popularity": -2, "standing": 3 },
+    "blocks": ["stature"]
+  },
+
+  "robuste": {
+    "family": "physique",
+    "kind": "asset",
+    "birth": 4,
+    "axis": "sante",
+    "label": { "fr": "Constitution de fer", "en": "Iron constitution" },
+    "desc": {
+      "fr": "Vous n'êtes jamais malade et vous ne comprenez pas ceux qui le sont. Trois campagnes d'affilée ne vous ont jamais couché.",
+      "en": "You are never ill and you do not understand people who are. Three campaigns back to back have never put you in bed."
+    },
+    "stats": { "energie": 3, "sangfroid": 2 },
+    "target": { "popularity": -1 },
+    "energy": 2,
+    "blocks": ["fragile"]
+  },
+
+  "fragile": {
+    "family": "physique",
+    "kind": "mark",
+    "birth": 4,
+    "axis": "sante",
+    "label": { "fr": "Santé fragile", "en": "Frail health" },
+    "desc": {
+      "fr": "Quelque chose lâche toujours au mauvais moment. Vous avez appris à doser vos forces bien avant les autres, ce qui vous rend étrangement lucide sur les vôtres.",
+      "en": "Something always gives way at the wrong moment. You learned to ration your strength long before the others did, which makes you oddly clear-sighted about your own."
+    },
+    "stats": { "energie": -4, "sangfroid": 2 },
+    "energy": -1,
+    "risk": { "p": 0.02, "chain": "alerte_sante" },
+    "blocks": ["robuste"]
+  },
+
+  "memoire_des_noms": {
+    "family": "physique",
+    "kind": "asset",
+    "birth": 4,
+    "axis": "memoire",
+    "label": { "fr": "Mémoire des noms", "en": "A memory for names" },
+    "desc": {
+      "fr": "Vous retenez un prénom, un métier et le nom d'un chien après une seule poignée de main. C'est le seul talent de ce métier qui ne s'apprend pas.",
+      "en": "You remember a first name, a job and a dog's name after a single handshake. It is the one talent in this trade that cannot be learned."
+    },
+    "stats": { "reseau": 4 },
+    "target": { "standing": 2, "popularity": -1 },
+    "blocks": ["tete_en_lair"]
+  },
+
+  "tete_en_lair": {
+    "family": "physique",
+    "kind": "mark",
+    "birth": 4,
+    "axis": "memoire",
+    "label": { "fr": "Tête en l'air", "en": "Absent-minded" },
+    "desc": {
+      "fr": "Vous confondez les prénoms, les villes et parfois les dossiers. Vos bourdes font le tour des rédactions et, curieusement, elles vous rendent humain.",
+      "en": "You mix up names, towns and occasionally files. Your slips go round the newsrooms and, oddly, they make you human."
+    },
+    "stats": { "reseau": -3, "notoriete": 1 },
+    "target": { "standing": -3, "popularity": 2 },
+    "blocks": ["memoire_des_noms"]
+  },
+
+  "accent": {
+    "family": "physique",
+    "kind": "mark",
+    "birth": 4,
+    "axis": "origine_geo",
+    "label": { "fr": "Accent régional", "en": "A regional accent" },
+    "desc": {
+      "fr": "Chez vous, c'est une carte d'identité et personne ne l'entend. À la télévision nationale, c'est la première chose qu'on retient de vous, et pas toujours en bien.",
+      "en": "At home it is an identity card and nobody hears it. On national television it is the first thing people take away from you, and not always kindly."
+    },
+    "stats": { "reputation": 2, "notoriete": -1 },
+    "target": { "popularity": -2 },
+    "election": { "municipales": 7, "legislatives": -1, "europeennes": -4 }
   },
 
   "athletique": {
@@ -337,6 +525,7 @@ const TRAIT_DATA = {
      ========================================================================== */
 
   "appareil": {
+    "strikes": 2,
     "family": "appareil",
     "kind": "asset",
     "label": { "fr": "Homme d'appareil", "en": "Party operator" },
@@ -483,4 +672,4 @@ const TRAIT_DATA = {
 };
 
 /** Ordre d'affichage des familles sur la fiche du personnage. */
-const TRAIT_FAMILIES = ["physique", "talent", "appareil", "reputation", "affaires"];
+const TRAIT_FAMILIES = ["caractere", "physique", "talent", "appareil", "reputation", "affaires"];

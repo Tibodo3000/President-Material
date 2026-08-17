@@ -589,7 +589,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Payer votre dette", "en": "Pay your debt" },
-      "effects": { "standing": 9, "reputation": -2, "popularity": -9, "trait": "appareil", "chain": "mentor_encombrant" },
+      "effects": { "standing": 9, "reputation": -2, "popularity": -9, "strike": "appareil", "chain": "mentor_encombrant" },
       "result": { "fr": "Le fils est investi. Tout le monde a compris, personne n'a rien dit.",
                   "en": "The son is nominated. Everyone understood; nobody said a word." } },
     { "label": { "fr": "Refuser et rompre", "en": "Refuse and break with him" },
@@ -3984,7 +3984,7 @@ const EVENT_DATA = {
       "result": { "fr": "Vous ne changez rien et vous tenez le rythme deux ans de plus. Les photos de vous en 2019 commencent à circuler avec des commentaires.",
                   "en": "You change nothing and hold the pace for two more years. Photographs of you from a few years back start circulating with comments attached." } },
     { "label": { "fr": "Reprendre le sport sérieusement", "en": "Take up sport seriously" },
-      "roll": { "base": 17, "stat": "energie", "plus": { "sangfroid": 0.4 }, "dice": 16 },
+      "roll": { "base": 20, "stat": "energie", "plus": { "sangfroid": 0.4 }, "dice": 16 },
       "success": { "effects": { "trait": "athletique", "energie": 2, "popularity": 3 },
         "result": { "fr": "Cinq heures par semaine arrachées à l'agenda, et un cliché de vous en train de courir qui ne doit rien au hasard.",
                     "en": "Five hours a week torn out of the diary, and a photograph of you running that owes nothing to chance." } },
@@ -4869,7 +4869,7 @@ const EVENT_DATA = {
       "result": { "fr": "Un local repeint, deux permanents payés six mois, un car pour le congrès. Personne ne dira jamais que la place s'achète, et tout le monde saura ce qu'elle a coûté.",
                   "en": "A repainted office, two staffers paid for six months, a coach to the party conference. Nobody will ever say the seat was bought, and everyone will know what it cost." } },
     { "label": { "fr": "Faire le travail que personne ne veut faire", "en": "Do the work nobody wants to do" },
-      "effects": { "standing": 3, "energie": -3, "reseau": 1, "popularity": -1 },
+      "effects": { "strike": "appareil", "standing": 3, "energie": -3, "reseau": 1, "popularity": -1 },
       "result": { "fr": "Six mois de commissions statutaires, de comptes rendus et de conflits de fédération. C'est long, c'est gris, et ça marche toujours.",
                   "en": "Six months of rules committees, minutes and branch disputes. It is long, it is grey, and it always works." } },
     { "label": { "fr": "Les menacer de partir", "en": "Threaten to leave" },
@@ -4923,7 +4923,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Faire le tour des sections, une par une", "en": "Tour the branches, one by one" },
-      "effects": { "standing": 4, "energie": -3, "reseau": 2, "popularity": -2 },
+      "effects": { "strike": "appareil", "standing": 4, "energie": -3, "reseau": 2, "popularity": -2 },
       "result": { "fr": "Quarante et une sections en cinq mois, des salles de quinze personnes et beaucoup de café tiède. Vous connaissez le parti mieux que ceux qui le dirigent.",
                   "en": "Forty-one branches in five months, rooms of fifteen people and a great deal of lukewarm coffee. You know the party better than the people running it." } },
     { "label": { "fr": "Monter une plateforme et récolter des signatures", "en": "Set up a platform and collect signatures" },
@@ -4966,7 +4966,32 @@ const EVENT_DATA = {
                   "en": "You accept, and you keep three minutes of his offer on a phone you will never replace. The debt runs both ways now." } }
   ]
 }
+,
 
+{
+  "id": "investiture_routine",
+  "weight": 3,
+  "repeatable": true,
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "Encore une commission d'investiture où votre nom n'a servi qu'à équilibrer une liste. Il reste six mois avant la suivante, et l'appareil ne se travaille pas autrement qu'à l'usure.",
+    "en": "Another nominations committee where your name only served to balance a list. There are six months until the next one, and the machine is worked by attrition or not at all."
+  },
+  "choices": [
+    { "label": { "fr": "Reprendre les réunions de section", "en": "Go back to the branch meetings" },
+      "effects": { "standing": 5, "popularity": -2, "energie": -1 },
+      "result": { "fr": "Des mardis soir dans des salles trop grandes, à écouter des motions sur le règlement intérieur. C'est ainsi qu'on se fait un nom là où il compte.",
+                  "en": "Tuesday evenings in rooms that are too big, listening to motions about standing orders. That is how you make a name where it counts." } },
+    { "label": { "fr": "Rendre service à ceux qui décident", "en": "Do favours for the people who decide" },
+      "effects": { "standing": 6, "popularity": -3, "reseau": 1, "reputation": -1 },
+      "result": { "fr": "Un rapport rédigé pour quelqu'un d'autre, une intervention annulée pour lui laisser la place, un vote qui ne vous coûtait rien. On note.",
+                  "en": "A report written for somebody else, a speech cancelled to leave him the floor, a vote that cost you nothing. It gets noticed." } },
+    { "label": { "fr": "Soigner le terrain plutôt que l'appareil", "en": "Work the ground instead of the machine" },
+      "effects": { "popularity": 6, "standing": -2, "energie": -1 },
+      "result": { "fr": "Vous laissez la commission à ceux qui l'aiment et vous passez six mois dehors. La direction ne vous investira pas plus, et les électeurs vous connaîtront mieux.",
+                  "en": "You leave the committee to the people who enjoy it and spend six months outside. The leadership will not nominate you any sooner, and the voters will know you better." } }
+  ]
+}
 ],
 
 "races": [
@@ -5101,7 +5126,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Écrire un texte de rassemblement", "en": "Write a text everyone can live with" },
-      "effects": { "score": 4, "popularity": -3, "reputation": -1 },
+      "effects": { "strike": "appareil", "score": 4, "popularity": -3, "reputation": -1 },
       "result": { "fr": "Quatre pages qui ne fâchent personne et qu'aucun militant ne relira. Deux courants s'y retrouvent, ce qui était tout l'objectif.",
                   "en": "Four pages that upset nobody and that no member will read twice. Two factions can live with it, which was the entire point." } },
     { "label": { "fr": "Écrire ce que vous pensez vraiment", "en": "Write what you actually think" },
@@ -5127,7 +5152,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Promettre des postes", "en": "Promise posts" },
-      "effects": { "score": 7, "reputation": -2 },
+      "effects": { "strike": "appareil", "score": 7, "reputation": -2 },
       "result": { "fr": "Onze promesses pour sept postes. Vous réglerez ça après, et quatre personnes vous détesteront pour toujours.",
                   "en": "Eleven promises for seven posts. You will sort that out afterwards, and four people will hate you for good." } },
     { "label": { "fr": "Tenir la buvette jusqu'à trois heures du matin", "en": "Hold the bar until three in the morning" },

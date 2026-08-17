@@ -84,46 +84,60 @@ function figurePopularity(figure) {
 }
 
 /**
- * CE QU'ON EST EN ARRIVANT.
+ * LE TIRAGE DE DÉPART.
  *
- * On ne choisit ni son visage, ni sa voix, ni ce qu'on aime, ni ce qu'on fait
- * devant un conflit. Le jeu distribue ces traits-là au départ, sans que le
- * joueur les choisisse : c'est la première main, et toute la partie consiste
- * à faire avec.
+ * On ne choisit ni son visage, ni sa voix, ni sa santé, ni sa mémoire. Le jeu
+ * distribue DEUX traits avant la première carte, et il le montre : le joueur
+ * voit ce qu'il a reçu, avec les mots et les chiffres, au lieu de découvrir
+ * en cours de partie qu'il avait un handicap.
  *
- * Le tirage se fait UN AXE À LA FOIS, indépendamment : on peut être beau et
- * zozoter, avoir une voix de radio et être lâche. Chaque axe a sa part de
- * chance de ne rien donner, et cette part est la même partout.
+ * Le tirage n'est pas neutre. Une main équilibrée, un atout et une marque,
+ * reste la plus probable, parce que c'est la situation la plus intéressante à
+ * jouer. Mais le sort peut aussi gâter quelqu'un ou l'accabler, et ces
+ * parties-là existent : c'est précisément ce qui rend la chance réelle.
+ *
+ * Les deux traits viennent toujours d'axes différents : on ne peut pas être
+ * grand et petit, ni avoir une voix de radio et un cheveu sur la langue.
  */
-const BIRTH_NONE = 9;
+const DRAW_MIX = [
+  { key: "equilibre", weight: 56, kinds: ["asset", "mark"] },
+  { key: "chanceux", weight: 22, kinds: ["asset", "asset"] },
+  { key: "difficile", weight: 22, kinds: ["mark", "mark"] },
+];
+
+/** Tire dans une liste, chaque entrée portant son poids. */
+function pickWeighted(list, poids) {
+  const total = list.reduce((sum, item) => sum + poids(item), 0);
+  if (!total) return null;
+
+  let draw = Math.random() * total;
+  for (const item of list) {
+    draw -= poids(item);
+    if (draw <= 0) return item;
+  }
+  return list[list.length - 1];
+}
 
 function dealBirthTraits(state) {
-  const axes = {};
-  Object.keys(TRAIT_DATA).forEach((id) => {
-    const def = TRAIT_DATA[id];
-    if (!def.birth) return;
-    (axes[def.axis || "divers"] = axes[def.axis || "divers"] || []).push(id);
+  const pool = Object.keys(TRAIT_DATA).filter((id) => TRAIT_DATA[id].birth);
+  const mix = pickWeighted(DRAW_MIX, (m) => m.weight);
+
+  const pris = [];
+  const axes = [];
+
+  mix.kinds.forEach((kind) => {
+    const candidats = pool.filter((id) =>
+      TRAIT_DATA[id].kind === kind && !axes.includes(TRAIT_DATA[id].axis));
+    const choisi = pickWeighted(candidats, (id) => TRAIT_DATA[id].birth);
+    if (!choisi) return;
+
+    addTrait(state, choisi);
+    pris.push(choisi);
+    axes.push(TRAIT_DATA[choisi].axis);
   });
 
-  const donnes = [];
-  Object.values(axes).forEach((pool) => {
-    const total = pool.reduce((sum, id) => sum + TRAIT_DATA[id].birth, 0) + BIRTH_NONE;
-    let draw = Math.random() * total;
-    for (const id of pool) {
-      draw -= TRAIT_DATA[id].birth;
-      if (draw <= 0) { addTrait(state, id); donnes.push(id); return; }
-    }
-  });
-
-  if (donnes.length) {
-    state.log.unshift({ turn: 0, text: {
-      fr: "On vous décrira longtemps par ce que vous êtes avant de vous décrire par ce que vous pensez : " +
-          donnes.map((id) => L(TRAIT_DATA[id].label).toLowerCase()).join(", ") + ".",
-      en: "People will describe what you are long before they describe what you think: " +
-          donnes.map((id) => L(TRAIT_DATA[id].label).toLowerCase()).join(", ") + ".",
-    } });
-  }
-  return donnes;
+  state.draw = { mix: mix.key, traits: pris };
+  return pris;
 }
 
 /** Nouvelle partie à partir du personnage créé. */
@@ -163,6 +177,7 @@ function newGame(character) {
     landscapeBefore: {},  // le même, au tour précédent : sert aux tendances
     alliance: null,       // { party, turn } : le pacte en cours, s'il y en a un
     scene: null,          // la figure mise en scène par la carte affichée
+    draw: null,           // le tirage de départ, pour la carte d'ouverture
     race: null,           // la campagne d'une élection ordinaire, en cours
     president: null,      // { name, party } ou { isPlayer: true }
     presidentTerms: 1,    // mandats consécutifs déjà faits par le sortant
@@ -177,6 +192,10 @@ function newGame(character) {
   state.president = { name: sortant.name, party: "centrists" };
   state.presidentTerms = 1;
   state.landscape = initialLandscape(state);
+
+  // Le caractère est un trait, mais ses points sont déjà dans computeStats :
+  // on l'inscrit sur la fiche sans les compter une seconde fois.
+  if (TRAIT_DATA[character.personality]) traitsOf(state).push(character.personality);
 
   // Ce qu'on est de naissance passe avant tout le reste : ces traits modifient
   // les statistiques, donc ils doivent être en place quand on calcule les jauges.
@@ -446,9 +465,9 @@ function playerStake(electionId) {
   if (electionId === "congres") {
     // Le verrou de la partie : on ne prend pas la direction d'un parti parce
     // qu'on est aimé du pays, mais parce que l'appareil n'a pas trouvé mieux.
-    if (pos === "chef") return { target: "chef", threshold: 72, defense: true };
-    if (pos === "ministre") return { target: "chef", threshold: 71 };
-    if (pos === "depute" || pos === "maire" || pos === "euro") return { target: "chef", threshold: 74 };
+    if (pos === "chef") return { target: "chef", threshold: 69, defense: true };
+    if (pos === "ministre") return { target: "chef", threshold: 68 };
+    if (pos === "depute" || pos === "maire" || pos === "euro") return { target: "chef", threshold: 68 };
     return null;
   }
   if (electionId === "presidentielle") {
@@ -505,7 +524,9 @@ function electionScore(electionId) {
  * pas.
  */
 function electionBase(electionId) {
-  const dice = 0;
+  // Ce que certains traits font à ce scrutin-là et à aucun autre : un accent
+  // régional vaut de l'or dans sa ville et coûte cher à la télévision.
+  const dice = traitSum(game, (d) => d.election && d.election[electionId]);
 
   if (electionId === "municipales") {
     // UN SCRUTIN DE PERSONNES. On vote pour quelqu'un qu'on croise au marché,
@@ -1228,6 +1249,30 @@ function drawEvent() {
 }
 
 /**
+ * Une scène laisse-t-elle une trace définitive ? Les paquets d'investiture et
+ * de campagne se rejouent forcément, parce qu'une carrière est bloquée
+ * plusieurs fois et compte des dizaines d'élections. Une scène qui donne un
+ * trait, un écart ou une suite ne doit donc jamais revenir : sinon la marque
+ * finit par tomber mécaniquement, et un trait présent dans neuf parties sur
+ * dix n'est plus un trait.
+ */
+function laisseUneTrace(ev) {
+  let trace = false;
+  const voir = (o) => {
+    if (!o || typeof o !== "object") return;
+    if (o.trait || o.strike || o.untrait || o.chain) trace = true;
+    Object.values(o).forEach(voir);
+  };
+  ev.choices.forEach(voir);
+  return trace;
+}
+
+/** Le repli quand tout a été vu : seulement ce qui peut se revivre. */
+function sansTrace(list) {
+  return list.filter((ev) => !laisseUneTrace(ev));
+}
+
+/**
  * Une scène d'investiture refusée. Le paquet est petit, donc on accepte de
  * revoir une scène déjà jouée si tout a été vu : une carrière bloquée l'est
  * souvent plusieurs fois, et toujours par les mêmes gens.
@@ -1237,7 +1282,8 @@ function drawNomination() {
   if (!eligible.length) return null;
 
   const fresh = eligible.filter((ev) => !game.seen[ev.id]);
-  const pool = fresh.length ? fresh : eligible;
+  const repli = sansTrace(eligible);
+  const pool = fresh.length ? fresh : (repli.length ? repli : eligible);
   const ev = pool[randInt(pool.length)];
   setScene(ev);
   return ev;
@@ -1463,7 +1509,8 @@ function drawRaceEvent() {
   });
 
   const fresh = eligible.filter((ev) => !game.seen[ev.id]);
-  const pool = fresh.length ? fresh : eligible;
+  const repli = sansTrace(eligible);
+  const pool = fresh.length ? fresh : (repli.length ? repli : eligible);
   const ev = pool.length ? pool[randInt(pool.length)] : RACE_EVENTS[0];
 
   used.push(ev.id);
@@ -1816,6 +1863,18 @@ function traitEffectText(id) {
   }
   if (def.energy) parts.push(t("fx_energy_cap") + " " + signed(def.energy * 2));
   if (def.soften) parts.push(t("trait_fx_soften") + " " + Math.round(def.soften * 100) + " %");
+  // Ce qu'un trait vaut à un scrutin et pas aux autres.
+  if (def.election) {
+    Object.entries(def.election).forEach(([id, valeur]) => {
+      parts.push(t("elec_" + id) + " " + signed(valeur));
+    });
+  }
+  // Ce qu'il vaut selon le camp où l'on milite : on n'affiche que le sien.
+  if (def.partyTarget && def.partyTarget[game.party]) {
+    Object.entries(def.partyTarget[game.party]).forEach(([gauge, valeur]) => {
+      parts.push(t(gauge === "popularity" ? "label_popularity" : "label_standing") + " " + signed(valeur));
+    });
+  }
   if (def.income) parts.push(formatMoney(def.income) + " " + t("trait_fx_income"));
   // Le second tour se raconte : untel ne votera jamais pour vous, untel n'y
   // voit plus d'obstacle. C'est plus parlant qu'un bonus sans unité.
@@ -1968,9 +2027,51 @@ function choiceButtons(ev, s) {
   return html;
 }
 
+/**
+ * LA CARTE D'OUVERTURE.
+ *
+ * Avant la première décision, le jeu montre ce qu'il vient de distribuer : le
+ * caractère choisi et les deux traits tirés au sort, avec leur description et
+ * leurs effets en clair. Une partie ne doit pas commencer par un mystère.
+ */
+function renderDrawCard(host) {
+  const tirage = game.draw || { mix: "equilibre", traits: [] };
+  const caractere = game.character.personality;
+
+  const bloc = (id, tire) => {
+    const def = TRAIT_DATA[id];
+    if (!def) return "";
+    return (
+      '<div class="draw-trait draw-' + (def.kind === "asset" ? "asset" : "mark") + '">' +
+        '<p class="draw-trait-head">' +
+          '<span class="draw-trait-name">' + L(def.label) + "</span>" +
+          '<span class="draw-trait-tag">' + t(tire ? "draw_dealt" : "draw_chosen") + "</span>" +
+        "</p>" +
+        '<p class="draw-trait-desc">' + L(def.desc) + "</p>" +
+        '<p class="draw-trait-fx">' + traitEffectText(id) + "</p>" +
+      "</div>"
+    );
+  };
+
+  host.innerHTML =
+    '<div class="event-card event-card-draw">' +
+      '<p class="event-tag">' + t("draw_tag") + "</p>" +
+      '<p class="draw-title">' + (game.character.name || t("sheet_name_empty")) + "</p>" +
+      '<p class="event-text">' + t("draw_mix_" + tirage.mix) + "</p>" +
+      (caractere ? bloc(caractere, false) : "") +
+      tirage.traits.map((id) => bloc(id, true)).join("") +
+      '<div class="event-choices">' +
+        '<button type="button" class="event-choice event-continue" data-draw-done>' +
+          t("draw_begin") + "</button>" +
+      "</div>" +
+    "</div>";
+}
+
 function renderCard() {
   const host = document.getElementById("event-area");
   const card = game.card;
+
+  if (card && card.kind === "draw") { renderDrawCard(host); return; }
 
   // Le dépouillement s'affiche même quand la partie est gagnée : on veut
   // voir le résultat du vote avant l'écran de fin.
@@ -2407,6 +2508,13 @@ function handleClick(event) {
   const target = event.target.closest("button");
   if (!target) return;
 
+  if (target.hasAttribute("data-draw-done")) {
+    game.card = { kind: "event", id: drawEvent().id, resolved: false };
+    saveGame();
+    renderAll();
+    return;
+  }
+
   if (target.hasAttribute("data-restart")) {
     localStorage.removeItem(GAME_KEY);
     localStorage.removeItem(CHARACTER_KEY);
@@ -2687,7 +2795,7 @@ function renderAll() {
       return;
     }
     game = newGame(character);
-    game.card = { kind: "event", id: drawEvent().id, resolved: false };
+    game.card = { kind: "draw" };
     saveGame();
   }
 

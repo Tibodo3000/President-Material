@@ -83,6 +83,16 @@ const translations = {
     label_poll: "Intentions de vote",
     label_poll_short: "Sondage",
     label_campaign: "Campagne présidentielle",
+    draw_tag: "Avant de commencer",
+    draw_chosen: "Votre caractère",
+    draw_dealt: "Tiré au sort",
+    draw_begin: "Commencer la carrière",
+    draw_mix_equilibre:
+      "Le sort a fait son travail sans excès de zèle : il vous a donné quelque chose et il vous a repris autre chose. C'est avec cette main que tout commence, et personne ne vous demandera jamais si elle vous convenait.",
+    draw_mix_chanceux:
+      "Vous avez tiré deux bonnes cartes. Cela ne se dira jamais dans un portrait de presse, où l'on parlera de travail et de mérite, mais vous partez avec une avance que d'autres passeront leur carrière à combler.",
+    draw_mix_difficile:
+      "Le sort ne vous a rien épargné. Deux choses vous seront reprochées avant même que vous ayez ouvert la bouche, et il faudra faire une carrière avec ça, ce qui est arrivé à de meilleurs que vous.",
     race_result: "Dépouillement",
     race_mood_won: "Vous êtes donné gagnant, et personne n'y croit vraiment.",
     race_mood_ahead: "Vous avez pris une avance que vos adversaires commencent à commenter.",
@@ -99,6 +109,7 @@ const translations = {
     fx_strike_first: "On le remarque :",
     fx_strike_last: "Encore une et c'est une réputation :",
     fx_energy_cap: "Plafond d'énergie",
+    trait_family_caractere: "Caractère",
     trait_family_physique: "Physique",
     trait_family_talent: "Talents",
     trait_family_appareil: "Rapport à l'appareil",
@@ -374,6 +385,16 @@ const translations = {
     label_poll: "Voting intentions",
     label_poll_short: "Poll",
     label_campaign: "Presidential campaign",
+    draw_tag: "Before you begin",
+    draw_chosen: "Your character",
+    draw_dealt: "Dealt to you",
+    draw_begin: "Begin the career",
+    draw_mix_equilibre:
+      "Fate did its job without undue zeal: it gave you something and took something else away. This is the hand everything starts from, and nobody will ever ask whether it suited you.",
+    draw_mix_chanceux:
+      "You drew two good cards. It will never be mentioned in a press profile, where the talk will be of work and merit, but you start with a lead others will spend a career closing.",
+    draw_mix_difficile:
+      "Fate spared you nothing. Two things will be held against you before you have opened your mouth, and a career will have to be built on that, which has happened to better people than you.",
     race_result: "The count",
     race_mood_won: "You are the favourite, and nobody quite believes it.",
     race_mood_ahead: "You have built a lead your opponents have started to mention.",
@@ -390,6 +411,7 @@ const translations = {
     fx_strike_first: "People notice:",
     fx_strike_last: "One more and it sticks:",
     fx_energy_cap: "Energy ceiling",
+    trait_family_caractere: "Character",
     trait_family_physique: "Appearance",
     trait_family_talent: "Talents",
     trait_family_appareil: "Standing with the machine",

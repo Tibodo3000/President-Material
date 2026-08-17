@@ -54,8 +54,9 @@ const STAT_MAX = 20;
  *   4. Presque chaque option a au moins un malus. C'est lui qui donne son
  *      identité au profil et qui rend les choix intéressants.
  *
- * Ajouter une option = une entrée ici, une entrée dans MONEY (sauf pour la
- * personnalité), le bloc HTML correspondant et ses traductions.
+ * Ajouter une option = une entrée ici, une entrée dans MONEY, le bloc HTML
+ * correspondant et ses traductions. Une personnalité, elle, s'ajoute dans
+ * js/traits.data.js, famille « caractere ».
  */
 const STAT_MODIFIERS = {
   sex: {
@@ -84,15 +85,10 @@ const STAT_MODIFIERS = {
     celebrity:  { notoriete: +8, charisme: +6, reputation: -4, sangfroid: -2, eloquence: -2 },
   },
 
-  /* Personnalité : +3 points nets chacune, aucun effet sur la fortune. */
-  personality: {
-    hardworking: { energie: +6, sangfroid: +2, charisme: -2 },
-    charming:    { charisme: +6, reseau: +2, reputation: -2 },
-    clever:      { eloquence: +6, sangfroid: +2, charisme: -2 },
-    provocative: { notoriete: +8, charisme: +2, reputation: -4 },
-    principled:  { reputation: +6, sangfroid: +2, reseau: -2 },
-    calculating: { sangfroid: +4, reseau: +6, reputation: -4 },
-  },
+  /* La personnalité n'est plus ici : c'est un trait, et ses modificateurs sont
+     écrits dans js/traits.data.js avec le reste de ce qu'il fait. Le joueur
+     voit ainsi d'où viennent ses points au lieu de les subir. computeStats
+     les applique quand même, pour que la fiche de création reste juste. */
 };
 
 /* ==========================================================================
@@ -346,14 +342,18 @@ const STAT_GROUPS = [
 function computeStats(choices) {
   const stats = { ...BASE_STATS };
 
-  Object.entries(choices).forEach(([field, value]) => {
-    const mods = STAT_MODIFIERS[field] && STAT_MODIFIERS[field][value];
+  const applique = (mods) => {
     if (!mods) return;
+    Object.entries(mods).forEach(([stat, delta]) => { stats[stat] += delta; });
+  };
 
-    Object.entries(mods).forEach(([stat, delta]) => {
-      stats[stat] += delta;
-    });
+  Object.entries(choices).forEach(([field, value]) => {
+    applique(STAT_MODIFIERS[field] && STAT_MODIFIERS[field][value]);
   });
+
+  // Le caractère est un trait : ses points sont écrits avec lui.
+  const caractere = typeof TRAIT_DATA !== "undefined" && TRAIT_DATA[choices.personality];
+  applique(caractere && caractere.stats);
 
   Object.keys(stats).forEach((stat) => {
     stats[stat] = Math.max(STAT_MIN, Math.min(STAT_MAX, stats[stat]));
