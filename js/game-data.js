@@ -641,6 +641,7 @@ function eventMatches(ev, s) {
   // Traits exigés, et traits rédhibitoires : c'est ce qui rend une carrière
   // irréversible. Un renégat ne se verra plus jamais proposer certaines portes.
   if (w.trait && !w.trait.every((id) => hasTrait(s, id))) return false;
+  if (w.anyTrait && !w.anyTrait.some((id) => hasTrait(s, id))) return false;
   if (w.notTrait && w.notTrait.some((id) => hasTrait(s, id))) return false;
 
   return true;
@@ -807,7 +808,10 @@ function applyEffects(effects, s) {
       changes.push({ kind: "alliance", key: party || had, on: Boolean(party) });
       return;
     }
-    if (key === "chain") { scheduleChain(s, value); return; }
+    if (key === "chain") {
+      (Array.isArray(value) ? value : [value]).forEach((id) => scheduleChain(s, id));
+      return;
+    }
     if (key === "end") { s.ended = { type: value }; return; }
   });
 

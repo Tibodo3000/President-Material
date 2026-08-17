@@ -46,6 +46,9 @@
  *   "minTurn": 10,        "maxTurn": 40
  *   "stat": { "notoriete": { "min": 6 }, "energie": { "max": 4 } }
  *   "flag": { "dirtyMoney": true, "onTrial": false }
+ *   "trait":       ["orateur", "teflon"]           TOUS ces traits
+ *   "anyTrait":    ["zozote", "voix"]              AU MOINS UN de ces traits
+ *   "notTrait":    ["renegat"]                     aucun de ces traits
  *   "ruling": true                                votre camp gouverne
  *   "allied": false                               vous avez un pacte en cours
  *
@@ -99,7 +102,8 @@
  *          Certaines marques ne s'attrapent pas du premier coup : il faut
  *          récidiver. L'événement signale l'écart, le moteur compte, et la
  *          marque tombe au énième. Le nombre est dans js/traits.data.js.
- *   "chain": "id_evenement"                              force l'événement suivant
+ *   "chain": "id_evenement"                              programme une suite
+ *   "chain": ["id_un", "id_deux"]                        ou plusieurs
  *   "end": "conviction"                                  termine la partie
  *
  *   "landscape": { "self": 2, "scene": -2 }              LE RAPPORT DE FORCE.
@@ -659,7 +663,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Le pousser encore plus haut", "en": "Push him even higher" },
-      "effects": { "standing": 8, "reseau": 1, "notoriete": -1, "popularity": -4, "chain": "protege_trahison", "chain2": "ecole_du_parti" },
+      "effects": { "standing": 8, "reseau": 1, "notoriete": -1, "popularity": -4, "chain": ["protege_trahison", "ecole_du_parti"] },
       "result": { "fr": "Vous en faites votre bras droit officiel. Le tandem impressionne.",
                   "en": "You make him your official right hand. The pairing impresses." } },
     { "label": { "fr": "Le remettre à sa place", "en": "Put him back in his place" },
@@ -4075,7 +4079,7 @@ const EVENT_DATA = {
         "result": { "fr": "Vous descendez à son niveau sans son talent. Le lendemain, les deux séquences passent ensemble et une seule est drôle.",
                     "en": "You go down to his level without his timing. The next day both clips run together, and only one of them is funny." } } },
     { "label": { "fr": "Prendre le pays à témoin", "en": "Take it to the country" },
-      "when": { "trait": ["ingrat", "obese", "lifting", "use"] },
+      "when": { "anyTrait": ["ingrat", "obese", "lifting", "use"] },
       "effects": { "popularity": 11, "reputation": 2, "standing": -4, "notoriete": 1,
                    "landscape": { "scene": -1.4 } },
       "result": { "fr": "Vous regardez la caméra et vous demandez combien de gens, chez eux, entendent ça toute leur vie. Le standard de la chaîne sature avant la fin du générique.",
@@ -4251,6 +4255,164 @@ const EVENT_DATA = {
       "effects": { "standing": 5, "reputation": 1, "popularity": -3 },
       "result": { "fr": "Vous répondez que vous n'êtes pas un animateur. La direction du parti approuve, et le créneau va à quelqu'un qui, lui, deviendra ministre.",
                   "en": "You answer that you are not a broadcaster. The leadership approves, and the slot goes to somebody who will become a minister." } }
+  ]
+},
+/* ==========================================================================
+   19. CE QUE LA VIE POLITIQUE FAIT DE CE QU'ON EST
+   ==========================================================================
+   Ces événements ne se jouent que pour certains personnages. Ils ne portent
+   aucun jugement sur ce qu'ils sont : ils racontent ce que l'appareil, la
+   presse et les électeurs en font, ce qui est très différent et beaucoup plus
+   drôle. La conséquence d'un même choix change selon le parti, par les
+   "effectsIf" : c'est le camp qui juge, pas le jeu.
+   ========================================================================== */
+
+{
+  "id": "consigne_discretion",
+  "once": true,
+  "weight": 5,
+  "when": { "trait": ["homosexuel"], "minTurn": 6, "position": ["conseiller", "maire", "euro", "depute"] },
+  "tag": { "fr": "Avant l'investiture", "en": "Before the nomination" },
+  "text": {
+    "fr": "Un cadre de la fédération vous prend à part avant la commission d'investiture. Il ne dit rien de désagréable, il parle de « circonscription rurale », de « moment mal choisi » et de « prudence ». Il conclut en disant que lui, personnellement, s'en moque.",
+    "en": "A senior figure takes you aside before the nominations committee. He says nothing unpleasant; he mentions the “rural constituency”, the “wrong moment” and “caution”. He finishes by saying that he personally could not care less."
+  },
+  "choices": [
+    { "label": { "fr": "Suivre la consigne", "en": "Follow the advice" },
+      "effects": { "standing": 9, "reputation": -2, "popularity": -2, "sangfroid": 1 },
+      "result": { "fr": "Vous ne mentez sur rien, vous ne dites simplement rien, et vous découvrez que c'est une occupation à plein temps. L'investiture arrive, et une fatigue avec elle.",
+                  "en": "You lie about nothing, you simply say nothing, and you discover it is a full-time occupation. The nomination comes through, and a particular tiredness with it." } },
+    { "label": { "fr": "Répondre que la question ne se pose pas", "en": "Answer that the question does not arise" },
+      "effects": { "reputation": 2, "sangfroid": 1, "standing": -4 },
+      "result": { "fr": "Vous le regardez sans répondre jusqu'à ce qu'il change de sujet, ce qui prend onze secondes. Il vous soutiendra quand même, en le racontant autrement.",
+                  "en": "You look at him without answering until he changes the subject, which takes eleven seconds. He will back you anyway, and tell the story differently." } },
+    { "label": { "fr": "Prendre les devants et en parler publiquement", "en": "Get ahead of it and say it publicly" },
+      "effects": { "notoriete": 2, "popularity": 5, "reputation": 3, "standing": -6 },
+      "effectsIf": [
+        { "when": { "party": ["radical_left", "socdem"] }, "effects": { "standing": 10, "popularity": 4 } },
+        { "when": { "party": ["conservatives"] }, "effects": { "standing": -6 } },
+        { "when": { "party": ["identitarians"] }, "effects": { "standing": -14, "popularity": -6 } }
+      ],
+      "result": { "fr": "Une phrase dans une interview, sans emphase, au milieu d'un paragraphe sur autre chose. Elle fait quatre jours de commentaires et vous ne la répéterez plus jamais.",
+                  "en": "One sentence in an interview, no emphasis, in the middle of a paragraph about something else. It runs for four days and you will never repeat it." } }
+  ]
+},
+
+{
+  "id": "menace_outing",
+  "weight": 4,
+  "when": { "trait": ["homosexuel"], "minTurn": 12, "position": ["depute", "ministre", "chef", "euro"] },
+  "tag": { "fr": "Un hebdomadaire", "en": "A weekly" },
+  "text": {
+    "fr": "Un journal vous prévient qu'il publie jeudi. Ce n'est pas une enquête, il n'y a rien à enquêter : c'est un papier sur votre vie privée, écrit sur le ton de celui qui rend service en disant la vérité.",
+    "en": "A paper warns you it publishes on Thursday. It is not an investigation, there is nothing to investigate: it is a piece about your private life, written in the tone of somebody doing you a favour by telling the truth."
+  },
+  "choices": [
+    { "label": { "fr": "Le devancer d'un jour", "en": "Beat them by a day" },
+      "effects": { "notoriete": 2, "popularity": 9, "reputation": 2, "energie": -1 },
+      "effectsIf": [
+        { "when": { "party": ["identitarians", "conservatives"] }, "effects": { "standing": -10 } },
+        { "when": { "party": ["radical_left", "socdem"] }, "effects": { "standing": 6 } }
+      ],
+      "result": { "fr": "Vous publiez mercredi soir, en trois phrases, sans photo et sans confidence. Le papier du jeudi tombe à plat et son auteur explique partout qu'il allait le sortir en bien.",
+                  "en": "You publish on Wednesday evening, three sentences, no photograph and no confidences. Thursday's piece falls flat and its author explains everywhere that he was going to be kind about it." } },
+    { "label": { "fr": "Attaquer en justice pour vie privée", "en": "Sue over privacy" },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "money": 0.5 }, "dice": 16 },
+      "success": { "effects": { "money": -25000, "reputation": 2, "standing": 4, "popularity": -2 },
+        "result": { "fr": "Le papier ne sort pas. Trois rédactions savent pourquoi, ce qui vous coûtera un jour beaucoup plus cher que l'avocat.",
+                    "en": "The piece does not run. Three newsrooms know why, which will one day cost you far more than the lawyer did." } },
+      "failure": { "effects": { "money": -25000, "popularity": -6, "notoriete": 2, "standing": -4 },
+        "result": { "fr": "Le référé est rejeté et le rejet devient le sujet. On ne parle plus de votre vie privée, on parle de vos avocats.",
+                    "en": "The injunction is refused and the refusal becomes the story. Nobody talks about your private life any more, they talk about your lawyers." } } },
+    { "label": { "fr": "Ne rien faire et laisser paraître", "en": "Do nothing and let it run" },
+      "effects": { "sangfroid": 2, "popularity": 2, "reputation": 1, "energie": -1, "strike": "lache" },
+      "result": { "fr": "L'article paraît, il est lu, et il ne se passe rien du tout. Vous avez passé six jours à préparer une tempête qui n'est pas venue, et c'est ça qui vous met en colère.",
+                  "en": "The piece runs, it is read, and absolutely nothing happens. You spent six days preparing for a storm that never came, and that is what makes you angry." } }
+  ]
+},
+
+{
+  "id": "conjoint_officiel",
+  "once": true,
+  "weight": 4,
+  "when": { "trait": ["homosexuel"], "minTurn": 16, "position": ["ministre", "chef", "depute"] },
+  "tag": { "fr": "Le protocole", "en": "Protocol" },
+  "text": {
+    "fr": "Un déplacement officiel à l'étranger, avec la photo de famille habituelle sur le perron. Le service du protocole demande, par écrit et très poliment, si votre conjoint « souhaite figurer », formule qu'on n'emploie pour personne d'autre.",
+    "en": "An official trip abroad, with the usual family photograph on the steps. The protocol office asks, in writing and very politely, whether your partner “wishes to appear”, a form of words used for nobody else."
+  },
+  "choices": [
+    { "label": { "fr": "Il figure, comme tous les autres", "en": "He appears, like everybody else" },
+      "effects": { "popularity": 6, "reputation": 2, "notoriete": 1 },
+      "effectsIf": [
+        { "when": { "party": ["identitarians", "conservatives"] }, "effects": { "standing": -8, "popularity": -4 } }
+      ],
+      "result": { "fr": "La photo est banale, ce qui est exactement le but. Deux chaînes la commentent pendant quarante minutes, ce qui prouve qu'elle ne l'était pas encore.",
+                  "en": "The photograph is unremarkable, which is exactly the point. Two channels discuss it for forty minutes, which proves it was not unremarkable yet." } },
+    { "label": { "fr": "Y aller seul, pour ne pas l'exposer", "en": "Go alone, to keep him out of it" },
+      "effects": { "standing": 4, "popularity": -2, "energie": -1 },
+      "result": { "fr": "Vous lui expliquez que c'est plus simple, il répond que oui, bien sûr, et vous savez tous les deux que vous venez de choisir votre carrière contre lui.",
+                  "en": "You explain that it is simpler, he says of course it is, and you both know you have just chosen your career over him." } },
+    { "label": { "fr": "Demander pourquoi la question est posée", "en": "Ask why the question is being asked" },
+      "effects": { "reputation": 3, "notoriete": 1, "standing": -5, "popularity": 3 },
+      "result": { "fr": "Vous répondez au protocole par une lettre de quatre lignes qui fuite dans la semaine. Le service change son formulaire l'année suivante, sans le dire à personne.",
+                  "en": "You answer protocol with a four-line letter that leaks within the week. The office changes its form the following year, without telling anyone." } }
+  ]
+},
+
+{
+  "id": "orthophoniste",
+  "once": true,
+  "weight": 5,
+  "when": { "trait": ["zozote"], "minTurn": 6 },
+  "tag": { "fr": "Travail de la voix", "en": "Voice coaching" },
+  "text": {
+    "fr": "Votre équipe a pris rendez-vous pour vous chez une orthophoniste, sans vous demander. Le devis est déjà signé et le premier créneau est mardi.",
+    "en": "Your team has booked you an appointment with a speech therapist, without asking. The estimate is already signed and the first slot is Tuesday."
+  },
+  "choices": [
+    { "label": { "fr": "Y aller sérieusement, pendant deux ans", "en": "Go seriously, for two years" },
+      "roll": { "base": 14, "stat": "energie", "plus": { "sangfroid": 0.4 }, "dice": 16 },
+      "success": { "effects": { "untrait": "zozote", "eloquence": 2, "energie": -1, "money": -9000 },
+        "result": { "fr": "Deux séances par semaine pendant deux ans, et un jour vous prononcez un discours entier sans y penser une seule fois. Les imitateurs mettent six mois à s'en apercevoir.",
+                    "en": "Two sessions a week for two years, and one day you deliver a whole speech without thinking about it once. It takes the impressionists six months to notice." } },
+      "failure": { "effects": { "energie": -2, "money": -9000, "popularity": -2 },
+        "result": { "fr": "Vous y allez trois mois, puis les déplacements reprennent. Il vous reste un exercice de respiration que vous faites dans les ascenseurs.",
+                    "en": "You go for three months, then the travelling starts again. What remains is a breathing exercise you do in lifts." } } },
+    { "label": { "fr": "Annuler le rendez-vous", "en": "Cancel the appointment" },
+      "effects": { "reputation": 2, "sangfroid": 1, "standing": -4 },
+      "result": { "fr": "Vous expliquez que vous parlez comme ça depuis toujours et que le pays s'en remettra. Votre attachée de presse note la phrase, au cas où elle servirait.",
+                  "en": "You explain that you have always talked like this and that the country will cope. Your press officer writes the line down, in case it comes in useful." } },
+    { "label": { "fr": "En faire votre marque de fabrique", "en": "Make it your trademark" },
+      "effects": { "notoriete": 2, "popularity": 7, "charisme": 1, "standing": -5 },
+      "result": { "fr": "Vous ouvrez votre meeting suivant en imitant l'imitateur qui vous imite. La salle hurle, et personne ne se moque plus de la même façon après ça.",
+                  "en": "You open your next rally by doing an impression of the impressionist who does you. The hall roars, and nobody mocks you quite the same way afterwards." } }
+  ]
+},
+
+{
+  "id": "imitateur",
+  "weight": 4,
+  "when": { "anyTrait": ["zozote", "voix"], "minTurn": 14, "stat": { "notoriete": { "min": 9 } } },
+  "tag": { "fr": "L'imitateur", "en": "The impressionist" },
+  "text": {
+    "fr": "Un humoriste a construit un numéro entier sur votre façon de parler. Il passe en deuxième partie de soirée, il est très bon, et son sketch est désormais plus connu que vos propositions.",
+    "en": "A comedian has built an entire routine on the way you speak. He is on late in the evening, he is very good, and his sketch is now better known than your policies."
+  },
+  "choices": [
+    { "label": { "fr": "L'inviter à un meeting", "en": "Invite him to a rally" },
+      "effects": { "popularity": 9, "charisme": 1, "notoriete": 1, "standing": -4 },
+      "result": { "fr": "Il monte sur scène, vous fait devant vous, et vous reprenez le micro derrière lui. La séquence vaut trois mois de campagne et coûte un dîner.",
+                  "en": "He comes on stage, does you to your face, and you take the microphone after him. The clip is worth three months of campaigning and costs one dinner." } },
+    { "label": { "fr": "Se plaindre à la chaîne", "en": "Complain to the channel" },
+      "effects": { "popularity": -8, "reputation": -2, "standing": 3, "strike": "lache" },
+      "result": { "fr": "La chaîne ne change rien et le numéro passe désormais en première partie de soirée, avec votre plainte comme introduction.",
+                  "en": "The channel changes nothing and the routine now runs in prime time, with your complaint as the introduction." } },
+    { "label": { "fr": "Travailler la voix jusqu'à rendre l'imitation fausse", "en": "Work on the voice until the impression stops working" },
+      "when": { "trait": ["zozote"] },
+      "effects": { "energie": -2, "eloquence": 2, "popularity": 2, "money": -6000 },
+      "result": { "fr": "Six mois d'exercices, et son numéro commence à sonner faux sans qu'il comprenne pourquoi. Il en changera, et ce sera sur vos idées.",
+                  "en": "Six months of exercises, and his routine starts to ring false without his understanding why. He will change it, and the new one will be about your ideas." } }
   ]
 }
 ],

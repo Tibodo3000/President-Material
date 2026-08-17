@@ -1712,9 +1712,9 @@ function unlockReasons(when) {
   if (when.party) parts.push(names(when.party, "party_"));
   if (when.position) parts.push(names(when.position, "pos_"));
 
-  if (when.trait) {
-    parts.push(when.trait.map((id) => (TRAIT_DATA[id] ? L(TRAIT_DATA[id].label) : id)).join(" / "));
-  }
+  const nomTrait = (id) => (TRAIT_DATA[id] ? L(TRAIT_DATA[id].label) : id);
+  if (when.trait) parts.push(when.trait.map(nomTrait).join(" · "));
+  if (when.anyTrait) parts.push(when.anyTrait.map(nomTrait).join(" / "));
   if (when.stat) {
     Object.entries(when.stat).forEach(([stat, range]) => {
       if (range.min !== undefined) parts.push(t("stat_" + stat) + " " + range.min + "+");
