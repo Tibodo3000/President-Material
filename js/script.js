@@ -89,7 +89,7 @@ const translations = {
     draw_chosen: "Votre caractère",
     draw_dealt: "Tiré au sort",
     draw_begin: "Commencer la carrière",
-    draw_back: "Revenir au choix du parti",
+    draw_final: "Cette main est la vôtre. On ne rejoue pas un tirage parce qu'il ne plaît pas.",
     draw_mix_equilibre:
       "Le sort a fait son travail sans excès de zèle : il vous a donné quelque chose et il vous a repris autre chose. C'est avec cette main que tout commence, et personne ne vous demandera jamais si elle vous convenait.",
     draw_mix_chanceux:
@@ -111,7 +111,7 @@ const translations = {
     fx_end: "Fin de carrière",
     fx_strike_first: "On le remarque :",
     fx_strike_last: "Encore une et c'est une réputation :",
-    fx_energy_cap: "Plafond d'énergie",
+    fx_energy_cap: "Énergie maximale",
     trait_family_caractere: "Caractère",
     trait_family_physique: "Physique",
     trait_family_talent: "Talents",
@@ -394,7 +394,7 @@ const translations = {
     draw_chosen: "Your character",
     draw_dealt: "Dealt to you",
     draw_begin: "Begin the career",
-    draw_back: "Back to the party choice",
+    draw_final: "This hand is yours. Nobody gets to redraw because they dislike it.",
     draw_mix_equilibre:
       "Fate did its job without undue zeal: it gave you something and took something else away. This is the hand everything starts from, and nobody will ever ask whether it suited you.",
     draw_mix_chanceux:
@@ -416,7 +416,7 @@ const translations = {
     fx_end: "Career over",
     fx_strike_first: "People notice:",
     fx_strike_last: "One more and it sticks:",
-    fx_energy_cap: "Energy ceiling",
+    fx_energy_cap: "Maximum energy",
     trait_family_caractere: "Character",
     trait_family_physique: "Appearance",
     trait_family_talent: "Talents",

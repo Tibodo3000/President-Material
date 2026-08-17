@@ -1242,7 +1242,11 @@ function drawNomination() {
 
   const fresh = eligible.filter((ev) => !game.seen[ev.id]);
   const repli = sansTrace(eligible);
-  const pool = fresh.length ? fresh : (repli.length ? repli : eligible);
+  const secours = sansTrace(NOMINATION_EVENTS);
+
+  const pool = fresh.length ? fresh : (repli.length ? repli : secours);
+  if (!pool.length) return null;
+
   const ev = pool[randInt(pool.length)];
   setScene(ev);
   return ev;
@@ -1467,9 +1471,15 @@ function drawRaceEvent() {
     return eventMatches({ ...ev, id: null }, game);
   });
 
+  // Le dernier recours ignore les scènes déjà jouées dans CETTE campagne
+  // plutôt que d'autoriser une scène à trace : mieux vaut revoir un décor que
+  // récolter une marque parce que le paquet est vide.
   const fresh = eligible.filter((ev) => !game.seen[ev.id]);
   const repli = sansTrace(eligible);
-  const pool = fresh.length ? fresh : (repli.length ? repli : eligible);
+  const secours = sansTrace(RACE_EVENTS.filter((ev) =>
+    !ev.last && (!ev.race || ev.race.includes(game.race.id))));
+
+  const pool = fresh.length ? fresh : (repli.length ? repli : secours);
   const ev = pool.length ? pool[randInt(pool.length)] : RACE_EVENTS[0];
 
   used.push(ev.id);

@@ -203,7 +203,10 @@ if (character) {
     event.preventDefault();
     // Le tirage se fait ici, une fois, et voyage avec le personnage : la page
     // suivante ne fait que le montrer, et la partie ne fait que l'appliquer.
-    saveCharacter({ ...currentChoices(), draw: drawBirthTraits() });
+    // La main se tire une fois pour un personnage. Repasser par cette page
+    // pour changer de parti ne redistribue pas les cartes : le physique et le
+    // caractère ne dépendent pas du parti qu'on rejoint.
+    saveCharacter({ ...currentChoices(), draw: (character && character.draw) || drawBirthTraits() });
     localStorage.removeItem("pm-game"); // repartir de zéro, pas d'ancienne partie
     window.location.href = "tirage.html";
   });
