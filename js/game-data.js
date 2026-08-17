@@ -113,10 +113,6 @@ function popularityTarget(s) {
     2 + statScore(s, "notoriete") * 2.6 + statScore(s, "reputation") * 1.35 +
     statScore(s, "charisme") * 1.0 +
     POSITION_EXPOSURE[s.position] * 0.7 +
-    // L'ÉPUISEMENT SE VOIT. En dessous d'un certain niveau, on annule des
-    // déplacements, on lit ses fiches, on répond à côté. Sans ce prix-là,
-    // dépenser sa forme ne coûtait rien du tout.
-    Math.min(0, (s.stats.energie - 8) * 2) +
     // Un ministre porte le bilan d'un gouvernement qu'il n'a pas choisi. La
     // fonction fait connaître, elle ne fait pas aimer.
     (s.position === "ministre" ? -8 : 0) +
@@ -916,8 +912,20 @@ function rollDice(roll) {
 }
 
 /** La part certaine du score, celle qui ne doit rien au dé. */
+/**
+ * CE QUE LA FATIGUE COÛTE.
+ *
+ * Elle ne rend pas moins aimé : elle fait rater. En dessous de huit, on
+ * prépare mal, on répond à côté, on laisse passer la question qu'il fallait
+ * poser. Le malus s'applique à tous les jets, et le joueur le voit venir,
+ * puisque l'interface prévient quand un choix devient très risqué.
+ */
+function fatigueMalus(s) {
+  return Math.min(0, (s.stats.energie - 8) * 0.4);
+}
+
 function rollBase(roll, s) {
-  let score = roll.stat ? statScore(s, roll.stat) : 0;
+  let score = (roll.stat ? statScore(s, roll.stat) : 0) + fatigueMalus(s);
 
   if (roll.plus) {
     Object.entries(roll.plus).forEach(([key, weight]) => {
