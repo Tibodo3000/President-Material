@@ -34,8 +34,10 @@
  *                   PAR AXE, indépendamment : on peut très bien être beau et
  *                   zozoter, ou avoir une voix de radio et être lâche. Les
  *                   axes existants : "apparence", "elocution", "identite",
- *                   "temperament". Chacun a sa part de chance de ne rien
- *                   donner du tout, réglée par BIRTH_NONE dans js/game.js.
+ *                   Chacun a sa part de chance de ne rien donner du tout,
+ *                   réglée par BIRTH_NONE dans js/game.js. Le tempérament,
+ *                   lui, ne se distribue PAS : il se révèle en jouant, à force
+ *                   de choisir la fuite ou l'affrontement.
  *   "strikes"       Nombre de fois qu'il faut recommencer avant que le trait
  *                   soit acquis. C'est ce qui distingue un écart d'une
  *                   réputation : on ne devient pas menteur en se dédisant une
@@ -75,12 +77,13 @@
  * ----------------------------------------------------------------------------
  * RÈGLES D'ÉCRITURE
  * ----------------------------------------------------------------------------
- * 1. AUCUN TRAIT N'EST PUREMENT BON, ET AUCUN N'EST PUREMENT MAUVAIS. Les
- *    atouts les plus forts se paient dans une statistique ou dans l'autre
- *    jauge, et les marques les plus lourdes rapportent quelque chose : c'est
- *    ce qui fait qu'un joueur peut vouloir se salir les mains. Un trait
- *    physique subi doit toujours donner quelque chose en retour, sinon le
- *    tirage de naissance n'est qu'une punition.
+ * 1. AUCUN TRAIT N'EST PUREMENT BON, ET AUCUN N'EST PUREMENT MAUVAIS. Mais la
+ *    contrepartie d'une marque n'est pas forcément un bonus chiffré : le plus
+ *    souvent, ce sont LES CHOIX QU'ELLE OUVRE. « Lâche » ne rapporte pas un
+ *    point, il donne accès à des portes de sortie que les autres personnages
+ *    ne voient jamais, et qui sauvent une carrière aussi souvent qu'elles la
+ *    déshonorent. Un trait dont tous les effets chiffrés sont négatifs est
+ *    donc parfaitement légitime, à condition qu'il débloque quelque chose.
  *
  * 2. UN TRAIT DIT CE QUE LE PERSONNAGE EST, PAS OÙ IL EN EST. « Orateur »,
  *    « corpulent », « parole en l'air » décrivent une personne : on peut les
@@ -201,8 +204,7 @@ const TRAIT_DATA = {
   "intrepide": {
     "family": "physique",
     "kind": "asset",
-    "birth": 4,
-    "axis": "temperament",
+    "strikes": 2,
     "label": { "fr": "Intrépide", "en": "Fearless" },
     "desc": {
       "fr": "Le conflit ne vous coûte rien, il vous réveille. Vos équipes vous suivent en serrant les dents et votre direction vous regarde partir au front avec inquiétude.",
@@ -215,16 +217,14 @@ const TRAIT_DATA = {
   "lache": {
     "family": "physique",
     "kind": "mark",
-    "birth": 4,
-    "axis": "temperament",
+    "strikes": 2,
     "label": { "fr": "Lâche", "en": "Coward" },
     "desc": {
       "fr": "Devant un conflit, quelque chose en vous cherche la sortie. Vous avez fait une carrière entière sans jamais vous exposer, ce qui est une forme de longévité.",
       "en": "Faced with a fight, something in you looks for the exit. You have built a whole career without ever sticking your neck out, which is its own kind of longevity."
     },
     "stats": { "sangfroid": -4, "reputation": -2 },
-    "target": { "standing": 4, "popularity": -3 },
-    "soften": 0.25
+    "target": { "standing": 4, "popularity": -3 }
   },
 
   "athletique": {
