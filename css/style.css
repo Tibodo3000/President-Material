@@ -1912,3 +1912,17 @@ body {
 }
 
 .draw-back:hover { color: var(--gold); }
+
+/* Le repère de récupération sur la barre d'énergie : au-delà, elle ne remonte plus. */
+.stat-bar.has-ceiling { position: relative; }
+
+.stat-bar.has-ceiling::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: var(--ceiling, 70%);
+  width: 2px;
+  background: var(--gold-2);
+  opacity: 0.85;
+}

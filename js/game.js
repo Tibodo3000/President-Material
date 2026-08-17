@@ -1608,10 +1608,21 @@ function renderStatus() {
   renderGauge("standing", game.standing, "label_standing");
 
   document.querySelectorAll(".stat-row").forEach((row) => {
-    const value = game.stats[row.getAttribute("data-stat")];
+    const stat = row.getAttribute("data-stat");
+    const value = game.stats[stat];
     if (value === undefined) return;
+
     row.querySelector(".stat-bar-fill").style.width = (value / STAT_MAX) * 100 + "%";
     row.querySelector(".stat-row-value").textContent = value;
+
+    // L'énergie est la seule statistique qui se dépense et se récupère. On
+    // pose un repère sur sa barre, là où la récupération s'arrête : sans lui,
+    // « récupération +4 » ne veut rien dire pour personne.
+    if (stat !== "energie") return;
+    const bar = row.querySelector(".stat-bar");
+    bar.classList.add("has-ceiling");
+    bar.style.setProperty("--ceiling", (energyCeiling(game) / STAT_MAX) * 100 + "%");
+    row.setAttribute("title", t("energy_ceiling_title"));
   });
 
   document.getElementById("sheet-money").textContent = formatMoney(game.money);
