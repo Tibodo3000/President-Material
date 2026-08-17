@@ -423,12 +423,11 @@ function applyBudget(s) {
 
 /* ==========================================================================
    Helpers utilisés par les événements
+   ==========================================================================
+   La fonction L(), qui choisit la langue d'un texte { fr, en }, vit avec les
+   traductions dans js/script.js : les pages de création en ont besoin sans
+   charger le moteur.
    ========================================================================== */
-
-/** Texte localisé : L({fr, en}) suit la langue active du site. */
-function L(obj) {
-  return obj[currentLang] || obj.fr;
-}
 
 /** Modifie une statistique en restant dans les bornes de l'échelle. */
 function bump(state, stat, delta) {

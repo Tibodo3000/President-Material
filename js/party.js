@@ -201,9 +201,11 @@ if (character) {
   // Personnage et parti choisis : la partie peut commencer.
   partyForm.addEventListener("submit", (event) => {
     event.preventDefault();
-    saveCharacter(currentChoices());
+    // Le tirage se fait ici, une fois, et voyage avec le personnage : la page
+    // suivante ne fait que le montrer, et la partie ne fait que l'appliquer.
+    saveCharacter({ ...currentChoices(), draw: drawBirthTraits() });
     localStorage.removeItem("pm-game"); // repartir de zéro, pas d'ancienne partie
-    window.location.href = "game.html";
+    window.location.href = "tirage.html";
   });
 
   document.addEventListener("DOMContentLoaded", renderAll);

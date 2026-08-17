@@ -25,11 +25,13 @@ const translations = {
     page_title_home: "President Material",
     page_title_create: "Création de personnage · President Material",
     page_title_party: "Choix du parti · President Material",
+    page_title_draw: "Le tirage · President Material",
     page_title_game: "En campagne · President Material",
 
     /* Fil des étapes */
     step_character: "Personnage",
     step_party: "Parti",
+    step_draw: "Tirage",
     cta_continue: "Choisir un parti",
     back_to_character: "Revenir au personnage",
 
@@ -87,6 +89,7 @@ const translations = {
     draw_chosen: "Votre caractère",
     draw_dealt: "Tiré au sort",
     draw_begin: "Commencer la carrière",
+    draw_back: "Revenir au choix du parti",
     draw_mix_equilibre:
       "Le sort a fait son travail sans excès de zèle : il vous a donné quelque chose et il vous a repris autre chose. C'est avec cette main que tout commence, et personne ne vous demandera jamais si elle vous convenait.",
     draw_mix_chanceux:
@@ -327,11 +330,13 @@ const translations = {
     page_title_home: "President Material",
     page_title_create: "Character creation · President Material",
     page_title_party: "Choosing a party · President Material",
+    page_title_draw: "The draw · President Material",
     page_title_game: "On the trail · President Material",
 
     /* Step indicator */
     step_character: "Character",
     step_party: "Party",
+    step_draw: "The draw",
     cta_continue: "Choose a party",
     back_to_character: "Back to the character",
 
@@ -389,6 +394,7 @@ const translations = {
     draw_chosen: "Your character",
     draw_dealt: "Dealt to you",
     draw_begin: "Begin the career",
+    draw_back: "Back to the party choice",
     draw_mix_equilibre:
       "Fate did its job without undue zeal: it gave you something and took something else away. This is the hand everything starts from, and nobody will ever ask whether it suited you.",
     draw_mix_chanceux:
@@ -621,6 +627,16 @@ let currentLang = "fr";
 /** Renvoie une chaîne traduite dans la langue active. */
 function t(key) {
   return (translations[currentLang] && translations[currentLang][key]) || key;
+}
+
+/**
+ * Texte localisé écrit à côté de sa donnée : L({ fr, en }) suit la langue
+ * active. Les événements, les traits, les fins et les postes de dépense
+ * portent leurs textes ainsi, plutôt que par une clé de dictionnaire, parce
+ * qu'un texte de fiction se relit mieux à côté de ses effets.
+ */
+function L(obj) {
+  return obj[currentLang] || obj.fr;
 }
 
 /** Traduit les attributs (placeholder, title, aria-label) d'un jeu d'éléments. */

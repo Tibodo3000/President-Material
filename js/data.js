@@ -372,8 +372,65 @@ function computeMoney(choices) {
   return Math.max(0, total);
 }
 
+
 /* ==========================================================================
-   Persistance entre les deux pages
+   Le tirage de départ
+   ==========================================================================
+   On ne choisit ni son visage, ni sa voix, ni sa santé, ni sa mémoire. Le jeu
+   distribue DEUX traits avant la première décision, sur sa propre page, pour
+   que personne ne puisse passer à côté.
+
+   Le tirage n'est pas neutre. Une main équilibrée, un atout et une marque,
+   reste la plus probable : c'est la situation la plus intéressante à jouer.
+   Mais le sort peut aussi gâter quelqu'un ou l'accabler, et ces parties-là
+   existent : c'est ce qui rend la chance réelle.
+
+   Les deux traits viennent toujours d'axes différents : on ne peut pas être
+   grand et petit, ni avoir une voix de radio et un cheveu sur la langue.
+   ========================================================================== */
+
+const DRAW_MIX = [
+  { key: "equilibre", weight: 56, kinds: ["asset", "mark"] },
+  { key: "chanceux", weight: 22, kinds: ["asset", "asset"] },
+  { key: "difficile", weight: 22, kinds: ["mark", "mark"] },
+];
+
+/** Tire dans une liste, chaque entrée portant son poids. */
+function pickWeighted(list, poids) {
+  const total = list.reduce((sum, item) => sum + poids(item), 0);
+  if (!total) return null;
+
+  let draw = Math.random() * total;
+  for (const item of list) {
+    draw -= poids(item);
+    if (draw <= 0) return item;
+  }
+  return list[list.length - 1];
+}
+
+/** Renvoie la main tirée : le type de main et les deux traits. */
+function drawBirthTraits() {
+  const pool = Object.keys(TRAIT_DATA).filter((id) => TRAIT_DATA[id].birth);
+  const mix = pickWeighted(DRAW_MIX, (m) => m.weight);
+
+  const traits = [];
+  const axes = [];
+
+  mix.kinds.forEach((kind) => {
+    const candidats = pool.filter((id) =>
+      TRAIT_DATA[id].kind === kind && !axes.includes(TRAIT_DATA[id].axis));
+    const choisi = pickWeighted(candidats, (id) => TRAIT_DATA[id].birth);
+    if (!choisi) return;
+
+    traits.push(choisi);
+    axes.push(TRAIT_DATA[choisi].axis);
+  });
+
+  return { mix: mix.key, traits };
+}
+
+/* ==========================================================================
+   Persistance entre les pages
    ========================================================================== */
 
 const CHARACTER_KEY = "pm-character";
