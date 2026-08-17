@@ -74,9 +74,6 @@ function traitEffects(def) {
   if (def.rejection) {
     parts.push(t("trait_fx_rejection") + " " + signe(Math.round(def.rejection * 100)) + " %");
   }
-  if (def.election) {
-    Object.entries(def.election).forEach(([id, v]) => parts.push(t("elec_" + id) + " " + signe(v)));
-  }
   if (def.risk) parts.push(t("trait_fx_risk"));
 
   return parts.join(" · ");

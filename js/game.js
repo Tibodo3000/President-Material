@@ -483,9 +483,7 @@ function electionScore(electionId) {
  * pas.
  */
 function electionBase(electionId) {
-  // Ce que certains traits font à ce scrutin-là et à aucun autre : un accent
-  // régional vaut de l'or dans sa ville et coûte cher à la télévision.
-  const dice = traitSum(game, (d) => d.election && d.election[electionId]);
+  const dice = 0;
 
   if (electionId === "municipales") {
     // UN SCRUTIN DE PERSONNES. On vote pour quelqu'un qu'on croise au marché,
@@ -1843,12 +1841,6 @@ function traitEffectText(id) {
   }
   if (def.energy) parts.push(t("fx_energy_cap") + " " + signed(def.energy * 2));
   if (def.soften) parts.push(t("trait_fx_soften") + " " + Math.round(def.soften * 100) + " %");
-  // Ce qu'un trait vaut à un scrutin et pas aux autres.
-  if (def.election) {
-    Object.entries(def.election).forEach(([id, valeur]) => {
-      parts.push(t("elec_" + id) + " " + signed(valeur));
-    });
-  }
   // Ce qu'il vaut selon le camp où l'on milite : on n'affiche que le sien.
   if (def.partyTarget && def.partyTarget[game.party]) {
     Object.entries(def.partyTarget[game.party]).forEach(([gauge, valeur]) => {

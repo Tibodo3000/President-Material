@@ -35,11 +35,6 @@
  *   "kind"          "asset" (atout) ou "mark" (marque). Donne la couleur.
  *   "core"          Trait de caractère, choisi à la création : ni tiré, ni
  *                   perdu, ni compté dans le tirage de départ.
- *   "election"      Bonus ou malus au score d'un scrutin précis :
- *                     { "municipales": 5, "europeennes": -3 }
- *                   Un accent régional aide dans sa ville et dessert partout
- *                   ailleurs : c'est le genre de chose qu'aucune statistique
- *                   ne sait dire.
  *   "birth"         Poids de tirage à la naissance. Absent = ne se tire jamais.
  *   "axis"          L'axe sur lequel ce tirage se joue. Le jeu tire UNE FOIS
  *                   PAR AXE, indépendamment : on peut très bien être beau et
@@ -88,13 +83,21 @@
  * ----------------------------------------------------------------------------
  * RÈGLES D'ÉCRITURE
  * ----------------------------------------------------------------------------
- * 1. AUCUN TRAIT N'EST PUREMENT BON, ET AUCUN N'EST PUREMENT MAUVAIS. Mais la
- *    contrepartie d'une marque n'est pas forcément un bonus chiffré : le plus
- *    souvent, ce sont LES CHOIX QU'ELLE OUVRE. « Lâche » ne rapporte pas un
- *    point, il donne accès à des portes de sortie que les autres personnages
- *    ne voient jamais, et qui sauvent une carrière aussi souvent qu'elles la
- *    déshonorent. Un trait dont tous les effets chiffrés sont négatifs est
- *    donc parfaitement légitime, à condition qu'il débloque quelque chose.
+ * 1. SOBRIÉTÉ. Un ou deux modificateurs par trait, jamais plus, et pas un
+ *    seul qu'on ne sache justifier en une clause. Ne JAMAIS ajouter un malus
+ *    « pour équilibrer » : une constitution de fer ne rend pas moins
+ *    charismatique, une petite taille n'apporte rien à l'appareil du parti, et
+ *    ces inventions-là se voient immédiatement. Un trait peut donc n'avoir que
+ *    des effets positifs, ou que des négatifs.
+ *
+ *    L'équilibre ne se joue pas trait par trait mais AU TIRAGE : une main sur
+ *    deux mêle un atout et une marque. Et la contrepartie d'une marque est
+ *    souvent ailleurs que dans les chiffres : « Lâche » ne rapporte pas un
+ *    point, il ouvre des portes de sortie que les autres ne voient jamais.
+ *
+ *    Ce qui rend un trait intéressant n'est pas la taille de ses nombres,
+ *    c'est le contenu qu'il ouvre. Un trait pauvre en chiffres et riche en
+ *    événements est un bon trait ; l'inverse n'existe pas.
  *
  * 2. UN TRAIT DIT CE QUE LE PERSONNAGE EST, PAS OÙ IL EN EST. « Orateur »,
  *    « corpulent », « parole en l'air » décrivent une personne : on peut les
@@ -213,8 +216,7 @@ const TRAIT_DATA = {
       "fr": "Les caméras vous aiment et les salles se retournent. Reste à convaincre qu'il y a autre chose.",
       "en": "The cameras like you and rooms turn around. Convincing people there is something else takes longer."
     },
-    "stats": { "charisme": 5, "reputation": -2 },
-    "target": { "popularity": 4, "standing": -3 },
+    "stats": { "charisme": 3, "reputation": -1 },
     "blocks": ["ingrat"]
   },
 
@@ -228,8 +230,7 @@ const TRAIT_DATA = {
       "fr": "La télévision ne vous fait aucun cadeau. En revanche, personne ne vous soupçonne de vendre quoi que ce soit.",
       "en": "Television gives you nothing. On the other hand, nobody suspects you of selling anything."
     },
-    "stats": { "charisme": -4, "reputation": 3 },
-    "target": { "popularity": -3, "standing": 3 },
+    "stats": { "charisme": -3, "reputation": 2 },
     "blocks": ["beau"]
   },
 
@@ -243,8 +244,7 @@ const TRAIT_DATA = {
       "fr": "Un grain que les micros adorent. On vous écoute jusqu'au bout de vos phrases, même quand elles ne mènent nulle part.",
       "en": "A grain the microphones love. People listen to the end of your sentences, even the ones going nowhere."
     },
-    "stats": { "eloquence": 3, "charisme": 1, "reputation": -1 },
-    "target": { "popularity": 2 }
+    "stats": { "eloquence": 2 }
   },
 
   "zozote": {
@@ -257,8 +257,7 @@ const TRAIT_DATA = {
       "fr": "Un défaut d'élocution que les imitateurs ont repéré avant vous. On retient la façon dont vous le dites plutôt que ce que vous dites, mais personne ne vous soupçonnera jamais d'être un communicant.",
       "en": "A speech impediment the impressionists spotted before you did. People remember how you say it, never what you said."
     },
-    "stats": { "eloquence": -3, "reputation": 2 },
-    "target": { "popularity": -2 }
+    "stats": { "eloquence": -2 }
   },
 
   "homosexuel": {
@@ -271,7 +270,7 @@ const TRAIT_DATA = {
       "fr": "Une part de votre vie que la vie politique traite tour à tour comme un détail, un argument et un problème, selon qui parle et selon l'année.",
       "en": "A part of your life that politics treats in turn as a detail, an argument and a problem, depending who is talking and what year it is."
     },
-    "stats": { "sangfroid": 2 },
+    "stats": { "sangfroid": 1 },
     "partyTarget": {
       "radical_left": { "standing": 4 },
       "socdem": { "standing": 2 },
@@ -291,8 +290,7 @@ const TRAIT_DATA = {
       "fr": "Le conflit ne vous coûte rien, il vous réveille. Vos équipes vous suivent en serrant les dents et votre direction vous regarde partir au front avec inquiétude.",
       "en": "Conflict costs you nothing, it wakes you up. Your staff follow with their teeth clenched and your leadership watches you charge with some concern."
     },
-    "stats": { "sangfroid": 4, "reputation": 1 },
-    "target": { "popularity": 3, "standing": -3 }
+    "stats": { "sangfroid": 3 }
   },
 
   "lache": {
@@ -304,8 +302,7 @@ const TRAIT_DATA = {
       "fr": "Devant un conflit, quelque chose en vous cherche la sortie. Vous avez fait une carrière entière sans jamais vous exposer, ce qui est une forme de longévité.",
       "en": "Faced with a fight, something in you looks for the exit. You have built a whole career without ever sticking your neck out, which is its own kind of longevity."
     },
-    "stats": { "sangfroid": -4, "reputation": -2 },
-    "target": { "standing": 4, "popularity": -3 }
+    "stats": { "sangfroid": -3, "reputation": -1 }
   },
 
   "stature": {
@@ -318,8 +315,7 @@ const TRAIT_DATA = {
       "fr": "On vous voit arriver de loin et l'on vous cède le micro sans savoir pourquoi. Aucune étude sérieuse n'explique cet avantage, toutes le constatent, et vos collègues de réunion vous trouvent un peu écrasant.",
       "en": "People see you coming and hand you the microphone without knowing why. No serious study explains the advantage; every study finds it."
     },
-    "stats": { "charisme": 2, "notoriete": 2 },
-    "target": { "popularity": 3, "standing": -3 },
+    "stats": { "charisme": 1, "notoriete": 1 },
     "blocks": ["petite_taille"]
   },
 
@@ -333,8 +329,7 @@ const TRAIT_DATA = {
       "fr": "Les photos officielles se prennent avec vous au premier rang, et les caricaturistes ont trouvé leur angle. En revanche, on vous sous-estime en réunion, ce qui a toujours été une bonne nouvelle.",
       "en": "Official photographs put you in the front row, and the cartoonists have found their angle. On the other hand, people underestimate you in meetings, which has always been good news."
     },
-    "stats": { "charisme": -2, "sangfroid": 3 },
-    "target": { "popularity": -2, "standing": 2 },
+    "stats": { "charisme": -1, "notoriete": -1 },
     "blocks": ["stature"]
   },
 
@@ -348,7 +343,7 @@ const TRAIT_DATA = {
       "fr": "Vous n'êtes jamais malade et vous ne comprenez pas ceux qui le sont. Trois campagnes d'affilée ne vous ont jamais couché.",
       "en": "You are never ill and you do not understand people who are. Three campaigns back to back have never put you in bed."
     },
-    "stats": { "energie": 5, "charisme": -2 },
+    "stats": { "energie": 2 },
     "energy": 2,
     "blocks": ["fragile"]
   },
@@ -363,7 +358,7 @@ const TRAIT_DATA = {
       "fr": "Quelque chose lâche toujours au mauvais moment. Vous avez appris à doser vos forces bien avant les autres, ce qui vous rend étrangement lucide sur les vôtres.",
       "en": "Something always gives way at the wrong moment. You learned to ration your strength long before the others did, which makes you oddly clear-sighted about your own."
     },
-    "stats": { "energie": -4, "sangfroid": 2 },
+    "stats": { "energie": -2 },
     "energy": -1,
     "risk": { "p": 0.02, "chain": "alerte_sante" },
     "blocks": ["robuste"]
@@ -379,8 +374,7 @@ const TRAIT_DATA = {
       "fr": "Vous retenez un prénom, un métier et le nom d'un chien après une seule poignée de main. C'est le seul talent de ce métier qui ne s'apprend pas.",
       "en": "You remember a first name, a job and a dog's name after a single handshake. It is the one talent in this trade that cannot be learned."
     },
-    "stats": { "reseau": 4, "reputation": -1 },
-    "target": { "standing": 3 },
+    "stats": { "reseau": 2 },
     "blocks": ["tete_en_lair"]
   },
 
@@ -394,8 +388,7 @@ const TRAIT_DATA = {
       "fr": "Vous confondez les prénoms, les villes et parfois les dossiers. Vos bourdes font le tour des rédactions et, curieusement, elles vous rendent humain.",
       "en": "You mix up names, towns and occasionally files. Your slips go round the newsrooms and, oddly, they make you human."
     },
-    "stats": { "reseau": -3, "notoriete": 1 },
-    "target": { "standing": -3, "popularity": 2 },
+    "stats": { "reseau": -2 },
     "blocks": ["memoire_des_noms"]
   },
 
@@ -409,9 +402,7 @@ const TRAIT_DATA = {
       "fr": "Chez vous, c'est une carte d'identité et personne ne l'entend. À la télévision nationale, c'est la première chose qu'on retient de vous, et pas toujours en bien.",
       "en": "At home it is an identity card and nobody hears it. On national television it is the first thing people take away from you, and not always kindly."
     },
-    "stats": { "reputation": 2, "charisme": -2 },
-    "target": { "popularity": -1 },
-    "election": { "municipales": 7, "legislatives": -1, "europeennes": -4 }
+    "stats": { "eloquence": -1, "charisme": 1 }
   },
 
   "athletique": {
@@ -422,8 +413,7 @@ const TRAIT_DATA = {
       "fr": "Vous courez le matin et vous le faites savoir. Les journées de quinze heures vous coûtent moins qu'aux autres.",
       "en": "You run in the morning and you make sure people know. Fifteen-hour days cost you less than they cost the others."
     },
-    "stats": { "energie": 4, "notoriete": 1 },
-    "target": { "popularity": 2, "standing": -2 },
+    "stats": { "energie": 2 },
     "energy": 1,
     "blocks": ["obese"]
   },
@@ -436,10 +426,8 @@ const TRAIT_DATA = {
       "fr": "Les buffets de campagne et les nuits de négociation ont laissé des traces. Les dessinateurs de presse ne parlent plus que de ça.",
       "en": "Campaign buffets and nights of negotiation have left their mark. Cartoonists have stopped drawing anything else."
     },
-    "stats": { "energie": -3, "sangfroid": 3 },
-    "target": { "popularity": -4 },
+    "stats": { "energie": -2, "sangfroid": 1 },
     "energy": -1,
-    "soften": 0.2,
     "risk": { "p": 0.02, "chain": "alerte_sante" },
     "blocks": ["athletique"]
   },
@@ -452,8 +440,7 @@ const TRAIT_DATA = {
       "fr": "Quelque chose a changé sur votre visage entre deux campagnes, et tout le monde l'a remarqué sans oser le dire.",
       "en": "Something changed in your face between two campaigns, and everyone noticed without quite daring to say so."
     },
-    "stats": { "charisme": 3, "reputation": -3 },
-    "target": { "popularity": 2 }
+    "stats": { "charisme": 2, "reputation": -2 }
   },
 
   "use": {
@@ -464,7 +451,7 @@ const TRAIT_DATA = {
       "fr": "Les nuits blanches ne se rattrapent plus. Votre corps tient les comptes.",
       "en": "The sleepless nights no longer wash out. Your body keeps the ledger."
     },
-    "stats": { "energie": -4, "sangfroid": 2 },
+    "stats": { "energie": -3 },
     "energy": -2
   },
 
@@ -480,8 +467,7 @@ const TRAIT_DATA = {
       "fr": "Vous tenez une salle. Les mots vous viennent quand les autres cherchent les leurs.",
       "en": "You can hold a room. The words come to you while others are still looking for theirs."
     },
-    "stats": { "eloquence": 4 },
-    "target": { "popularity": 3, "standing": -2 }
+    "stats": { "eloquence": 3 }
   },
 
   "bete_scene": {
@@ -492,7 +478,7 @@ const TRAIT_DATA = {
       "fr": "Le pays vous adore à l'écran, l'appareil vous trouve encombrant.",
       "en": "The country loves you on screen; the party finds you cumbersome."
     },
-    "stats": { "notoriete": 4, "reputation": -2 },
+    "stats": { "notoriete": 3, "reputation": -2 },
     "target": { "popularity": 2, "standing": -6 }
   },
 
@@ -504,7 +490,7 @@ const TRAIT_DATA = {
       "fr": "Vous décrochez votre téléphone et quelqu'un décroche en face.",
       "en": "You pick up the phone and someone always picks up on the other end."
     },
-    "stats": { "reseau": 6, "notoriete": -1 },
+    "stats": { "reseau": 3 }
   },
 
   "bosseur": {
@@ -515,8 +501,7 @@ const TRAIT_DATA = {
       "fr": "Vous tenez des rythmes qui usent vos équipes avant vous.",
       "en": "You keep hours that wear out your staff long before they wear out you."
     },
-    "stats": { "energie": 4 },
-    "target": { "standing": 3, "popularity": -3 },
+    "stats": { "energie": 3 },
     "energy": 2
   },
 
@@ -577,7 +562,7 @@ const TRAIT_DATA = {
       "fr": "On vous cite en exemple, ce qui est flatteur jusqu'au jour où l'on cherche la faille.",
       "en": "You get held up as an example, which is flattering until someone goes looking for the flaw."
     },
-    "stats": { "reputation": 4, "reseau": -2 },
+    "stats": { "reputation": 3, "reseau": -2 },
     "target": { "popularity": 2 },
     "rejection": -0.12,
     "blocks": ["caisse_noire"]
@@ -604,8 +589,7 @@ const TRAIT_DATA = {
       "fr": "Vous avez tenu une position que personne ne voulait défendre, et le temps vous a donné raison devant témoins. On vous ressort à chaque crise.",
       "en": "You held a position nobody else would defend, and time proved you right in front of witnesses. You get wheeled out at every crisis."
     },
-    "stats": { "reputation": 4, "sangfroid": 1 },
-    "target": { "popularity": 5, "standing": -4 },
+    "stats": { "reputation": 3 },
     "rejection": -0.08
   },
 
@@ -618,7 +602,7 @@ const TRAIT_DATA = {
       "fr": "Une vieille affaire revient dans chaque portrait qu'on écrit sur vous.",
       "en": "An old story comes back in every profile ever written about you."
     },
-    "stats": { "reputation": -4 },
+    "stats": { "reputation": -3 },
     "target": { "popularity": -5 },
     "rejection": 0.1,
     "risk": { "p": 0.03, "chain": "enquete_ouverte" }
@@ -633,7 +617,7 @@ const TRAIT_DATA = {
       "fr": "On vous a trop vu vous dédire. Vos promesses ne valent plus grand-chose, vos démentis non plus.",
       "en": "You have gone back on your word once too often. Your promises are cheap now, and so are your denials."
     },
-    "stats": { "reputation": -4, "sangfroid": 2 },
+    "stats": { "reputation": -3, "sangfroid": 2 },
     "target": { "popularity": -4 },
     "rejection": 0.08
   },
