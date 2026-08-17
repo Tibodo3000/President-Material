@@ -264,8 +264,17 @@ function traitSum(s, read) {
   }, 0);
 }
 
+/**
+ * Ce que les traits ajoutent à la cible d'une jauge. Certains ne valent pas la
+ * même chose selon le camp : ce qu'un appareil trouve normal, celui d'en face
+ * en fait un sujet. C'est le rôle de "partyTarget".
+ */
 function traitTarget(s, gauge) {
-  return traitSum(s, (d) => d.target && d.target[gauge]);
+  return traitSum(s, (d) => {
+    const propre = (d.target && d.target[gauge]) || 0;
+    const selonParti = d.partyTarget && d.partyTarget[s.party] && d.partyTarget[s.party][gauge];
+    return propre + (selonParti || 0);
+  });
 }
 
 /** Part des mauvaises nouvelles que les traits amortissent, plafonnée. */

@@ -29,8 +29,13 @@
  * ----------------------------------------------------------------------------
  *   "family"        L'une des cinq ci-dessus. Obligatoire.
  *   "kind"          "asset" (atout) ou "mark" (marque). Donne la couleur.
- *   "birth"         Poids de tirage à la naissance, pour les traits physiques
- *                   distribués au départ. Absent = ne se tire jamais.
+ *   "birth"         Poids de tirage à la naissance. Absent = ne se tire jamais.
+ *   "axis"          L'axe sur lequel ce tirage se joue. Le jeu tire UNE FOIS
+ *                   PAR AXE, indépendamment : on peut très bien être beau et
+ *                   zozoter, ou avoir une voix de radio et être lâche. Les
+ *                   axes existants : "apparence", "elocution", "identite",
+ *                   "temperament". Chacun a sa part de chance de ne rien
+ *                   donner du tout, réglée par BIRTH_NONE dans js/game.js.
  *   "strikes"       Nombre de fois qu'il faut recommencer avant que le trait
  *                   soit acquis. C'est ce qui distingue un écart d'une
  *                   réputation : on ne devient pas menteur en se dédisant une
@@ -51,6 +56,11 @@
  *                   La cible est le niveau vers lequel la jauge glisse toute
  *                   seule ; un trait déplace donc le fond du dossier, pas
  *                   seulement l'humeur du moment.
+ *   "partyTarget"   Comme "target", mais différent selon le parti du joueur.
+ *                   C'est ce qui permet à un trait de ne pas valoir la même
+ *                   chose partout : ce que l'appareil d'un camp trouve normal,
+ *                   celui d'en face en fait un sujet. Le trait ne juge pas la
+ *                   personne, il mesure ce que la vie politique lui fait.
  *   "energy"        Décale le plafond de forme physique.
  *   "rejection"     Part de l'électorat qui refuse de voter pour vous au
  *                   second tour, en plus ou en moins (0,08 = huit points).
@@ -72,22 +82,30 @@
  *    physique subi doit toujours donner quelque chose en retour, sinon le
  *    tirage de naissance n'est qu'une punition.
  *
- * 2. UN TRAIT DOIT OUVRIR ET FERMER DES PORTES. Un trait qui ne fait que
+ * 2. UN TRAIT DIT CE QUE LE PERSONNAGE EST, PAS OÙ IL EN EST. « Orateur »,
+ *    « corpulent », « parole en l'air » décrivent une personne : on peut les
+ *    dire de quelqu'un sans rien savoir de sa carrière. « Dauphin d'un ancien »
+ *    ou « chef d'école » décrivent une situation dans un réseau, et une
+ *    situation se raconte par un événement et sa suite, jamais par une ligne
+ *    permanente sur la fiche. Dans le doute : si le mot ne pourrait pas servir
+ *    à décrire quelqu'un dans un portrait de presse, ce n'est pas un trait.
+ *
+ * 3. UN TRAIT DOIT OUVRIR ET FERMER DES PORTES. Un trait qui ne fait que
  *    déplacer des chiffres ne se sent pas. Chacun doit être exigé par des
  *    événements ("when": {"trait": [...]}), en interdire d'autres
  *    ("notTrait"), et surtout débloquer des choix que les autres personnages
  *    ne verront jamais.
  *
- * 3. LES SOURCES DOIVENT S'ÉQUILIBRER. Une marque donnée par quinze
+ * 4. LES SOURCES DOIVENT S'ÉQUILIBRER. Une marque donnée par quinze
  *    événements finit dans toutes les parties et cesse d'être une marque.
  *    Compter les sources avant d'en ajouter une.
  *
- * 4. TOUT CHIFFRE AFFICHÉ DOIT SE JUSTIFIER EN UNE PHRASE. Si l'on ne sait
+ * 5. TOUT CHIFFRE AFFICHÉ DOIT SE JUSTIFIER EN UNE PHRASE. Si l'on ne sait
  *    pas dire pourquoi un trait donne ce qu'il donne, c'est qu'il ne doit pas
  *    le donner. Pas de bonus décoratif, pas de mécanique interne exposée au
  *    joueur sous forme de nombre qu'il ne peut pas interpréter.
  *
- * 5. LE CORPS EST UN SUJET DE SATIRE, PAS DE MORALE. Ce que le jeu moque,
+ * 6. LE CORPS EST UN SUJET DE SATIRE, PAS DE MORALE. Ce que le jeu moque,
  *    c'est le traitement que la vie politique et la presse réservent aux
  *    corps, jamais les corps eux-mêmes.
  */
@@ -105,6 +123,7 @@ const TRAIT_DATA = {
     "family": "physique",
     "kind": "asset",
     "birth": 5,
+    "axis": "apparence",
     "label": { "fr": "Physique avantageux", "en": "Good-looking" },
     "desc": {
       "fr": "Les caméras vous aiment et les salles se retournent. Reste à convaincre qu'il y a autre chose.",
@@ -119,6 +138,7 @@ const TRAIT_DATA = {
     "family": "physique",
     "kind": "mark",
     "birth": 5,
+    "axis": "apparence",
     "label": { "fr": "Physique ingrat", "en": "Plain-faced" },
     "desc": {
       "fr": "La télévision ne vous fait aucun cadeau. En revanche, personne ne vous soupçonne de vendre quoi que ce soit.",
@@ -127,6 +147,84 @@ const TRAIT_DATA = {
     "stats": { "charisme": -4, "reputation": 3 },
     "target": { "popularity": -3, "standing": 3 },
     "blocks": ["beau"]
+  },
+
+  "voix": {
+    "family": "physique",
+    "kind": "asset",
+    "birth": 4,
+    "axis": "elocution",
+    "label": { "fr": "Voix de radio", "en": "A voice for radio" },
+    "desc": {
+      "fr": "Un grain que les micros adorent. On vous écoute jusqu'au bout de vos phrases, même quand elles ne mènent nulle part.",
+      "en": "A grain the microphones love. People listen to the end of your sentences, even the ones going nowhere."
+    },
+    "stats": { "eloquence": 3, "charisme": 1 },
+    "target": { "popularity": 2 }
+  },
+
+  "zozote": {
+    "family": "physique",
+    "kind": "mark",
+    "birth": 4,
+    "axis": "elocution",
+    "label": { "fr": "Cheveux sur la langue", "en": "A lisp" },
+    "desc": {
+      "fr": "Un défaut d'élocution que les imitateurs ont repéré avant vous. On retient la façon dont vous le dites, jamais ce que vous dites.",
+      "en": "A speech impediment the impressionists spotted before you did. People remember how you say it, never what you said."
+    },
+    "stats": { "eloquence": -3, "reputation": 2 },
+    "target": { "popularity": -2 }
+  },
+
+  "homosexuel": {
+    "family": "physique",
+    "kind": "asset",
+    "birth": 1,
+    "axis": "identite",
+    "label": { "fr": "Homosexuel", "en": "Gay" },
+    "desc": {
+      "fr": "Une part de votre vie que la vie politique traite tour à tour comme un détail, un argument et un problème, selon qui parle et selon l'année.",
+      "en": "A part of your life that politics treats in turn as a detail, an argument and a problem, depending who is talking and what year it is."
+    },
+    "stats": { "sangfroid": 2 },
+    "partyTarget": {
+      "radical_left": { "standing": 4 },
+      "socdem": { "standing": 2 },
+      "centrists": {},
+      "liberals": {},
+      "conservatives": { "standing": -6, "popularity": -2 },
+      "identitarians": { "standing": -12, "popularity": -5 }
+    }
+  },
+
+  "intrepide": {
+    "family": "physique",
+    "kind": "asset",
+    "birth": 4,
+    "axis": "temperament",
+    "label": { "fr": "Intrépide", "en": "Fearless" },
+    "desc": {
+      "fr": "Le conflit ne vous coûte rien, il vous réveille. Vos équipes vous suivent en serrant les dents et votre direction vous regarde partir au front avec inquiétude.",
+      "en": "Conflict costs you nothing, it wakes you up. Your staff follow with their teeth clenched and your leadership watches you charge with some concern."
+    },
+    "stats": { "sangfroid": 4, "reputation": 1 },
+    "target": { "popularity": 3, "standing": -3 }
+  },
+
+  "lache": {
+    "family": "physique",
+    "kind": "mark",
+    "birth": 4,
+    "axis": "temperament",
+    "label": { "fr": "Lâche", "en": "Coward" },
+    "desc": {
+      "fr": "Devant un conflit, quelque chose en vous cherche la sortie. Vous avez fait une carrière entière sans jamais vous exposer, ce qui est une forme de longévité.",
+      "en": "Faced with a fight, something in you looks for the exit. You have built a whole career without ever sticking your neck out, which is its own kind of longevity."
+    },
+    "stats": { "sangfroid": -4, "reputation": -2 },
+    "target": { "standing": 4, "popularity": -3 },
+    "soften": 0.25
   },
 
   "athletique": {
@@ -250,6 +348,8 @@ const TRAIT_DATA = {
     "target": { "standing": 5, "popularity": -3 }
   },
 
+
+
   "traitre": {
     "family": "appareil",
     "kind": "mark",
@@ -305,6 +405,19 @@ const TRAIT_DATA = {
     "stats": { "sangfroid": 2 },
     "soften": 0.45,
     "rejection": -0.05
+  },
+
+  "clairvoyant": {
+    "family": "reputation",
+    "kind": "asset",
+    "label": { "fr": "Clairvoyant", "en": "Vindicated" },
+    "desc": {
+      "fr": "Vous avez tenu une position que personne ne voulait défendre, et le temps vous a donné raison devant témoins. On vous ressort à chaque crise.",
+      "en": "You held a position nobody else would defend, and time proved you right in front of witnesses. You get wheeled out at every crisis."
+    },
+    "stats": { "reputation": 4, "sangfroid": 1 },
+    "target": { "popularity": 5, "standing": -4 },
+    "rejection": -0.08
   },
 
   "casserole": {

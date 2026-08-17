@@ -84,34 +84,46 @@ function figurePopularity(figure) {
 }
 
 /**
- * LE PHYSIQUE, DISTRIBUÉ À LA NAISSANCE.
+ * CE QU'ON EST EN ARRIVANT.
  *
- * On ne choisit pas son visage. Une carrière sur deux commence avec un
- * physique qui compte, dans un sens ou dans l'autre, et le personnage devra
- * faire avec : c'est la première main que le jeu distribue, avant même le
- * premier événement. Les poids sont dans js/traits.data.js, champ "birth".
+ * On ne choisit ni son visage, ni sa voix, ni ce qu'on aime, ni ce qu'on fait
+ * devant un conflit. Le jeu distribue ces traits-là au départ, sans que le
+ * joueur les choisisse : c'est la première main, et toute la partie consiste
+ * à faire avec.
+ *
+ * Le tirage se fait UN AXE À LA FOIS, indépendamment : on peut être beau et
+ * zozoter, avoir une voix de radio et être lâche. Chaque axe a sa part de
+ * chance de ne rien donner, et cette part est la même partout.
  */
-const BIRTH_NONE = 10;
+const BIRTH_NONE = 9;
 
-function dealPhysique(state) {
-  const pool = Object.keys(TRAIT_DATA).filter((id) => TRAIT_DATA[id].birth);
-  const total = pool.reduce((sum, id) => sum + TRAIT_DATA[id].birth, 0) + BIRTH_NONE;
+function dealBirthTraits(state) {
+  const axes = {};
+  Object.keys(TRAIT_DATA).forEach((id) => {
+    const def = TRAIT_DATA[id];
+    if (!def.birth) return;
+    (axes[def.axis || "divers"] = axes[def.axis || "divers"] || []).push(id);
+  });
 
-  let draw = Math.random() * total;
-  for (const id of pool) {
-    draw -= TRAIT_DATA[id].birth;
-    if (draw <= 0) {
-      addTrait(state, id);
-      state.log.unshift({ turn: 0, text: {
-        fr: "On vous décrit déjà par votre allure avant de vous décrire par vos idées : " +
-            L(TRAIT_DATA[id].label).toLowerCase() + ".",
-        en: "People describe your appearance before they describe your ideas: " +
-            L(TRAIT_DATA[id].label).toLowerCase() + ".",
-      } });
-      return id;
+  const donnes = [];
+  Object.values(axes).forEach((pool) => {
+    const total = pool.reduce((sum, id) => sum + TRAIT_DATA[id].birth, 0) + BIRTH_NONE;
+    let draw = Math.random() * total;
+    for (const id of pool) {
+      draw -= TRAIT_DATA[id].birth;
+      if (draw <= 0) { addTrait(state, id); donnes.push(id); return; }
     }
+  });
+
+  if (donnes.length) {
+    state.log.unshift({ turn: 0, text: {
+      fr: "On vous décrira longtemps par ce que vous êtes avant de vous décrire par ce que vous pensez : " +
+          donnes.map((id) => L(TRAIT_DATA[id].label).toLowerCase()).join(", ") + ".",
+      en: "People will describe what you are long before they describe what you think: " +
+          donnes.map((id) => L(TRAIT_DATA[id].label).toLowerCase()).join(", ") + ".",
+    } });
   }
-  return null;
+  return donnes;
 }
 
 /** Nouvelle partie à partir du personnage créé. */
@@ -165,9 +177,9 @@ function newGame(character) {
   state.presidentTerms = 1;
   state.landscape = initialLandscape(state);
 
-  // Le physique est distribué avant tout le reste : il modifie les
-  // statistiques, donc il doit être en place quand on calcule les jauges.
-  dealPhysique(state);
+  // Ce qu'on est de naissance passe avant tout le reste : ces traits modifient
+  // les statistiques, donc ils doivent être en place quand on calcule les jauges.
+  dealBirthTraits(state);
 
   // On démarre pile sur la cible : le personnage arrive avec le crédit que
   // son profil lui vaut, ni plus ni moins.

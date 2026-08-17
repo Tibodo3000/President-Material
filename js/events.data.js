@@ -460,7 +460,7 @@ const EVENT_DATA = {
                   "en": "He smiles and does not insist. You sleep well, and stay poor." } },
     { "label": { "fr": "Le dénoncer publiquement", "en": "Expose him publicly" },
       "when": { "personality": ["principled"] },
-      "effects": { "notoriete": 2, "reputation": 3, "popularity": 11, "standing": -9, "trait": "intouchable" },
+      "effects": { "notoriete": 2, "reputation": 3, "popularity": 11, "standing": -9, "trait": "intouchable", "chain": "position_impopulaire" },
       "result": { "fr": "Vous racontez la proposition en détail devant les caméras. L'homme disparaît.",
                   "en": "You describe the offer in detail on camera. The man disappears." } },
     { "label": { "fr": "Monter un financement transparent", "en": "Set up transparent funding" },
@@ -568,7 +568,7 @@ const EVENT_DATA = {
                   "en": "Your independence is noted. It plays well outside and grates inside." } },
     { "label": { "fr": "Accepter, en comptant bien s'en affranchir", "en": "Accept, fully intending to shake him off later" },
       "when": { "personality": ["calculating"] },
-      "effects": { "reseau": 2, "standing": 12, "sangfroid": 1, "reputation": -2, "popularity": -6 },
+      "effects": { "reseau": 2, "standing": 12, "sangfroid": 1, "reputation": -2, "popularity": -6, "chain": "mentor_dette" },
       "result": { "fr": "Vous prenez le carnet d'adresses et vous notez déjà, quelque part, la date à laquelle il deviendra encombrant.",
                   "en": "You take the contacts book, already noting somewhere the date on which he will become inconvenient." } }
   ]
@@ -585,7 +585,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Payer votre dette", "en": "Pay your debt" },
-      "effects": { "standing": 9, "reputation": -2, "popularity": -9, "trait": "appareil" },
+      "effects": { "standing": 9, "reputation": -2, "popularity": -9, "trait": "appareil", "chain": "mentor_encombrant" },
       "result": { "fr": "Le fils est investi. Tout le monde a compris, personne n'a rien dit.",
                   "en": "The son is nominated. Everyone understood; nobody said a word." } },
     { "label": { "fr": "Refuser et rompre", "en": "Refuse and break with him" },
@@ -659,7 +659,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Le pousser encore plus haut", "en": "Push him even higher" },
-      "effects": { "standing": 8, "reseau": 1, "notoriete": -1, "popularity": -4, "chain": "protege_trahison" },
+      "effects": { "standing": 8, "reseau": 1, "notoriete": -1, "popularity": -4, "chain": "protege_trahison", "chain2": "ecole_du_parti" },
       "result": { "fr": "Vous en faites votre bras droit officiel. Le tandem impressionne.",
                   "en": "You make him your official right hand. The pairing impresses." } },
     { "label": { "fr": "Le remettre à sa place", "en": "Put him back in his place" },
@@ -3563,7 +3563,7 @@ const EVENT_DATA = {
         "result": { "fr": "Votre rédaction est jugée irrecevable pour un motif de procédure. Celle du cabinet est adoptée la semaine suivante par quelqu'un d'autre.",
                     "en": "Your drafting is ruled inadmissible on procedure. The consultancy's version is adopted the following week by somebody else." } } },
     { "label": { "fr": "Le rendre public", "en": "Make it public" },
-      "effects": { "notoriete": 2, "popularity": 9, "reputation": 2, "standing": -8, "reseau": -1 },
+      "effects": { "notoriete": 2, "popularity": 9, "reputation": 2, "standing": -8, "reseau": -1, "chain": "position_impopulaire" },
       "result": { "fr": "Vous publiez le document et le nom du cabinet. Deux journaux en font leur titre, quatre collègues cessent de vous parler et votre groupe vous retire un rapport.",
                   "en": "You publish the document and the name of the firm. Two papers lead on it, four colleagues stop speaking to you and your group takes a report away from you." } }
   ]
@@ -3709,7 +3709,7 @@ const EVENT_DATA = {
       "result": { "fr": "Vous êtes bon, ce qui est le pire. La séquence servira d'archive contre vous pendant quinze ans.",
                   "en": "You are good, which is the worst part. The clip will be used against you as archive footage for fifteen years." } },
     { "label": { "fr": "Prendre vos distances en direct", "en": "Distance yourself on air" },
-      "effects": { "popularity": 8, "reputation": 2, "standing": -14, "notoriete": 1 },
+      "effects": { "popularity": 8, "reputation": 2, "standing": -14, "notoriete": 1, "chain": "position_impopulaire" },
       "result": { "fr": "Vous dites que ce n'est pas votre choix. Matignon apprend la nouvelle en même temps que les auditeurs et le fait savoir avant midi.",
                   "en": "You say it was not your choice. The prime minister's office learns about it at the same time as the listeners and lets it be known before noon." } },
     { "label": { "fr": "Annuler et vous faire porter pâle", "en": "Cancel and call in sick" },
@@ -3739,7 +3739,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Saisir la justice vous-même", "en": "Refer it to the prosecutors yourself" },
-      "effects": { "reputation": 3, "popularity": 5, "standing": -8, "energie": -1 },
+      "effects": { "reputation": 3, "popularity": 5, "standing": -8, "energie": -1, "chain": "position_impopulaire" },
       "result": { "fr": "Vous transmettez le dossier au procureur avant la fin de la journée. Trois personnes de votre administration cessent de vous adresser la parole, et l'affaire s'arrête là.",
                   "en": "You send the file to the prosecutor before the end of the day. Three people in your department stop speaking to you, and the story dies there." } },
     { "label": { "fr": "Couvrir le service et gagner du temps", "en": "Cover the department and buy time" },
@@ -3990,7 +3990,7 @@ const EVENT_DATA = {
         "result": { "fr": "Vous reprenez tout, sous les caméras cette fois. L'échec est public parce que vous aviez rendu la tentative publique.",
                     "en": "You put it all back on, on camera this time. The failure is public because you made the attempt public." } } },
     { "label": { "fr": "Refuser et le dire", "en": "Refuse, and say so" },
-      "effects": { "reputation": 3, "popularity": 6, "standing": -8, "sangfroid": 1 },
+      "effects": { "reputation": 3, "popularity": 6, "standing": -8, "sangfroid": 1, "chain": "position_impopulaire" },
       "result": { "fr": "Vous expliquez en direct qu'on ne vous a jamais demandé de perdre des idées. La séquence est reprise partout, et l'état-major ne vous le pardonne pas.",
                   "en": "You explain on air that nobody has ever asked you to lose ideas. The clip runs everywhere, and the leadership does not forgive it." } },
     { "label": { "fr": "Accepter en silence", "en": "Accept, quietly" },
@@ -4104,6 +4104,129 @@ const EVENT_DATA = {
       "effects": { "flags": { "frailHealth": true }, "standing": 4, "sangfroid": 1, "strike": "menteur" },
       "result": { "fr": "Le communiqué parle de fatigue et vous vous y tenez. Trois personnes savent, dont une que vous n'avez pas choisie.",
                   "en": "The statement says tiredness and you stick to it. Three people know, one of whom you did not choose." } }
+  ]
+},
+/* ==========================================================================
+   18. CE QUE LES ANNÉES CONFIRMENT
+   ==========================================================================
+   Ces quatre événements couronnent des histoires que le joueur a déjà vécues :
+   le parrainage d'un ancien, les protégés qu'on a formés, la position tenue
+   contre son camp, la voix qu'on a reçue. Un trait qui tombe ici n'est pas un
+   cadeau du hasard, c'est une carrière qui se retourne pour se regarder.
+   ========================================================================== */
+
+{
+  "id": "position_impopulaire",
+  "weight": 0,
+  "delay": [6, 14],
+  "tag": { "fr": "Le temps a passé", "en": "Time has passed" },
+  "text": {
+    "fr": "La position que vous aviez tenue seul contre tout le monde revient dans l'actualité. Les archives ressortent, et la séquence où l'on vous coupait la parole tourne de nouveau.",
+    "en": "The position you held alone against everyone is back in the news. The archives resurface, and the clip where they cut you off is doing the rounds again."
+  },
+  "choices": [
+    { "label": { "fr": "Rappeler que vous l'aviez dit", "en": "Remind everyone you said it" },
+      "roll": { "base": 13, "stat": "sangfroid", "plus": { "reputation": 0.5 }, "dice": 16 },
+      "success": { "effects": { "trait": "clairvoyant", "notoriete": 1, "popularity": 6 },
+        "result": { "fr": "Vous laissez les archives parler et vous ajoutez trois mots. On vous présente désormais comme celui qui avait vu venir, ce qui vaut dix ans de communication.",
+                    "en": "You let the archive speak and add three words. You are now introduced as the one who saw it coming, which is worth ten years of press work." } },
+      "failure": { "effects": { "popularity": -4, "reputation": -1 },
+        "result": { "fr": "Vous insistez trop et le triomphe tourne au règlement de comptes. On retient que vous aviez raison et que vous êtes insupportable.",
+                    "en": "You press it too hard and the vindication turns into score-settling. What sticks is that you were right and that you are unbearable." } } },
+    { "label": { "fr": "Laisser les autres le dire pour vous", "en": "Let others say it for you" },
+      "effects": { "trait": "clairvoyant", "standing": 4, "popularity": 2, "reputation": 1 },
+      "result": { "fr": "Vous ne dites rien du tout. Deux éditorialistes et un adversaire le disent à votre place, ce qui est infiniment plus efficace.",
+                  "en": "You say nothing at all. Two columnists and one opponent say it for you, which is infinitely more effective." } },
+    { "label": { "fr": "Monnayer la séquence auprès de l'appareil", "en": "Cash the moment in with the machine" },
+      "when": { "personality": ["calculating"] },
+      "effects": { "standing": 14, "popularity": -3, "reputation": -1, "reseau": 1 },
+      "result": { "fr": "Vous ne parlez pas au pays, vous parlez à douze personnes qui décident des investitures. Elles se souviennent d'avoir eu tort, et vous le leur rappelez à voix basse.",
+                  "en": "You do not talk to the country, you talk to the twelve people who hand out nominations. They remember being wrong, and you remind them quietly." } }
+  ]
+},
+
+{
+  "id": "mentor_encombrant",
+  "weight": 0,
+  "delay": [8, 18],
+  "tag": { "fr": "Votre parrain", "en": "Your patron" },
+  "text": {
+    "fr": "L'ancien qui vous a fait roi est devenu un poids. Il donne des interviews où il parle de vous au passé, et il rappelle à qui veut l'entendre qu'il vous a tout appris.",
+    "en": "The elder who made you has become a burden. He gives interviews where he talks about you in the past tense, and reminds anyone who will listen that he taught you everything."
+  },
+  "choices": [
+    { "label": { "fr": "Le remercier publiquement, une dernière fois", "en": "Thank him publicly, one last time" },
+      "effects": { "standing": 6, "popularity": -3, "reputation": 1 },
+      "result": { "fr": "Un hommage appuyé, une salle émue, une page tournée que lui seul ne voit pas tourner. Il recommencera dans six mois.",
+                  "en": "A heavy tribute, a moved audience, a page turned that only he does not see turning. He will start again in six months." } },
+    { "label": { "fr": "Couper les ponts", "en": "Cut him off" },
+      "effects": { "standing": -8, "popularity": 6, "sangfroid": 1, "strike": "traitre" },
+      "result": { "fr": "Vous cessez de répondre à ses messages et vous le dites à trois journalistes. Vous ne devez plus rien à personne, ce qui coûte exactement ce que ça vaut.",
+                  "en": "You stop answering his messages and you tell three journalists so. You owe nobody anything any more, which costs exactly what it is worth." } },
+    { "label": { "fr": "Lui trouver une fonction honorifique loin d'ici", "en": "Find him an honorary post a long way away" },
+      "roll": { "base": 15, "stat": "reseau", "plus": { "standing": 0.05 }, "dice": 16 },
+      "success": { "effects": { "reseau": 1, "standing": 8, "energie": -1 },
+        "result": { "fr": "Une présidence de commission internationale, un bureau avec vue et deux déplacements par mois. Il accepte en croyant avoir gagné.",
+                    "en": "The chair of an international commission, an office with a view and two trips a month. He accepts, convinced he has won." } },
+      "failure": { "effects": { "standing": -6, "popularity": -2 },
+        "result": { "fr": "Il comprend la manœuvre avant la fin du déjeuner et la raconte le soir même. On vous trouve ingrat, ce qui est exact.",
+                    "en": "He works out the manoeuvre before lunch is over and tells the story that evening. People find you ungrateful, which is accurate." } } }
+  ]
+},
+
+{
+  "id": "ecole_du_parti",
+  "weight": 0,
+  "delay": [8, 16],
+  "tag": { "fr": "Votre école", "en": "Your school" },
+  "text": {
+    "fr": "Ceux que vous avez formés se comptent maintenant en dizaines, et ils occupent des postes qui comptent. Un soir, quatre d'entre eux vous proposent de structurer tout ça en courant, avec un nom et des statuts.",
+    "en": "The people you trained now number in the dozens, and they hold posts that matter. One evening, four of them propose turning all this into a faction, with a name and a rulebook."
+  },
+  "choices": [
+    { "label": { "fr": "Fonder le courant", "en": "Found the faction" },
+      "effects": { "standing": 12, "reseau": 2, "popularity": -4, "reputation": -1,
+                   "landscape": { "self": 0.8 } },
+      "result": { "fr": "Le courant a un nom, une revue et un dîner annuel. Le parti compte désormais une maison dans la maison, et tout le monde sait qui en a la clé.",
+                  "en": "The faction has a name, a journal and an annual dinner. The party now contains a house within the house, and everyone knows who holds the key." } },
+    { "label": { "fr": "Refuser de faire écurie", "en": "Refuse to run a stable" },
+      "effects": { "reputation": 2, "popularity": 4, "standing": -5 },
+      "result": { "fr": "Vous leur dites que vous n'avez pas formé des gens pour qu'ils vous suivent. Deux d'entre eux fondent le courant sans vous le mois suivant.",
+                  "en": "You tell them you did not train people so they would follow you. Two of them found the faction without you the following month." } },
+    { "label": { "fr": "Les placer un par un, sans rien fonder", "en": "Place them one by one, and found nothing" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "standing": 0.05, "sangfroid": 0.3 }, "dice": 16 },
+      "success": { "effects": { "reseau": 2, "standing": 10, "energie": -2 },
+        "result": { "fr": "Pas de courant, pas de revue, pas de dîner : juste vos anciens élèves dans onze commissions et deux fédérations. Personne ne peut le reprocher à personne.",
+                    "en": "No faction, no journal, no dinner: just your former students in eleven committees and two federations. Nobody can hold it against anybody." } },
+      "failure": { "effects": { "standing": -6, "reseau": -1, "energie": -2 },
+        "result": { "fr": "Vous en placez trois et vous vous fâchez avec les autres, qui attendaient leur tour depuis des années.",
+                    "en": "You place three of them and fall out with the rest, who had been waiting their turn for years." } } }
+  ]
+},
+
+{
+  "id": "voix_antenne",
+  "weight": 4,
+  "when": { "trait": ["voix"], "minTurn": 6 },
+  "tag": { "fr": "Antenne", "en": "On air" },
+  "text": {
+    "fr": "Une matinale de radio vous propose une chronique hebdomadaire. Sept minutes, en direct, sur le sujet de votre choix. Le directeur des programmes dit que c'est votre voix qui l'intéresse, pas vos idées, et il le dit gentiment.",
+    "en": "A breakfast radio programme offers you a weekly slot. Seven minutes, live, on the subject of your choice. The head of programming says it is your voice he wants, not your ideas, and he says it kindly."
+  },
+  "choices": [
+    { "label": { "fr": "Accepter et y parler du pays", "en": "Accept, and talk about the country" },
+      "effects": { "notoriete": 2, "eloquence": 1, "popularity": 8, "energie": -2, "standing": -4 },
+      "result": { "fr": "Deux ans de sept minutes hebdomadaires. On vous écoute en voiture, sans vous voir, et c'est le seul endroit où l'on vous laisse finir vos phrases.",
+                  "en": "Two years of seven weekly minutes. People listen in the car, without seeing you, and it is the only place where you get to finish your sentences." } },
+    { "label": { "fr": "Accepter et régler vos comptes internes", "en": "Accept, and settle your internal scores" },
+      "effects": { "notoriete": 2, "popularity": 4, "standing": -12, "reputation": -1,
+                   "landscape": { "self": -0.6 } },
+      "result": { "fr": "Sept minutes par semaine pour dire tout haut ce qui se dit tout bas au bureau politique. L'audience monte et votre parti apprend à écouter la radio avec angoisse.",
+                  "en": "Seven weekly minutes to say out loud what gets muttered in the executive. The ratings climb and your party learns to listen to the radio with dread." } },
+    { "label": { "fr": "Refuser, ce n'est pas votre métier", "en": "Refuse, it is not your job" },
+      "effects": { "standing": 5, "reputation": 1, "popularity": -3 },
+      "result": { "fr": "Vous répondez que vous n'êtes pas un animateur. La direction du parti approuve, et le créneau va à quelqu'un qui, lui, deviendra ministre.",
+                  "en": "You answer that you are not a broadcaster. The leadership approves, and the slot goes to somebody who will become a minister." } }
   ]
 }
 ],
