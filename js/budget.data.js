@@ -42,7 +42,6 @@
  *                         "hold"      part de la baisse d'une jauge évitée
  *                         "energy"    décale le plafond de forme physique
  *                         "protect"   part de risque judiciaire évitée
- *                         "roll"      bonus aux jets sur une statistique
  *
  * Le joueur monte et descend ces paliers quand il veut, dans l'onglet Budget.
  * Un solde annuel négatif ronge le patrimoine, et quand il n'y a plus rien,
@@ -100,9 +99,9 @@ const BUDGET_DATA = {
       "levels": [
         { "name": { "fr": "Aucun", "en": "None" }, "cost": 0 },
         { "name": { "fr": "Un avocat au forfait", "en": "A lawyer on retainer" },
-          "cost": 18000, "protect": 0.3, "roll": { "sangfroid": 1 } },
+          "cost": 18000, "protect": 0.38 },
         { "name": { "fr": "Un cabinet d'avocats", "en": "A law firm" },
-          "cost": 70000, "protect": 0.55, "roll": { "sangfroid": 2 } }
+          "cost": 70000, "protect": 0.62 }
       ]
     },
 

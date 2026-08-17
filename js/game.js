@@ -83,6 +83,37 @@ function figurePopularity(figure) {
   );
 }
 
+/**
+ * LE PHYSIQUE, DISTRIBUÉ À LA NAISSANCE.
+ *
+ * On ne choisit pas son visage. Une carrière sur deux commence avec un
+ * physique qui compte, dans un sens ou dans l'autre, et le personnage devra
+ * faire avec : c'est la première main que le jeu distribue, avant même le
+ * premier événement. Les poids sont dans js/traits.data.js, champ "birth".
+ */
+const BIRTH_NONE = 10;
+
+function dealPhysique(state) {
+  const pool = Object.keys(TRAIT_DATA).filter((id) => TRAIT_DATA[id].birth);
+  const total = pool.reduce((sum, id) => sum + TRAIT_DATA[id].birth, 0) + BIRTH_NONE;
+
+  let draw = Math.random() * total;
+  for (const id of pool) {
+    draw -= TRAIT_DATA[id].birth;
+    if (draw <= 0) {
+      addTrait(state, id);
+      state.log.unshift({ turn: 0, text: {
+        fr: "On vous décrit déjà par votre allure avant de vous décrire par vos idées : " +
+            L(TRAIT_DATA[id].label).toLowerCase() + ".",
+        en: "People describe your appearance before they describe your ideas: " +
+            L(TRAIT_DATA[id].label).toLowerCase() + ".",
+      } });
+      return id;
+    }
+  }
+  return null;
+}
+
 /** Nouvelle partie à partir du personnage créé. */
 function newGame(character) {
   const usedNames = { [character.name || ""]: true, [surnameOf(character.name || "")]: true };
@@ -109,6 +140,7 @@ function newGame(character) {
     peakPosition: "militant",
     flags: {},
     traits: [],        // marques durables laissées par les choix
+    strikes: {},       // écarts commis, avant qu'ils ne fassent une réputation
     investments: {},   // niveaux des postes de dépense choisis par le joueur
     seen: {},          // événements déjà joués : ils ne reviendront pas
     pending: [],       // suites programmées, avec le tour où elles tombent
@@ -132,6 +164,10 @@ function newGame(character) {
   state.president = { name: sortant.name, party: "centrists" };
   state.presidentTerms = 1;
   state.landscape = initialLandscape(state);
+
+  // Le physique est distribué avant tout le reste : il modifie les
+  // statistiques, donc il doit être en place quand on calcule les jauges.
+  dealPhysique(state);
 
   // On démarre pile sur la cible : le personnage arrive avec le crédit que
   // son profil lui vaut, ni plus ni moins.
@@ -527,8 +563,7 @@ function playerPull() {
     1 +
     (game.popularity - 50) / 55 +
     (game.standing - 50) / 320 +
-    (statScore(game, "charisme") + statScore(game, "sangfroid") - 11.6) / 55 +
-    traitSum(game, (d) => d.presidential) / 80 -
+    (statScore(game, "charisme") + statScore(game, "sangfroid") - 11.6) / 55 -
     PARTIES[game.party].difficulty * 0.02 +
     (Math.random() - 0.5) * 0.3
   );
@@ -1380,7 +1415,7 @@ function renderStatus() {
   // chacun change écrit noir sur blanc.
   const traits = traitsOf(game);
   document.getElementById("trait-rows").innerHTML = traits.length
-    ? traits.map(traitRowHTML).join("")
+    ? traitRowsHTML(traits)
     : '<p class="trait-empty">' + t("traits_none") + "</p>";
 }
 
@@ -1507,6 +1542,13 @@ function fxLabel(fx) {
     return (fx.gained ? "" : "✕ ") + (def ? L(def.label) : fx.key);
   }
   if (fx.kind === "flag") return (fx.on ? "" : "✕ ") + t("flag_" + fx.key);
+  // Un écart qui n'a pas encore fait une réputation : on le dit, sans chiffre
+  // de compteur, mais assez clairement pour que le joueur sente venir la suite.
+  if (fx.kind === "strike") {
+    const def = TRAIT_DATA[fx.key];
+    return t(fx.need - fx.count > 1 ? "fx_strike_first" : "fx_strike_last") +
+      " " + (def ? L(def.label).toLowerCase() : fx.key);
+  }
   if (fx.kind === "end") return t("fx_end");
   return "";
 }
@@ -1519,6 +1561,7 @@ function fxDirection(fx) {
   }
   if (fx.kind === "flag") return (fx.key === "carefulHealth") === fx.on ? "up" : "down";
   if (fx.kind === "end") return "down";
+  if (fx.kind === "strike") return "down";
   // Des points pris à un adversaire sont une bonne nouvelle, et réciproquement.
   if (fx.kind === "landscape") {
     const mine = fx.key === game.party || fx.key === allyParty();
@@ -1563,14 +1606,13 @@ function traitEffectText(id) {
     });
   }
   if (def.energy) parts.push(t("fx_energy_cap") + " " + signed(def.energy * 2));
-  if (def.roll) {
-    Object.entries(def.roll).forEach(([stat, value]) => {
-      parts.push(t("trait_fx_roll") + " " + t("stat_" + stat).toLowerCase() + " " + signed(value));
-    });
-  }
-  if (def.soften) parts.push(t("trait_fx_soften"));
+  if (def.soften) parts.push(t("trait_fx_soften") + " " + Math.round(def.soften * 100) + " %");
   if (def.income) parts.push(formatMoney(def.income) + " " + t("trait_fx_income"));
-  if (def.presidential) parts.push(t("label_round2") + " " + signed(def.presidential));
+  // Le second tour se raconte : untel ne votera jamais pour vous, untel n'y
+  // voit plus d'obstacle. C'est plus parlant qu'un bonus sans unité.
+  if (def.rejection) {
+    parts.push(t("trait_fx_rejection") + " " + signed(Math.round(def.rejection * 100)) + " %");
+  }
   if (def.risk) parts.push(t("trait_fx_risk"));
 
   return parts.join(" · ");
@@ -1588,6 +1630,20 @@ function traitRowHTML(id) {
       '<span class="trait-fx">' + traitEffectText(id) + "</span>" +
     "</div>"
   );
+}
+
+/**
+ * Les traits rangés par famille. Sans ce regroupement, la fiche d'une longue
+ * carrière est une liste où le physique, les affaires et les talents se
+ * mélangent, et l'on n'y lit plus rien.
+ */
+function traitRowsHTML(list) {
+  return TRAIT_FAMILIES.map((family) => {
+    const ids = list.filter((id) => TRAIT_DATA[id] && TRAIT_DATA[id].family === family);
+    if (!ids.length) return "";
+    return '<p class="trait-family">' + t("trait_family_" + family) + "</p>" +
+      ids.map(traitRowHTML).join("");
+  }).join("");
 }
 
 /** Une ligne de pastilles. */
@@ -1970,11 +2026,6 @@ function investEffectText(spec) {
   }
   if (spec.energy) parts.push(t("fx_energy_cap") + " " + signed(spec.energy * 2));
   if (spec.protect) parts.push(t("budget_fx_protect") + " " + Math.round(spec.protect * 100) + " %");
-  if (spec.roll) {
-    Object.entries(spec.roll).forEach(([stat, value]) => {
-      parts.push(t("trait_fx_roll") + " " + t("stat_" + stat).toLowerCase() + " " + signed(value));
-    });
-  }
   return parts.join(" · ");
 }
 
@@ -2067,7 +2118,7 @@ function renderEnd(host) {
       (traits.length
         ? '<div class="end-traits">' +
             '<p class="end-traits-title">' + t("end_recap_traits") + "</p>" +
-            traits.map(traitRowHTML).join("") +
+            traitRowsHTML(traits) +
           "</div>"
         : "") +
       '<div class="event-choices">' +
@@ -2265,6 +2316,7 @@ function renderAll() {
     // les traits : une sauvegarde d'alors n'a pas ces champs.
     if (!game.seen) game.seen = {};
     if (!game.traits) game.traits = [];
+    if (!game.strikes) game.strikes = {};
     if (!game.investments) game.investments = {};
     if (!game.pending) {
       game.pending = [];

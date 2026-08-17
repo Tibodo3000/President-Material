@@ -1784,3 +1784,15 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Le titre d'une famille de traits sur la fiche du personnage. */
+.trait-family {
+  margin: 0.7rem 0 0.2rem;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.trait-family:first-child { margin-top: 0; }

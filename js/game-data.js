@@ -175,6 +175,41 @@ function traitsOf(s) {
   return s.traits || (s.traits = []);
 }
 
+/**
+ * LES ÉCARTS.
+ *
+ * Une réputation ne se fait pas en une fois. Se dédire une fois est un
+ * accident dont personne ne se souvient ; se dédire trois fois est une
+ * réputation dont on ne se débarrasse plus. Les événements signalent l'écart,
+ * le moteur compte, et la marque tombe quand le compte y est.
+ *
+ * C'est ce qui empêche une marque donnée par seize événements de finir dans
+ * toutes les parties, sans avoir à mentir sur ce que chaque scène raconte.
+ */
+function strikesOf(s) {
+  return s.strikes || (s.strikes = {});
+}
+
+function strikesNeeded(id) {
+  const def = TRAIT_DATA[id];
+  return def && def.strikes ? def.strikes : 1;
+}
+
+/**
+ * Enregistre un écart. Renvoie ce qu'il faut montrer au joueur : la marque si
+ * elle vient de tomber, sinon l'avertissement, pour qu'il la voie venir.
+ */
+function addStrike(s, id) {
+  if (hasTrait(s, id)) return null;
+
+  const count = strikesOf(s)[id] = (strikesOf(s)[id] || 0) + 1;
+  const need = strikesNeeded(id);
+  if (count < need) return { kind: "strike", key: id, count, need };
+
+  const gained = addTrait(s, id);
+  return gained ? { kind: "trait", key: id, gained: true, stats: gained } : null;
+}
+
 function hasTrait(s, id) {
   return traitsOf(s).includes(id);
 }
@@ -231,10 +266,6 @@ function traitSum(s, read) {
 
 function traitTarget(s, gauge) {
   return traitSum(s, (d) => d.target && d.target[gauge]);
-}
-
-function traitRollBonus(s, stat) {
-  return stat ? traitSum(s, (d) => d.roll && d.roll[stat]) : 0;
 }
 
 /** Part des mauvaises nouvelles que les traits amortissent, plafonnée. */
@@ -295,10 +326,6 @@ function investHold(s, gauge) {
 /** Ce que le logement ajoute au plafond de forme physique. */
 function investEnergy(s) {
   return investSum(s, (spec) => spec.energy);
-}
-
-function investRoll(s, stat) {
-  return stat ? investSum(s, (spec) => spec.roll && spec.roll[stat]) : 0;
 }
 
 /** Part du risque judiciaire absorbée par les avocats, plafonnée. */
@@ -712,6 +739,15 @@ function applyEffects(effects, s) {
       }
       return;
     }
+    // Un écart de plus. La marque ne tombe qu'à la récidive.
+    if (key === "strike") {
+      const marque = addStrike(s, value);
+      if (marque) {
+        changes.push(marque.kind === "trait" ? { kind: "trait", key: value, gained: true } : marque);
+        (marque.stats || []).forEach((c) => changes.push(c));
+      }
+      return;
+    }
     if (key === "untrait") {
       const lost = removeTrait(s, value);
       if (lost) {
@@ -812,9 +848,7 @@ function rollDice(roll) {
 
 /** La part certaine du score, celle qui ne doit rien au dé. */
 function rollBase(roll, s) {
-  let score = roll.stat
-    ? statScore(s, roll.stat) + traitRollBonus(s, roll.stat) + investRoll(s, roll.stat)
-    : 0;
+  let score = roll.stat ? statScore(s, roll.stat) : 0;
 
   if (roll.plus) {
     Object.entries(roll.plus).forEach(([key, weight]) => {
@@ -1041,12 +1075,9 @@ function rejectionRate(candidate, s) {
   if (s.alliance && PARTIES[s.alliance.party]) {
     rate += (PARTIES[s.alliance.party].difficulty - 2) * 0.045;
   }
-  if (hasTrait(s, "radical")) rate += 0.24;
-  if (hasTrait(s, "casserole")) rate += 0.1;
-  if (hasTrait(s, "menteur")) rate += 0.08;
-  if (hasTrait(s, "traitre")) rate += 0.06;
-  if (hasTrait(s, "intouchable")) rate -= 0.12;
-  if (hasTrait(s, "teflon")) rate -= 0.05;
+  // Ce que vos traits ajoutent ou retirent est écrit dans js/traits.data.js :
+  // le moteur ne connaît aucun trait par son nom.
+  rate += traitSum(s, (d) => d.rejection);
   if (s.flags.onTrial) rate += 0.16;
 
   return Math.max(0, Math.min(0.75, rate));
