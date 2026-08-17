@@ -113,6 +113,10 @@ function popularityTarget(s) {
     2 + statScore(s, "notoriete") * 2.6 + statScore(s, "reputation") * 1.35 +
     statScore(s, "charisme") * 1.0 +
     POSITION_EXPOSURE[s.position] * 0.7 +
+    // L'ÉPUISEMENT SE VOIT. En dessous d'un certain niveau, on annule des
+    // déplacements, on lit ses fiches, on répond à côté. Sans ce prix-là,
+    // dépenser sa forme ne coûtait rien du tout.
+    Math.min(0, (s.stats.energie - 8) * 2) +
     // Un ministre porte le bilan d'un gouvernement qu'il n'a pas choisi. La
     // fonction fait connaître, elle ne fait pas aimer.
     (s.position === "ministre" ? -8 : 0) +
@@ -547,9 +551,12 @@ function shiftPoll(s, delta) {
    basse, certaines réponses deviennent tout simplement inaccessibles.
    ========================================================================== */
 
-/** Le plafond de forme, qui s'érode avec les années. */
+/**
+ * Le seuil de récupération, qui s'érode avec les années. C'est là que
+ * l'énergie s'arrête de remonter, jamais le maximum de la statistique.
+ */
 function energyCeiling(s) {
-  let ceiling = 14 - Math.floor((s.age - START_AGE) / 8) * 2;
+  let ceiling = 12 - Math.floor((s.age - START_AGE) / 6) * 2;
   if (s.flags.carefulHealth) ceiling += 2;
   if (s.flags.frailHealth) ceiling -= 2;
   ceiling += (traitSum(s, (d) => d.energy) + investEnergy(s)) * 2;
@@ -557,12 +564,14 @@ function energyCeiling(s) {
 }
 
 /**
- * Récupération : un point tous les deux ans seulement, et jamais au-dessus
- * du plafond. Assez pour se relever d'un coup dur, trop lent pour enchaîner
- * les choix exigeants sans jamais le payer.
+ * Récupération : deux points tous les trois ans, et jamais au-dessus du
+ * seuil. C'est volontairement lent. Tant qu'on récupérait plus vite qu'on ne
+ * dépensait, l'énergie n'était pas une ressource : c'était une formalité, et
+ * dépenser était toujours rentable puisque le compte se remplissait tout
+ * seul.
  */
 function recoverEnergy(s) {
-  if (s.turn % 4 !== 0) return;
+  if (s.turn % 6 !== 0) return;
   if (s.stats.energie < energyCeiling(s)) bump(s, "energie", +2);
 }
 

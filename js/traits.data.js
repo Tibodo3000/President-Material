@@ -243,7 +243,7 @@ const TRAIT_DATA = {
       "fr": "Un grain que les micros adorent. On vous écoute jusqu'au bout de vos phrases, même quand elles ne mènent nulle part.",
       "en": "A grain the microphones love. People listen to the end of your sentences, even the ones going nowhere."
     },
-    "stats": { "eloquence": 3, "charisme": 1 },
+    "stats": { "eloquence": 3, "charisme": 1, "reputation": -1 },
     "target": { "popularity": 2 }
   },
 
@@ -254,7 +254,7 @@ const TRAIT_DATA = {
     "axis": "elocution",
     "label": { "fr": "Cheveux sur la langue", "en": "A lisp" },
     "desc": {
-      "fr": "Un défaut d'élocution que les imitateurs ont repéré avant vous. On retient la façon dont vous le dites, jamais ce que vous dites.",
+      "fr": "Un défaut d'élocution que les imitateurs ont repéré avant vous. On retient la façon dont vous le dites plutôt que ce que vous dites, mais personne ne vous soupçonnera jamais d'être un communicant.",
       "en": "A speech impediment the impressionists spotted before you did. People remember how you say it, never what you said."
     },
     "stats": { "eloquence": -3, "reputation": 2 },
@@ -315,11 +315,11 @@ const TRAIT_DATA = {
     "axis": "stature",
     "label": { "fr": "Grande taille", "en": "Tall" },
     "desc": {
-      "fr": "On vous voit arriver de loin et l'on vous cède le micro sans savoir pourquoi. Aucune étude sérieuse n'explique cet avantage, toutes le constatent.",
+      "fr": "On vous voit arriver de loin et l'on vous cède le micro sans savoir pourquoi. Aucune étude sérieuse n'explique cet avantage, toutes le constatent, et vos collègues de réunion vous trouvent un peu écrasant.",
       "en": "People see you coming and hand you the microphone without knowing why. No serious study explains the advantage; every study finds it."
     },
-    "stats": { "charisme": 2, "notoriete": 2, "sangfroid": -1 },
-    "target": { "popularity": 2 },
+    "stats": { "charisme": 2, "notoriete": 2 },
+    "target": { "popularity": 3, "standing": -3 },
     "blocks": ["petite_taille"]
   },
 
@@ -333,8 +333,8 @@ const TRAIT_DATA = {
       "fr": "Les photos officielles se prennent avec vous au premier rang, et les caricaturistes ont trouvé leur angle. En revanche, on vous sous-estime en réunion, ce qui a toujours été une bonne nouvelle.",
       "en": "Official photographs put you in the front row, and the cartoonists have found their angle. On the other hand, people underestimate you in meetings, which has always been good news."
     },
-    "stats": { "charisme": -2, "energie": 2 },
-    "target": { "popularity": -2, "standing": 3 },
+    "stats": { "charisme": -2, "sangfroid": 3 },
+    "target": { "popularity": -2, "standing": 2 },
     "blocks": ["stature"]
   },
 
@@ -348,8 +348,7 @@ const TRAIT_DATA = {
       "fr": "Vous n'êtes jamais malade et vous ne comprenez pas ceux qui le sont. Trois campagnes d'affilée ne vous ont jamais couché.",
       "en": "You are never ill and you do not understand people who are. Three campaigns back to back have never put you in bed."
     },
-    "stats": { "energie": 3, "sangfroid": 2 },
-    "target": { "popularity": -1 },
+    "stats": { "energie": 5, "charisme": -2 },
     "energy": 2,
     "blocks": ["fragile"]
   },
@@ -380,8 +379,8 @@ const TRAIT_DATA = {
       "fr": "Vous retenez un prénom, un métier et le nom d'un chien après une seule poignée de main. C'est le seul talent de ce métier qui ne s'apprend pas.",
       "en": "You remember a first name, a job and a dog's name after a single handshake. It is the one talent in this trade that cannot be learned."
     },
-    "stats": { "reseau": 4 },
-    "target": { "standing": 2, "popularity": -1 },
+    "stats": { "reseau": 4, "reputation": -1 },
+    "target": { "standing": 3 },
     "blocks": ["tete_en_lair"]
   },
 
@@ -410,8 +409,8 @@ const TRAIT_DATA = {
       "fr": "Chez vous, c'est une carte d'identité et personne ne l'entend. À la télévision nationale, c'est la première chose qu'on retient de vous, et pas toujours en bien.",
       "en": "At home it is an identity card and nobody hears it. On national television it is the first thing people take away from you, and not always kindly."
     },
-    "stats": { "reputation": 2, "notoriete": -1 },
-    "target": { "popularity": -2 },
+    "stats": { "reputation": 2, "charisme": -2 },
+    "target": { "popularity": -1 },
     "election": { "municipales": 7, "legislatives": -1, "europeennes": -4 }
   },
 
@@ -482,7 +481,7 @@ const TRAIT_DATA = {
       "en": "You can hold a room. The words come to you while others are still looking for theirs."
     },
     "stats": { "eloquence": 4 },
-    "target": { "popularity": 3 }
+    "target": { "popularity": 3, "standing": -2 }
   },
 
   "bete_scene": {
@@ -517,6 +516,7 @@ const TRAIT_DATA = {
       "en": "You keep hours that wear out your staff long before they wear out you."
     },
     "stats": { "energie": 4 },
+    "target": { "standing": 3, "popularity": -3 },
     "energy": 2
   },
 
