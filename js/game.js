@@ -2327,7 +2327,6 @@ function investEffectText(spec) {
         t("budget_fx_hold") + " " + Math.round(value * 100) + " %");
     });
   }
-  if (spec.energy) parts.push(t("fx_energy_cap") + " " + signed(spec.energy * 2));
   if (spec.protect) parts.push(t("budget_fx_protect") + " " + Math.round(spec.protect * 100) + " %");
   return parts.join(" · ");
 }
