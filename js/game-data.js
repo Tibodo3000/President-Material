@@ -332,11 +332,6 @@ function investHold(s, gauge) {
   return Math.min(0.75, investSum(s, (spec) => spec.hold && spec.hold[gauge]));
 }
 
-/** Ce que le logement ajoute au plafond de forme physique. */
-function investEnergy(s) {
-  return investSum(s, (spec) => spec.energy);
-}
-
 /** Part du risque judiciaire absorbée par les avocats, plafonnée. */
 function investProtect(s) {
   return Math.min(0.7, investSum(s, (spec) => spec.protect));
@@ -555,7 +550,7 @@ function energyCeiling(s) {
   let ceiling = 12 - Math.floor((s.age - START_AGE) / 6) * 2;
   if (s.flags.carefulHealth) ceiling += 2;
   if (s.flags.frailHealth) ceiling -= 2;
-  ceiling += (traitSum(s, (d) => d.energy) + investEnergy(s)) * 2;
+  ceiling += traitSum(s, (d) => d.energy) * 2;
   return Math.max(4, Math.min(18, ceiling));
 }
 

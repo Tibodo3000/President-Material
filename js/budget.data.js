@@ -16,7 +16,7 @@
  * l'une des rares choses que le public devine à peu près juste. Entre les
  * cotisations, l'impôt et la vie courante, un peu plus de la moitié de ce qui
  * rentre repart. Un attaché de presse coûte le salaire chargé d'un attaché de
- * presse, et un logement coûte un loyer.
+ * presse.
  *
  * Rien ici ne doit être un chiffre inventé pour équilibrer une courbe : si
  * un montant surprend, c'est qu'il est faux.
@@ -40,7 +40,6 @@
  *                       pour chacun :
  *                         "cost"      dépense annuelle
  *                         "hold"      part de la baisse d'une jauge évitée
- *                         "energy"    décale le plafond de forme physique
  *                         "protect"   part de risque judiciaire évitée
  *
  * Le joueur monte et descend ces paliers quand il veut, dans l'onglet Budget.
@@ -102,23 +101,6 @@ const BUDGET_DATA = {
           "cost": 18000, "protect": 0.38 },
         { "name": { "fr": "Un cabinet d'avocats", "en": "A law firm" },
           "cost": 70000, "protect": 0.62 }
-      ]
-    },
-
-    "logement": {
-      "label": { "fr": "Logement", "en": "Housing" },
-      "desc": {
-        "fr": "Où vous dormez, et surtout où vous recevez.",
-        "en": "Where you sleep, and above all where you entertain."
-      },
-      "levels": [
-        { "name": { "fr": "Un studio", "en": "A studio flat" }, "cost": 7000 },
-        { "name": { "fr": "Un deux-pièces correct", "en": "A decent two-room flat" },
-          "cost": 14000, "energy": 1 },
-        { "name": { "fr": "Une maison avec un jardin", "en": "A house with a garden" },
-          "cost": 28000, "energy": 2 },
-        { "name": { "fr": "Un appartement au centre de la capitale", "en": "A flat in the centre of the capital" },
-          "cost": 46000, "energy": 2, "hold": { "standing": 0.35 } }
       ]
     }
   }
