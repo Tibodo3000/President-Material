@@ -79,6 +79,9 @@
  *   "income"        Revenu occulte par tour, en euros.
  *   "risk"          Risque par tour de déclencher un événement.
  *   "blocks"        Traits incompatibles : les prendre retire ceux-là.
+ *   "requiresParty" Le trait n'existe que pour qui est, ou a été, dans l'un
+ *                   de ces camps. Les autres ne l'attrapent jamais, et les
+ *                   écarts qui y mènent ne sont même pas comptés.
  *
  * ----------------------------------------------------------------------------
  * RÈGLES D'ÉCRITURE
@@ -258,6 +261,29 @@ const TRAIT_DATA = {
       "en": "A speech impediment the impressionists spotted before you did. People remember how you say it, never what you said."
     },
     "stats": { "eloquence": -2 }
+  },
+
+  /*
+   * Ce trait n'est pas tiré : il est porté par toutes les joueuses, et par
+   * elles seules. Il ne touche ni les statistiques ni les jauges, parce que
+   * le jeu ne dit pas qu'une femme est un moins bon candidat. Il ne touche
+   * que le second tour de la présidentielle, parce que c'est là que se lit
+   * ce que le jeu raconte : une part de l'électorat ne franchira pas le pas,
+   * et elle suffit à rendre la dernière marche plus haute.
+   *
+   * Cinq points, soit un peu moins que ce que coûte une réputation de
+   * traître. C'est le seul chiffre du jeu qui ne se gagne ni ne se perd.
+   */
+  "femme": {
+    "family": "physique",
+    "kind": "mark",
+    "core": true,
+    "label": { "fr": "Femme", "en": "Woman" },
+    "desc": {
+      "fr": "Tous les commentateurs jurent que cela ne compte plus. Ils le jurent à chaque élection, et ils le jurent surtout le dimanche du second tour.",
+      "en": "Every commentator swears it no longer counts. They swear it at every election, and above all on the evening of the runoff."
+    },
+    "rejection": 0.05
   },
 
   "homosexuel": {
@@ -554,6 +580,38 @@ const TRAIT_DATA = {
      RÉPUTATION — ce que le pays croit de vous
      ========================================================================== */
 
+  /*
+   * CE QU'ON A ÉTÉ RESTE. Deux marques qui ne s'attrapent qu'en quittant une
+   * fonction, et qui ne se perdent jamais : on est ancien ministre pour la
+   * vie, et les plateaux vous présentent ainsi vingt ans plus tard. Elles ne
+   * donnent aucune popularité — le pays ne vous aime pas davantage — mais
+   * elles donnent le nom et la stature, qui sont exactement ce qu'on garde
+   * d'un passage au gouvernement.
+   */
+  "ancien_ministre": {
+    "family": "appareil",
+    "kind": "asset",
+    "label": { "fr": "Ancien ministre", "en": "Former minister" },
+    "desc": {
+      "fr": "Vous avez tenu un ministère. On vous présentera ainsi jusqu'à la fin, y compris les jours où vous n'aurez plus rien d'autre à faire valoir.",
+      "en": "You held a ministry. That is how you will be introduced for ever, including on the days you have nothing else left to show."
+    },
+    "stats": { "notoriete": 3, "credibilite": 3 }
+  },
+
+  "ancien_premier": {
+    "family": "appareil",
+    "kind": "asset",
+    "blocks": ["ancien_ministre"],
+    "label": { "fr": "Ancien Premier ministre", "en": "Former prime minister" },
+    "desc": {
+      "fr": "Vous avez eu Matignon. Le pays retient rarement ce que vous y avez fait, et n'oublie jamais que vous y avez été.",
+      "en": "You had the top job under the president. The country rarely remembers what you did there, and never forgets that you were there."
+    },
+    "stats": { "notoriete": 5, "credibilite": 5 },
+    "target": { "standing": 6 }
+  },
+
   "intouchable": {
     "family": "reputation",
     "kind": "asset",
@@ -625,6 +683,10 @@ const TRAIT_DATA = {
   "radical": {
     "family": "reputation",
     "kind": "mark",
+    // On ne se fait pas ranger aux extrêmes parce qu'on a haussé le ton : il
+    // faut en venir. Un centriste peut dire ce qu'il veut, le pays continuera
+    // de le lire comme un centriste qui s'énerve.
+    "requiresParty": ["radical_left", "identitarians"],
     "label": { "fr": "Marqué aux extrêmes", "en": "Branded an extremist" },
     "desc": {
       "fr": "Votre base vous suivrait n'importe où. C'est le reste du pays qui pose problème.",

@@ -6,11 +6,23 @@
  * (create.html) et le choix du parti (party.html).
  *
  * Statistiques personnelles : charisme, eloquence, energie, sangfroid
- * Statistiques externes     : reseau, notoriete, reputation
+ * Statistiques externes     : reseau, notoriete, reputation, credibilite
+ *
+ * Les quatre externes disent quatre choses différentes, et il a fallu la
+ * quatrième pour que les trois autres cessent de se marcher dessus :
+ *   RÉSEAU       qui vous doit quelque chose.
+ *   NOTORIÉTÉ    à quel point on vous connaît. Elle monte presque toute
+ *                seule au fil d'une carrière : c'est normal, être connu
+ *                n'est pas une qualité.
+ *   RÉPUTATION   à quel point ce qu'on sait de vous est propre.
+ *   CRÉDIBILITÉ  la stature. Est-ce qu'on vous imagine dans le fauteuil ?
+ *                On peut être connu, propre et aimé sans que personne ne
+ *                vous voie président, et c'est très exactement ce qui
+ *                manquait au jeu.
  * La fortune n'est pas une statistique mais un capital en euros.
  */
 /* ==========================================================================
-   Statistiques (0 à 10)
+   Statistiques (0 à 20)
    ========================================================================== */
 
 /** Valeur de départ commune à tous les personnages. */
@@ -22,6 +34,9 @@ const BASE_STATS = {
   reseau: 4,
   notoriete: 2,
   reputation: 10,
+  // À trente ans, personne n'a de stature. On en a un peu par défaut, parce
+  // qu'on ne part pas de rien, et on passe la partie à la construire.
+  credibilite: 6,
 };
 
 const STAT_MIN = 0;
@@ -66,23 +81,23 @@ const STAT_MODIFIERS = {
 
   /* Origine sociale : gradient de privilège assumé, de +1 à +5. */
   origin: {
-    modest:    { energie: +4, reputation: +2, reseau: -4 },
+    modest:    { energie: +4, reputation: +2, credibilite: -2, reseau: -2 },
     middle:    { eloquence: +2, energie: +2 },
-    bourgeois: { reseau: +4, charisme: +2, sangfroid: +2, eloquence: +2, reputation: -4 },
-    dynasty:   { reseau: +6, notoriete: +4, charisme: +2, eloquence: +2, sangfroid: +2,
+    bourgeois: { reseau: +4, charisme: +2, sangfroid: +2, credibilite: +2, reputation: -4 },
+    dynasty:   { reseau: +6, credibilite: +4, notoriete: +2, charisme: +2, sangfroid: +2,
                  reputation: -4, energie: -2 },
   },
 
   /* Parcours : +5 pour les moins rémunérateurs, +3 pour les plus lucratifs. */
   background: {
-    activism:   { energie: +6, charisme: +4, reputation: +2, notoriete: -2 },
-    journalism: { notoriete: +4, eloquence: +4, reseau: +4, reputation: -2 },
-    academia:   { eloquence: +6, sangfroid: +2, reputation: +4, notoriete: -2 },
-    civil:      { sangfroid: +6, reseau: +2, eloquence: +2, notoriete: -2 },
-    law:        { eloquence: +6, sangfroid: +2, reputation: +2, notoriete: -2 },
-    comms:      { eloquence: +4, reseau: +4, charisme: +2, reputation: -4 },
-    business:   { reseau: +6, sangfroid: +4, energie: +2, reputation: -4, charisme: -2 },
-    celebrity:  { notoriete: +8, charisme: +6, reputation: -4, sangfroid: -2, eloquence: -2 },
+    activism:   { energie: +6, charisme: +4, reputation: +4, credibilite: -2, notoriete: -2 },
+    journalism: { notoriete: +4, eloquence: +4, reseau: +2, credibilite: +2, reputation: -2 },
+    academia:   { credibilite: +6, eloquence: +4, sangfroid: +2, notoriete: -2 },
+    civil:      { sangfroid: +4, credibilite: +4, reseau: +2, notoriete: -2 },
+    law:        { eloquence: +4, credibilite: +4, sangfroid: +2, notoriete: -2 },
+    comms:      { eloquence: +4, reseau: +4, charisme: +4, reputation: -4, credibilite: -2 },
+    business:   { reseau: +6, sangfroid: +2, credibilite: +2, energie: +2, reputation: -4, charisme: -2 },
+    celebrity:  { notoriete: +8, charisme: +6, credibilite: -4, reputation: -4 },
   },
 
   /* La personnalité n'est plus ici : c'est un trait, et ses modificateurs sont
@@ -335,7 +350,7 @@ const STAT_GROUPS = [
   { scope: "personal", labelKey: "group_personal",
     stats: ["charisme", "eloquence", "energie", "sangfroid"] },
   { scope: "external", labelKey: "group_external",
-    stats: ["reseau", "notoriete", "reputation"] },
+    stats: ["reseau", "notoriete", "reputation", "credibilite"] },
 ];
 
 /** Additionne les modificateurs des choix courants sur les stats de base. */

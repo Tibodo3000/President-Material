@@ -2,8 +2,9 @@
  * President Material — données de la boucle de jeu (game.html).
  *
  * Ce fichier contient tout ce qui se règle : l'échelle de carrière, le
- * calendrier électoral, les deux jauges de carrière, la mortalité et
- * surtout les ÉVÉNEMENTS. Le moteur est dans js/game.js.
+ * calendrier électoral, les deux jauges de carrière, la fin de carrière
+ * (fatigue, retrait forcé, mortalité) et surtout les ÉVÉNEMENTS. Le
+ * moteur est dans js/game.js.
  *
  * Les textes des événements vivent ici, à côté de leurs effets : un
  * événement est un tout. Chaque texte est un objet { fr, en } lu par L().
@@ -19,8 +20,17 @@ const START_AGE = 30;
 /**
  * L'échelle des fonctions, du bas vers le haut. La présidence est la fin.
  *
- * Deux d'entre elles ne s'obtiennent pas comme les autres :
+ * ON N'OCCUPE QU'UNE FONCTION À LA FOIS. Le cumul des mandats n'existe pas
+ * ici : un maire élu député quitte la mairie le soir même, et il ne la
+ * retrouve pas s'il est battu six ans plus tard. C'est la règle qui donne
+ * son prix à chaque marche : monter, c'est lâcher ce qu'on tenait.
  *
+ * Trois d'entre elles ne s'obtiennent pas comme les autres :
+ *
+ *   CADRE     le parti, sans le pays. Un poste d'appareil : secrétaire
+ *             national, patron de fédération. Ce n'est pas un mandat, cela
+ *             ne s'élit pas devant les électeurs, et c'est là qu'atterrissent
+ *             ceux qui ont perdu le leur sans avoir tout perdu.
  *   EURO      le Parlement européen. On y entre par une liste que l'appareil
  *             compose, et l'appareil y met volontiers ceux dont il veut la
  *             place. C'est un vrai mandat, bien payé et très exposé à
@@ -28,22 +38,32 @@ const START_AGE = 30;
  *   MINISTRE  un ministère ne s'élit pas, il se donne, et seulement quand
  *             votre camp gouverne. Il tombe le jour où le camp perd, ce qui
  *             fait de la meilleure fonction du jeu la plus fragile.
+ *   PREMIER   Matignon. La plus haute marche avant l'Élysée, et la seule
+ *             qu'on doive à un seul homme : le président nomme, le président
+ *             révoque. On y arrive par deux chemins — son propre camp qui
+ *             gouverne et qui vous doit quelque chose, ou un camp voisin qui
+ *             a besoin de vos voix et vous achète avec Matignon. On en
+ *             ressort fusible, ou présidentiable, et parfois les deux.
  */
-const LADDER = ["militant", "conseiller", "maire", "euro", "depute", "ministre", "chef"];
+const LADDER = ["militant", "cadre", "conseiller", "maire", "euro", "depute", "ministre", "chef", "premier"];
 
 /**
- * Où l'on retombe quand on perd ce qu'on défendait. On ne recule pas d'un cran
- * dans l'échelle, on retourne là d'où l'on vient : un député battu redevient
- * un élu local, il ne devient pas député européen.
+ * OÙ L'ON TOMBE QUAND ON PERD.
+ *
+ * Nulle part, et c'est tout le problème. Le moteur faisait reculer d'un cran
+ * dans l'échelle : un député battu redevenait maire d'une ville qu'il avait
+ * quittée pour se présenter, et un chef de parti désavoué se réveillait
+ * député sans avoir été élu nulle part. Le jeu inventait des mandats.
+ *
+ * Un mandat perdu est perdu. Reste ce que le parti veut bien vous garder :
+ * un poste d'appareil si vous pesez encore, la carte de militant sinon. On
+ * ne reprend une fonction qu'en la regagnant dans les urnes.
  */
-const DEMOTION = {
-  conseiller: "militant",
-  maire: "conseiller",
-  euro: "maire",
-  depute: "maire",
-  ministre: "depute",
-  chef: "depute",
-};
+const NO_OFFICE_STANDING = 30;
+
+function officeAfterDefeat(s) {
+  return s.standing >= NO_OFFICE_STANDING ? "cadre" : "militant";
+}
 
 /* Les indemnités, le train de vie et les postes de dépense sont dans
    js/budget.data.js. */
@@ -88,12 +108,14 @@ const DRIFT = 0.28;
  * envoie les gens dont on veut se débarrasser.
  */
 const POSITION_EXPOSURE = {
-  militant: 0, conseiller: 4, maire: 10, euro: 8, depute: 14, ministre: 28, chef: 22,
+  militant: 0, cadre: 3, conseiller: 4, maire: 10, euro: 8, depute: 14,
+  ministre: 28, chef: 22, premier: 40,
 };
 
 /** Poids interne de la fonction dans l'appareil du parti. */
 const POSITION_RANK = {
-  militant: 0, conseiller: 1, maire: 3, euro: 2, depute: 4, ministre: 5, chef: 7,
+  militant: 0, cadre: 2, conseiller: 1, maire: 3, euro: 2, depute: 4,
+  ministre: 5, chef: 7, premier: 6,
 };
 
 function clamp100(v) {
@@ -110,12 +132,15 @@ function clamp100(v) {
  */
 function popularityTarget(s) {
   return clamp100(
-    2 + statScore(s, "notoriete") * 2.6 + statScore(s, "reputation") * 1.35 +
-    statScore(s, "charisme") * 1.0 +
+    2 + statScore(s, "notoriete") * 2.6 + statScore(s, "reputation") * 1.2 +
+    statScore(s, "charisme") * 1.0 + statScore(s, "credibilite") * 0.35 +
     POSITION_EXPOSURE[s.position] * 0.7 +
     // Un ministre porte le bilan d'un gouvernement qu'il n'a pas choisi. La
     // fonction fait connaître, elle ne fait pas aimer.
     (s.position === "ministre" ? -8 : 0) +
+    // Le Premier ministre est le fusible : il porte tout ce que le pays
+    // reproche au gouvernement, et le président garde ce qui marche.
+    (s.position === "premier" ? -12 : 0) +
     traitTarget(s, "popularity")
   );
 }
@@ -124,7 +149,11 @@ function popularityTarget(s) {
 function standingTarget(s) {
   const fit = computeFit(s.party, s.character);
   return clamp100(
-    14 + statScore(s, "reseau") * 2.6 + fit * 2.5 + POSITION_RANK[s.position] * 3.2 +
+    // L'appareil compte ses obligés, mais il regarde aussi s'il peut vous
+    // présenter sans avoir honte : une direction n'investit pas quelqu'un
+    // dont personne n'imagine le nom sur une affiche nationale.
+    9 + statScore(s, "reseau") * 2.2 + statScore(s, "credibilite") * 1.1 +
+    fit * 2.5 + POSITION_RANK[s.position] * 3.2 +
     (s.flags.dirtyMoney ? -8 : 0) +
     traitTarget(s, "standing")
   );
@@ -148,6 +177,17 @@ const NOMINATION_THRESHOLD = {
 };
 
 /**
+ * LA PRIME AU SORTANT. On ne réinvestit pas un sortant comme on investit un
+ * inconnu : il a le fichier, les militants et six ans de photos avec eux, et
+ * lui refuser l'investiture c'est reconnaître qu'on s'est trompé la dernière
+ * fois. L'appareil ne le fait que lorsqu'il n'a plus le choix.
+ *
+ * Elle ne vaut que pour les mandats. La direction du parti n'a pas de
+ * sortant : c'est justement le poste qu'on prend à quelqu'un.
+ */
+const INCUMBENT_DISCOUNT = 12;
+
+/**
  * Mortalité : aucune avant 60 ans, puis une probabilité par tour qui
  * grimpe avec l'âge.
  */
@@ -155,6 +195,30 @@ function deathProbability(state) {
   if (state.age < 60) return 0;
   let p = (state.age - 60) * 0.003 + 0.002;
   if (state.age >= 92) return 1;
+  if (state.flags.carefulHealth) p /= 2;
+  if (state.flags.frailHealth) p *= 2;
+  return p;
+}
+
+/**
+ * LE RETRAIT FORCÉ.
+ *
+ * Une carrière ne s'arrête pas toujours sur une victoire, une condamnation ou
+ * un cercueil. Elle s'arrête aussi parce qu'un matin le corps ne suit plus,
+ * parce qu'un nom ne revient pas devant les caméras, parce que l'entourage
+ * organise la sortie avant que le pays ne s'en aperçoive. C'est la fin la
+ * plus banale de toutes, et le jeu ne la racontait pas : on jouait jusqu'à
+ * quatre-vingt-douze ans en pleine possession de ses moyens.
+ *
+ * Le risque commence à soixante-deux ans, monte avec l'âge, et l'épuisement
+ * l'accélère : une carrière menée à bout de forces se termine plus tôt.
+ * Comme pour la mort, la santé surveillée protège et la santé fragile coûte.
+ */
+function withdrawalProbability(state) {
+  if (state.age < 62) return 0;
+  let p = (state.age - 62) * 0.003;
+  if (state.stats.energie <= 2) p += 0.02;
+  else if (state.stats.energie <= 5) p += 0.008;
   if (state.flags.carefulHealth) p /= 2;
   if (state.flags.frailHealth) p *= 2;
   return p;
@@ -199,8 +263,37 @@ function strikesNeeded(id) {
  * Enregistre un écart. Renvoie ce qu'il faut montrer au joueur : la marque si
  * elle vient de tomber, sinon l'avertissement, pour qu'il la voie venir.
  */
+/**
+ * CERTAINES MARQUES NE VOUS CONCERNENT PAS.
+ *
+ * Un trait peut exiger d'appartenir — ou d'avoir appartenu — à certains
+ * camps. « Marqué aux extrêmes » n'a aucun sens pour un centriste qui n'a
+ * jamais quitté son parti : le pays ne le range pas là, quoi qu'il dise.
+ * On regarde le parti actuel ET tous ceux qu'on a traversés, parce qu'une
+ * étiquette d'origine ne se décolle jamais tout à fait.
+ */
+function traitAllowed(s, id) {
+  const def = TRAIT_DATA[id];
+  if (!def || !def.requiresParty) return true;
+
+  const parcours = partyHistory(s);
+  return def.requiresParty.some((key) => parcours.includes(key));
+}
+
+/** Tous les partis traversés, le premier compris. */
+function partyHistory(s) {
+  if (!s.parties) s.parties = [s.party];
+  if (!s.parties.includes(s.party)) s.parties.push(s.party);
+  return s.parties;
+}
+
 function addStrike(s, id) {
   if (hasTrait(s, id)) return null;
+
+  // On ne compte même pas l'écart : la marque ne peut pas tomber, il n'y a
+  // donc rien à compter, et le joueur n'a pas à voir un compteur avancer
+  // vers un trait qu'il ne prendra jamais.
+  if (!traitAllowed(s, id)) return null;
 
   const count = strikesOf(s)[id] = (strikesOf(s)[id] || 0) + 1;
   const need = strikesNeeded(id);
@@ -226,6 +319,7 @@ function hasTrait(s, id) {
 function addTrait(s, id) {
   const def = TRAIT_DATA[id];
   if (!def || hasTrait(s, id)) return null;
+  if (!traitAllowed(s, id)) return null;
 
   (def.blocks || []).forEach((other) => removeTrait(s, other));
   traitsOf(s).push(id);
@@ -335,6 +429,28 @@ function investHold(s, gauge) {
 /** Part du risque judiciaire absorbée par les avocats, plafonnée. */
 function investProtect(s) {
   return Math.min(0.7, investSum(s, (spec) => spec.protect));
+}
+
+/**
+ * CE QUI REND LE RISQUE JOUABLE.
+ *
+ * Un pari raté coûtait toujours plein tarif, et comme les dés du jeu tournent
+ * autour de pile ou face, parier était perdant presque à tous les coups :
+ * dix-huit pour cent des choix à dés battaient l'option sûre du même
+ * événement. Un joueur rationnel ne prenait donc jamais de risque, ce qui
+ * n'est pas une façon de raconter une carrière politique.
+ *
+ * Ce n'est pas le moteur qui répare ça, c'est le service de presse. Une
+ * bourde se paie plein tarif quand personne ne travaille pour vous ; avec une
+ * agence derrière soi, elle se paie moins cher. L'audace s'achète, ce qui est
+ * exactement ce que le jeu raconte par ailleurs.
+ *
+ * N'amortit que les jauges d'un pari perdu : ni l'argent, ni les
+ * statistiques, ni les marques. Aucun attaché de presse n'a jamais fait
+ * disparaître une amende ni un procès-verbal.
+ */
+function investNerve(s) {
+  return Math.min(0.6, investSum(s, (spec) => spec.nerve));
 }
 
 /**
@@ -476,7 +592,8 @@ function pay(state, amount) {
   state.money = Math.max(0, state.money + amount);
 }
 
-/** Tirage : la statistique (0-10) plus un dé contre une difficulté. */
+/** Tirage : la statistique (ramenée sur 10 par STAT_SCALE) plus un dé
+    contre une difficulté. */
 function test(state, stat, difficulty) {
   return state.stats[stat] + Math.random() * 6 >= difficulty;
 }
@@ -545,25 +662,94 @@ function shiftPoll(s, delta) {
 /**
  * Le seuil de récupération, qui s'érode avec les années. C'est là que
  * l'énergie s'arrête de remonter, jamais le maximum de la statistique.
+ *
+ * On ne vieillit pas dès trente ans. Le seuil tient bon jusqu'à la
+ * cinquantaine, l'âge où les carrières se jouent vraiment, puis descend d'un
+ * point tous les trois ans. La fatigue arrive donc là où elle se voit en
+ * politique : autour de soixante-cinq ans, quand les jets commencent à
+ * manquer et que les journées longues ne sont plus une option.
+ *
+ * La version précédente touchait son plancher à cinquante-quatre ans, très
+ * en dessous du seuil que réclament les choix exigeants : la seconde moitié
+ * de toutes les carrières se jouait épuisée, sans que le joueur y puisse
+ * quoi que ce soit.
  */
 function energyCeiling(s) {
-  let ceiling = 12 - Math.floor((s.age - START_AGE) / 6) * 2;
+  let ceiling = 14 - Math.max(0, Math.floor((s.age - 50) / 3));
   if (s.flags.carefulHealth) ceiling += 2;
   if (s.flags.frailHealth) ceiling -= 2;
   ceiling += traitSum(s, (d) => d.energy) * 2;
-  return Math.max(4, Math.min(18, ceiling));
+  return Math.max(2, Math.min(18, ceiling));
 }
 
 /**
- * Récupération : deux points tous les trois ans, et jamais au-dessus du
+ * Récupération : deux points tous les deux ans, et jamais au-dessus du
  * seuil. C'est volontairement lent. Tant qu'on récupérait plus vite qu'on ne
  * dépensait, l'énergie n'était pas une ressource : c'était une formalité, et
  * dépenser était toujours rentable puisque le compte se remplissait tout
  * seul.
+ *
+ * Deux ans, et non trois : une carrière qui se ménage doit pouvoir se tenir
+ * à son seuil, une carrière qui force doit le payer. À trois ans, même la
+ * prudence perdait du terrain à chaque tour.
  */
 function recoverEnergy(s) {
-  if (s.turn % 6 !== 0) return;
+  if (s.turn % 4 !== 0) return;
   if (s.stats.energie < energyCeiling(s)) bump(s, "energie", +2);
+}
+
+/* ==========================================================================
+   La stature
+   ==========================================================================
+   La crédibilité ne se décrète pas et ne se gagne pas seulement dans les
+   scènes : elle vient d'abord de la fonction. On prend au sérieux quelqu'un
+   qu'on a vu tenir un poste, et on cesse de prendre au sérieux quelqu'un
+   qu'on n'a plus vu nulle part depuis dix ans.
+
+   Chaque fonction a donc un niveau vers lequel la stature glisse lentement.
+   Les événements font le reste : ils poussent au-dessus, ou ils cassent. Un
+   ministère bien tenu vous installe ; deux mandats de conseiller municipal
+   ne feront jamais de vous un présidentiable, quoi que vous répondiez aux
+   cartes.
+   ========================================================================== */
+
+/*
+ * OÙ LA CRÉDIBILITÉ EST LUE, pour qui voudra la régler à la main. Neuf
+ * endroits, et rien d'autre :
+ *
+ *   js/data.js        BASE_STATS.credibilite       le niveau de départ
+ *                     STAT_MODIFIERS               origine et parcours
+ *   js/game-data.js   standingTarget()             × 1.1   l'appareil
+ *                     popularityTarget()           × 0.35  le pays
+ *                     rejectionRate()              × 0.014 le second tour
+ *   js/game.js        electionBase() législatives  × 0.7
+ *                     electionBase() congrès       × 0.9
+ *                     playerPull()                 ÷ 42    le premier tour
+ *                     figurePull()                 ÷ 24    celle des rivaux
+ *                     makeFigure()                 la stature des rivaux
+ *
+ * Plus la table ci-dessous, qui fait l'essentiel du travail : c'est elle qui
+ * décide de la stature qu'une carrière atteint sans rien faire de spécial.
+ */
+const CREDIBILITY_BY_OFFICE = {
+  militant: 3, cadre: 6, conseiller: 6, maire: 10,
+  euro: 8, depute: 12, ministre: 16, chef: 15, premier: 19,
+};
+
+/** Marge au-dessus de la fonction qu'on peut tenir grâce à ses seuls choix. */
+const CREDIBILITY_OVERSHOOT = 4;
+
+function credibilityDrift(s) {
+  if (s.turn % 4 !== 0) return;
+
+  const cible = CREDIBILITY_BY_OFFICE[s.position];
+  if (cible === undefined) return;
+
+  if (s.stats.credibilite < cible) bump(s, "credibilite", +1);
+  // Ce qu'on a construit au-dessus de sa fonction s'effrite, sans jamais
+  // redescendre au niveau du poste : une stature acquise ne se perd pas
+  // entièrement en changeant de bureau.
+  else if (s.stats.credibilite > cible + CREDIBILITY_OVERSHOOT) bump(s, "credibilite", -1);
 }
 
 /* ==========================================================================
@@ -593,7 +779,7 @@ const NOMINATION_EVENTS = EVENT_DATA.nomination || [];
 const RACE_EVENTS = EVENT_DATA.races || [];
 
 /** Les sept statistiques, pour distinguer un effet de stat d'un autre effet. */
-const STAT_KEYS = ["charisme", "eloquence", "energie", "sangfroid", "reseau", "notoriete", "reputation"];
+const STAT_KEYS = ["charisme", "eloquence", "energie", "sangfroid", "reseau", "notoriete", "reputation", "credibilite"];
 
 /* ---------- Conditions ---------- */
 
@@ -633,6 +819,12 @@ function eventMatches(ev, s) {
     }
   }
 
+  // CE QU'ON A PAYÉ EST UNE CONDITION COMME UNE AUTRE. Un choix peut exiger
+  // un niveau de conseil juridique ou de communication : c'est ainsi qu'un
+  // budget devient jouable au lieu d'être une ligne comptable.
+  if (w.legal !== undefined && investLevel(s, "juridique") < w.legal) return false;
+  if (w.comms !== undefined && investLevel(s, "communication") < w.comms) return false;
+
   if (w.flag) {
     for (const [key, expected] of Object.entries(w.flag)) {
       if (Boolean(s.flags[key]) !== expected) return false;
@@ -649,6 +841,20 @@ function eventMatches(ev, s) {
 
   // Un pacte en cours, ou pas de pacte du tout.
   if (w.allied !== undefined && Boolean(s.alliance) !== w.allied) return false;
+
+  // Le poids de votre camp dans le pays, en points d'intentions de vote.
+  if (w.minShare !== undefined && (s.landscape[s.party] || 0) < w.minShare) return false;
+
+  // LE CAMP D'À CÔTÉ GOUVERNE. C'est la situation qui ouvre Matignon à
+  // quelqu'un qui n'est pas du camp du président : un gouvernement qui n'a
+  // pas la majorité tout seul va la chercher chez son voisin le moins
+  // éloigné, et il la paie avec un poste.
+  if (w.rulingClose !== undefined) {
+    const gouverne = s.president && !s.president.isPlayer ? s.president.party : null;
+    const voisin = Boolean(gouverne) && gouverne !== s.party &&
+      ideologicalDistance(gouverne, s.party) <= NEIGHBOUR_DISTANCE;
+    if (voisin !== w.rulingClose) return false;
+  }
 
   // Traits exigés, et traits rédhibitoires : c'est ce qui rend une carrière
   // irréversible. Un renégat ne se verra plus jamais proposer certaines portes.
@@ -684,9 +890,61 @@ function scenePresentation(scene) {
   return scene.name + " (" + parti + (fonction ? ", " + fonction : "") + ")";
 }
 
+/* ==========================================================================
+   L'ACCORD EN GENRE
+   ==========================================================================
+   Les figures du jeu sont tirées à pile ou face, femme ou homme, et les
+   textes leur appliquaient un masculin dans les deux langues : « vous faites
+   campagne pour lui » à propos d'Agathe Hernandez, « his candidacy » à propos
+   de la même. Une figure sur deux était donc mal désignée.
+
+   Chaque langue porte ses propres marques, puisque chaque langue accorde à sa
+   façon : le français doit accorder l'article, le pronom et le participe, là
+   où l'anglais n'a que le pronom. Une marque écrite avec une majuscule sort
+   avec une majuscule, pour les débuts de phrase.
+
+   Le possessif français est laissé de côté volontairement : « sa candidature »
+   s'accorde avec la candidature, jamais avec la personne. Il n'y a rien à y
+   marquer.
+   ========================================================================== */
+
+const GENDER_MARKS = {
+  /* Français */
+  il:    ["il", "elle"],
+  le:    ["le", "la"],
+  lui:   ["lui", "elle"],
+  celui: ["celui", "celle"],
+  un:    ["un", "une"],
+  e:     ["", "e"],
+  /* Anglais */
+  he:    ["he", "she"],
+  him:   ["him", "her"],
+  his:   ["his", "her"],
+};
+
+/**
+ * Résout les marques d'accord d'un texte selon la figure mise en scène.
+ * Employée à l'affichage comme au journal, pour que les deux disent la même
+ * chose de la même personne.
+ */
+function fillGender(text, scene) {
+  const femme = scene && scene.sex === "female";
+  return String(text).replace(/\{([A-Za-zÀ-ÿ]+)\}/g, (mark, mot) => {
+    const clé = mot.charAt(0).toLowerCase() + mot.slice(1);
+    const paire = GENDER_MARKS[clé];
+    if (!paire) return mark;
+    const forme = paire[femme ? 1 : 0];
+    return mot.charAt(0) === clé.charAt(0)
+      ? forme
+      : forme.charAt(0).toUpperCase() + forme.slice(1);
+  });
+}
+
 function fillText(obj, s) {
   let text = L(obj);
   const scene = s.scene || anyRival(s);
+
+  text = fillGender(text, scene);
 
   if (text.includes("{rival}")) {
     let premiere = true;
@@ -729,7 +987,11 @@ function fillBoth(obj, s) {
       .replace(/\{party\}/g, "{party:" + s.party + "}");
   };
 
-  return { fr: fill(obj.fr), en: fill(obj.en || obj.fr) };
+  // L'accord est posé tout de suite, comme les noms propres : le journal se
+  // relit dans l'autre langue, mais la personne dont il parle ne change pas.
+  const fillFr = (t2) => fill(fillGender(t2, scene));
+
+  return { fr: fillFr(obj.fr), en: fillFr(obj.en || obj.fr) };
 }
 
 /* ---------- Effets ---------- */
@@ -743,11 +1005,19 @@ function fillBoth(obj, s) {
  * ne se reprend pas. Le joueur doit voir ce qui s'est passé, pas ce qui était
  * prévu.
  */
-function applyEffects(effects, s) {
+function applyEffects(effects, s, soften) {
   const changes = [];
   if (!effects) return changes;
 
-  Object.entries(effects).forEach(([key, value]) => {
+  // L'amorti d'un pari perdu ne touche que les deux jauges : c'est du
+  // rattrapage d'image, pas une machine à annuler les conséquences.
+  const amorti = (key, value) =>
+    soften && value < 0 && (key === "popularity" || key === "standing")
+      ? value * (1 - soften)
+      : value;
+
+  Object.entries(effects).forEach(([key, raw]) => {
+    const value = amorti(key, raw);
     if (STAT_KEYS.includes(key)) {
       const before = s.stats[key];
       bump(s, key, value);
@@ -839,7 +1109,16 @@ function applyEffects(effects, s) {
     // groupe après une sortie de route.
     if (key === "office") {
       const before = s.position;
-      if (setOffice(s, value)) changes.push({ kind: "office", key: value, up: LADDER.indexOf(value) > LADDER.indexOf(before) });
+      // ON NE RETOMBE JAMAIS. Une fonction se gagne ; elle ne se reçoit pas
+      // en consolation. Un événement qui vous fait quitter un poste écrit
+      // "none" et le moteur applique la règle commune : le parti vous garde
+      // si vous pesez encore, sinon vous n'êtes plus rien. Sept sorties de
+      // ministère rendaient leur titulaire député, y compris ceux qui ne
+      // l'avaient jamais été.
+      const cible = value === "none" ? officeAfterDefeat(s) : value;
+      if (setOffice(s, cible)) {
+        changes.push({ kind: "office", key: cible, up: LADDER.indexOf(cible) > LADDER.indexOf(before) });
+      }
       return;
     }
     if (key === "join") {
@@ -1009,11 +1288,15 @@ function resolveChoice(choice, s) {
     ? choice
     : (rollSucceeds(choice.roll, s) ? choice.success : choice.failure);
 
-  let changes = applyEffects(branch.effects, s);
+  // Seul un pari perdu s'amortit. Un choix sûr assumé n'a rien à amortir :
+  // on savait ce qu'on faisait.
+  const soften = choice.roll && branch === choice.failure ? investNerve(s) : 0;
+
+  let changes = applyEffects(branch.effects, s, soften);
 
   (branch.effectsIf || []).forEach((rule) => {
     if (!rule.when || eventMatches({ when: rule.when }, s)) {
-      changes = changes.concat(applyEffects(rule.effects, s));
+      changes = changes.concat(applyEffects(rule.effects, s, soften));
     }
   });
 
@@ -1104,6 +1387,57 @@ function applyTraitTurn(s) {
     if (pendingChains(s).some((entry) => entry.id === risk.chain)) return;
     if (Math.random() < risk.p * (1 - investProtect(s))) scheduleChain(s, risk.chain);
   });
+
+  wealthAttention(s);
+}
+
+/* ==========================================================================
+   La fortune qui dort
+   ==========================================================================
+   L'argent ne coûtait rien à garder. Une carrière qui n'achetait rien
+   terminait avec près d'un million d'euros dormant sur un compte, sans
+   qu'aucun événement, aucun journaliste et aucun juge ne s'en aperçoive.
+   Comme rien ne pressait de le dépenser, le dépenser était toujours gratuit :
+   c'est la vraie raison pour laquelle il fallait toujours payer, dans tous
+   les événements.
+
+   Un patrimoine ne se cache pas éternellement. Passé le niveau où un élu
+   peut expliquer sa fortune par son indemnité, quelqu'un finit par poser la
+   question — la presse, la Haute Autorité, un adversaire qui sait compter.
+   L'argent propre attire un contrôle qu'on passe ; l'argent sale attire une
+   enquête qu'on ne passe pas toujours.
+   ========================================================================== */
+
+/** Ce qu'une carrière d'élu explique sans faire sourire personne. */
+const WEALTH_EXPLAINABLE = 400000;
+
+/**
+ * Probabilité par tour qu'on regarde vos comptes de près.
+ *
+ * On ne compte pas la fortune, on compte L'ENRICHISSEMENT. Personne n'a
+ * jamais reproché à un héritier d'avoir hérité : ce qu'on lui demande, c'est
+ * d'où vient ce qu'il n'avait pas avant. Sans cette distinction, un candidat
+ * né riche était soupçonné dès le premier tour pour de l'argent gagné avant
+ * son entrée en politique, ce qui n'a aucun sens.
+ *
+ * L'argent propre attire un contrôle, qu'on passe et dont on se vante ;
+ * l'argent sale attire un juge. Les avocats à l'année valent dans les deux
+ * cas : c'est très exactement à cela qu'ils servent.
+ */
+function wealthRisk(s) {
+  const gagné = Math.max(0, s.money - (s.startMoney || 0) - WEALTH_EXPLAINABLE);
+  if (!gagné && !s.flags.dirtyMoney) return 0;
+
+  let p = (gagné / 1000000) * 0.02;
+  if (s.flags.dirtyMoney) p = p * 3 + 0.012;
+  return Math.min(0.05, p) * (1 - investProtect(s));
+}
+
+function wealthAttention(s) {
+  const chain = s.flags.dirtyMoney ? "enquete_ouverte" : "patrimoine_declare";
+  if (s.seen[chain]) return;
+  if (pendingChains(s).some((entry) => entry.id === chain)) return;
+  if (Math.random() < wealthRisk(s)) scheduleChain(s, chain);
 }
 
 /* ==========================================================================
@@ -1126,6 +1460,13 @@ function partyAxes(key) {
 }
 
 /** Distance idéologique entre deux partis, de 0 (identiques) à 1 (opposés). */
+/**
+ * En dessous de cette distance, deux partis sont voisins : ils peuvent se
+ * détester en public et avoir besoin l'un de l'autre en privé. Calé pour que
+ * chaque camp ait un ou deux voisins, jamais quatre.
+ */
+const NEIGHBOUR_DISTANCE = 0.26;
+
 function ideologicalDistance(a, b) {
   const A = partyAxes(a);
   const B = partyAxes(b);
@@ -1151,6 +1492,11 @@ function rejectionRate(candidate, s) {
   // le moteur ne connaît aucun trait par son nom.
   rate += traitSum(s, (d) => d.rejection);
   if (s.flags.onTrial) rate += 0.16;
+
+  // LA STATURE, AU SECOND TOUR. C'est le moment où le pays doit se dire qu'il
+  // vous voit à l'Élysée. Un candidat sans crédibilité perd là des électeurs
+  // qui, au premier tour, l'avaient trouvé sympathique.
+  rate += (11 - statScore(s, "credibilite")) * 0.014;
 
   return Math.max(0, Math.min(0.75, rate));
 }

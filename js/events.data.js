@@ -51,6 +51,11 @@
  *   "notTrait":    ["renegat"]                     aucun de ces traits
  *   "ruling": true                                votre camp gouverne
  *   "allied": false                               vous avez un pacte en cours
+ *   "minShare": 18                                le poids de votre camp dans
+ *                                                 le pays, en points
+ *   "rulingClose": true                           un camp VOISIN gouverne
+ *                                                 (proche idéologiquement, et
+ *                                                 ce n'est pas le vôtre)
  *
  * CHOIX ("choices") — deux formes possibles.
  *
@@ -93,7 +98,19 @@
  *
  * EFFETS ("effects") — tout est optionnel :
  *   statistiques : "charisme", "eloquence", "energie", "sangfroid",
- *                  "reseau", "notoriete", "reputation"   (bornées 0-10)
+ *                  "reseau", "notoriete", "reputation",
+ *                  "credibilite"                         (bornées 0-20)
+ *
+ *          Les quatre dernières disent quatre choses différentes, et il vaut
+ *          la peine de viser la bonne :
+ *            RÉSEAU       qui vous doit quelque chose.
+ *            NOTORIÉTÉ    à quel point on vous connaît. Elle monte presque
+ *                         toute seule : être connu n'est pas une qualité.
+ *            RÉPUTATION   à quel point ce qu'on sait de vous est propre.
+ *            CRÉDIBILITÉ  la stature. Est-ce qu'on vous imagine dans le
+ *                         fauteuil ? Une scène qui donne de la popularité en
+ *                         coûte souvent, et c'est là qu'est l'arbitrage :
+ *                         le coup d'éclat fait aimer, il ne fait pas sérieux.
  *   jauges       : "popularity", "standing"              (bornées 0-100)
  *   "money": 80000                                       en euros
  *   "poll": 5                                            campagne uniquement
@@ -115,8 +132,12 @@
  *          vous : au-delà de deux points, on déplace une élection.
  *
  *   "office": "ministre"                                 donne une fonction
- *          sans passer par les urnes (ministre, député européen, retour au
- *          groupe). Le sommet atteint dans la carrière suit tout seul.
+ *          sans passer par les urnes : un ministère, une tête de liste
+ *          européenne. Le sommet atteint dans la carrière suit tout seul.
+ *   "office": "none"                                     vous fait sortir
+ *          sans rien. ON NE RETOMBE JAMAIS SUR UN MANDAT : quitter un poste
+ *          ne rend pas celui d'avant, il ne reste que ce que le parti veut
+ *          bien vous garder. Le moteur décide entre cadre et militant.
  *   "join": "scene"                                      vous changez de parti
  *   "alliance": "scene"                                  signe un pacte
  *   "alliance": null                                     le rompt
@@ -131,12 +152,12 @@ const EVENT_DATA = {
 "events": [
 
 /* ==========================================================================
-   1. DÉBUTS DE CARRIÈRE — militant et conseiller
+   1. DÉBUTS DE CARRIÈRE — militant, cadre du parti et conseiller
    ========================================================================== */
 
 {
   "id": "cause_locale",
-  "when": { "position": ["militant", "conseiller"] },
+  "when": { "position": ["militant", "cadre", "conseiller"] },
   "tag": { "fr": "Terrain", "en": "On the ground" },
   "text": {
     "fr": "Un collectif se bat contre la fermeture de la maternité. Ils cherchent un visage pour porter la pétition.",
@@ -171,7 +192,7 @@ const EVENT_DATA = {
 
 {
   "id": "porte_a_porte",
-  "when": { "position": ["militant", "conseiller"] },
+  "when": { "position": ["militant", "cadre", "conseiller"] },
   "tag": { "fr": "Militantisme", "en": "Canvassing" },
   "text": {
     "fr": "La fédération organise une campagne de porte-à-porte. Personne ne se bat pour prendre les quartiers difficiles.",
@@ -207,7 +228,7 @@ const EVENT_DATA = {
 {
   "id": "premier_discours",
   "once": true,
-  "when": { "position": ["militant", "conseiller"], "maxTurn": 12 },
+  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 12 },
   "tag": { "fr": "Première fois", "en": "First time" },
   "text": {
     "fr": "On vous demande de parler cinq minutes devant deux cents personnes. Vous n'avez jamais fait ça.",
@@ -357,16 +378,16 @@ const EVENT_DATA = {
       "success": { "effects": { "notoriete": 1, "popularity": 9 },
         "result": { "fr": "Votre autodérision désamorce tout. On ne retient que la vanne.",
                     "en": "Your self-mockery defuses it. Only the joke survives." } },
-      "failure": { "effects": { "reputation": -1, "popularity": -13, "standing": -6 },
+      "failure": { "effects": { "credibilite": -3, "reputation": -1, "popularity": -13, "standing": -6 },
         "result": { "fr": "Le rire sonne faux. La séquence vit sa vie.",
                     "en": "The laugh rings false. The clip lives its own life." } } },
     { "label": { "fr": "Communiqué de clarification", "en": "Issue a clarification" },
-      "effects": { "notoriete": -1, "popularity": -5, "standing": 4 },
+      "effects": { "credibilite": +1, "notoriete": -1, "popularity": -5, "standing": 4 },
       "result": { "fr": "Le communiqué éteint l'incendie et tout intérêt pour vous.",
                   "en": "The statement kills the fire, and any interest in you." } },
     { "label": { "fr": "Assumer et répéter la phrase", "en": "Own it and say it again" },
       "when": { "personality": ["provocative"] },
-      "effects": { "notoriete": 3, "reputation": -2, "popularity": 7, "standing": -12 },
+      "effects": { "credibilite": -3, "notoriete": 3, "reputation": -2, "popularity": 7, "standing": -12 },
       "result": { "fr": "Vous la redites, plus fort. Une moitié du pays vous adore pour ça.",
                   "en": "You say it again, louder. Half the country loves you for it." } },
     { "label": { "fr": "Exiger un droit de réponse", "en": "Demand a right of reply" },
@@ -555,7 +576,7 @@ const EVENT_DATA = {
 {
   "id": "mentor",
   "once": true,
-  "when": { "position": ["militant", "conseiller"] },
+  "when": { "position": ["militant", "cadre", "conseiller"] },
   "tag": { "fr": "Parti", "en": "Party" },
   "text": {
     "fr": "Une figure historique du parti vous observe depuis quelque temps. Elle propose de vous ouvrir son carnet d'adresses.",
@@ -812,7 +833,9 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Le recevoir et tout expliquer", "en": "Meet him and explain everything" },
-      "roll": { "stat": "sangfroid", "base": 14, "dice": 16 },
+      "roll": { "stat": "sangfroid", "base": 14, "dice": 16,
+                "bonus": [ { "when": { "legal": 1 }, "value": 2 },
+                           { "when": { "comms": 2 }, "value": 2 } ] },
       "success": { "effects": { "flags": { "investigated": true }, "reputation": 1, "popularity": -3 },
         "result": { "fr": "L'article sort, mesuré, presque bienveillant. Vous avez gagné du temps.",
                     "en": "The article runs, measured, almost kind. You have bought time." } },
@@ -841,11 +864,13 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Prendre le meilleur avocat du pays", "en": "Hire the best lawyer in the country" },
-      "roll": { "chance": 0.45,
-                "chanceBonus": [ { "when": { "minMoney": 500000 }, "value": 0.2 },
-                                 { "when": { "minMoney": 2000000 }, "value": 0.12 },
-                                 { "when": { "background": ["law"] }, "value": 0.12 },
-                                 { "when": { "minStanding": 65 }, "value": 0.08 } ] },
+      "roll": { "chance": 0.32,
+                "chanceBonus": [ { "when": { "legal": 1 }, "value": 0.16 },
+                                 { "when": { "legal": 2 }, "value": 0.14 },
+                                 { "when": { "minMoney": 500000 }, "value": 0.12 },
+                                 { "when": { "minMoney": 2000000 }, "value": 0.08 },
+                                 { "when": { "background": ["law"] }, "value": 0.1 },
+                                 { "when": { "minStanding": 65 }, "value": 0.06 } ] },
       "success": { "effects": { "money": -100000, "notoriete": 1, "flags": { "dirtyMoney": false }, "popularity": -6, "standing": -4, "trait": "teflon" },
         "result": { "fr": "Vice de procédure. Le dossier se referme, pas les soupçons.",
                     "en": "A procedural flaw. The case closes; the suspicion does not." } },
@@ -876,7 +901,9 @@ const EVENT_DATA = {
     { "label": { "fr": "Se défendre pied à pied", "en": "Fight every inch" },
       "roll": { "base": 19, "stat": "sangfroid",
                 "plus": { "eloquence": 0.35, "standing": 0.03 },
-                "bonus": [ { "when": { "background": ["law"] }, "value": 2 },
+                "bonus": [ { "when": { "legal": 1 }, "value": 2.5 },
+                           { "when": { "legal": 2 }, "value": 2.5 },
+                           { "when": { "background": ["law"] }, "value": 2 },
                            { "when": { "minMoney": 1000000 }, "value": 1.5 },
                            { "when": { "maxPopularity": 30 }, "value": -2 } ], "dice": 16 },
       "success": { "effects": { "flags": { "onTrial": false, "dirtyMoney": false }, "reputation": -1, "notoriete": 1, "popularity": -10, "standing": -10, "strike": "casserole" },
@@ -886,13 +913,486 @@ const EVENT_DATA = {
         "result": { "fr": "Coupable. Inéligibilité immédiate. Votre carrière s'arrête sur les marches du tribunal.",
                     "en": "Guilty. An immediate ban from office. Your career ends on the courthouse steps." } } },
     { "label": { "fr": "Plaider coupable pour limiter la peine", "en": "Plead guilty to limit the sentence" },
-      "roll": { "chance": 0.35 },
+      "roll": { "chance": 0.3,
+                "chanceBonus": [ { "when": { "legal": 1 }, "value": 0.14 },
+                                 { "when": { "legal": 2 }, "value": 0.16 } ] },
       "success": { "effects": { "flags": { "onTrial": false, "dirtyMoney": false }, "money": -200000, "reputation": -2, "popularity": -18, "standing": -20 },
         "result": { "fr": "Amende lourde, pas d'inéligibilité. Vous survivez politiquement, de justesse.",
                     "en": "A heavy fine, no ban. You survive politically, barely." } },
       "failure": { "effects": { "end": "conviction" },
         "result": { "fr": "Le tribunal ne vous fait aucun cadeau. Inéligibilité et fin de parcours.",
                     "en": "The court shows no mercy. Banned from office, and that is the end." } } }
+  ]
+},
+
+{
+  "id": "patrimoine_declare",
+  "delay": [2, 7],
+  "weight": 0,
+  "tag": { "fr": "Patrimoine", "en": "Assets" },
+  "text": {
+    "fr": "La Haute Autorité vous écrit. Votre déclaration de patrimoine a doublé depuis votre entrée en politique et personne, chez eux, ne trouve la ligne qui l'explique.",
+    "en": "The transparency authority writes to you. Your declared assets have doubled since you entered politics, and nobody there can find the line that explains it."
+  },
+  "choices": [
+    { "label": { "fr": "Fournir chaque justificatif", "en": "Produce every receipt" },
+      "roll": { "stat": "sangfroid", "base": 12, "dice": 14,
+                "bonus": [ { "when": { "legal": 1 }, "value": 3 },
+                           { "when": { "legal": 2 }, "value": 3 },
+                           { "when": { "background": ["law", "business"] }, "value": 2 } ] },
+      "success": { "effects": { "reputation": 1, "popularity": 2, "standing": -2 },
+        "result": { "fr": "Tout se tient, à l'euro près. Le dossier est classé et vous en parlez pendant deux ans.",
+                    "en": "It all adds up, to the euro. The file is closed and you mention it for two years." } },
+      "failure": { "effects": { "money": -60000, "reputation": -1, "popularity": -8, "standing": -4, "chain": "fisc" },
+        "result": { "fr": "Deux lignes ne se justifient pas. Vous les découvrez en même temps qu'eux, ce qui est encore le pire des cas.",
+                    "en": "Two lines cannot be justified. You discover them at the same time they do, which is still the worst case." } } },
+
+    { "label": { "fr": "Faire répondre vos avocats", "en": "Let your lawyers answer" },
+      "when": { "legal": 1 },
+      "effects": { "money": -25000, "standing": 2, "popularity": -3 },
+      "result": { "fr": "Onze pages qui ne disent rien et qui sont irréprochables. L'administration passe à un dossier plus simple.",
+                  "en": "Eleven pages that say nothing and are beyond reproach. The authority moves on to an easier file." } },
+
+    { "label": { "fr": "Placer le patrimoine hors de vue", "en": "Move the money out of sight" },
+      "when": { "minMoney": 300000 },
+      "effects": { "money": -40000, "flags": { "dirtyMoney": true }, "standing": 2, "strike": "casserole" },
+      "result": { "fr": "Un montage parfaitement légal et parfaitement indéfendable en conférence de presse. Il tiendra tant que personne ne le cherche.",
+                  "en": "A perfectly legal arrangement that is perfectly indefensible at a press conference. It will hold as long as nobody goes looking." } },
+
+    { "label": { "fr": "Publier vous-même toute la déclaration", "en": "Publish the whole declaration yourself" },
+      "effects": { "reputation": 2, "popularity": 6, "standing": -9, "notoriete": 1 },
+      "result": { "fr": "Le pays trouve le geste courageux. Vos collègues, à qui l'on demande maintenant d'en faire autant, trouvent le geste dégueulasse.",
+                  "en": "The country finds it brave. Your colleagues, now being asked to do the same, find it disgusting." } }
+  ]
+},
+
+{
+  "id": "fisc",
+  "delay": [3, 8],
+  "weight": 0,
+  "tag": { "fr": "Fisc", "en": "Tax" },
+  "text": {
+    "fr": "Contrôle fiscal approfondi. L'inspecteur est poli, méthodique, et il a tout son temps.",
+    "en": "A full tax audit. The inspector is polite, methodical, and in no hurry at all."
+  },
+  "choices": [
+    { "label": { "fr": "Payer le redressement sans discuter", "en": "Pay the assessment without arguing" },
+      "effects": { "money": -180000, "popularity": -4, "standing": -2 },
+      "result": { "fr": "La somme part en une fois. C'est cher, c'est fini, et personne n'en parlera plus jamais.",
+                  "en": "The money goes in one payment. It is expensive, it is over, and nobody will ever mention it again." } },
+
+    { "label": { "fr": "Contester devant le tribunal administratif", "en": "Challenge it in the courts" },
+      "roll": { "stat": "sangfroid", "base": 13, "dice": 15,
+                "bonus": [ { "when": { "legal": 1 }, "value": 4 },
+                           { "when": { "legal": 2 }, "value": 4 },
+                           { "when": { "background": ["law"] }, "value": 2 } ] },
+      "success": { "effects": { "money": -30000, "reputation": 1, "standing": 2 },
+        "result": { "fr": "Le redressement fond à presque rien. Vos avocats coûtaient moins cher que ce qu'ils vous ont épargné, ce qui n'arrive pas souvent.",
+                    "en": "The assessment shrinks to almost nothing. Your lawyers cost less than they saved you, which does not happen often." } },
+      "failure": { "effects": { "money": -220000, "reputation": -1, "popularity": -9, "standing": -6, "flags": { "dirtyMoney": true } },
+        "result": { "fr": "Vous perdez, avec majoration pour mauvaise foi. Ce sont les deux derniers mots que retiendra la presse.",
+                    "en": "You lose, with a penalty for bad faith. Those are the two words the press will keep." } } }
+  ]
+},
+
+/* ==========================================================================
+   5 bis. L'ARGENT DE LA FONCTION
+   ==========================================================================
+   Deux filières, deux fonctions, deux façons de s'enrichir sans jamais rien
+   signer d'illégal au premier regard.
+
+   LES CHANTIERS — le maire. Une commune attribue des marchés, et celui qui
+   les attribue est courtisé. Rien n'oblige à céder ; céder rapporte
+   beaucoup et laisse une trace écrite quelque part.
+
+   BRUXELLES — le député européen. Le mandat est invisible en France, donc
+   personne ne regarde, donc tout y est plus facile : cabinets de conseil,
+   assistants, missions d'étude. C'est la fonction dont le jeu dit qu'on y
+   envoie les gens dont on veut se débarrasser ; c'est aussi celle où l'on
+   se refait.
+
+   Les deux mènent au même endroit si l'on force : signalement, enquête,
+   procès. C'est là que les avocats servent enfin à quelque chose.
+   ========================================================================== */
+
+{
+  "id": "chantiers_publics",
+  "weight": 3,
+  "when": { "position": ["maire"], "flag": { "onTrial": false } },
+  "tag": { "fr": "Marchés publics", "en": "Public contracts" },
+  "text": {
+    "fr": "Le marché de la rénovation du centre-ville se décide en commission d'appel d'offres, que vous présidez. Trois dossiers, dont un déposé par une entreprise qui a financé votre campagne et dont le prix est le plus élevé des trois.",
+    "en": "The town-centre renovation contract is decided by the tender committee, which you chair. Three bids, one of them from a firm that funded your campaign, and the most expensive of the three."
+  },
+  "choices": [
+    { "label": { "fr": "Attribuer au moins-disant, comme prévu", "en": "Award it to the lowest bid, as required" },
+      "effects": { "reputation": 2, "standing": -6, "popularity": 3 },
+      "result": { "fr": "Le règlement est le règlement. Votre financeur ne rappelle plus, et vous apprendrez dans deux ans à qui il donne désormais.",
+                  "en": "Rules are rules. Your backer stops calling, and in two years you will learn who he gives to now." } },
+
+    { "label": { "fr": "Trouver un critère technique qui les avantage", "en": "Find a technical criterion that favours them" },
+      "roll": { "stat": "sangfroid", "base": 12, "dice": 14, "plus": { "reseau": 0.3 } },
+      "success": { "effects": { "money": 180000, "standing": 8, "reputation": -1, "flags": { "dirtyMoney": true }, "chain": "chantier_suite" },
+        "result": { "fr": "Le rapport d'analyse pèse quarante pages et conclut exactement ce qu'il fallait. Le virement, lui, passe par une société de conseil.",
+                    "en": "The evaluation report runs to forty pages and concludes exactly what it had to. The payment goes through a consultancy." } },
+      "failure": { "effects": { "money": 90000, "standing": 4, "reputation": -2, "popularity": -7, "flags": { "dirtyMoney": true }, "strike": "casserole", "chain": "chantier_suite" },
+        "result": { "fr": "Un membre de la commission demande que son désaccord soit porté au procès-verbal. Il le sera, et le procès-verbal se garde dix ans.",
+                    "en": "One committee member asks for her dissent to be minuted. It is, and minutes are kept for ten years." } } },
+
+    { "label": { "fr": "Leur promettre le prochain, pas celui-là", "en": "Promise them the next one, not this one" },
+      "effects": { "standing": 4, "reseau": 1, "reputation": -1, "money": 20000 },
+      "result": { "fr": "Personne n'a rien signé et tout le monde a compris. C'est la formule qui a fait la carrière de la moitié de vos collègues.",
+                  "en": "Nobody signed anything and everybody understood. It is the formula that made half your colleagues' careers." } }
+  ]
+},
+
+{
+  "id": "chantier_suite",
+  "delay": [4, 11],
+  "weight": 0,
+  "tag": { "fr": "Marchés publics", "en": "Public contracts" },
+  "text": {
+    "fr": "L'entreprise revient. Le chantier a pris du retard, elle demande un avenant qui double la facture, et son directeur rappelle au téléphone que vous vous connaissez bien.",
+    "en": "The firm is back. The works have fallen behind, they want a rider that doubles the bill, and the director reminds you on the phone that the two of you go back a long way."
+  },
+  "choices": [
+    { "label": { "fr": "Signer l'avenant", "en": "Sign the rider" },
+      "effects": { "money": 140000, "standing": 4, "reputation": -2, "popularity": -5, "chain": "signalement_chambre" },
+      "result": { "fr": "La commune paiera pendant douze ans. Vous, vous êtes payé tout de suite, ce qui est l'essentiel de la différence entre les deux.",
+                  "en": "The town will be paying for twelve years. You get paid immediately, which is most of the difference between the two." } },
+
+    { "label": { "fr": "Refuser et faire jouer les pénalités de retard", "en": "Refuse and enforce the late penalties" },
+      "roll": { "stat": "sangfroid", "base": 13, "dice": 14, "plus": { "eloquence": 0.3 },
+                "bonus": [ { "when": { "legal": 1 }, "value": 3 } ] },
+      "success": { "effects": { "reputation": 2, "popularity": 6, "standing": -4, "flags": { "dirtyMoney": false } },
+        "result": { "fr": "Ils encaissent et se taisent : un procès leur coûterait le marché suivant. Vous venez d'acheter votre tranquillité avec la seule monnaie qu'ils respectent.",
+                    "en": "They swallow it and keep quiet: a lawsuit would cost them the next contract. You have just bought your peace with the only currency they respect." } },
+      "failure": { "effects": { "popularity": -6, "standing": -6, "chain": "signalement_chambre" },
+        "result": { "fr": "Le directeur raccroche en disant qu'il a gardé tous les mails. Il a gardé tous les mails.",
+                    "en": "The director hangs up saying he kept every email. He kept every email." } } },
+
+    { "label": { "fr": "Faire reprendre le chantier par une autre entreprise", "en": "Hand the site to another firm" },
+      "when": { "minMoney": 150000 },
+      "effects": { "money": -120000, "reputation": 1, "popularity": -3, "standing": -3, "flags": { "dirtyMoney": false } },
+      "result": { "fr": "La commune paie deux fois, vous payez la différence de votre poche pour que cela ne se voie pas, et le dossier meurt là.",
+                  "en": "The town pays twice, you cover the gap yourself so it does not show, and the file dies there." } }
+  ]
+},
+
+{
+  "id": "signalement_chambre",
+  "delay": [3, 9],
+  "weight": 0,
+  "tag": { "fr": "Chambre régionale", "en": "Audit office" },
+  "text": {
+    "fr": "La chambre régionale des comptes publie son rapport sur votre commune. Quatorze pages, un paragraphe qui vous concerne, et une phrase qui contient les mots « transmission au procureur ».",
+    "en": "The regional audit office publishes its report on your town. Fourteen pages, one paragraph about you, and a sentence containing the words “referred to the prosecutor”."
+  },
+  "choices": [
+    { "label": { "fr": "Répondre point par point, publiquement", "en": "Answer point by point, in public" },
+      "roll": { "stat": "eloquence", "base": 14, "dice": 16,
+                "bonus": [ { "when": { "legal": 1 }, "value": 3 },
+                           { "when": { "legal": 2 }, "value": 4 },
+                           { "when": { "comms": 2 }, "value": 2 } ] },
+      "success": { "effects": { "reputation": 1, "notoriete": 1, "popularity": -4, "standing": -3 },
+        "result": { "fr": "Vous connaissez le dossier mieux que ceux qui l'ont écrit. Le procureur classe, la phrase reste dans les archives et personne ne la relira.",
+                    "en": "You know the file better than the people who wrote it. The prosecutor drops it; the sentence stays in the archive and nobody rereads it." } },
+      "failure": { "effects": { "popularity": -11, "standing": -8, "reputation": -1, "chain": "perquisition" },
+        "result": { "fr": "Vous vous emmêlez sur une date, en direct. C'est cette minute-là qui sera rediffusée, et c'est elle que le parquet regardera.",
+                    "en": "You get a date wrong, live on air. That is the minute they will replay, and the one the prosecutor will watch." } } },
+
+    { "label": { "fr": "Charger votre directeur général des services", "en": "Blame your chief executive" },
+      "effects": { "popularity": -3, "standing": 3, "reputation": -2, "strike": "menteur", "chain": "perquisition" },
+      "result": { "fr": "Il part avec une indemnité et sans un mot. Il gardera le silence exactement aussi longtemps qu'il y trouvera son intérêt.",
+                  "en": "He leaves with a settlement and without a word. He will stay silent for exactly as long as it suits him." } },
+
+    { "label": { "fr": "Rembourser la commune avant que le procureur ne bouge", "en": "Repay the town before the prosecutor moves" },
+      "when": { "minMoney": 250000 },
+      "effects": { "money": -230000, "reputation": 2, "popularity": 4, "standing": -6, "flags": { "dirtyMoney": false } },
+      "result": { "fr": "Un chèque, un communiqué de trois lignes, et une régularisation qui ferme le dossier. Cela ne s'appelle pas un aveu, mais tout le monde sait lire.",
+                  "en": "A cheque, a three-line statement, and a correction that closes the file. It is not called a confession, but everyone can read." } }
+  ]
+},
+
+{
+  "id": "lobby_bruxelles",
+  "weight": 3,
+  "when": { "position": ["euro"], "flag": { "onTrial": false } },
+  "tag": { "fr": "Bruxelles", "en": "Brussels" },
+  "text": {
+    "fr": "Un cabinet de conseil vous propose une mission d'expertise : quatre notes par an sur un secteur que vous connaissez, et un montant mensuel qui dépasse votre indemnité. Le secteur est celui dont vous rapportez la directive.",
+    "en": "A consultancy offers you an advisory role: four notes a year on a sector you know well, for a monthly fee larger than your salary. The sector is the one whose directive you are drafting."
+  },
+  "choices": [
+    { "label": { "fr": "Refuser et le déclarer au registre", "en": "Refuse it and log it in the register" },
+      "effects": { "reputation": 3, "notoriete": 1, "popularity": 4, "standing": -3 },
+      "result": { "fr": "Votre refus figure au registre de transparence, où il sera lu par onze personnes. Trois d'entre elles travaillent pour le cabinet.",
+                  "en": "Your refusal is logged in the transparency register, where eleven people will read it. Three of them work for the consultancy." } },
+
+    { "label": { "fr": "Accepter, en le déclarant", "en": "Take it, and declare it" },
+      "effects": { "money": 120000, "reputation": -1, "popularity": -4, "standing": 3 },
+      "result": { "fr": "Tout est légal, tout est public, et personne ne trouve cela normal. C'est très exactement la définition du problème.",
+                  "en": "It is all legal, all public, and nobody thinks it is normal. That is precisely the definition of the problem." } },
+
+    { "label": { "fr": "Accepter sans le déclarer", "en": "Take it, and say nothing" },
+      "roll": { "stat": "sangfroid", "base": 13, "dice": 15, "plus": { "reseau": 0.25 } },
+      "success": { "effects": { "money": 260000, "standing": 5, "reputation": -2, "flags": { "dirtyMoney": true }, "chain": "amendements_dictes" },
+        "result": { "fr": "Le virement arrive sur une structure luxembourgeoise au nom de votre belle-sœur. À Bruxelles, personne ne regarde ; c'est bien pour cela qu'on vous y a envoyé.",
+                    "en": "The payment lands in a Luxembourg vehicle in your sister-in-law's name. In Brussels, nobody looks; that is rather why they sent you there." } },
+      "failure": { "effects": { "money": 200000, "standing": 3, "reputation": -2, "popularity": -6, "flags": { "dirtyMoney": true }, "strike": "casserole", "chain": "amendements_dictes" },
+        "result": { "fr": "Une assistante parlementaire voit passer un document qu'elle n'aurait pas dû voir. Elle ne dit rien, et elle en garde une copie.",
+                    "en": "A parliamentary assistant sees a document she should not have seen. She says nothing, and she keeps a copy." } } }
+  ]
+},
+
+{
+  "id": "amendements_dictes",
+  "delay": [3, 9],
+  "weight": 0,
+  "tag": { "fr": "Bruxelles", "en": "Brussels" },
+  "text": {
+    "fr": "Le cabinet vous envoie douze amendements rédigés, à déposer tels quels avant vendredi. Deux d'entre eux vident la directive de ce qu'elle avait d'utile.",
+    "en": "The consultancy sends you twelve ready-written amendments to table as they are before Friday. Two of them gut the directive of everything useful in it."
+  },
+  "choices": [
+    { "label": { "fr": "Les déposer tels quels", "en": "Table them as they are" },
+      "effects": { "money": 90000, "reputation": -2, "standing": 3, "chain": "fuite_bruxelles" },
+      "result": { "fr": "Douze amendements déposés en trois minutes, dont deux qu'aucun élu de votre groupe n'a lus. Le vote a lieu un jeudi soir dans un hémicycle vide.",
+                  "en": "Twelve amendments tabled in three minutes, two of which nobody in your group has read. The vote happens on a Thursday evening in an empty chamber." } },
+
+    { "label": { "fr": "N'en déposer que les inoffensifs", "en": "Table only the harmless ones" },
+      "roll": { "stat": "eloquence", "base": 12, "dice": 14 },
+      "success": { "effects": { "money": 40000, "reputation": 1, "standing": 1 },
+        "result": { "fr": "Le cabinet compte les amendements et pas les lignes. Vous gardez l'argent et la directive garde ses dents.",
+                    "en": "The consultancy counts amendments, not lines. You keep the money and the directive keeps its teeth." } },
+      "failure": { "effects": { "money": -60000, "standing": -5, "reputation": -1, "chain": "fuite_bruxelles" },
+        "result": { "fr": "Ils comptent les lignes. Le versement s'arrête, et l'homme qui vous l'annonce précise qu'il a conservé les échanges.",
+                    "en": "They count lines. The payments stop, and the man telling you so mentions that he has kept the correspondence." } } },
+
+    { "label": { "fr": "Rompre et rendre l'argent déjà versé", "en": "Break it off and give back what you took" },
+      "when": { "minMoney": 200000 },
+      "effects": { "money": -190000, "reputation": 3, "standing": -5, "flags": { "dirtyMoney": false } },
+      "result": { "fr": "Le virement de retour porte la mention « honoraires non dus ». C'est la phrase la plus chère que vous ayez jamais écrite, et elle vous sauvera.",
+                  "en": "The returning transfer is labelled “fees not owed”. It is the most expensive sentence you have ever written, and it will save you." } }
+  ]
+},
+
+{
+  "id": "fuite_bruxelles",
+  "delay": [4, 12],
+  "weight": 0,
+  "tag": { "fr": "Bruxelles", "en": "Brussels" },
+  "text": {
+    "fr": "Un consortium de journaux publie quarante mille documents internes du cabinet. Votre nom apparaît onze fois, dont une sous un tableau intitulé « élus acquis ».",
+    "en": "A consortium of newspapers publishes forty thousand internal documents from the consultancy. Your name appears eleven times, once under a table headed “members secured”."
+  },
+  "choices": [
+    { "label": { "fr": "Tout nier en bloc", "en": "Deny everything" },
+      "roll": { "stat": "sangfroid", "base": 15, "dice": 16,
+                "bonus": [ { "when": { "comms": 2 }, "value": 3 },
+                           { "when": { "legal": 2 }, "value": 2 } ] },
+      "success": { "effects": { "popularity": -8, "standing": -4, "reputation": -1, "trait": "teflon" },
+        "result": { "fr": "Vous tenez la ligne quatre jours, et le consortium passe au dossier suivant. Il reste onze occurrences de votre nom dans une base de données consultable à vie.",
+                    "en": "You hold the line for four days and the consortium moves to the next story. Eleven mentions of your name remain in a database anyone can search, for ever." } },
+      "failure": { "effects": { "popularity": -18, "standing": -12, "reputation": -2, "strike": "menteur", "flags": { "onTrial": true }, "chain": "proces" },
+        "result": { "fr": "Un document porte votre signature manuscrite. Le parquet européen ouvre une information judiciaire le lendemain matin.",
+                    "en": "One document carries your handwritten signature. The European prosecutor opens an investigation the next morning." } } },
+
+    { "label": { "fr": "Reconnaître, rembourser, s'excuser", "en": "Admit it, repay it, apologise" },
+      "when": { "minMoney": 300000 },
+      "effects": { "money": -280000, "reputation": 1, "popularity": -12, "standing": -14, "flags": { "dirtyMoney": false }, "strike": "casserole" },
+      "result": { "fr": "L'aveu coupe court à tout. Vous perdez la moitié de ce que vous aviez gagné et la totalité de ce que vous inspiriez.",
+                  "en": "The confession ends it all. You lose half of what you made and all of what you inspired." } },
+
+    { "label": { "fr": "Laisser vos avocats gérer et ne rien dire", "en": "Let the lawyers handle it and say nothing" },
+      "when": { "legal": 1 },
+      "effects": { "money": -70000, "popularity": -13, "standing": -6, "chain": "perquisition" },
+      "result": { "fr": "Onze communiqués en trois semaines, aucun mot de vous. La stratégie est bonne juridiquement et désastreuse partout ailleurs.",
+                  "en": "Eleven statements in three weeks, not one word from you. The strategy is legally sound and disastrous everywhere else." } }
+  ]
+},
+
+/* ==========================================================================
+   5 ter. MATIGNON
+   ==========================================================================
+   Deux chemins, et ils ne racontent pas la même histoire.
+
+   PAR SON CAMP — le président est des vôtres et vous avez travaillé
+   l'appareil assez longtemps pour qu'on ne puisse plus vous ignorer. C'est
+   la voie noble, et la plus exposée : vous devrez tout à quelqu'un.
+
+   PAR L'OUVERTURE — le président vient du camp d'à côté, il n'a pas de
+   majorité tout seul, et il achète la vôtre avec Matignon. C'est la voie
+   des tacticiens : elle rapporte le poste et coûte le parti.
+
+   Puis le mandat, qui est court par nature : on est le fusible, et le fusible
+   finit toujours par fondre.
+   ========================================================================== */
+
+{
+  "id": "matignon_camp",
+  "once": true,
+  "weight": 6,
+  "when": { "ruling": true, "position": ["depute", "ministre", "chef"], "minStanding": 62, "minTurn": 16 },
+  "tag": { "fr": "Matignon", "en": "The top job" },
+  "text": {
+    "fr": "Le président cherche un Premier ministre dans son propre camp. Trois noms circulent, dont le vôtre, et l'entretien dure quarante minutes sans qu'aucune des deux personnes présentes ne prononce le mot « Matignon »."
+    ,
+    "en": "The president is looking for a prime minister within his own camp. Three names are circulating, yours among them, and the meeting lasts forty minutes without either person in the room saying the word."
+  },
+  "choices": [
+    { "label": { "fr": "Accepter sans condition", "en": "Accept, no conditions" },
+      "effects": { "office": "premier", "notoriete": 3, "credibilite": 3, "standing": 6, "energie": -2, "popularity": 4 },
+      "result": { "fr": "Passation dans la cour, quatre-vingts caméras et un discours de six minutes. Vous êtes le chef du gouvernement et l'employé d'un seul homme.",
+                  "en": "A handover in the courtyard, eighty cameras and a six-minute speech. You are head of the government and one man's employee." } },
+
+    { "label": { "fr": "Négocier trois ministères pour vos fidèles", "en": "Negotiate three ministries for your own people" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "standing": 0.05 }, "dice": 16 },
+      "success": { "effects": { "office": "premier", "notoriete": 3, "credibilite": 3, "reseau": 2, "standing": 10, "energie": -2 },
+        "result": { "fr": "Vous entrez à Matignon avec votre propre équipe dans le dos. Le président l'a accepté, ce qui veut dire qu'il a besoin de vous plus qu'il ne le dit.",
+                    "en": "You arrive with your own team behind you. The president agreed, which means he needs you more than he lets on." } },
+      "failure": { "effects": { "office": "premier", "credibilite": 2, "notoriete": 3, "standing": -4, "energie": -2, "reputation": -1 },
+        "result": { "fr": "On vous fait comprendre que le poste ne se marchande pas. Vous acceptez quand même, et tout le monde a vu que vous aviez essayé.",
+                    "en": "You are told the job is not up for negotiation. You take it anyway, and everyone saw that you tried." } } },
+
+    { "label": { "fr": "Refuser : le fusible, ce sera un autre", "en": "Refuse: let somebody else be the fuse" },
+      "effects": { "credibilite": -2, "standing": -10, "popularity": 3, "sangfroid": 1, "reputation": 1 },
+      "result": { "fr": "Vous expliquez que vous serez plus utile ailleurs. Dans dix-huit mois, quand votre successeur sera brûlé, on se souviendra que vous aviez vu juste, et on ne vous rappellera pas.",
+                  "en": "You explain you will be more use elsewhere. In eighteen months, when your successor is burnt out, people will remember you were right, and they will not call you back." } }
+  ]
+},
+
+{
+  "id": "matignon_ouverture",
+  "once": true,
+  "weight": 6,
+  "when": { "ruling": false, "rulingClose": true, "position": ["depute", "ministre", "chef"],
+            "minPopularity": 55, "minShare": 15, "minTurn": 16 },
+  "tag": { "fr": "Matignon", "en": "The top job" },
+  "text": {
+    "fr": "Le président n'a pas de majorité et vient du camp d'à côté. Un émissaire vous propose Matignon en échange de vos voix à l'Assemblée. Votre parti n'est pas au courant."
+    ,
+    "en": "The president has no majority and comes from the camp next door. An envoy offers you the top job in exchange for your votes in parliament. Your party has not been told."
+  },
+  "choices": [
+    { "label": { "fr": "Accepter et prévenir votre parti après", "en": "Accept, and tell your party afterwards" },
+      "effects": { "office": "premier", "notoriete": 4, "credibilite": 3, "popularity": 6, "standing": -16, "reputation": -2, "strike": "traitre" },
+      "result": { "fr": "Le pays applaudit le sens de l'État, votre fédération parle de vente à la découpe. Les deux ont raison, et une seule des deux votera pour vous ensuite.",
+                  "en": "The country applauds your sense of duty, your own federation calls it a sell-off. Both are right, and only one of them will vote for you afterwards." } },
+
+    { "label": { "fr": "Exiger l'accord du parti avant de dire oui", "en": "Demand your party's blessing first" },
+      "roll": { "base": 17, "stat": "eloquence", "plus": { "standing": 0.06, "reseau": 0.3 }, "dice": 16 },
+      "success": { "effects": { "office": "premier", "notoriete": 3, "credibilite": 4, "standing": 4, "popularity": 4, "energie": -2 },
+        "result": { "fr": "Deux nuits de réunion et un vote à main levée. Vous partez à Matignon avec un mandat, ce qui est rarissime et ne vous protégera qu'un temps.",
+                    "en": "Two nights of meetings and a show of hands. You leave for the top job with a mandate, which is exceptionally rare and will only protect you for a while." } },
+      "failure": { "effects": { "credibilite": -1, "standing": -8, "popularity": -3, "energie": -2 },
+        "result": { "fr": "Le parti dit non, l'émissaire ne rappelle pas, et le poste va à quelqu'un de moins regardant. Vous avez eu raison sur la forme et perdu sur tout le reste.",
+                    "en": "The party says no, the envoy does not call back, and the job goes to somebody less scrupulous. You were right on procedure and lost on everything else." } } },
+
+    { "label": { "fr": "Refuser et rendre la proposition publique", "en": "Refuse, and make the offer public" },
+      "effects": { "notoriete": 2, "credibilite": 1, "popularity": 9, "standing": 8, "reputation": 2 },
+      "result": { "fr": "Vous lisez le message devant les caméras. L'Élysée dément, personne ne le croit, et votre parti découvre que vous valez qu'on vous achète.",
+                  "en": "You read the message out on camera. The presidency denies it, nobody believes them, and your party discovers that you were worth buying." } }
+  ]
+},
+
+{
+  "id": "matignon_49_3",
+  "weight": 4,
+  "when": { "position": ["premier"] },
+  "tag": { "fr": "Matignon", "en": "The top job" },
+  "text": {
+    "fr": "Le texte n'a pas la majorité et le vote est dans deux jours. Il vous reste l'article qui permet de faire adopter une loi sans vote, et qui coûte exactement ce qu'il rapporte."
+    ,
+    "en": "The bill does not have the votes and the ballot is in two days. You still have the article that lets a law pass without a vote, and it costs precisely what it earns."
+  },
+  "choices": [
+    { "label": { "fr": "Passer en force", "en": "Force it through" },
+      "effects": { "credibilite": 2, "standing": 6, "popularity": -12, "notoriete": 2, "reputation": -1, "chain": "matignon_censure" },
+      "result": { "fr": "La loi est adoptée en quarante secondes et sans un vote. L'opposition dépose une motion dans l'heure, et le pays retient le mot plutôt que le texte.",
+                  "en": "The law passes in forty seconds without a vote. The opposition tables a censure motion within the hour, and the country remembers the procedure, not the bill." } },
+
+    { "label": { "fr": "Retirer le texte", "en": "Withdraw the bill" },
+      "effects": { "credibilite": -3, "standing": -8, "popularity": 5, "reputation": 1 },
+      "result": { "fr": "Vous annoncez que le texte sera « retravaillé ». Il ne le sera pas. Vous venez d'apprendre à l'Assemblée qu'elle peut vous dire non.",
+                  "en": "You announce the bill will be “reworked”. It will not be. You have just taught parliament that it can say no to you." } },
+
+    { "label": { "fr": "Aller chercher les voix une par une", "en": "Go and find the votes one by one" },
+      "roll": { "base": 17, "stat": "reseau", "plus": { "eloquence": 0.4, "standing": 0.04 }, "dice": 16 },
+      "success": { "effects": { "credibilite": 4, "standing": 4, "popularity": 6, "energie": -3, "reseau": 2 },
+        "result": { "fr": "Onze députés retournés en trois jours, dont quatre de l'opposition. Le texte passe de six voix et personne ne parle plus de procédure.",
+                    "en": "Eleven members turned in three days, four of them from the opposition. The bill passes by six votes and nobody mentions procedure again." } },
+      "failure": { "effects": { "credibilite": -3, "standing": -10, "popularity": -6, "energie": -3, "chain": "matignon_censure" },
+        "result": { "fr": "Vous en retournez sept, il en fallait douze. Le vote est perdu en direct, et l'opposition dépose sa motion le soir même.",
+                    "en": "You turn seven; you needed twelve. The vote is lost live on air, and the opposition tables its motion that evening." } } }
+  ]
+},
+
+{
+  "id": "matignon_censure",
+  "delay": [1, 3],
+  "weight": 0,
+  "tag": { "fr": "Motion de censure", "en": "Censure motion" },
+  "text": {
+    "fr": "La motion de censure est déposée. Il manque neuf voix à l'opposition, et neuf députés de votre camp n'ont pas répondu au téléphone depuis mardi."
+    ,
+    "en": "The censure motion is tabled. The opposition is nine votes short, and nine members of your own side have not answered the phone since Tuesday."
+  },
+  "choices": [
+    { "label": { "fr": "Les recevoir un par un à Matignon", "en": "See them one by one" },
+      "roll": { "base": 15, "stat": "reseau", "plus": { "standing": 0.05, "charisme": 0.3 }, "dice": 16 },
+      "success": { "effects": { "credibilite": 3, "standing": 5, "energie": -3, "popularity": 2 },
+        "result": { "fr": "Sept viennent, six repartent convaincus, et le septième obtient une sous-préfecture pour sa circonscription. La motion tombe de quatre voix.",
+                    "en": "Seven come, six leave convinced, and the seventh gets a public office moved to his constituency. The motion falls by four votes." } },
+      "failure": { "effects": { "credibilite": -4, "energie": -3, "popularity": -8, "standing": -12, "office": "none", "trait": "ancien_premier" },
+        "result": { "fr": "Trois viennent, aucun ne cède. La motion passe de deux voix et le gouvernement tombe le soir même, avec vous dedans.",
+                    "en": "Three come, none of them budge. The motion passes by two votes and the government falls that evening, with you inside it." } } },
+
+    { "label": { "fr": "Poser la question de confiance vous-même", "en": "Call the confidence vote yourself" },
+      "roll": { "base": 18, "stat": "sangfroid", "plus": { "eloquence": 0.45 }, "dice": 16 },
+      "success": { "effects": { "credibilite": 5, "notoriete": 2, "standing": 8, "popularity": 7, "sangfroid": 1 },
+        "result": { "fr": "Vous allez au-devant du coup et vous le gagnez de vingt voix. On vous découvre une autorité que personne ne vous prêtait, à commencer par le président.",
+                    "en": "You meet the blow head-on and win by twenty. People discover an authority nobody credited you with, starting with the president." } },
+      "failure": { "effects": { "credibilite": -3, "popularity": -6, "standing": -14, "office": "none", "trait": "ancien_premier" },
+        "result": { "fr": "Vous avez transformé une motion incertaine en défaite certaine. C'est la définition exacte du courage mal placé.",
+                    "en": "You turned an uncertain motion into a certain defeat. That is the precise definition of misplaced courage." } } },
+
+    { "label": { "fr": "Laisser le président arbitrer", "en": "Let the president handle it" },
+      "effects": { "credibilite": -2, "standing": -6, "popularity": -4, "reputation": -1 },
+      "result": { "fr": "L'Élysée passe les coups de fil à votre place et la motion tombe. Tout le monde a compris qui gouvernait, et ce n'était pas vous.",
+                  "en": "The presidency makes the calls in your place and the motion falls. Everyone understood who was governing, and it was not you." } }
+  ]
+},
+
+{
+  "id": "matignon_fusible",
+  "weight": 4,
+  "when": { "position": ["premier"], "minTurn": 4 },
+  "tag": { "fr": "Matignon", "en": "The top job" },
+  "text": {
+    "fr": "Les chiffres sont mauvais et l'Élysée a besoin d'un responsable. Un conseiller du président explique dans un dîner que « le Premier ministre n'a pas su expliquer la réforme ». Le dîner était off, la phrase est en une le lendemain."
+    ,
+    "en": "The numbers are bad and the presidency needs someone to blame. A presidential adviser explains over dinner that “the prime minister failed to explain the reform”. The dinner was off the record; the line is on the front page next morning."
+  },
+  "choices": [
+    { "label": { "fr": "Encaisser sans rien dire", "en": "Take it without a word" },
+      "effects": { "credibilite": -2, "popularity": -5, "standing": 4, "sangfroid": 1 },
+      "result": { "fr": "Vous ne répondez pas et vous continuez. C'est ce qu'on attend d'un Premier ministre, et c'est aussi ce qui permet de recommencer le mois suivant.",
+                  "en": "You do not answer and you carry on. That is what is expected of a prime minister, and it is also what makes it possible to do it again next month." } },
+
+    { "label": { "fr": "Répondre publiquement au président", "en": "Answer the president in public" },
+      "roll": { "base": 18, "stat": "sangfroid", "plus": { "popularity": 0.06 }, "dice": 16 },
+      "success": { "effects": { "credibilite": 4, "notoriete": 2, "popularity": 11, "standing": -6, "strike": "intrepide" },
+        "result": { "fr": "Deux phrases, sur le perron, qui rappellent qui signe les décrets. L'Élysée se tait pendant trois semaines et le pays vous découvre une colonne vertébrale.",
+                    "en": "Two sentences on the steps, reminding everyone who signs the decrees. The presidency goes quiet for three weeks and the country discovers you have a spine." } },
+      "failure": { "effects": { "credibilite": -2, "popularity": -7, "standing": -10, "office": "none", "trait": "ancien_premier" },
+        "result": { "fr": "On ne répond pas au président. Votre démission est acceptée avant que vous ne l'ayez proposée, et le communiqué vous remercie chaleureusement.",
+                    "en": "One does not answer the president. Your resignation is accepted before you offer it, and the statement thanks you warmly." } } },
+
+    { "label": { "fr": "Démissionner en choisissant le moment", "en": "Resign, on your own timing" },
+      "effects": { "office": "none", "trait": "ancien_premier", "credibilite": 2, "popularity": 8, "reputation": 2, "standing": -4, "notoriete": 1 },
+      "result": { "fr": "Vous partez avant qu'on ne vous pousse, avec une lettre de quatre lignes que la presse trouvera digne. C'est la seule façon de sortir de Matignon en gardant quelque chose.",
+                  "en": "You leave before you are pushed, with a four-line letter the press will call dignified. It is the only way to leave that building with anything left." } }
   ]
 },
 
@@ -991,7 +1491,7 @@ const EVENT_DATA = {
       "result": { "fr": "Le texte fait la une avant même d'être examiné. Les couteaux sortent.",
                   "en": "The bill makes the front page before it is even read. The knives come out." } },
     { "label": { "fr": "Un texte technique et consensuel", "en": "A technical, consensual bill" },
-      "effects": { "standing": 8, "reputation": 1, "popularity": -6, "notoriete": -1 },
+      "effects": { "credibilite": +2, "standing": 8, "reputation": 1, "popularity": -6, "notoriete": -1 },
       "result": { "fr": "Adopté à l'unanimité en huit minutes. Trois personnes s'en souviendront.",
                   "en": "Passed unanimously in eight minutes. Three people will remember it." } },
     { "label": { "fr": "Reprendre le texte d'un collègue discret", "en": "Recycle a quiet colleague's bill" },
@@ -1774,25 +2274,25 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Expliquer sérieusement", "en": "Explain it properly" },
-      "effects": { "eloquence": 1, "reputation": 2, "popularity": 9, "standing": 6, "energie": -1 },
+      "effects": { "credibilite": +2, "eloquence": 1, "reputation": 2, "popularity": 9, "standing": 6, "energie": -1 },
       "result": { "fr": "Dix minutes de pédagogie. La séquence tourne pendant des jours.",
                   "en": "Ten minutes of real explanation. The clip circulates for days." } },
     { "label": { "fr": "Simplifier à l'extrême", "en": "Simplify brutally" },
-      "effects": { "notoriete": 2, "reputation": -1, "popularity": 5 },
+      "effects": { "credibilite": -1, "notoriete": 2, "reputation": -1, "popularity": 5 },
       "result": { "fr": "La formule choc est reprise partout, y compris par ceux qui vous citent mal.",
                   "en": "The soundbite is repeated everywhere, including by those who misquote you." } },
     { "label": { "fr": "Publier une note technique détaillée", "en": "Publish a detailed technical note" },
       "when": { "background": ["academia", "civil"] },
-      "effects": { "eloquence": 1, "reputation": 2, "standing": 8, "popularity": -3 },
+      "effects": { "credibilite": +3, "eloquence": 1, "reputation": 2, "standing": 8, "popularity": -3 },
       "result": { "fr": "Quinze pages que tous les journalistes citent sans les avoir lues.",
                   "en": "Fifteen pages every journalist quotes without having read them." } },
     { "label": { "fr": "Proposer votre expertise au gouvernement", "en": "Offer your expertise to the government" },
       "when": { "personality": ["clever"] },
       "roll": { "base": 14, "stat": "reseau", "plus": { "eloquence": 0.4, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "reseau": 2, "reputation": 2, "standing": 9, "popularity": 5 },
+      "success": { "effects": { "credibilite": +2, "reseau": 2, "reputation": 2, "standing": 9, "popularity": 5 },
         "result": { "fr": "Ils acceptent. Vous êtes désormais celui qu'on appelle quand c'est grave.",
                     "en": "They accept. You are now the person they call when it is serious." } },
-      "failure": { "effects": { "standing": -7, "popularity": -3 },
+      "failure": { "effects": { "credibilite": -1, "standing": -7, "popularity": -3 },
         "result": { "fr": "Ils refusent poliment et votre camp vous reproche d'avoir proposé.",
                     "en": "They decline politely and your own side resents you for offering." } } }
   ]
@@ -2075,14 +2575,14 @@ const EVENT_DATA = {
                 "plus": { "charisme": 0.35, "popularity": 0.03 },
                 "bonus": [ { "when": { "stat": { "energie": { "min": 12 } } }, "value": 1.5 },
                            { "when": { "maxStanding": 35 }, "value": -1.5 } ], "dice": 16 },
-      "success": { "effects": { "notoriete": 2, "reputation": 2, "energie": -1, "popularity": 17, "standing": 4 },
+      "success": { "effects": { "credibilite": +2, "notoriete": 2, "reputation": 2, "energie": -1, "popularity": 17, "standing": 4 },
         "result": { "fr": "Vous êtes sur les lieux avant les ministres. Les images vous installent.",
                     "en": "You are on site before the ministers. The pictures make you." } },
-      "failure": { "effects": { "energie": -1, "popularity": -7, "reputation": -1 },
+      "failure": { "effects": { "credibilite": -2, "energie": -1, "popularity": -7, "reputation": -1 },
         "result": { "fr": "On vous reproche le déplacement, jugé opportuniste. Vous gênez les secours.",
                     "en": "The visit is called opportunistic. You are in the rescuers' way." } } },
     { "label": { "fr": "Exiger une commission d'enquête", "en": "Demand a commission of inquiry" },
-      "effects": { "eloquence": 1, "standing": 9, "popularity": -5, "energie": -1 },
+      "effects": { "credibilite": +2, "eloquence": 1, "standing": 9, "popularity": -5, "energie": -1 },
       "result": { "fr": "La procédure est lente et sérieuse. Elle portera votre nom dans deux ans.",
                   "en": "The procedure is slow and serious. It will carry your name in two years." } },
     { "label": { "fr": "Accuser nommément les responsables", "en": "Name and shame those responsible" },
@@ -2090,10 +2590,10 @@ const EVENT_DATA = {
                 "plus": { "charisme": 0.45 },
                 "bonus": [ { "when": { "personality": ["provocative"] }, "value": 2.5 },
                            { "when": { "party": ["radical_left", "identitarians"] }, "value": 1.5 } ], "dice": 16 },
-      "success": { "effects": { "notoriete": 3, "popularity": 14, "standing": -8 },
+      "success": { "effects": { "credibilite": -1, "notoriete": 3, "popularity": 14, "standing": -8 },
         "result": { "fr": "Vos accusations font la une. On vous poursuit en diffamation, ça vous grandit.",
                     "en": "Your accusations lead the news. You are sued for libel, which only helps." } },
-      "failure": { "effects": { "reputation": -2, "popularity": -9, "standing": -10 },
+      "failure": { "effects": { "credibilite": -3, "reputation": -2, "popularity": -9, "standing": -10 },
         "result": { "fr": "Vous visez à côté. L'entreprise mise en cause n'était pas la bonne.",
                     "en": "You aim badly. The company you accused was not the one at fault." } } },
     { "label": { "fr": "Mobiliser votre réseau industriel", "en": "Mobilise your industry contacts" },
@@ -2112,7 +2612,7 @@ const EVENT_DATA = {
 {
   "id": "poste_ministre",
   "once": true,
-  "when": { "position": ["depute", "ministre", "chef"], "minStanding": 50 },
+  "when": { "ruling": false, "position": ["depute", "chef"], "minStanding": 50 },
   "tag": { "fr": "Proposition", "en": "An offer" },
   "text": {
     "fr": "Le gouvernement adverse vous propose un ministère. Le poste est réel, le piège aussi.",
@@ -2120,7 +2620,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Accepter et gouverner", "en": "Accept and govern" },
-      "effects": { "money": 60000, "reseau": 2, "notoriete": 2, "reputation": -2, "popularity": 11, "standing": -14, "trait": "renegat" },
+      "effects": { "office": "ministre", "money": 60000, "reseau": 2, "notoriete": 2, "reputation": -2, "popularity": 11, "standing": -14, "trait": "renegat" },
       "result": { "fr": "Vous entrez au gouvernement. Votre parti parle de trahison, le pays de courage.",
                   "en": "You join the government. Your party calls it betrayal; the country calls it courage." } },
     { "label": { "fr": "Refuser publiquement et bruyamment", "en": "Refuse loudly and publicly" },
@@ -2141,7 +2641,7 @@ const EVENT_DATA = {
     { "label": { "fr": "Exiger le ministère de l'Intérieur", "en": "Demand the Interior Ministry" },
       "when": { "background": ["civil", "law"] },
       "roll": { "chance": 0.4, "chanceBonus": [ { "when": { "minStanding": 70 }, "value": 0.25 } ] },
-      "success": { "effects": { "reseau": 3, "notoriete": 2, "money": 60000, "popularity": 8, "standing": -10 },
+      "success": { "effects": { "office": "ministre", "reseau": 3, "notoriete": 2, "money": 60000, "popularity": 8, "standing": -10, "trait": "renegat" },
         "result": { "fr": "Ils cèdent. Vous héritez du ministère qui fait et défait les carrières.",
                     "en": "They give in. You inherit the ministry that makes and breaks careers." } },
       "failure": { "effects": { "standing": -6, "notoriete": 1 },
@@ -3300,16 +3800,16 @@ const EVENT_DATA = {
       "success": { "effects": { "strike": "intrepide", "popularity": 9, "notoriete": 1, "landscape": { "self": 1.6, "scene": -1.6 } },
         "result": { "fr": "Vous connaissez ses chiffres mieux que lui. À la fin de la séquence, il parle de sa famille, ce qui est toujours le signe qu'un débat est perdu.",
                     "en": "You know their figures better than they do. By the end of the segment they are talking about their family, which is always the sign of a debate lost." } },
-      "failure": { "effects": { "strike": "intrepide", "popularity": -7, "energie": -1, "landscape": { "self": -1.3, "scene": 1.3 } },
+      "failure": { "effects": { "credibilite": -2, "strike": "intrepide", "popularity": -7, "energie": -1, "landscape": { "self": -1.3, "scene": 1.3 } },
         "result": { "fr": "Vous vous avancez sur un dossier que vous maîtrisez mal. La correction est polie et elle passe en boucle pendant deux jours.",
                     "en": "You venture onto a file you do not really command. The correction is polite and it runs on a loop for two days." } } },
     { "label": { "fr": "Rester courtois et le laisser se découvrir", "en": "Stay courteous and let them expose themselves" },
-      "effects": { "reputation": 1, "sangfroid": 1, "popularity": 3, "standing": 3, "landscape": { "self": 0.5 } },
+      "effects": { "credibilite": +2, "reputation": 1, "sangfroid": 1, "popularity": 3, "standing": 3, "landscape": { "self": 0.5 } },
       "result": { "fr": "Personne ne retiendra une réplique, ce qui est exactement ce que votre entourage espérait. Le lendemain, les éditorialistes vous trouvent présidentiable, faute de mieux.",
                   "en": "Nobody will remember a single line, which is exactly what your staff was hoping for. The next day the columnists find you presidential, for want of anything better." } },
     { "label": { "fr": "Transformer le débat en moment de télévision", "en": "Turn the debate into television" },
       "when": { "personality": ["provocative"] },
-      "effects": { "notoriete": 2, "popularity": 8, "reputation": -2, "standing": -5,
+      "effects": { "credibilite": -2, "notoriete": 2, "popularity": 8, "reputation": -2, "standing": -5,
                    "landscape": { "self": 2.2, "scene": -1.4 } },
       "result": { "fr": "Vous coupez, vous riez, vous refusez de répondre. La séquence dépasse le million de vues avant la fin de la nuit et votre parti met une journée à décider s'il doit s'en réjouir.",
                   "en": "You cut in, you laugh, you refuse to answer. The clip passes a million views before the night is out and your party takes a day to decide whether to be pleased." } },
@@ -3324,7 +3824,7 @@ const EVENT_DATA = {
                     "en": "They agree, then attack in the first minute on the very thing you had just ruled out. Nothing signed in a corridor is signed." } } },
     { "label": { "fr": "Se décommander la veille", "en": "Pull out the night before" },
       "when": { "trait": ["lache"] },
-      "effects": { "energie": 2, "popularity": -4, "standing": -2, "sangfroid": 1 },
+      "effects": { "credibilite": -2, "energie": 2, "popularity": -4, "standing": -2, "sangfroid": 1 },
       "result": { "fr": "Une extinction de voix providentielle, un certificat, et une chaise vide en face de lui pendant une heure. Vous n'avez rien perdu ce soir-là, ce qui est déjà mieux que la moitié de ceux qui y sont allés.",
                   "en": "A providential loss of voice, a doctor's note, and an empty chair opposite him for an hour. You lost nothing that evening, which is more than half the people who turned up can say." } }
   ]
@@ -3664,11 +4164,11 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Prendre le grand ministère", "en": "Take the big department" },
-      "effects": { "office": "ministre", "notoriete": 2, "standing": 6, "energie": -2, "popularity": 4 },
+      "effects": { "credibilite": +2, "office": "ministre", "notoriete": 2, "standing": 6, "energie": -2, "popularity": 4 },
       "result": { "fr": "Passation de pouvoirs, discours de dix minutes, cinq cents fonctionnaires qui vous regardent en se demandant combien de temps vous resterez. La moyenne est de dix-neuf mois.",
                   "en": "A handover ceremony, a ten-minute speech, five hundred civil servants wondering how long you will last. The average is nineteen months." } },
     { "label": { "fr": "Prendre le portefeuille technique", "en": "Take the technical brief" },
-      "effects": { "office": "ministre", "reputation": 2, "sangfroid": 1, "standing": 4, "notoriete": 1 },
+      "effects": { "credibilite": +3, "office": "ministre", "reputation": 2, "sangfroid": 1, "standing": 4, "notoriete": 1 },
       "result": { "fr": "Un ministère sans caméras, avec un vrai budget et des décrets qui changent la vie de gens qui ne sauront jamais votre nom. Vous y survivrez à trois remaniements.",
                   "en": "A department with no cameras, a real budget and decrees that change the lives of people who will never learn your name. You will survive three reshuffles there." } },
     { "label": { "fr": "Refuser pour rester libre", "en": "Refuse, and stay free" },
@@ -3690,10 +4190,10 @@ const EVENT_DATA = {
   "choices": [
     { "label": { "fr": "Défendre chaque ligne", "en": "Defend every line" },
       "roll": { "base": 16, "stat": "sangfroid", "plus": { "eloquence": 0.5, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "standing": 6, "reputation": 2, "energie": -2, "popularity": 3 },
+      "success": { "effects": { "credibilite": +3, "standing": 6, "reputation": 2, "energie": -2, "popularity": 3 },
         "result": { "fr": "Vous sortez avec l'essentiel. Vos services l'apprennent à minuit et vous trouvent, pour la première fois, un vrai ministre.",
                     "en": "You come out with the essentials intact. Your officials hear about it at midnight and decide, for the first time, that you are a real minister." } },
-      "failure": { "effects": { "standing": -6, "energie": -2, "popularity": -4 },
+      "failure": { "effects": { "credibilite": -2, "standing": -6, "energie": -2, "popularity": -4 },
         "result": { "fr": "On vous laisse parler vingt minutes puis on vous annonce le chiffre décidé la veille. Vous signez la lettre plafond le lendemain matin.",
                     "en": "You are allowed to talk for twenty minutes, then given the number that was decided the day before. You sign the ceiling letter the next morning." } } },
     { "label": { "fr": "Céder et négocier autre chose en échange", "en": "Give way and trade it for something else" },
@@ -3701,17 +4201,17 @@ const EVENT_DATA = {
       "result": { "fr": "Vous rendez l'argent contre une promesse de nomination et un déplacement présidentiel dans votre ancienne circonscription. Personne n'a rien vu passer.",
                   "en": "You hand back the money in exchange for a promised appointment and a presidential visit to your old constituency. Nothing was visible from outside." } },
     { "label": { "fr": "Faire fuiter les coupes dans la presse", "en": "Leak the cuts to the press" },
-      "effects": { "notoriete": 1, "popularity": 7, "standing": -12, "reputation": -1,
+      "effects": { "credibilite": -2, "notoriete": 1, "popularity": 7, "standing": -12, "reputation": -1,
                    "landscape": { "ruling": -1.2 } },
       "result": { "fr": "Les chiffres sortent le jeudi, attribués à un proche du dossier. Tout le monde sait que c'est vous, personne ne peut le prouver, et le ministère garde son budget.",
                   "en": "The figures come out on Thursday, sourced to someone close to the file. Everyone knows it was you, nobody can prove it, and the department keeps its budget." } },
     { "label": { "fr": "Menacer de démissionner sur-le-champ", "en": "Threaten to resign on the spot" },
       "when": { "trait": ["intrepide"] },
       "roll": { "base": 17, "stat": "sangfroid", "plus": { "popularity": 0.06, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "standing": 12, "notoriete": 1, "popularity": 4 },
+      "success": { "effects": { "credibilite": +1, "standing": 12, "notoriete": 1, "popularity": 4 },
         "result": { "fr": "Vous posez votre lettre sur la table et vous vous levez. On vous rattrape avant la porte, et votre budget avec vous.",
                     "en": "You put your letter on the table and stand up. They catch you before the door, and your budget with you." } },
-      "failure": { "effects": { "office": "depute", "standing": -10, "popularity": 3 },
+      "failure": { "effects": { "credibilite": -2, "office": "none", "standing": -10, "popularity": 3 },
         "result": { "fr": "Vous posez votre lettre sur la table et vous vous levez. Personne ne vous rattrape, et la lettre est publiée à dix-huit heures.",
                     "en": "You put your letter on the table and stand up. Nobody catches you, and the letter is published at six." } } }
   ]
@@ -3800,7 +4300,7 @@ const EVENT_DATA = {
       "success": { "effects": { "standing": 8, "reseau": 1, "energie": -1 },
         "result": { "fr": "Vous restez, avec deux directions de plus dans votre périmètre. Trois collègues apprennent leur départ par un message d'un journaliste.",
                     "en": "You stay, with two more directorates in your brief. Three colleagues learn they are out from a journalist's text message." } },
-      "failure": { "effects": { "office": "depute", "standing": -8, "popularity": -4 },
+      "failure": { "effects": { "office": "none", "standing": -8, "popularity": -4 },
         "result": { "fr": "Vous n'êtes pas sur la photo. Le chauffeur vient chercher la voiture à sept heures et le badge se désactive à midi.",
                     "en": "You are not in the photograph. The driver comes for the car at seven and the pass stops working at noon." } } },
     { "label": { "fr": "Demander un ministère plus lourd", "en": "Ask for a heavier portfolio" },
@@ -3808,11 +4308,11 @@ const EVENT_DATA = {
       "success": { "effects": { "notoriete": 2, "standing": 9, "popularity": 5, "energie": -2 },
         "result": { "fr": "Vous obtenez un des trois ministères qui comptent. À partir de ce jour, tout ce qui ira mal dans le pays portera votre nom.",
                     "en": "You get one of the three departments that matter. From this day on, everything that goes wrong in the country will carry your name." } },
-      "failure": { "effects": { "office": "depute", "standing": -14, "reputation": -1 },
+      "failure": { "effects": { "office": "none", "standing": -14, "reputation": -1 },
         "result": { "fr": "On vous répond que l'ambition est une qualité. Vous n'êtes dans aucune des deux colonnes le lendemain.",
                     "en": "You are told that ambition is a fine quality. The next day you are in neither column." } } },
     { "label": { "fr": "Partir avant d'être remercié", "en": "Leave before you are thanked" },
-      "effects": { "office": "depute", "reputation": 2, "popularity": 6, "standing": -4, "sangfroid": 1 },
+      "effects": { "office": "none", "reputation": 2, "popularity": 6, "standing": -4, "sangfroid": 1 },
       "result": { "fr": "Vous démissionnez le matin, avant la liste. La formule est reprise partout, et vous redevenez quelqu'un dont on se demande ce qu'il prépare.",
                   "en": "You resign in the morning, before the list. The phrase is quoted everywhere, and you become somebody people wonder about again." } }
   ]
@@ -3829,7 +4329,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Démissionner et dire pourquoi", "en": "Resign and say why" },
-      "effects": { "office": "depute", "popularity": 12, "reputation": 3, "standing": -10, "notoriete": 2,
+      "effects": { "office": "none", "popularity": 12, "reputation": 3, "standing": -10, "notoriete": 2,
                    "landscape": { "self": 1.4 } },
       "result": { "fr": "Votre lettre de démission est publiée intégralement et lue à la radio. Vous n'avez plus de ministère, plus de voiture et plus de contradicteur.",
                   "en": "Your resignation letter is published in full and read out on the radio. You no longer have a department, a car, or anyone contradicting you." } },
@@ -3857,7 +4357,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Partir en publiant tout", "en": "Walk out and publish everything" },
-      "effects": { "office": "depute", "popularity": 14, "notoriete": 2, "standing": -16, "reputation": 1,
+      "effects": { "office": "none", "popularity": 14, "notoriete": 2, "standing": -16, "reputation": 1,
                    "landscape": { "self": 2, "ruling": -1.6 } },
       "result": { "fr": "Votre démission occupe trois jours de plateaux et vos notes deux semaines de presse. Vous ne remettrez plus jamais les pieds dans un gouvernement dirigé par ces gens-là.",
                   "en": "Your resignation fills three days of television and your notes two weeks of newsprint. You will never sit in a government run by these people again." } },
@@ -3866,7 +4366,7 @@ const EVENT_DATA = {
       "success": { "effects": { "standing": 13, "reseau": 1, "reputation": -2 },
         "result": { "fr": "Vous montrez le dossier à trois personnes et à personne d'autre. Deux d'entre elles quittent le gouvernement le mois suivant, vous non.",
                     "en": "You show the file to three people and to nobody else. Two of them leave the government the following month; you do not." } },
-      "failure": { "effects": { "office": "depute", "standing": -12, "reputation": -2, "strike": "traitre" },
+      "failure": { "effects": { "office": "none", "standing": -12, "reputation": -2, "strike": "traitre" },
         "result": { "fr": "Le dossier remonte jusqu'à celui qu'il visait, avec votre nom dessus. Vous quittez le gouvernement le vendredi, sans communiqué.",
                     "en": "The file makes its way to its target, with your name on it. You leave the government on Friday, with no statement." } } }
   ]
@@ -3951,7 +4451,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Lui acheter l'original et l'accrocher dans votre bureau", "en": "Buy the original and hang it in your office" },
-      "effects": { "money": -4000, "popularity": 8, "charisme": 1, "sangfroid": 1, "trait": "teflon" },
+      "effects": { "credibilite": +1, "money": -4000, "popularity": 8, "charisme": 1, "sangfroid": 1, "trait": "teflon" },
       "result": { "fr": "La photo du dessin encadré derrière vous fait le tour des rédactions. On ne peut plus se moquer de quelqu'un qui rit le premier.",
                   "en": "The photograph of the framed cartoon behind you goes round every newsroom. You cannot mock somebody who laughs first." } },
     { "label": { "fr": "Demander à votre entourage d'appeler le journal", "en": "Have your staff call the paper" },
@@ -3959,11 +4459,11 @@ const EVENT_DATA = {
       "success": { "effects": { "popularity": 2, "reseau": 1 },
         "result": { "fr": "Le dessinateur passe à quelqu'un d'autre le mois suivant. Personne n'a rien su, et c'est déjà une victoire rare.",
                     "en": "The cartoonist moves on to somebody else the following month. Nobody found out, which is already a rare win." } },
-      "failure": { "effects": { "popularity": -9, "reputation": -2, "notoriete": 1 },
+      "failure": { "effects": { "credibilite": -2, "popularity": -9, "reputation": -2, "notoriete": 1 },
         "result": { "fr": "Le journal publie l'appel en fac-similé, avec le nom de votre collaborateur. Le dessin devient une série et vous, un symbole de susceptibilité.",
                     "en": "The paper publishes the call in facsimile, with your staffer's name on it. The cartoon becomes a series, and you become a symbol of thin skin." } } },
     { "label": { "fr": "Ne rien faire du tout", "en": "Do nothing at all" },
-      "effects": { "sangfroid": 2, "popularity": -2 },
+      "effects": { "credibilite": +1, "sangfroid": 2, "popularity": -2 },
       "result": { "fr": "Vous laissez passer, comme le reste. Au bout de deux ans, la silhouette est devenue votre logo et les militants la portent sur des badges.",
                   "en": "You let it pass, like everything else. Two years on, the silhouette has become your logo and activists wear it on badges." } }
   ]
@@ -4067,7 +4567,7 @@ const EVENT_DATA = {
   },
   "choices": [
     { "label": { "fr": "Répondre sur le fond, sans relever", "en": "Answer on the substance, without acknowledging it" },
-      "effects": { "reputation": 2, "sangfroid": 1, "popularity": 4, "landscape": { "self": 0.6, "scene": -0.6 } },
+      "effects": { "credibilite": +2, "reputation": 2, "sangfroid": 1, "popularity": 4, "landscape": { "self": 0.6, "scene": -0.6 } },
       "result": { "fr": "Vous enchaînez comme si de rien n'était. Le silence qui suit sa phrase dure une seconde de trop, et c'est cette seconde-là qui tournera.",
                   "en": "You carry on as if nothing had happened. The silence after his line lasts a second too long, and that second is the clip that travels." } },
     { "label": { "fr": "Rendre le coup, plus fort", "en": "Hit back, harder" },
@@ -4075,7 +4575,7 @@ const EVENT_DATA = {
       "success": { "effects": { "strike": "intrepide", "popularity": 8, "notoriete": 1, "landscape": { "self": 1.2, "scene": -1.2 } },
         "result": { "fr": "Votre réponse est meilleure que sa pique et tout le monde le sait avant la fin de l'émission. Il ne recommencera pas avec vous.",
                     "en": "Your comeback is better than his jibe and everyone knows it before the programme ends. He will not try that with you again." } },
-      "failure": { "effects": { "strike": "intrepide", "popularity": -6, "reputation": -2, "landscape": { "scene": 0.8 } },
+      "failure": { "effects": { "credibilite": -2, "strike": "intrepide", "popularity": -6, "reputation": -2, "landscape": { "scene": 0.8 } },
         "result": { "fr": "Vous descendez à son niveau sans son talent. Le lendemain, les deux séquences passent ensemble et une seule est drôle.",
                     "en": "You go down to his level without his timing. The next day both clips run together, and only one of them is funny." } } },
     { "label": { "fr": "Prendre le pays à témoin", "en": "Take it to the country" },
@@ -4430,7 +4930,7 @@ const EVENT_DATA = {
 {
   "id": "collage_nuit",
   "weight": 4,
-  "when": { "position": ["militant", "conseiller"] },
+  "when": { "position": ["militant", "cadre", "conseiller"] },
   "tag": { "fr": "Deux heures du matin", "en": "Two in the morning" },
   "text": {
     "fr": "Vous collez des affiches sous la pluie avec trois autres. En face, l'équipe adverse fait la même chose, avec la même colle et le même seau. Quelqu'un propose de recouvrir les leurs.",
@@ -4456,7 +4956,7 @@ const EVENT_DATA = {
   "id": "double_vie",
   "once": true,
   "weight": 5,
-  "when": { "position": ["militant", "conseiller"], "maxTurn": 16 },
+  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 16 },
   "tag": { "fr": "Le métier", "en": "The day job" },
   "text": {
     "fr": "Vous avez encore un travail, un vrai, avec un supérieur qui commence à compter vos absences. Il ne dit rien de la politique, il parle de disponibilité, ce qui revient au même.",
@@ -4490,7 +4990,7 @@ const EVENT_DATA = {
 {
   "id": "tresorier_section",
   "weight": 4,
-  "when": { "position": ["militant", "conseiller"] },
+  "when": { "position": ["militant", "cadre", "conseiller"] },
   "tag": { "fr": "Les comptes", "en": "The accounts" },
   "text": {
     "fr": "Le trésorier de la section tient ses comptes sur un cahier. Il y a mille deux cents euros d'écart depuis trois ans, et tout le monde le sait sans en parler. Il a soixante-douze ans et il colle des affiches depuis 1974.",
@@ -4542,7 +5042,7 @@ const EVENT_DATA = {
   "id": "famille_politique",
   "once": true,
   "weight": 4,
-  "when": { "position": ["militant", "conseiller", "maire"], "maxTurn": 24 },
+  "when": { "position": ["militant", "cadre", "conseiller", "maire"], "maxTurn": 24 },
   "tag": { "fr": "À table", "en": "At the table" },
   "text": {
     "fr": "Un dimanche en famille, quelqu'un demande quand vous allez arrêter. Ce n'est pas méchant, c'est sincère, et personne autour de la table ne comprend pourquoi vous passez vos samedis dans une salle municipale.",
@@ -4567,7 +5067,7 @@ const EVENT_DATA = {
 {
   "id": "jeunesse_parti",
   "weight": 4,
-  "when": { "position": ["militant", "conseiller"], "maxAge": 42 },
+  "when": { "position": ["militant", "cadre", "conseiller"], "maxAge": 42 },
   "tag": { "fr": "Les jeunes", "en": "The youth wing" },
   "text": {
     "fr": "Le mouvement des jeunes du parti cherche un responsable pour le département. C'est un titre sans pouvoir, avec deux cents adhérents dont trente actifs, et un accès direct au congrès national.",
@@ -4617,7 +5117,7 @@ const EVENT_DATA = {
 {
   "id": "vieux_militant",
   "weight": 4,
-  "when": { "position": ["militant", "conseiller", "maire"] },
+  "when": { "position": ["militant", "cadre", "conseiller", "maire"] },
   "tag": { "fr": "Une carte de 1971", "en": "A membership card from 1971" },
   "text": {
     "fr": "Un adhérent de toujours meurt. Il n'a jamais rien été, il a tenu la permanence pendant quarante ans, et sa famille demande si quelqu'un du parti dira un mot à l'enterrement. C'est un jeudi, à deux heures de route.",
@@ -4643,7 +5143,7 @@ const EVENT_DATA = {
   "id": "premiere_interview",
   "once": true,
   "weight": 5,
-  "when": { "position": ["militant", "conseiller"], "maxTurn": 20 },
+  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 20 },
   "tag": { "fr": "Trois questions", "en": "Three questions" },
   "text": {
     "fr": "Le journal local vous accorde trois questions dans son édition du samedi. C'est la première fois qu'on vous demande votre avis par écrit, et la journaliste a vingt-trois ans et un magnétophone.",
@@ -4697,7 +5197,7 @@ const EVENT_DATA = {
 {
   "id": "reseaux_debut",
   "weight": 4,
-  "when": { "position": ["militant", "conseiller"] },
+  "when": { "position": ["militant", "cadre", "conseiller"] },
   "tag": { "fr": "En ligne", "en": "Online" },
   "text": {
     "fr": "Votre compte compte quatre cents abonnés, dont la moitié de votre section. Un ami vous explique que ce qui marche, c'est de publier trois fois par jour et de ne jamais s'excuser.",
@@ -4722,7 +5222,7 @@ const EVENT_DATA = {
 {
   "id": "manif_locale",
   "weight": 4,
-  "when": { "position": ["militant", "conseiller", "maire"] },
+  "when": { "position": ["militant", "cadre", "conseiller", "maire"] },
   "tag": { "fr": "Dans la rue", "en": "In the street" },
   "text": {
     "fr": "Une usine du département annonce trois cents suppressions de postes. Un rassemblement est prévu devant les grilles, samedi, et l'on vous demande si vous serez là.",
@@ -4773,15 +5273,15 @@ const EVENT_DATA = {
       "success": { "effects": { "poll": 7, "notoriete": 1, "popularity": 8 },
         "result": { "fr": "Vous plantez une réplique qui fera les titres de demain. Le débat est plié.",
                     "en": "You land a line that will lead tomorrow's news. The debate is over." } },
-      "failure": { "effects": { "poll": -6, "reputation": -1, "popularity": -7 },
+      "failure": { "effects": { "credibilite": -2, "poll": -6, "reputation": -1, "popularity": -7 },
         "result": { "fr": "L'agressivité passe mal. On vous trouve nerveux, presque petit.",
                     "en": "The aggression falls flat. You come across as nervous, almost small." } } },
     { "label": { "fr": "Jouer la hauteur présidentielle", "en": "Play presidential" },
       "roll": { "stat": "sangfroid", "base": 12, "dice": 16 },
-      "success": { "effects": { "poll": 5, "reputation": 1, "popularity": 5 },
+      "success": { "effects": { "credibilite": +3, "poll": 5, "reputation": 1, "popularity": 5 },
         "result": { "fr": "Calme, précis, au-dessus de la mêlée. Vous avez l'air d'être déjà en fonction.",
                     "en": "Calm, precise, above the fray. You already look like the office." } },
-      "failure": { "effects": { "poll": -4, "popularity": -4 },
+      "failure": { "effects": { "credibilite": -1, "poll": -4, "popularity": -4 },
         "result": { "fr": "Trop lisse. Personne ne retient rien de ce que vous avez dit.",
                     "en": "Too smooth. Nobody remembers a word you said." } } },
     { "label": { "fr": "Sortir un dossier sur votre adversaire", "en": "Produce a file on your opponent" },
@@ -4795,7 +5295,7 @@ const EVENT_DATA = {
                     "en": "The document is challenged live. The low blow comes straight back at you." } } },
     { "label": { "fr": "Parler technique et chiffres", "en": "Go technical, with numbers" },
       "when": { "background": ["academia", "civil"] },
-      "effects": { "poll": 4, "eloquence": 1, "reputation": 2, "popularity": -4 },
+      "effects": { "credibilite": +2, "poll": 4, "eloquence": 1, "reputation": 2, "popularity": -4 },
       "result": { "fr": "Vous maîtrisez chaque dossier. C'est austère et curieusement convaincant.",
                   "en": "You have command of every file. It is austere and oddly convincing." } }
   ]
@@ -5219,29 +5719,29 @@ const EVENT_DATA = {
 {
   "id": "investiture_concurrent",
   "weight": 4,
-  "cast": "camp",
+  "cast": "camp_senior",
   "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
   "text": {
-    "fr": "L'investiture vous passe sous le nez au profit de {rival}, qui n'a rien de plus que vous sinon d'avoir commencé plus tôt à la demander.",
-    "en": "The nomination goes past you to {rival}, who has nothing more than you except having started asking for it earlier."
+    "fr": "L'investiture vous passe sous le nez. Elle va à {rival}, qui n'a rien de plus que vous sinon d'avoir commencé plus tôt à la demander.",
+    "en": "The nomination goes past you. It goes to {rival}, who has nothing more than you except having started asking for it earlier."
   },
   "choices": [
-    { "label": { "fr": "Le soutenir bruyamment", "en": "Back them loudly" },
+    { "label": { "fr": "{Le} soutenir bruyamment", "en": "Back {him} loudly" },
       "effects": { "standing": 4, "reputation": 1, "popularity": -3 },
-      "result": { "fr": "Vous faites campagne pour lui, vous tenez trois réunions à sa place et vous êtes sur toutes les photos. La prochaine fois, ce sera difficile de vous refuser.",
-                  "en": "You campaign for him, you hold three meetings in his place and you are in every photograph. Next time it will be hard to refuse you." } },
-    { "label": { "fr": "Faire savoir ce qu'il vaut vraiment", "en": "Let people know what he is really worth" },
+      "result": { "fr": "Vous faites campagne pour {lui}, vous tenez trois réunions à sa place et vous êtes sur toutes les photos. La prochaine fois, ce sera difficile de vous refuser.",
+                  "en": "You campaign for {him}, you hold three meetings in {his} place and you are in every photograph. Next time it will be hard to refuse you." } },
+    { "label": { "fr": "Faire savoir ce qu'{il} vaut vraiment", "en": "Let people know what {he} is really worth" },
       "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.4 }, "dice": 16 },
       "success": { "effects": { "popularity": -3, "standing": 3, "reputation": -2, "landscape": { "self": -0.5 } },
         "result": { "fr": "Deux ou trois conversations dans les bons bureaux, jamais un mot par écrit. Sa candidature s'effrite toute seule et personne ne sait pourquoi.",
-                    "en": "Two or three conversations in the right offices, never a word in writing. His candidacy crumbles on its own and nobody knows why." } },
+                    "en": "Two or three conversations in the right offices, never a word in writing. {His} candidacy crumbles on its own and nobody knows why." } },
       "failure": { "effects": { "standing": -12, "reputation": -2, "strike": "traitre" },
-        "result": { "fr": "L'une de vos conversations lui revient mot pour mot. Il ne dit rien, il attend, et il aura toute une carrière pour s'en souvenir.",
-                    "en": "One of your conversations gets back to him word for word. He says nothing, he waits, and he will have a whole career to remember it." } } },
-    { "label": { "fr": "Aller voir ailleurs pendant qu'il fait campagne", "en": "Look elsewhere while he campaigns" },
+        "result": { "fr": "L'une de vos conversations lui revient mot pour mot. {Il} ne dit rien, {il} attend, et {il} aura toute une carrière pour s'en souvenir.",
+                    "en": "One of your conversations gets back to {him} word for word. {He} says nothing, {he} waits, and {he} will have a whole career to remember it." } } },
+    { "label": { "fr": "Aller voir ailleurs pendant qu'{il} fait campagne", "en": "Look elsewhere while {he} campaigns" },
       "effects": { "standing": 2, "reseau": 2, "energie": -1, "popularity": 2 },
-      "result": { "fr": "Vous passez la campagne dans deux autres fédérations, où l'on ne vous doit rien et où l'on vous découvre. Il gagne, et vous aussi, ailleurs.",
-                  "en": "You spend the campaign in two other federations, where nobody owes you anything and where people discover you. He wins, and so do you, elsewhere." } }
+      "result": { "fr": "Vous passez la campagne dans deux autres fédérations, où l'on ne vous doit rien et où l'on vous découvre. {Il} gagne, et vous aussi, ailleurs.",
+                  "en": "You spend the campaign in two other federations, where nobody owes you anything and where people discover you. {He} wins, and so do you, elsewhere." } }
   ]
 },
 
@@ -5276,29 +5776,171 @@ const EVENT_DATA = {
 {
   "id": "investiture_dette",
   "weight": 3,
-  "cast": "camp",
+  "cast": "camp_senior",
   "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
   "text": {
-    "fr": "{rival} vous propose un arrangement : il fait pencher la commission en votre faveur, et vous lui devez une voix au moment où il en aura besoin. Il ne précise pas laquelle.",
-    "en": "{rival} offers you an arrangement: he tips the committee your way, and you owe him a vote when he needs one. He does not say which."
+    "fr": "{rival} vous propose un arrangement : {il} fait pencher la commission en votre faveur, et vous lui devez une voix au moment où {il} en aura besoin. {Il} ne précise pas laquelle.",
+    "en": "{rival} offers you an arrangement: {he} tips the committee your way, and you owe {him} a vote when {he} needs one. {He} does not say which."
   },
   "choices": [
     { "label": { "fr": "Accepter la dette", "en": "Take on the debt" },
       "effects": { "popularity": -3, "standing": 6, "reseau": 1, "reputation": -1, "chain": "mentor_dette" },
       "result": { "fr": "La commission se réunit de nouveau et votre nom passe sans discussion. Vous ne savez pas encore ce que vous venez de vendre.",
                   "en": "The committee meets again and your name goes through without discussion. You do not yet know what you have just sold." } },
-    { "label": { "fr": "Refuser et le lui dire en face", "en": "Refuse, and say so to his face" },
+    { "label": { "fr": "Refuser, et le dire en face", "en": "Refuse, and say so to {his} face" },
       "effects": { "reputation": 3, "standing": -3, "sangfroid": 1, "strike": "intrepide" },
-      "result": { "fr": "Vous lui répondez que vous préférez perdre. Il hausse les épaules et vous respecte un peu plus, ce qui ne vaut aucune investiture.",
-                  "en": "You tell him you would rather lose. He shrugs and respects you slightly more, which is worth no nomination at all." } },
+      "result": { "fr": "Vous lui répondez que vous préférez perdre. {Il} hausse les épaules et vous respecte un peu plus, ce qui ne vaut aucune investiture.",
+                  "en": "You tell {him} you would rather lose. {He} shrugs and respects you slightly more, which is worth no nomination at all." } },
     { "label": { "fr": "Accepter, et enregistrer la conversation", "en": "Accept, and record the conversation" },
       "when": { "personality": ["calculating"] },
       "effects": { "popularity": -3, "standing": 5, "reseau": 1, "reputation": -2, "sangfroid": 1 },
       "result": { "fr": "Vous acceptez, et vous gardez trois minutes de son offre dans un téléphone que vous ne changerez jamais. La dette existe des deux côtés maintenant.",
-                  "en": "You accept, and you keep three minutes of his offer on a phone you will never replace. The debt runs both ways now." } }
+                  "en": "You accept, and you keep three minutes of {his} offer on a phone you will never replace. The debt runs both ways now." } }
   ]
 }
 ,
+
+{
+  "id": "investiture_parachute",
+  "weight": 4,
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "L'investiture est donnée à quelqu'un que personne n'a jamais vu ici, envoyé par le siège pour « incarner le renouvellement ». La fédération est furieuse, et la fédération, c'est vous qui la connaissez.",
+    "en": "The nomination goes to somebody nobody here has ever seen, sent down from headquarters to “embody renewal”. The federation is furious, and you are the one who knows the federation."
+  },
+  "choices": [
+    { "label": { "fr": "Organiser la fronde des militants locaux", "en": "Organise the local revolt" },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "reseau": 0.4 }, "dice": 16 },
+      "success": { "effects": { "standing": 6, "notoriete": 1, "popularity": 3, "energie": -2 },
+        "result": { "fr": "Deux cents signatures en dix jours et un article dans le quotidien régional. Le siège retire discrètement sa candidature et ne vous en reparlera jamais.",
+                    "en": "Two hundred signatures in ten days and a piece in the regional paper. Headquarters quietly withdraws the candidacy and never mentions it again." } },
+      "failure": { "effects": { "standing": -8, "reputation": -1, "energie": -2 },
+        "result": { "fr": "Le siège tient bon et retient les noms. Vous avez appris qui vous suit vraiment : onze personnes, dont deux qui ne voteront pas.",
+                    "en": "Headquarters holds firm and takes down names. You have learned who really follows you: eleven people, two of whom will not vote." } } },
+    { "label": { "fr": "Servir de guide au parachuté", "en": "Show the newcomer around" },
+      "effects": { "standing": 5, "reseau": 2, "reputation": -1, "energie": -1 },
+      "result": { "fr": "Trois semaines de marchés et de salles des fêtes, et une reconnaissance qui vaudra ce qu'elle vaudra. Au siège, on note que vous êtes utile.",
+                  "en": "Three weeks of markets and village halls, and a gratitude worth whatever it turns out to be worth. At headquarters, they note that you are useful." } },
+    { "label": { "fr": "Ne rien faire et laisser le terrain trancher", "en": "Do nothing and let the ground decide" },
+      "effects": { "standing": -2, "reputation": 1, "energie": 1 },
+      "result": { "fr": "Vous ne dites rien pendant toute la campagne. Le résultat est mauvais, et tout le monde se souvient que vous n'aviez rien promis.",
+                  "en": "You say nothing for the whole campaign. The result is poor, and everyone remembers you promised nothing." } }
+  ]
+},
+
+{
+  "id": "investiture_sondage",
+  "weight": 3,
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "On vous écarte au nom d'une étude d'opinion commandée par la direction. Vous n'avez jamais vu l'étude, et l'institut qui l'a réalisée travaille pour le parti depuis douze ans.",
+    "en": "They set you aside in the name of an opinion study commissioned by the leadership. You have never seen the study, and the polling firm that produced it has worked for the party for twelve years."
+  },
+  "choices": [
+    { "label": { "fr": "Exiger de voir les chiffres", "en": "Demand to see the numbers" },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "eloquence": 0.35 }, "dice": 15 },
+      "success": { "effects": { "standing": 5, "reputation": 1, "sangfroid": 1 },
+        "result": { "fr": "L'étude porte sur trois cent douze personnes et ne vous mentionne pas une fois. On vous promet de « réexaminer le dossier », ce qui, dans cette maison, est un aveu.",
+                    "en": "The study covers three hundred and twelve people and never mentions you once. They promise to “revisit the file”, which in this house is a confession." } },
+      "failure": { "effects": { "standing": -6, "popularity": -2, "reputation": -1 },
+        "result": { "fr": "On vous lit trois lignes au téléphone et on raccroche. Vous passez pour quelqu'un qui conteste les chiffres, ce qui est pire que d'être mauvais dedans.",
+                    "en": "They read you three lines over the phone and hang up. You now look like someone who disputes numbers, which is worse than polling badly in them." } } },
+    { "label": { "fr": "Payer votre propre sondage", "en": "Pay for your own poll" },
+      "when": { "minMoney": 45000 },
+      "effects": { "money": -35000, "standing": 4, "notoriete": 1, "popularity": 2 },
+      "result": { "fr": "Vos chiffres sont meilleurs que les leurs, ce qui n'étonne personne puisque c'est vous qui avez écrit les questions. Ils circulent quand même.",
+                  "en": "Your numbers are better than theirs, which surprises nobody since you wrote the questions. They circulate all the same." } },
+    { "label": { "fr": "Accepter le verdict et travailler la notoriété", "en": "Accept the verdict and work on your name" },
+      "effects": { "notoriete": 1, "popularity": 3, "standing": -1, "energie": -1 },
+      "result": { "fr": "Six mois de radios locales et de fêtes de village. Au sondage suivant, on ne pourra plus écrire que personne ne vous connaît.",
+                  "en": "Six months of local radio and village fairs. At the next poll, nobody will be able to write that nobody knows you." } }
+  ]
+},
+
+{
+  "id": "investiture_quota",
+  "weight": 3,
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "La liste doit être équilibrée, et l'équilibre se fait toujours sur les places où l'on ne gagne pas. On vous propose la quatrième position dans une circonscription que le parti n'a jamais remportée.",
+    "en": "The list has to be balanced, and balance is always struck in the places nobody wins. They offer you fourth position in a seat the party has never taken."
+  },
+  "choices": [
+    { "label": { "fr": "Accepter la circonscription perdue d'avance", "en": "Take the unwinnable seat" },
+      "effects": { "standing": 4, "notoriete": 1, "popularity": 2, "energie": -2, "reputation": 1 },
+      "result": { "fr": "Vous perdez de vingt points, ce qui était prévu, et vous en reprenez six, ce qui ne l'était pas. On s'en souviendra la prochaine fois.",
+                  "en": "You lose by twenty points, which was expected, and claw back six, which was not. That will be remembered next time." } },
+    { "label": { "fr": "Refuser et le faire savoir", "en": "Refuse it, and let it be known" },
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "standing": 0.05 }, "dice": 16 },
+      "success": { "effects": { "standing": 3, "notoriete": 2, "popularity": 4, "reputation": 1 },
+        "result": { "fr": "Votre refus fait une demi-page. La direction découvre que vous écarter coûte plus cher que vous investir.",
+                    "en": "Your refusal fills half a page. The leadership discovers that setting you aside costs more than nominating you." } },
+      "failure": { "effects": { "standing": -9, "popularity": -3, "reputation": -1 },
+        "result": { "fr": "Personne ne reprend l'information et la place est pourvue le lendemain. Vous avez refusé la seule chose qu'on vous proposait.",
+                    "en": "Nobody picks the story up and the slot is filled the next day. You turned down the only thing on offer." } } },
+    { "label": { "fr": "Négocier autre chose contre votre retrait", "en": "Trade your withdrawal for something else" },
+      "effects": { "standing": 5, "reseau": 1, "reputation": -1 },
+      "result": { "fr": "Vous vous retirez proprement, contre une place au bureau national dont personne ne connaît les attributions. Vous les découvrirez, elles sont réelles.",
+                  "en": "You withdraw cleanly, in exchange for a seat on the national board whose remit nobody can define. You will find out; it is real." } }
+  ]
+},
+
+{
+  "id": "investiture_courant",
+  "weight": 3,
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "Votre dossier est bon, et il est mort en commission parce que vous n'appartenez à aucun des trois courants qui se partagent le parti. Les trois vous l'ont dit gentiment, séparément, le même jour."
+    ,
+    "en": "Your file is good, and it died in committee because you belong to none of the three factions that share the party. All three told you so kindly, separately, on the same day."
+  },
+  "choices": [
+    { "label": { "fr": "Rejoindre le courant le mieux placé", "en": "Join the strongest faction" },
+      "effects": { "standing": 6, "reseau": 1, "reputation": -2, "popularity": -2 },
+      "result": { "fr": "Vous signez leur texte sans en avoir relu le troisième paragraphe. Vous êtes désormais de quelque part, ce qui vaut mieux que d'avoir raison.",
+                  "en": "You sign their motion without rereading the third paragraph. You are from somewhere now, which is worth more than being right." } },
+    { "label": { "fr": "Monter votre propre courant", "en": "Start a faction of your own" },
+      "roll": { "base": 17, "stat": "charisme", "plus": { "eloquence": 0.4, "reseau": 0.3 }, "dice": 16 },
+      "success": { "effects": { "standing": 8, "notoriete": 1, "energie": -2, "reseau": 2 },
+        "result": { "fr": "Onze élus signent, dont deux qui comptent. Les trois courants deviennent quatre, et l'on vient désormais vous demander votre avis avant les commissions.",
+                    "en": "Eleven elected members sign, two of whom matter. Three factions become four, and people now ask your view before committees meet." } },
+      "failure": { "effects": { "standing": -7, "energie": -2, "reputation": -1 },
+        "result": { "fr": "Quatre signatures, dont la vôtre. Le texte circule une semaine et sert surtout à montrer qui ne vous suit pas.",
+                    "en": "Four signatures, including your own. The motion circulates for a week and mostly serves to show who is not with you." } } },
+    { "label": { "fr": "Rester sans étiquette et attendre l'arbitrage", "en": "Stay unaligned and wait to be the compromise" },
+      "effects": { "standing": 2, "reputation": 2, "energie": 1 },
+      "result": { "fr": "Vous ne devez rien à personne, ce qui ne sert à rien tant que les trois s'entendent. Ils ne s'entendront pas toujours.",
+                  "en": "You owe nobody anything, which is useless for as long as the three agree. They will not always agree." } }
+  ]
+},
+
+{
+  "id": "investiture_attente",
+  "weight": 3,
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "Troisième commission, troisième « pas encore ». On ne vous reproche rien, on ne vous promet rien, et l'on vous répète que votre tour viendra sans jamais dire quand.",
+    "en": "Third committee, third “not yet”. Nothing is held against you, nothing is promised to you, and you are told your turn will come without anyone saying when."
+  },
+  "choices": [
+    { "label": { "fr": "Prendre les dossiers dont personne ne veut", "en": "Take the files nobody wants" },
+      "effects": { "standing": 4, "energie": -2, "eloquence": 1 },
+      "result": { "fr": "Le rapport sur les normes comptables des syndicats intercommunaux vous prend quatre mois. Personne ne le lira, tout le monde saura que vous l'avez fait.",
+                  "en": "The report on the accounting rules of inter-municipal boards takes you four months. Nobody will read it; everyone will know you wrote it." } },
+    { "label": { "fr": "Poser un ultimatum à la direction", "en": "Give the leadership an ultimatum" },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "standing": 0.06 }, "dice": 16 },
+      "success": { "effects": { "standing": 7, "sangfroid": 1, "reputation": 1 },
+        "result": { "fr": "Vous dites que c'est la dernière fois que vous le demandez. Le silence dans la pièce vous apprend que quelqu'un vous a enfin pris au sérieux.",
+                    "en": "You say this is the last time you will ask. The silence in the room tells you somebody has finally taken you seriously." } },
+      "failure": { "effects": { "standing": -10, "reputation": -1, "popularity": -2 },
+        "result": { "fr": "On vous répond « comme vous voudrez » et l'on passe au point suivant de l'ordre du jour. C'était votre dernière carte et elle ne valait rien.",
+                    "en": "They answer “as you wish” and move to the next item on the agenda. That was your last card and it was worth nothing." } } },
+    { "label": { "fr": "Se faire élire à un poste interne sans intérêt", "en": "Get yourself elected to a dull internal post" },
+      "effects": { "standing": 3, "reseau": 1, "energie": -1, "popularity": -1 },
+      "result": { "fr": "Secrétaire à la vie fédérale. Le titre fait sourire et donne accès à la liste complète des adhérents, avec les numéros de téléphone.",
+                  "en": "Secretary for federation affairs. The title raises smiles and gives you the full membership list, phone numbers included." } }
+  ]
+},
 
 {
   "id": "investiture_routine",

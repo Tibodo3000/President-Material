@@ -2,8 +2,8 @@
  * President Material — LES FINS.
  * ============================================================================
  *
- * Une partie se termine toujours d'une des quatre façons prévues par le
- * moteur : victoire, retraite, mort, condamnation. Mais la fin AFFICHÉE
+ * Une partie se termine toujours d'une des cinq façons prévues par le
+ * moteur : victoire, retraite choisie, retrait forcé, mort, condamnation. Mais la fin AFFICHÉE
  * dépend de l'état dans lequel la carrière s'arrête. Gagner l'Élysée sans
  * s'être sali les mains n'est pas la même histoire que le gagner avec une
  * caisse noire dans le dos, et le jeu doit le dire.
@@ -140,6 +140,67 @@ const ENDING_DATA = [
     "text": {
       "fr": "La mort vous rattrape avant l'Élysée. Les hommages sont unanimes, comme toujours quand il est trop tard.",
       "en": "Death catches you before the palace does. The tributes are unanimous, as they always are once it is too late."
+    }
+  },
+
+  /* ---------- Retraits forcés ---------- */
+  /*
+   * On ne part pas toujours quand on veut. Ces fins sont celles qu'on subit :
+   * le corps, la mémoire, ou un entourage qui a décidé pour vous. Les cas
+   * particuliers d'abord, la sortie ordinaire en dernier.
+   */
+
+  {
+    "id": "senilite",
+    "from": "withdrawal",
+    "when": { "minAge": 76 },
+    "title": { "fr": "Le nom qui ne revient pas", "en": "The name that will not come" },
+    "text": {
+      "fr": "En direct, vous cherchez un mot que vous avez prononcé mille fois. Le silence dure trois secondes de trop. Le soir même, votre camp explique que vous alliez de toute façon passer la main.",
+      "en": "On live television you reach for a word you have said a thousand times. The silence runs three seconds too long. By evening your own side is explaining that you were stepping back anyway."
+    }
+  },
+
+  {
+    "id": "usure",
+    "from": "withdrawal",
+    "when": { "stat": { "energie": { "max": 3 } } },
+    "title": { "fr": "À bout de forces", "en": "Running on empty" },
+    "text": {
+      "fr": "Vous avez tenu le rythme jusqu'au jour où le corps a refusé de se lever. Les médecins parlent de repos, l'appareil parle de transition, et les deux mots veulent dire la même chose.",
+      "en": "You kept the pace until the morning your body refused to get up. The doctors call it rest, the party calls it a transition, and both words mean the same thing."
+    }
+  },
+
+  {
+    "id": "sante_fragile",
+    "from": "withdrawal",
+    "when": { "flag": { "frailHealth": true } },
+    "title": { "fr": "Sur avis médical", "en": "On doctor's orders" },
+    "text": {
+      "fr": "Le communiqué tient en quatre lignes et ne dit pas la maladie. Il n'aura fallu qu'une nuit d'hôpital pour que tout le monde, y compris vous, comprenne que c'était fini.",
+      "en": "The statement runs to four lines and never names the illness. One night in hospital was enough for everyone, yourself included, to understand it was over."
+    }
+  },
+
+  {
+    "id": "poussee_dehors",
+    "from": "withdrawal",
+    "when": { "minStanding": 55 },
+    "title": { "fr": "La sortie organisée", "en": "The managed exit" },
+    "text": {
+      "fr": "On vous laisse annoncer vous-même ce qui avait été décidé sans vous. Les hommages commencent avant la fin de votre phrase, ce qui prouve qu'ils étaient écrits.",
+      "en": "They let you announce yourself what had already been decided without you. The tributes start before your sentence ends, which proves they were written in advance."
+    }
+  },
+
+  {
+    "id": "withdrawal",
+    "from": "withdrawal",
+    "title": { "fr": "Retrait de la vie publique", "en": "Withdrawal from public life" },
+    "text": {
+      "fr": "Vous ne renoncez pas, on renonce pour vous. La carrière s'arrête au milieu d'une phrase, et le pays passe à autre chose avant la fin de la semaine.",
+      "en": "You do not give up; it is given up for you. The career stops mid-sentence, and the country has moved on before the week is out."
     }
   },
 

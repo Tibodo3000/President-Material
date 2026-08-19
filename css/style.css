@@ -32,6 +32,33 @@
   --amber: #cf9455;
   --red: #d16a72;
 
+  /* ------------------------------------------------------------------
+     LES SIX COULEURS
+     ------------------------------------------------------------------
+     Un parti sans couleur est un parti qu'on ne reconnaît pas : les six
+     barres du rapport de force étaient identiques, et il fallait lire les
+     noms pour savoir qui montait. Chaque camp porte donc sa teinte, choisie
+     dans le registre où la vie politique française les range elle-même.
+
+     Elles sont calibrées pour tenir sur le bleu nuit sans le trouer :
+     saturation moyenne, clarté élevée, aucune ne rivalise avec l'or, qui
+     reste réservé au joueur. La lueur est la même couleur très diluée, pour
+     teinter le fond de la page aux couleurs de son camp.
+     ------------------------------------------------------------------ */
+  --p-radical_left: #e0596a;
+  --p-socdem: #e07ba0;
+  --p-centrists: #dda149;
+  --p-liberals: #4fbfb4;
+  --p-conservatives: #6189d8;
+  --p-identitarians: #a97a55;
+
+  --glow-radical_left: rgba(224, 89, 106, 0.23);
+  --glow-socdem: rgba(224, 123, 160, 0.23);
+  --glow-centrists: rgba(221, 161, 73, 0.22);
+  --glow-liberals: rgba(79, 191, 180, 0.22);
+  --glow-conservatives: rgba(97, 137, 216, 0.23);
+  --glow-identitarians: rgba(169, 122, 85, 0.23);
+
   /* Typographies */
   --font-display: "Fraunces", Georgia, "Times New Roman", serif;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -54,7 +81,8 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   background-image:
-    radial-gradient(ellipse 65% 42% at 50% -8%, rgba(201, 162, 75, 0.11), transparent 70%),
+    radial-gradient(ellipse 70% 46% at 50% -6%, var(--party-glow, rgba(201, 162, 75, 0.11)), transparent 72%),
+    radial-gradient(ellipse 90% 30% at 50% 104%, var(--party-glow, rgba(201, 162, 75, 0.11)), transparent 70%),
     linear-gradient(180deg, #0a0e19 0%, var(--bg) 50%);
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -1260,7 +1288,7 @@ body {
 .force-party { font-size: 0.78rem; font-weight: 600; color: var(--ink); }
 
 /* Le camp du joueur se repère d'un coup d'œil. */
-.force-row.is-mine .force-party { color: var(--gold-2); }
+.force-row.is-mine .force-party { color: var(--tint, var(--gold-2)); }
 
 .force-tag {
   margin-left: 0.35rem;
@@ -1313,7 +1341,8 @@ body {
   background: linear-gradient(90deg, var(--blue), var(--gold));
 }
 
-.force-row.is-mine .force-fill { background: linear-gradient(90deg, var(--gold), var(--gold-2)); }
+/* L'or du parti du joueur est parti avec le code couleur : voir plus bas,
+   « LE CAMP DU JOUEUR ». L'or ne désigne plus que la personne. */
 
 .force-person {
   display: grid;
@@ -1389,9 +1418,15 @@ body {
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Le pays en or, l'appareil en bleu : les deux camps à convaincre. */
+/* Le pays en or, l'appareil aux couleurs de l'appareil : la cote au parti
+   est littéralement ce que ce parti-là pense de vous, elle porte donc sa
+   teinte et change quand on change de camp. */
 .gauge-fill-pop { background: linear-gradient(90deg, var(--gold-dim), var(--gold-2)); }
-.gauge-fill-standing { background: linear-gradient(90deg, rgba(109, 143, 212, 0.5), var(--blue)); }
+.gauge-fill-standing {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--party, var(--blue)) 45%, transparent),
+    var(--party, var(--blue)));
+}
 
 /* ---------- Carte d'événement ---------- */
 
@@ -1435,6 +1470,15 @@ body {
 }
 
 .event-result { color: var(--muted); font-style: italic; }
+
+/* Ce qui se joue sur une carte d'investiture : posé avant la scène, plus
+   discret qu'elle, pour qu'on sache de quel siège on parle. */
+.nomination-stake {
+  color: var(--muted);
+  border-left: 2px solid var(--line);
+  padding-left: 0.9rem;
+  margin-bottom: 1rem;
+}
 
 .event-choices { display: grid; gap: 0.6rem; }
 
@@ -1647,9 +1691,8 @@ body {
 /* Le joueur ressort en or */
 .poll-row.is-player .poll-name { color: var(--gold-2); font-weight: 600; }
 .poll-row.is-player .poll-share { color: var(--gold-2); font-weight: 700; }
-.poll-row.is-player .poll-fill {
-  background: linear-gradient(90deg, var(--gold-dim), var(--gold-2));
-}
+/* La barre porte le parti, le nom porte la personne : dans un dépouillement,
+   on lit d'abord les couleurs des camps. */
 
 @media (max-width: 560px) {
   .poll-row { grid-template-columns: minmax(0, 6.5rem) 1fr 2.2rem; }
@@ -1925,4 +1968,90 @@ body {
   width: 2px;
   background: var(--gold-2);
   opacity: 0.85;
+}
+
+
+/* ==========================================================================
+   LE CAMP DU JOUEUR
+   ==========================================================================
+   Le moteur pose data-party sur <body> ; tout ce qui suit en découle. La
+   page entière prend la teinte du camp, et --party sert de couleur d'accent
+   partout où l'on parle de « votre » parti.
+   ========================================================================== */
+
+body[data-party="radical_left"]  { --party-glow: var(--glow-radical_left);  --party: var(--p-radical_left); }
+body[data-party="socdem"]        { --party-glow: var(--glow-socdem);        --party: var(--p-socdem); }
+body[data-party="centrists"]     { --party-glow: var(--glow-centrists);     --party: var(--p-centrists); }
+body[data-party="liberals"]      { --party-glow: var(--glow-liberals);      --party: var(--p-liberals); }
+body[data-party="conservatives"] { --party-glow: var(--glow-conservatives); --party: var(--p-conservatives); }
+body[data-party="identitarians"] { --party-glow: var(--glow-identitarians); --party: var(--p-identitarians); }
+
+/* ---------- Le rapport de force ---------- */
+
+/* Chaque camp tient sa barre, LE VÔTRE COMPRIS. Le dégradé va du dilué au
+   plein dans la même teinte : mélanger vers le noir salissait la couleur, et
+   l'ambre des centristes en ressortait marron.
+
+   L'or ne désigne plus un parti mais une personne : vous. Un parti rose dont
+   la barre était jaune parce que c'était le vôtre, cela ne se lisait pas. */
+.force-fill {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--tint, var(--line-2)) 45%, transparent),
+    var(--tint, var(--line-2)));
+}
+
+/* Une pastille devant le nom du parti : elle survit au daltonisme mieux
+   qu'une nuance de barre, et elle range la colonne. */
+.force-party::before,
+.poll-name::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  margin-right: 0.45rem;
+  vertical-align: baseline;
+  background: var(--tint, var(--line-2));
+}
+
+/* Le nom du camp porte la couleur du camp, y compris le vôtre. L'or est
+   réservé à votre nom à vous, une ligne plus bas. */
+.force-row.is-mine .force-party { color: var(--tint, var(--gold-2)); }
+
+/* ---------- Les sondages de campagne ---------- */
+
+.poll-fill {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--tint, var(--line-2)) 45%, transparent),
+    var(--tint, var(--line-2)));
+}
+
+/* ---------- Le choix du parti ---------- */
+
+.party-face { border-left: 3px solid transparent; transition: border-color var(--transition); }
+.party-row .party-name::before {
+  content: "";
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  background: var(--tint, var(--line-2));
+}
+.party-row input:checked + .party-face { border-left-color: var(--tint, var(--gold)); }
+.party-row input:checked + .party-face .party-name { color: var(--tint, var(--gold-2)); }
+
+.sheet-party-name { color: var(--tint, var(--ink)); }
+
+/* ---------- La fiche du joueur ---------- */
+
+/* Le nom du camp, sous le nom du candidat. */
+.sheet-meta-party { color: var(--party, var(--gold)); font-weight: 600; }
+
+
+/* Un filet de couleur sous l'en-tête : c'est peu, et c'est ce qui fait que la
+   page appartient visiblement à un camp dès le premier coup d'œil. */
+body[data-party] .site-header,
+body[data-party] .topbar {
+  border-bottom: 1px solid color-mix(in srgb, var(--party, var(--gold)) 45%, transparent);
 }

@@ -11,7 +11,10 @@
  * LES CHIFFRES SONT CEUX DU RÉEL
  * ----------------------------------------------------------------------------
  * Un député gagne environ 91 000 € par an, un maire de ville moyenne autour
- * de 45 000 €, un militant vit de son métier. Un député européen et un
+ * de 45 000 €, un militant vit de son métier et un permanent de parti est
+ * payé par son parti, autour de 39 000 €. Le Premier ministre est à un peu
+ * plus de 15 000 € par mois, soit le double d'un député et le tiers de ce
+ * qu'il gagnerait dans le privé, ce qu'il rappelle volontiers. Un député européen et un
  * ministre tournent tous les deux autour de 10 000 € par mois, ce qui est
  * l'une des rares choses que le public devine à peu près juste. Entre les
  * cotisations, l'impôt et la vie courante, un peu plus de la moitié de ce qui
@@ -40,6 +43,7 @@
  *                       pour chacun :
  *                         "cost"      dépense annuelle
  *                         "hold"      part de la baisse d'une jauge évitée
+ *                         "nerve"     part d'un pari perdu qui ne se paie pas
  *                         "protect"   part de risque judiciaire évitée
  *
  * Le joueur monte et descend ces paliers quand il veut, dans l'onglet Budget.
@@ -52,12 +56,14 @@ const BUDGET_DATA = {
 
   "salaries": {
     "militant": 30000,
+    "cadre": 39000,
     "conseiller": 34000,
     "maire": 45000,
     "euro": 121000,
     "depute": 91000,
     "ministre": 125000,
-    "chef": 110000
+    "chef": 110000,
+    "premier": 182000
   },
 
   "lifestyle_rate": 0.52,
@@ -81,11 +87,11 @@ const BUDGET_DATA = {
       "levels": [
         { "name": { "fr": "Aucune", "en": "None" }, "cost": 0 },
         { "name": { "fr": "Un attaché de presse à mi-temps", "en": "A part-time press officer" },
-          "cost": 32000, "hold": { "popularity": 0.22 } },
+          "cost": 32000, "hold": { "popularity": 0.22 }, "nerve": 0.14 },
         { "name": { "fr": "Un attaché de presse et un community manager", "en": "A press officer and a community manager" },
-          "cost": 68000, "hold": { "popularity": 0.42 } },
+          "cost": 68000, "hold": { "popularity": 0.42 }, "nerve": 0.3 },
         { "name": { "fr": "Une agence de communication", "en": "A communications agency" },
-          "cost": 150000, "hold": { "popularity": 0.62 } }
+          "cost": 150000, "hold": { "popularity": 0.62 }, "nerve": 0.45 }
       ]
     },
 

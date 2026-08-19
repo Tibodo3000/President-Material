@@ -112,7 +112,7 @@ function buildPartyCards() {
   const selected = selectedParty();
 
   partyGrid.innerHTML = Object.keys(PARTIES).map((key) =>
-    '<label class="party-row">' +
+    '<label class="party-row" style="--tint:var(--p-' + key + ')">' +
       '<input type="radio" name="party" value="' + key + '"' +
         (key === selected ? " checked" : "") + ">" +
       '<span class="party-face">' +
@@ -151,6 +151,9 @@ function renderPartyPanel() {
   const party = PARTIES[key];
 
   document.getElementById("sheet-party-name").textContent = t("party_" + key);
+  // La fiche de droite prend la couleur du camp qu'on est en train de choisir.
+  document.body.dataset.party = key;
+  document.getElementById("sheet-party-name").style.setProperty("--tint", "var(--p-" + key + ")");
 
   document.getElementById("sheet-axes").innerHTML = AXES.map((axis) => {
     const value = party.axes[axis];

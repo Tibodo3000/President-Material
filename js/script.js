@@ -41,12 +41,18 @@ const translations = {
     year_label: "Année",
 
     pos_militant: "Militant",
+    pos_cadre: "Cadre du parti",
     pos_conseiller: "Conseiller municipal",
     pos_maire: "Maire",
     pos_euro: "Député européen",
+    // Voir la note côté anglais : les deux dictionnaires portent la clé pour
+    // qu'ils restent symétriques, même là où le français n'en a pas besoin.
+    pos_euro_low: "député européen",
     pos_depute: "Député",
     pos_ministre: "Ministre",
     pos_chef: "Chef du parti",
+    pos_premier: "Premier ministre",
+    pos_premier_low: "Premier ministre",
     pos_president: "Président de la République",
 
     elec_municipales: "Municipales",
@@ -76,6 +82,7 @@ const translations = {
     budget_next: "Palier suivant :",
     budget_fx_hold: "baisse ralentie de",
     budget_fx_protect: "Risque judiciaire évité",
+    budget_fx_nerve: "Pari perdu amorti de",
     force_ruling: "Au pouvoir",
     force_ally: "Allié",
     fx_join: "Vous rejoignez",
@@ -83,6 +90,7 @@ const translations = {
     age_short: "ans",
     president_vacant: "Vacant",
     label_poll: "Intentions de vote",
+    label_poll_before: "Ce que disent les sondages aujourd'hui",
     label_poll_short: "Sondage",
     label_campaign: "Campagne présidentielle",
     draw_tag: "Avant de commencer",
@@ -309,6 +317,7 @@ const translations = {
     stat_energie: "Énergie",
     stat_sangfroid: "Sang froid",
     stat_reseau: "Réseau",
+    stat_credibilite: "Crédibilité",
     stat_notoriete: "Notoriété",
     stat_reputation: "Réputation",
 
@@ -347,12 +356,18 @@ const translations = {
     year_label: "Year",
 
     pos_militant: "Activist",
+    pos_cadre: "Party official",
     pos_conseiller: "Local councillor",
     pos_maire: "Mayor",
     pos_euro: "Member of the European Parliament",
+    // La minuscule ne s'obtient pas en abaissant tout : le Parlement européen
+    // garde ses majuscules. Voir fillMarks().
+    pos_euro_low: "member of the European Parliament",
     pos_depute: "Member of Parliament",
     pos_ministre: "Minister",
     pos_chef: "Party leader",
+    pos_premier: "Prime Minister",
+    pos_premier_low: "prime minister",
     pos_president: "President",
 
     elec_municipales: "Local elections",
@@ -382,6 +397,7 @@ const translations = {
     budget_next: "Next tier:",
     budget_fx_hold: "decline slowed by",
     budget_fx_protect: "Legal risk avoided",
+    budget_fx_nerve: "Failed gamble cushioned by",
     force_ruling: "In office",
     force_ally: "Allied",
     fx_join: "You join",
@@ -389,6 +405,7 @@ const translations = {
     age_short: "yrs",
     president_vacant: "Vacant",
     label_poll: "Voting intentions",
+    label_poll_before: "What the polls say today",
     label_poll_short: "Poll",
     label_campaign: "Presidential campaign",
     draw_tag: "Before you begin",
@@ -615,6 +632,7 @@ const translations = {
     stat_energie: "Energy",
     stat_sangfroid: "Composure",
     stat_reseau: "Network",
+    stat_credibilite: "Credibility",
     stat_notoriete: "Fame",
     stat_reputation: "Reputation",
 
