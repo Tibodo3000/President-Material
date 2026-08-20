@@ -1,0 +1,232 @@
+# Content authoring
+
+The schemas for everything you can add without touching engine code. Keep this open while
+writing content. Each data file also carries its own long header — read it; it encodes the
+balance intent.
+
+The golden rule everywhere: **every player-facing string is `{ "fr": "...", "en": "..." }`**
+(read by `L()`), and **no raw gauge numbers appear in prose**.
+
+---
+
+## Adding an EVENT — [events.data.js](../js/events.data.js)
+
+`EVENT_DATA` has four decks. Pick the right one:
+
+| Deck | When it's drawn | Special fields |
+|------|-----------------|----------------|
+| `events` | Ordinary turns (160 events) | the full schema below |
+| `campaign` | During a presidential campaign (13) | effects can use `poll`; bigger swings |
+| `nomination` | When the party refuses to nominate you (10) | rewards `standing` different ways |
+| `races` | Steps of an ordinary election campaign (15) | effects use `score`; `race: [...]`, `last: true` |
+
+### Event shape
+```jsonc
+{
+  "id": "unique_id",              // required, unique across the deck
+  "weight": 2,                    // draw weight (default 2). 0 = chains only, never random
+  "once": true,                   // play at most once (default for non-repeatable anyway)
+  "repeatable": true,             // may return; only these fill "quiet turns"
+  "cast": "opponent",             // who {rival} is (see below)
+  "delay": [2, 4],                // if used as a chain target: fire 2–4 turns after scheduling
+  "when": { ... },                // appearance conditions (see below)
+  "tag":  { "fr": "...", "en": "..." },   // small category label
+  "text": { "fr": "...", "en": "..." },   // the situation
+  "choices": [ ... ]              // at least one must be unconditional
+}
+```
+
+### `cast` — who `{rival}` refers to
+`"opponent"` (a figure from another party) · `"leader"` (another party's chief) ·
+`"camp"` (someone from your own party) · `"camp_senior"` (a weighty figure from your camp,
+for internal-nomination fights) · *absent* (anyone). The figure is fixed when the card is
+drawn, so the name is stable across question, result, and effects.
+
+### `when` — every condition (all must hold)
+```jsonc
+"party": ["radical_left","socdem"]     "position": ["maire","depute"]
+"origin": ["bourgeois"]                "background": ["business"]
+"personality": ["provocative"]
+"minAge": 55,  "maxAge": 70            "minTurn": 10,  "maxTurn": 40
+"minPopularity": 60, "maxPopularity": 30
+"minStanding": 60,   "maxStanding": 30
+"minMoney": 200000,  "maxMoney": 5000
+"stat": { "notoriete": { "min": 6 }, "energie": { "max": 4 } }   // remember: 0..20 scale
+"flag": { "dirtyMoney": true, "onTrial": false }
+"trait": ["orateur","teflon"]          // ALL of these traits
+"anyTrait": ["zozote","voix"]          // AT LEAST ONE
+"notTrait": ["renegat"]                // NONE of these
+"ruling": true                         // your camp governs
+"allied": false                        // you have a pact
+"minShare": 18                         // your camp's national weight, in points
+"rulingClose": true                    // a *neighbouring* camp governs (not yours)
+"legal": 1,  "comms": 2                // minimum budget-post level reached
+```
+
+### `choices` — two forms
+
+**Certain choice:**
+```jsonc
+{ "label": {...}, "effects": { ... }, "result": {...},
+  "when": { "minMoney": 200000 } }    // optional: a conditional choice (shown with a ◆)
+```
+
+**Uncertain choice (a roll):**
+```jsonc
+{ "label": {...},
+  "roll": {
+    "base": 12,                        // (or "difficulty") the target to beat
+    "stat": "charisme",                // main stat, weight 1 (goes through statScore)
+    "plus": { "eloquence": 0.5, "popularity": 0.06, "standing": 0.04, "money": 0.5 },
+    "bonus": [ { "when": {...}, "value": 2 } ],   // conditional flat bonuses
+    "dice": 6                          // random amplitude (default 6)
+  },
+  "success": { "effects": {...}, "result": {...} },
+  "failure": { "effects": {...}, "result": {...} } }
+```
+
+**Fixed-probability roll** instead of a composite score:
+```jsonc
+"roll": { "chance": 0.5, "chanceBonus": [ { "when": { "minStanding": 60 }, "value": 0.2 } ] }
+```
+
+A branch may also carry `effectsIf: [ { "when": {...}, "effects": {...} } ]` — extra
+effects that apply only in some situations (an arrangement passes unnoticed for a
+calculator, ruins someone with an integrity reputation).
+
+### `effects` — every effect type (all optional)
+```jsonc
+"charisme" / "eloquence" / … / "credibilite"   // stat deltas, clamped 0..20
+"popularity" / "standing"                       // gauge deltas, clamped 0..100
+"money": 80000                                  // euros
+"poll": 5           // presidential campaign only — moves voting intentions
+"score": 4          // ordinary race only — moves the hidden campaign advantage
+"flags": { "dirtyMoney": true }                 // set/clear a flag
+"trait": "orateur"                              // gain a trait (applies its stats)
+"strike": "menteur"                             // one strike toward a multi-strike mark
+"untrait": "lache"                              // remove a trait
+"chain": "event_id"   or   ["id_a","id_b"]      // schedule follow-up(s)
+"landscape": { "self": 2, "scene": -2 }         // shift vote share; targets:
+                                                //   self, scene, ruling, ally, or a party key
+"office": "ministre"                            // grant an office (no election)
+"office": "none"                                // leave office → officeAfterDefeat() decides
+"join": "scene"                                 // switch parties
+"alliance": "scene"   or   null                 // sign / break a pact
+"end": "conviction"                             // end the game with this type
+```
+
+### Text placeholders
+`{rival}` = staged figure's name (first mention adds party+office), `{rival_party}` =
+their party, `{party}` = yours. **Gender agreement marks** for the staged figure (resolved
+by `fillGender`): FR `{il}{le}{lui}{celui}{un}{e}`, EN `{he}{him}{his}`. Capitalize the
+mark to capitalize the output: `{Le} soutenir`.
+
+---
+
+## Adding a TRAIT — [traits.data.js](../js/traits.data.js)
+
+```jsonc
+"trait_id": {
+  "family": "physique",          // caractere|physique|talent|appareil|reputation|affaires
+  "kind": "asset",               // "asset" (good) or "mark" (bad) — sets the color
+  "core": true,                  // chosen at creation; never drawn/lost/counted in the draw
+  "birth": 5,                    // draw weight at birth (absent = never drawn)
+  "axis": "apparence",           // birth traits are drawn once PER AXIS, independently
+  "strikes": 3,                  // times an event must "strike" before it sticks
+  "requiresParty": ["radical_left","identitarians"],   // only for (ex-)members of these
+  "label": { "fr": "...", "en": "..." },
+  "desc":  { "fr": "...", "en": "..." },
+  "stats": { "eloquence": 2 },   // permanent stat mods, applied on gain / reclaimed on loss
+  "target": { "popularity": 4, "standing": -3 },       // shifts gauge targets
+  "partyTarget": { "conservatives": { "standing": -6 } }, // party-dependent target shift
+  "energy": 2,                   // shifts the energy ceiling
+  "rejection": 0.08,             // second-round voters who refuse you (0.08 = 8 points)
+  "soften": 0.45,                // damps bad popularity news (0..1)
+  "income": 14000,               // hidden euros per turn
+  "risk": { "p": 0.05, "chain": "enquete_ouverte" },   // per-turn chance to trigger a chain
+  "blocks": ["intouchable"]      // incompatible traits removed when this is gained
+}
+```
+
+**Writing rules (from the header):** one or two mods, each justifiable in a clause; never
+add a malus "to balance" — balance happens *at the draw*. A trait must open/close event
+doors, not just move numbers. A trait says what a person *is* ("orator", "heavyset"), not
+where they are in a network. The body is a subject of satire toward how politics treats
+bodies, never of the bodies themselves.
+
+---
+
+## Adding a PARTY — [data.js](../js/data.js) `PARTIES`
+
+```jsonc
+"party_key": {
+  "axes": { "social": -85, "world": -70, "economy": -90, "power": -65 },  // each −100..+100
+  "difficulty": 4,               // 1 (easy road to power) .. 5 (near impossible)
+  "fit": {                       // compatibility with each origin & background; summed
+    "modest": +3, "middle": +1, "bourgeois": -3, "dynasty": -1,
+    "activism": +4, "journalism": +1, /* … all backgrounds … */ "celebrity": -2
+  }
+}
+```
+
+Axes: `social` (progressivism↔conservatism), `world` (internationalism↔nationalism),
+`economy` (socialism↔capitalism), `power` (authoritarianism↔laissez-faire). Fit combines
+three logics: **class** (anti-capitalist parties distrust wealth), **establishment** (a
+dynasty is welcome in governing parties, resented by anti-system ones — left or right),
+and **trade** (activism ↔ movement parties, business ↔ market parties, etc.).
+
+Also add: a color `--p-party_key` in [style.css](../css/style.css), and the full set of
+translation keys in [script.js](../js/script.js): `party_key`, `party_of_key`,
+`party_the_key`, `party_key_desc` (the FR article forms are all needed).
+
+---
+
+## Adding an ENDING — [endings.data.js](../js/endings.data.js)
+
+An ordered list; the **first** entry matching `from` + `when` wins, so put special cases
+before the plain fallback that closes each family.
+```jsonc
+{ "id": "irreprochable",
+  "from": "victory",             // engine end type: victory|retire|withdrawal|death|conviction
+  "when": { "notTrait": ["caisse_noire"], "stat": { "reputation": { "min": 14 } },
+            "flag": { "dirtyMoney": false } },   // same `when` grammar as events, plus trait/notTrait
+  "title": { "fr": "...", "en": "..." },
+  "text":  { "fr": "...", "en": "..." } }
+```
+
+---
+
+## Adding a BUDGET post/tier — [budget.data.js](../js/budget.data.js)
+
+Under `investments`, each post has ordered `levels` (level 0 = "none"):
+```jsonc
+"communication": {
+  "label": {...}, "desc": {...},
+  "levels": [
+    { "name": {...}, "cost": 0 },
+    { "name": {...}, "cost": 32000, "hold": { "popularity": 0.22 }, "nerve": 0.14 },
+    { "name": {...}, "cost": 68000, "hold": { "popularity": 0.42 }, "nerve": 0.30 }
+  ]
+}
+```
+`hold` slows a gauge's decay, `nerve` cushions failed gambles, `protect` absorbs legal
+risk. Reference a post's level in event `when` via `legal` / `comms`. Numbers should be
+real-world plausible — "if an amount surprises, it's wrong."
+
+---
+
+## Adding NAMES — [names.data.js](../js/names.data.js)
+
+`NAME_DATA` holds `female`, `male`, `surnames`, `surnames_particle`, and `rates`
+(`particle`, `double` — probabilities 0..1 for the two rare surname forms). Pure lists;
+add/remove freely. No full name of a real public figure — a resemblance breaks immersion.
+
+---
+
+## Adding a translation KEY — [script.js](../js/script.js)
+
+For static HTML strings, add a key under both `fr` and `en` in `translations`, and
+reference it with `data-i18n="key"` in HTML (or `data-i18n-placeholder` / `-title` /
+`-aria` for attributes). A missing key logs a `[i18n]` console warning and leaves the HTML
+text in place. Content-file prose does **not** use dictionary keys — it uses inline
+`{ fr, en }` objects read by `L()`.
