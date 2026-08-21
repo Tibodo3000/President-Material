@@ -90,6 +90,8 @@ State is handed between pages through `localStorage`, not a router or framework.
    tier, or names — the reference you'll actually keep open while writing content.
 5. **[glossary.md](glossary.md)** — A function index: the key functions, what they do,
    and where they live, so you can jump straight to the code.
+6. **[Roadmap.md](Roadmap.md)** — Where the project is headed: planned gameplay systems,
+   infrastructure, UI and tooling, each with codebase-grounded implementation notes.
 
 ---
 
