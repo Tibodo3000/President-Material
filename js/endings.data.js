@@ -122,6 +122,43 @@ const ENDING_DATA = [
 
   /* ---------- Morts ---------- */
 
+  /*
+   * QUAND LE CORPS N'AVAIT RIEN DIT. Ces fins ne se déclenchent que si rien
+   * dans la partie n'annonçait quoi que ce soit : ni santé fragile, ni trait
+   * qui abîme. Une mort qui n'a pas prévenu doit avoir une cause qu'on ne
+   * pouvait pas voir venir, et la vie politique en fournit d'assez bêtes.
+   */
+  {
+    "id": "accident_route",
+    "from": "death",
+    "when": {
+      "flag": { "frailHealth": false },
+      "notTrait": ["fragile", "obese", "use", "declin"],
+      "position": ["maire", "euro", "depute", "ministre", "chef", "premier"],
+      "maxAge": 74
+    },
+    "title": { "fr": "Sur la départementale", "en": "On a country road" },
+    "text": {
+      "fr": "Un retour de réunion publique, une départementale mouillée, un chauffeur qui n'avait pas dormi davantage que vous. Il y aura une minute de silence, un rond-point à votre nom, et un rapport que personne ne lira.",
+      "en": "Driving back from a public meeting, a wet country road, a driver who had slept no more than you had. There will be a minute's silence, a roundabout named after you, and a report nobody reads."
+    }
+  },
+
+  {
+    "id": "accident_betise",
+    "from": "death",
+    "when": {
+      "flag": { "frailHealth": false },
+      "notTrait": ["fragile", "obese", "use", "declin"],
+      "maxAge": 74
+    },
+    "title": { "fr": "Une fin sans grandeur", "en": "An end without grandeur" },
+    "text": {
+      "fr": "Vous mourez comme on meurt vraiment : d'une chose bête, un dimanche, loin de toute caméra. Les hommages parleront de destin et de service de l'État, et aucun ne dira ce qui s'est réellement passé, parce que ce serait ridicule.",
+      "en": "You die the way people actually die: of something stupid, on a Sunday, far from any camera. The tributes will speak of destiny and public service, and none will say what actually happened, because it would sound ridiculous."
+    }
+  },
+
   {
     "id": "en_pleine_gloire",
     "from": "death",
@@ -191,6 +228,17 @@ const ENDING_DATA = [
     "text": {
       "fr": "On vous laisse annoncer vous-même ce qui avait été décidé sans vous. Les hommages commencent avant la fin de votre phrase, ce qui prouve qu'ils étaient écrits.",
       "en": "They let you announce yourself what had already been decided without you. The tributes start before your sentence ends, which proves they were written in advance."
+    }
+  },
+
+  {
+    "id": "encore_vaillant",
+    "from": "withdrawal",
+    "when": { "stat": { "energie": { "min": 8 } } },
+    "title": { "fr": "Trop tôt, et personne pour le dire", "en": "Too soon, and nobody to say it" },
+    "text": {
+      "fr": "Vous n'êtes ni malade ni fatigué, et c'est bien ce qui rend la chose humiliante : on ne vous remplace pas parce que vous n'en pouvez plus, on vous remplace parce qu'il fallait la place. Vous mettrez des années à cesser de refaire la conversation dans votre tête.",
+      "en": "You are neither ill nor tired, and that is exactly what makes it humiliating: they are not replacing you because you are spent, they are replacing you because the seat was needed. It will take years to stop replaying the conversation in your head."
     }
   },
 

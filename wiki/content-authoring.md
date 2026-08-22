@@ -11,14 +11,17 @@ The golden rule everywhere: **every player-facing string is `{ "fr": "...", "en"
 
 ## Adding an EVENT — [events.data.js](../js/events.data.js)
 
-`EVENT_DATA` has four decks. Pick the right one:
+`EVENT_DATA` has seven decks. Pick the right one:
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
 | `events` | Ordinary turns (160 events) | the full schema below |
-| `campaign` | During a presidential campaign (13) | effects can use `poll`; bigger swings |
+| `campaign` | The 6 steps before the first round, when the player runs (20) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
+| `runoff` | The 3 steps between the two rounds (8) | `poll` moves the head-to-head; `cast: "eliminated"` |
+| `support` | The 3 steps of a presidential campaign the player is not in (8) | effects use `score` |
+| `aside` | An ordinary election that happens without the player (varies) | effects use `score` |
 | `nomination` | When the party refuses to nominate you (10) | rewards `standing` different ways |
-| `races` | Steps of an ordinary election campaign (15) | effects use `score`; `race: [...]`, `last: true` |
+| `races` | Steps of an ordinary election campaign (15) | effects use `score`; `race: [...]`, `moment` |
 
 ### Event shape
 ```jsonc
@@ -41,6 +44,39 @@ The golden rule everywhere: **every player-facing string is `{ "fr": "...", "en"
 `"camp"` (someone from your own party) · `"camp_senior"` (a weighty figure from your camp,
 for internal-nomination fights) · *absent* (anyone). The figure is fixed when the card is
 drawn, so the name is stable across question, result, and effects.
+
+Two casts exist only during a presidential election, where the field is known:
+`"minor"` (the smallest candidate of the first round — you do not offer the front-runner the
+deal you offer someone stuck at five per cent) and `"eliminated"` (the biggest of the
+first-round losers, whose voters decide the runoff; `runoff` deck only). With no `cast`, a
+first-round scene talks about whoever leads the poll, and a runoff scene talks about the
+other finalist.
+
+### `moment` — where a scene sits in a campaign
+Campaign decks only (`campaign`, `support`, `races`). A campaign plays out as a handful of
+randomly drawn steps, and randomness cannot read a calendar: without this field, the evening
+of the first round can land before the last weekend of canvassing. `moment` says how close to
+the END of the campaign a scene may appear, at the earliest:
+
+| `moment` | Earliest slot | Typical scene |
+|---------|---------------|---------------|
+| `1` | final step only | "the last evening", "between the two rounds" |
+| `2` | last two steps | "ten days to go" |
+| `3` | last three steps | "three weeks before the vote" |
+
+Lower number = later in time. A dated scene never plays after a later one already has, so the
+calendar only runs forwards. Leave `moment` out for anything undatable: a scandal has no date.
+
+A **pair** closes the window at both ends, for scenes that only make sense early:
+`"moment": [6, 4]` plays between six and four steps from the end, so the five hundred
+mayoral signatures are never collected the night before the vote.
+
+### `required` — a scene that always happens
+Campaign decks only. A presidential election without a big debate does not exist, so the
+debate is not left to the draw. A `required` scene is drawn normally while it still has room;
+nothing that would close its window is allowed to play ahead of it; and once only its own
+slot is left, it plays. Keep it to one or two scenes per deck — beyond that the campaign is
+no longer drawn, it is scripted.
 
 ### `when` — every condition (all must hold)
 ```jsonc

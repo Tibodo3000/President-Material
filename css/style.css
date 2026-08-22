@@ -1133,6 +1133,384 @@ body {
   text-align: right;
 }
 
+/* ---------- Le calendrier électoral, au-dessus de la carte ----------
+
+   UNE FRISE, PAS UNE BOÎTE. La colonne empile déjà la carte du tour, le
+   rapport de force et le journal, tous encadrés : un quatrième cadre en
+   faisait un panneau de plus à trier au lieu d'une information à lire. Le
+   calendrier n'a donc ni bordure ni fond. Il repose sur la page, aligné sur
+   le texte de la carte, et se lit comme l'en-tête de la colonne : voilà ce
+   qui arrive, et dessous, voilà ce qui se passe aujourd'hui. */
+
+.calendar {
+  margin: 0.2rem 0 1.5rem;
+  padding: 0 1.8rem;
+}
+
+.cal-track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+}
+
+.cal-step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-right: 1.1rem;
+}
+
+/* Le fil qui relie une échéance à la suivante, à hauteur des pastilles. */
+.cal-step::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 9px;
+  right: 0;
+  height: 1px;
+  background: var(--line-2);
+}
+
+.cal-step:last-child::after { display: none; }
+
+.cal-mark {
+  width: 7px;
+  height: 7px;
+  margin-bottom: 0.62rem;
+  border: 1.5px solid var(--line-2);
+  border-radius: 50%;
+  background: var(--bg);
+  position: relative;
+  z-index: 1;
+}
+
+.cal-when {
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.cal-name {
+  font-family: var(--font-display);
+  font-size: 0.88rem;
+  color: var(--muted);
+  line-height: 1.25;
+}
+
+
+/* CE QU'ON PRÉPARE. La première échéance est la seule sur laquelle on peut
+   encore agir : elle prend la pastille pleine et la lumière. */
+.cal-step.is-next .cal-mark {
+  border-color: var(--gold);
+  background: var(--gold);
+  box-shadow: 0 0 0 3.5px var(--gold-ghost);
+}
+
+.cal-step.is-next .cal-when { color: var(--gold); }
+.cal-step.is-next .cal-name { color: var(--ink); }
+
+/* L'éloignement se lit sans qu'on ait à l'écrire. */
+.cal-step:nth-child(3) { opacity: 0.72; }
+.cal-step:nth-child(4) { opacity: 0.5; }
+
+
+/* SUR TÉLÉPHONE, ON EN MONTRE DEUX. Quatre échéances en deux rangées
+   poussaient la carte du tour entièrement sous la ligne de flottaison : on
+   ouvrait le jeu sur un agenda au lieu d'une scène. Deux tiennent sur une
+   seule rangée, couvrent déjà deux à trois ans, et laissent la carte à
+   l'écran. Le fil disparaît avec la troisième colonne. */
+@media (max-width: 620px) {
+  .calendar { padding: 0 1.2rem; }
+  .cal-track {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 0.9rem;
+  }
+  .cal-step { padding-right: 0; }
+  .cal-step::after { display: none; }
+  .cal-step:nth-child(n + 3) { display: none; }
+  .cal-step:nth-child(2) { opacity: 0.72; }
+}
+
+
+/* ---------- Les onglets du panneau, et l'hémicycle ---------- */
+
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-tab {
+  flex: 1;
+  padding: 0.75rem 0.6rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: inherit;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+  cursor: pointer;
+  transition: color var(--transition), border-color var(--transition);
+}
+
+.panel-tab:hover { color: var(--muted); }
+
+.panel-tab.is-active {
+  color: var(--gold-2);
+  border-bottom-color: var(--gold);
+}
+
+/* L'EXÉCUTIF, en tête de l'onglet du pouvoir. */
+/* L'EXÉCUTIF.
+
+   Le président tient la place d'un titre, comme la fiche du candidat tient
+   la sienne : surtitre en petites capitales, nom dans la serif, ligne de
+   contexte. Matignon suit sur une ligne, parce que c'est son rang. Le fond
+   prend la couleur du camp au pouvoir, très faiblement, comme l'or éclaire
+   le haut de la fiche. */
+
+.exec {
+  position: relative;
+  margin: -1rem -1.1rem 1.3rem;
+  padding: 1.5rem 1.4rem 1.2rem;
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse 80% 90% at 50% 0%, color-mix(in srgb, var(--tint) 16%, transparent), transparent 72%);
+}
+
+.exec-office {
+  margin: 0 0 0.45rem;
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.exec-person {
+  margin: 0 0 0.3rem;
+  font-family: var(--font-display);
+  font-size: 1.42rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.exec-person.is-mine { color: var(--gold-2); }
+
+.exec-meta {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--tint);
+}
+
+/* Matignon : une ligne, sous un filet, à son rang. */
+.exec-pm {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 1.1rem 0 0;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.86rem;
+}
+
+.exec-pm-label {
+  font-size: 0.54rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.exec-pm-name { color: var(--muted); }
+.exec-pm-name.is-mine { color: var(--gold-2); font-weight: 600; }
+
+.exec-kind {
+  margin: 0.75rem auto 0;
+  max-width: 30rem;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--faint);
+}
+
+.exec-kind.is-ouverture { color: var(--amber); }
+
+/* La cote ferme le bloc, sur une seule ligne centrée. */
+.exec-approval {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.exec-approval-label {
+  font-size: 0.53rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.exec-approval .power-track { width: 7rem; }
+
+.exec-approval-value {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  color: var(--gold-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Les partis qui soutiennent le gouvernement : le total du bloc doit se
+   refaire à la main sur le tableau, sinon il n'explique rien. */
+.seat-row.is-bloc .seat-party { color: var(--ink); }
+.force-tag.is-bloc { opacity: 0.7; }
+
+@media (max-width: 620px) {
+  .exec { margin-left: -1.1rem; margin-right: -1.1rem; padding: 1.3rem 1.1rem 1rem; }
+  .exec-person { font-size: 1.2rem; }
+  .exec-approval { flex-wrap: wrap; }
+}
+
+/* LES FIGURES D'UN PARTI, au clic. Six partis à cinq noms faisaient trente
+   lignes que personne ne lisait : la liste est repliée, et le rapport de
+   force se lit d'abord comme six barres. */
+.force-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-align: left;
+  cursor: pointer;
+}
+
+.force-toggle:hover { color: var(--gold-2); }
+.force-toggle::before { content: "+ "; }
+.force-row.is-open .force-toggle::before { content: "− "; }
+.force-row:not(.is-open) .force-people { display: none; }
+
+/* L'HÉMICYCLE. Cinq cent soixante-dix-sept bancs, rangés de la gauche vers
+   la droite comme dans la vraie salle : c'est la seule disposition qui
+   laisse voir d'un coup d'œil où une majorité peut se trouver. */
+.hemicycle {
+  display: block;
+  width: 100%;
+  max-width: 330px;
+  margin: 0.3rem auto 1rem;
+  overflow: visible;
+}
+
+.seat-list { margin-top: 0.2rem; }
+
+.seat-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.32rem 0;
+  font-size: 0.76rem;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+}
+
+.seat-row:last-child { border-bottom: 0; }
+.seat-row.is-mine { color: var(--ink); font-weight: 600; }
+
+.seat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.seat-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+/* La cote du gouvernement ferme l'onglet : c'est ce qui explique pourquoi
+   une majorité tient ou se fissure. */
+.power-approval {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+  margin-bottom: 0;
+}
+
+.power-row {
+  display: grid;
+  grid-template-columns: 8.4rem 1fr 3rem;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.power-label {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.power-track {
+  position: relative;
+  height: 7px;
+  border-radius: 4px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.power-fill {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+}
+
+.power-value {
+  font-size: 0.72rem;
+  color: var(--ink);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.power-note {
+  margin: 0 0 0.9rem;
+  font-size: 0.7rem;
+  line-height: 1.45;
+  color: var(--faint);
+  text-align: center;
+}
+
+.power-note.is-absolue { color: var(--green); }
+.power-note.is-relative { color: var(--amber); }
+.power-note.is-aucune { color: var(--red); }
+
+@media (max-width: 620px) {
+  .power-row { grid-template-columns: 1fr; gap: 0.3rem; }
+  .power-value { text-align: left; }
+  .panel-tab { letter-spacing: 0.1em; font-size: 0.58rem; }
+}
+
+
 /* ---------- Le panneau à onglets sous la carte ---------- */
 
 .side-panel {
@@ -1161,6 +1539,20 @@ body {
 
 
 /* ---------- Budget, en bas de la fiche ---------- */
+
+/* L'ARGENT D'UN SEUL TENANT : ce qu'on a, puis ce qu'on en fait, dans le
+   même bloc et en bas de fiche. */
+.sheet-purse {
+  margin-top: 1.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+
+.sheet-purse .sheet-money {
+  margin: 0.2rem 0 1.1rem;
+  padding: 0;
+  border: 0;
+}
 
 .sheet-budget { margin-top: 1.4rem; }
 
@@ -1313,6 +1705,15 @@ body {
 
 /* Un parti allié se repère au même endroit que le camp au pouvoir. */
 .force-tag.is-ally { color: var(--gold-2); border-color: var(--gold-2); }
+
+/* Le président se repère d'un coup d'œil : une étoile de six pixels ne
+   suffisait pas à distinguer la personne qui dirige le pays. */
+.force-tag.is-president {
+  color: var(--bg);
+  background: var(--gold-2);
+  border-color: var(--gold-2);
+  font-weight: 700;
+}
 
 /* Qui monte, qui descend depuis le tour précédent. */
 .force-trend {
@@ -1957,6 +2358,21 @@ body {
 .draw-back:hover { color: var(--gold); }
 
 /* Le repère de récupération sur la barre d'énergie : au-delà, elle ne remonte plus. */
+/* Le même repère sur les deux jauges de carrière : le niveau vers lequel
+   elles glissent quand rien ne les pousse. */
+.gauge-track.has-ceiling { position: relative; }
+
+.gauge-track.has-ceiling::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  left: var(--ceiling, 50%);
+  width: 2px;
+  background: var(--ink);
+  opacity: 0.45;
+}
+
 .stat-bar.has-ceiling { position: relative; }
 
 .stat-bar.has-ceiling::after {

@@ -70,6 +70,12 @@
  *                   celui d'en face en fait un sujet. Le trait ne juge pas la
  *                   personne, il mesure ce que la vie politique lui fait.
  *   "energy"        Décale le plafond de forme physique.
+ *   "elections"     Ce que le trait ajoute au score d'un scrutin, scrutin par
+ *                   scrutin : { "municipales": 7, "europeennes": -2 }. La clé
+ *                   "all" vaut pour tous ceux qui ne sont pas nommés. C'est le
+ *                   levier des traits qui aident ici et nuisent ailleurs ; la
+ *                   présidentielle, elle, ne se joue pas au score et passe par
+ *                   "rejection".
  *   "rejection"     Part de l'électorat qui refuse de voter pour vous au
  *                   second tour, en plus ou en moins (0,08 = huit points).
  *                   C'est le seul levier du trait sur la présidentielle, et
@@ -469,6 +475,23 @@ const TRAIT_DATA = {
     "stats": { "charisme": 2, "reputation": -2 }
   },
 
+  /*
+   * Ce trait ne se tire pas : il se CHOISIT, au moment où le jeu demande si
+   * l'on continue. C'est le prix d'un mandat de trop, et le joueur le paie
+   * en connaissance de cause plutôt que de se voir couper la partie.
+   */
+  "declin": {
+    "family": "physique",
+    "kind": "mark",
+    "label": { "fr": "Sur le déclin", "en": "On the way down" },
+    "desc": {
+      "fr": "Vous faites le mandat de trop et tout le monde le sait, à commencer par ceux qui vous ont demandé de rester. On vous écoute encore par égard, ce qui n'est pas la même chose que par intérêt.",
+      "en": "You are serving one term too many and everyone knows it, starting with the people who asked you to stay. They still listen to you out of respect, which is not the same as out of interest."
+    },
+    "stats": { "energie": -2, "credibilite": -3 },
+    "energy": -2
+  },
+
   "use": {
     "family": "physique",
     "kind": "mark",
@@ -634,8 +657,14 @@ const TRAIT_DATA = {
       "fr": "Les affaires glissent sur vous. Personne ne comprend pourquoi, vous non plus.",
       "en": "Scandals slide off you. Nobody understands why, including you."
     },
+    /* HUIT ÉVÉNEMENTS LE DONNENT, et il amortissait quarante-cinq pour cent
+       des mauvaises nouvelles : mesuré sur quatre-vingt-dix carrières, il
+       finissait sur une fiche sur quatre. La règle du fichier dit de compter
+       les sources avant d'ajouter du pouvoir ; à ce prix-là, ce n'était plus
+       une singularité, c'était une dotation. L'amorti descend à un tiers,
+       ce qui reste le meilleur bouclier du jeu. */
     "stats": { "sangfroid": 2 },
-    "soften": 0.45,
+    "soften": 0.32,
     "rejection": -0.05
   },
 
@@ -714,6 +743,134 @@ const TRAIT_DATA = {
     "income": 14000,
     "risk": { "p": 0.05, "chain": "enquete_ouverte" },
     "blocks": ["intouchable"]
+  },
+
+  /* ==========================================================================
+     LE CORPS ET LA LANGUE, TIRÉS À LA NAISSANCE
+     ========================================================================== */
+
+  "albinos": {
+    "family": "physique",
+    "kind": "asset",
+    "birth": 1,
+    "axis": "apparence",
+    "label": { "fr": "Albinos", "en": "Albino" },
+    "desc": {
+      "fr": "On ne vous oublie pas, et l'on ne vous écoute pas tout de suite. Chaque salle met dix secondes à passer de votre visage à votre phrase.",
+      "en": "Nobody forgets you, and nobody listens straight away. Every room takes ten seconds to move from your face to your sentence."
+    },
+    "stats": { "notoriete": 1, "charisme": 1 },
+    "elections": { "all": -3 }
+  },
+
+  "connexions_internationales": {
+    "family": "talent",
+    "kind": "asset",
+    "label": { "fr": "Connexions internationales", "en": "International contacts" },
+    "desc": {
+      "fr": "Vous avez des numéros à Berlin et à Bruxelles, et l'on vous rappelle. Rien de tout cela ne se voit dans une campagne.",
+      "en": "You have numbers in Berlin and Brussels, and they call you back. None of it ever shows in a campaign."
+    },
+    "stats": { "reseau": 1, "credibilite": 1 }
+  },
+
+  "anglais_parfait": {
+    "family": "talent",
+    "kind": "asset",
+    "birth": 4,
+    "axis": "langues",
+    "label": { "fr": "Anglais parfait", "en": "Fluent English" },
+    "desc": {
+      "fr": "Vous répondez en anglais sans notes et sans accent d'école. Cela ne fait gagner aucune élection et cela change tout dans une salle où l'on décide.",
+      "en": "You answer in English without notes and without a schoolroom accent. It wins no election and it changes everything in a room where decisions are made."
+    },
+    "stats": { "credibilite": 2 },
+    "blocks": ["anglais_mediocre"]
+  },
+
+  "anglais_mediocre": {
+    "family": "talent",
+    "kind": "mark",
+    "birth": 4,
+    "axis": "langues",
+    "label": { "fr": "Anglais médiocre", "en": "Poor English" },
+    "desc": {
+      "fr": "Vous comprenez tout et vous ne répondez rien. Chaque conférence de presse internationale est une épreuve dont les rédactions gardent les images. En revanche, personne ne vous a jamais soupçonné d'être plus à l'aise ailleurs que chez vous.",
+      "en": "You understand everything and answer nothing. Every international press conference is an ordeal the newsrooms keep the footage of. On the other hand, nobody has ever suspected you of being more at ease abroad than at home."
+    },
+    "stats": { "credibilite": -2 },
+    "blocks": ["anglais_parfait"]
+  },
+
+  /* ==========================================================================
+     CE QUE LA CARRIÈRE FINIT PAR LAISSER
+     ==========================================================================
+     Ces cinq-là ne se tirent pas : ils s'attrapent, chacun par une poignée
+     d'événements qui lui sont propres. C'est la règle du fichier, et c'est
+     ce qui les rend lisibles : quand ils apparaissent sur la fiche, le
+     joueur sait exactement quelle soirée les lui a valus.
+     ========================================================================== */
+
+  "ancrage_local": {
+    "family": "appareil",
+    "kind": "asset",
+    "label": { "fr": "Ancrage local", "en": "Rooted locally" },
+    "desc": {
+      "fr": "On vous connaît par votre prénom sur trois cantons. Ce qui vous rend imbattable chez vous est exactement ce qui vous rend petit ailleurs.",
+      "en": "Three districts know you by your first name. What makes you unbeatable at home is precisely what makes you small everywhere else."
+    },
+    "stats": { "reseau": 1 },
+    "elections": { "municipales": 7, "legislatives": 5, "europeennes": -2, "congres": 0 },
+    "rejection": 0.05
+  },
+
+  "has_been": {
+    "family": "reputation",
+    "kind": "mark",
+    "label": { "fr": "Has been", "en": "Has-been" },
+    "desc": {
+      "fr": "On vous présente encore par ce que vous avez été. Les plateaux vous invitent pour commenter la carrière des autres, et vous y allez.",
+      "en": "You are still introduced by what you used to be. The studios invite you to comment on other people's careers, and you go."
+    },
+    "stats": { "charisme": -1, "credibilite": -1 },
+    "target": { "popularity": -5 }
+  },
+
+  "repris_de_justice": {
+    "family": "reputation",
+    "kind": "mark",
+    "label": { "fr": "Repris de justice", "en": "Convicted" },
+    "desc": {
+      "fr": "Une condamnation définitive, inscrite, définitive encore quand on l'aura oubliée. Elle figurera dans chaque portrait jusqu'au dernier.",
+      "en": "A final conviction, on the record, still final long after everyone has forgotten it. It will appear in every profile until the last one."
+    },
+    "stats": { "reputation": -4 },
+    "rejection": 0.06,
+    "blocks": ["intouchable"]
+  },
+
+  "drogue": {
+    "family": "physique",
+    "kind": "mark",
+    "label": { "fr": "Consommateur", "en": "User" },
+    "desc": {
+      "fr": "Ce qui tient les semaines à quatre-vingts heures et les nuits de session. Tout le monde en connaît un, personne n'en nomme un, et il suffit d'un contrôle.",
+      "en": "What gets you through eighty-hour weeks and all-night sittings. Everybody knows one, nobody names one, and it takes a single check."
+    },
+    "stats": { "energie": 2, "credibilite": -1, "reputation": -1 },
+    "risk": { "p": 0.04, "chain": "drogue_controle" }
+  },
+
+  "couple_people": {
+    "family": "reputation",
+    "kind": "asset",
+    "label": { "fr": "Couple people", "en": "Celebrity couple" },
+    "desc": {
+      "fr": "On vous photographie à deux, en vacances et en première page. Le pays vous trouve attachant, et plus personne ne vous demande ce que vous proposez.",
+      "en": "You get photographed as a couple, on holiday and on the front page. The country finds you endearing, and nobody asks what you are proposing any more."
+    },
+    "stats": { "notoriete": 2, "credibilite": -1 },
+    "target": { "popularity": 5 }
   }
 };
 

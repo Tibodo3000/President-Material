@@ -72,12 +72,43 @@ function officeAfterDefeat(s) {
  * Calendrier électoral, en tours (2 tours = 1 an).
  * Une élection a lieu quand (tour % cycle) === offset.
  */
+/*
+ * LE CALENDRIER. Un tour vaut six mois, et le "offset" est le tour du cycle
+ * où le scrutin tombe.
+ *
+ * LES LÉGISLATIVES SUIVENT LA PRÉSIDENTIELLE. Elles tombaient trois ans
+ * après, ce qui est le calendrier d'avant 2002. Depuis l'inversion, on vote
+ * pour l'Assemblée cinq semaines après avoir élu le président, précisément
+ * pour lui donner une majorité, et c'est ce qui fait qu'une présidentielle
+ * gagnée vaut deux victoires et qu'une perdue en coûte deux.
+ *
+ * Le moteur ne tient qu'un scrutin par tour, et cette contrainte-là est
+ * voulue : elle interdit d'en télescoper deux. Elle impose en revanche une
+ * discipline de parité qu'il faut connaître avant de toucher à ce tableau.
+ * Deux scrutins de cycles 10 et 12 se rencontrent si et seulement si leurs
+ * offsets ont la même parité ; ceux de cycles 10 et 8 aussi ; ceux de 12 et
+ * 8 si leurs offsets sont égaux modulo 4. D'où la règle : les trois scrutins
+ * nationaux tombent sur des tours PAIRS, c'est-à-dire au printemps comme en
+ * France, et les municipales et le congrès sur des tours IMPAIRS.
+ *
+ * Présidentielle et législatives partagent donc forcément la même parité, et
+ * l'écart le plus court que le moteur autorise entre elles est d'un an. Cinq
+ * semaines n'est pas représentable ; un an l'est, et c'est trois fois plus
+ * proche de la réalité que les trois ans d'avant.
+ *
+ * Les européennes suivent la même logique : deux ans après la présidentielle,
+ * comme 2022 et 2024, et non quatre. Le cycle est donc chargé au début et
+ * calme ensuite, exactement comme le vrai calendrier français, où l'on vote
+ * trois fois en deux ans puis presque plus pendant trois. On ne lisse pas un
+ * calendrier pour faire joli : c'est cette respiration-là qui fait qu'une
+ * carrière se joue par à-coups.
+ */
 const ELECTIONS = [
   { id: "presidentielle", cycle: 10, offset: 0 },
-  { id: "legislatives", cycle: 10, offset: 6 },
+  { id: "legislatives", cycle: 10, offset: 2 },
   { id: "congres", cycle: 8, offset: 3 },
   { id: "municipales", cycle: 12, offset: 1 },
-  { id: "europeennes", cycle: 10, offset: 8 },
+  { id: "europeennes", cycle: 10, offset: 4 },
 ];
 
 /* ==========================================================================
@@ -100,6 +131,17 @@ const ELECTIONS = [
 
 /** Vitesse de convergence vers la cible, par tour. */
 const DRIFT = 0.28;
+
+/**
+ * ON REDESCEND MOINS VITE QU'ON NE MONTE.
+ *
+ * Le retour vers la cible se faisait à la même vitesse dans les deux sens :
+ * une jauge portée trente points au-dessus de son niveau naturel en perdait
+ * huit au tour suivant, sans que rien ne l'annonce ni ne l'explique. Ce
+ * qu'on a gagné doit s'user, pas fondre — sinon aucun coup d'éclat ne vaut
+ * la peine et le joueur a le sentiment de vider un seau percé.
+ */
+const DRIFT_DOWN = 0.17;
 
 /**
  * Exposition publique liée à la fonction : un maire est plus vu qu'un
@@ -191,12 +233,48 @@ const INCUMBENT_DISCOUNT = 12;
  * Mortalité : aucune avant 60 ans, puis une probabilité par tour qui
  * grimpe avec l'âge.
  */
+/**
+ * LE CORPS PRÉVIENT TOUJOURS, SAUF QUAND C'EST UN ACCIDENT.
+ *
+ * La mort tombait à soixante-trois ans sur un personnage en pleine forme dont
+ * rien, nulle part, n'avait annoncé quoi que ce soit. Une carrière ne doit pas
+ * s'arrêter sur un tirage muet.
+ *
+ * Deux morts distinctes, donc. Celle qui vient de la santé n'est possible que
+ * si le corps a déjà parlé — santé fragile déclarée, ou l'un des traits qui
+ * disent qu'on s'abîme. Et celle qui ne prévient pas, l'accident, reste
+ * possible à tout âge parce que c'est ce qu'est un accident : elle est rare,
+ * elle ne monte presque pas avec l'âge, et elle a droit à sa propre fin.
+ */
+const HEALTH_TRAITS = ["fragile", "obese", "use", "declin"];
+
+/** Le corps a-t-il déjà donné signe ? */
+function healthWarned(state) {
+  if (state.flags.frailHealth) return true;
+  return HEALTH_TRAITS.some((id) => hasTrait(state, id));
+}
+
+/** L'accident : rare, sourd, et il n'a jamais prévenu personne. */
+function accidentProbability(state) {
+  return 0.0012 + Math.max(0, state.age - 55) * 0.00012;
+}
+
 function deathProbability(state) {
-  if (state.age < 60) return 0;
-  let p = (state.age - 60) * 0.003 + 0.002;
   if (state.age >= 92) return 1;
-  if (state.flags.carefulHealth) p /= 2;
-  if (state.flags.frailHealth) p *= 2;
+
+  let p = accidentProbability(state);
+
+  // La part « santé » ne s'ouvre qu'à ceux dont le corps a déjà parlé.
+  if (state.age >= 60 && healthWarned(state)) {
+    let sante = (state.age - 60) * 0.004 + 0.003;
+    if (state.flags.carefulHealth) sante /= 2;
+    if (state.flags.frailHealth) sante *= 1.6;
+    p += sante;
+  }
+
+  // Passé un certain âge, le corps a parlé pour tout le monde.
+  if (state.age >= 78) p += (state.age - 78) * 0.006;
+
   return p;
 }
 
@@ -216,9 +294,22 @@ function deathProbability(state) {
  */
 function withdrawalProbability(state) {
   if (state.age < 62) return 0;
+
   let p = (state.age - 62) * 0.003;
-  if (state.stats.energie <= 2) p += 0.02;
-  else if (state.stats.energie <= 5) p += 0.008;
+
+  // LA FORME PROTÈGE, ET PAS SEULEMENT L'ÉPUISEMENT QUI ACCABLE.
+  //
+  // L'énergie n'ajoutait du risque que lorsqu'elle était basse : un homme de
+  // soixante-sept ans en pleine forme courait exactement le même risque de
+  // base qu'un homme épuisé du même âge, et se voyait pousser dehors sans
+  // qu'aucune ligne de sa fiche ne l'explique. On ne pousse pas dehors
+  // quelqu'un qui tient debout et que tout le monde voit tenir debout.
+  const forme = state.stats.energie;
+  if (forme >= 12) p *= 0.3;
+  else if (forme >= 8) p *= 0.65;
+  else if (forme <= 2) p += 0.02;
+  else if (forme <= 5) p += 0.008;
+
   if (state.flags.carefulHealth) p /= 2;
   if (state.flags.frailHealth) p *= 2;
   return p;
@@ -368,6 +459,20 @@ function traitTarget(s, gauge) {
     const propre = (d.target && d.target[gauge]) || 0;
     const selonParti = d.partyTarget && d.partyTarget[s.party] && d.partyTarget[s.party][gauge];
     return propre + (selonParti || 0);
+  });
+}
+
+/**
+ * Ce que les traits ajoutent au score d'un scrutin. C'est le levier des
+ * traits qui aident quelque part et nuisent ailleurs : un ancrage local rend
+ * une mairie presque imprenable et ne sert à rien à Strasbourg. La clé "all"
+ * couvre les scrutins qu'un trait ne nomme pas.
+ */
+function traitElections(s, electionId) {
+  return traitSum(s, (d) => {
+    if (!d.elections) return 0;
+    const propre = d.elections[electionId];
+    return propre === undefined ? (d.elections.all || 0) : propre;
   });
 }
 
@@ -592,12 +697,6 @@ function pay(state, amount) {
   state.money = Math.max(0, state.money + amount);
 }
 
-/** Tirage : la statistique (ramenée sur 10 par STAT_SCALE) plus un dé
-    contre une difficulté. */
-function test(state, stat, difficulty) {
-  return state.stats[stat] + Math.random() * 6 >= difficulty;
-}
-
 function randInt(max) {
   return Math.floor(Math.random() * max);
 }
@@ -617,6 +716,23 @@ function anyRival(state) {
    ========================================================================== */
 
 const CAMPAIGN_STEPS = 6;
+
+/** Les temps de l'entre-deux-tours : deux scènes, puis le débat. */
+const RUNOFF_STEPS = 3;
+
+/**
+ * Ce qu'un point d'effet vaut dans un second tour. Moins qu'au premier, et
+ * c'est tout le sujet : à ce stade il ne reste plus d'électeurs neufs, rien
+ * que des gens qui ont déjà voté pour quelqu'un d'autre. Un débat gagné vaut
+ * deux ou trois points, pas dix, et deux ou trois points suffisent.
+ *
+ * Le premier réglage valait 0,55, et trois temps d'entre-deux-tours joués
+ * sans risque rendaient cinq points : on renversait un 47-53 en choisissant
+ * systématiquement l'option prudente, ce qui vide la séquence de son sens.
+ * À 0,40, la campagne pèse ce qu'elle doit peser : elle décide un second
+ * tour serré et n'en sauve aucun qui était perdu.
+ */
+const RUNOFF_WEIGHT = 0.40;
 
 /**
  * Déplace la part du joueur dans le sondage et redistribue le reste.
@@ -644,6 +760,25 @@ function shiftPoll(s, delta) {
   // On renormalise pour que le total fasse toujours cent.
   const total = field.reduce((sum, c) => sum + c.share, 0);
   field.forEach((c) => { c.share = (c.share / total) * 100; });
+}
+
+/**
+ * Le sondage d'un second tour. Deux noms, cent pour cent à partager : ce que
+ * l'un prend, l'autre le perd, exactement, et c'est ce qui rend ces quinze
+ * jours si durs. Plus on est haut, plus chaque point coûte cher, parce qu'en
+ * face il ne reste que des électeurs qui ont déjà choisi contre vous.
+ */
+function shiftRunoff(s, delta) {
+  const field = s.campaign.duel.field;
+  const me = field.find((c) => c.isPlayer);
+  const other = field.find((c) => !c.isPlayer);
+  if (!me || !other) return;
+
+  const reste = delta > 0 ? (100 - me.share) : me.share;
+  const move = delta * RUNOFF_WEIGHT * Math.max(0.3, reste / 55);
+
+  me.share = Math.max(15, Math.min(85, me.share + move));
+  other.share = 100 - me.share;
 }
 
 
@@ -778,6 +913,27 @@ const CAMPAIGN_EVENTS = EVENT_DATA.campaign;
 const NOMINATION_EVENTS = EVENT_DATA.nomination || [];
 const RACE_EVENTS = EVENT_DATA.races || [];
 
+/**
+ * Les scrutins où l'on n'est pas candidat. Ils mangeaient un semestre entier
+ * pour une phrase et un bouton « Continuer » : on traverse désormais la
+ * campagne des autres en décidant quoi en faire.
+ */
+const ASIDE_EVENTS = EVENT_DATA.aside || [];
+
+/**
+ * La présidentielle qu'on ne dispute pas soi-même. Elle se réglait en un
+ * clic : on y joue désormais trois temps, et ce qu'on y fait pèse un peu.
+ */
+const SUPPORT_EVENTS = EVENT_DATA.support || [];
+
+/**
+ * L'entre-deux-tours. Le joueur qualifié passait du dimanche soir au verdict
+ * sans qu'on lui demande rien : quinze jours, le moment le plus regardé de la
+ * vie politique française, et pas une seule décision à prendre. Il s'y joue
+ * désormais trois temps, dont le grand débat, qui tombe toujours.
+ */
+const RUNOFF_EVENTS = EVENT_DATA.runoff || [];
+
 /** Les sept statistiques, pour distinguer un effet de stat d'un autre effet. */
 const STAT_KEYS = ["charisme", "eloquence", "energie", "sangfroid", "reseau", "notoriete", "reputation", "credibilite"];
 
@@ -841,6 +997,36 @@ function eventMatches(ev, s) {
 
   // Un pacte en cours, ou pas de pacte du tout.
   if (w.allied !== undefined && Boolean(s.alliance) !== w.allied) return false;
+
+  // DES LÉGISLATIVES ANTICIPÉES. Une campagne de vingt jours après une
+  // dissolution ne ressemble à aucune autre, et ses scènes ne doivent pas
+  // sortir dans une législative ordinaire.
+  if (w.dissolved !== undefined) {
+    const anticipee = Boolean(s.dissolution) && s.dissolution === s.turn;
+    if (anticipee !== w.dissolved) return false;
+  }
+
+  // REDESCENDU D'UN CRAN. Vrai quand la fonction actuelle est en dessous du
+  // sommet atteint dans la carrière : c'est la définition même d'un homme
+  // qu'on présente encore par ce qu'il a été.
+  if (w.belowPeak !== undefined) {
+    const descendu = LADDER.indexOf(s.position) < LADDER.indexOf(s.peakPosition || "militant");
+    if (descendu !== w.belowPeak) return false;
+  }
+
+  // LA COTE DU GOUVERNEMENT. C'est elle qui sépare une opposition qui
+  // attend son tour d'une opposition qui sent le pouvoir à portée, et un
+  // pouvoir tranquille d'un pouvoir aux abois.
+  if (w.minApproval !== undefined && (s.approval || 0) < w.minApproval) return false;
+  if (w.maxApproval !== undefined && (s.approval || 0) > w.maxApproval) return false;
+
+  // L'ÉTAT DE L'ASSEMBLÉE : "absolue", "relative" ou "aucune". Une liste
+  // accepte plusieurs états.
+  if (w.majority !== undefined) {
+    const etat = typeof majorityState === "function" ? majorityState() : "relative";
+    const voulu = Array.isArray(w.majority) ? w.majority : [w.majority];
+    if (!voulu.includes(etat)) return false;
+  }
 
   // Le poids de votre camp dans le pays, en points d'intentions de vote.
   if (w.minShare !== undefined && (s.landscape[s.party] || 0) < w.minShare) return false;
@@ -916,6 +1102,9 @@ const GENDER_MARKS = {
   celui: ["celui", "celle"],
   un:    ["un", "une"],
   e:     ["", "e"],
+  // « Première ministre » ne s'obtient pas en collant un e : la marque
+  // porte le mot entier.
+  premier: ["premier", "première"],
   /* Anglais */
   he:    ["he", "she"],
   him:   ["him", "her"],
@@ -1044,14 +1233,43 @@ function applyEffects(effects, s, soften) {
     }
     // L'avantage pris ou perdu dans une campagne ordinaire. On ne l'affiche
     // pas en points : le joueur le lit dans la phrase qui décrit la campagne.
-    if (key === "score" && s.race) {
-      s.race.bonus += value;
+    // L'avantage pris dans une campagne, la sienne ou celle qu'on soutient.
+    if (key === "score") {
+      if (s.race) s.race.bonus += value;
+      else if (s.support) s.support.bonus += value;
+      return;
+    }
+    // Ce qu'un choix fait à la cote du gouvernement. Un député d'opposition
+    // qui démolit un ministre en séance abîme le pouvoir ; un ministre qui
+    // tient sa réforme le renforce.
+    // LA DISSOLUTION. Le président rend la parole au pays : des législatives
+    // anticipées au tour suivant, hors calendrier, sans décaler le cycle
+    // ordinaire. C'est le geste le plus risqué de la Cinquième République et
+    // il est réservé aux événements qui le méritent.
+    if (key === "dissolve") {
+      if (!value) return;
+      s.dissolution = s.turn + 1;
+      changes.push({ kind: "dissolve" });
+      return;
+    }
+    if (key === "approval") {
+      const before = s.approval || 0;
+      s.approval = clamp100(before + value);
+      const delta = Math.round(s.approval - before);
+      if (delta) changes.push({ kind: "approval", delta });
       return;
     }
     if (key === "poll" && s.campaign) {
-      const me = s.campaign.field.find((c) => c.isPlayer);
+      // Entre les deux tours, le sondage qui compte n'est plus celui du
+      // premier : c'est le face-à-face, et c'est lui qu'on déplace.
+      const duel = s.campaign.duel;
+      const field = duel ? duel.field : s.campaign.field;
+      const me = field.find((c) => c.isPlayer);
+      if (!me) return;
+
       const before = me.share;
-      shiftPoll(s, value);
+      if (duel) shiftRunoff(s, value);
+      else shiftPoll(s, value);
       const delta = Math.round(me.share - before);
       if (delta) changes.push({ kind: "poll", delta });
       return;
@@ -1118,6 +1336,14 @@ function applyEffects(effects, s, soften) {
       const cible = value === "none" ? officeAfterDefeat(s) : value;
       if (setOffice(s, cible)) {
         changes.push({ kind: "office", key: cible, up: LADDER.indexOf(cible) > LADDER.indexOf(before) });
+      }
+      // ON REFORME LE GOUVERNEMENT TOUT DE SUITE. ensureGovernment ne
+      // tournait qu'au tour suivant : entre l'événement qui vous donne
+      // Matignon et le tour d'après, le pays avait deux Premiers ministres,
+      // et le panneau du pouvoir les affichait tous les deux.
+      if ((cible === "premier" || cible === "ministre" || before === "premier" ||
+           before === "ministre") && typeof ensureGovernment === "function") {
+        ensureGovernment();
       }
       return;
     }
@@ -1567,6 +1793,21 @@ function driftCampaign(s) {
 
   const total = s.campaign.field.reduce((sum, c) => sum + c.share, 0) || 1;
   s.campaign.field.forEach((c) => { c.share = (c.share / total) * 100; });
+}
+
+/**
+ * La vie du face-à-face entre deux temps d'entre-deux-tours. On bouge moins
+ * qu'au premier tour : à ce stade, un sondage qui varie de trois points en
+ * deux jours n'est pas un sondage, c'est une erreur d'échantillon.
+ */
+function driftRunoff(s) {
+  const field = s.campaign.duel.field;
+  const me = field.find((c) => c.isPlayer);
+  const other = field.find((c) => !c.isPlayer);
+  if (!me || !other) return;
+
+  me.share = Math.max(15, Math.min(85, me.share + (Math.random() - 0.5) * 1.2));
+  other.share = 100 - me.share;
 }
 
 /* ==========================================================================

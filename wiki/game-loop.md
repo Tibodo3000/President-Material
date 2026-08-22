@@ -114,15 +114,24 @@ picks an outcome tier, and narrates it. The player sees a poll and a mood phrase
   effects (`large`, `win`, `narrow`, `honorable`, `loss`, `rout`). A losing *defense*
   costs extra — you lose a seat, not just a try.
 
-### 2. Presidential election → a 6-step "campaign"
+### 2. Presidential election → 6 steps, then a fortnight
 When the player leads their party at a presidential election, `startCampaign()` opens a
 `CAMPAIGN_STEPS` (6) flow with a **visible poll** that moves on every decision
-(`shiftPoll`). Between steps, rivals also move (`driftCampaign`). Then:
+(`shiftPoll`). Between steps, rivals also move (`driftCampaign`). One scene is marked
+`required` in the `campaign` deck: the big first-round debate always happens. Then:
 - `resolveFirstRound()` — you must finish in the top two, or you're out.
-- `resolveRunoff()` — `runoff()` ([game-data.js](../js/game-data.js)) transfers eliminated
-  candidates' votes by ideological proximity minus each finalist's `rejectionRate`. This
-  is where positioning is paid: a candidate who thrilled their base and scared everyone
-  else leads round one and loses round two.
+- `startDuel()` — if you qualify, `runoff()` ([game-data.js](../js/game-data.js)) transfers
+  eliminated candidates' votes right away, by ideological proximity minus each finalist's
+  `rejectionRate`. This is where positioning is paid: a candidate who thrilled their base
+  and scared everyone else leads round one and loses round two. The transfers are shown
+  immediately, as a two-way poll summing to 100.
+- **The fortnight** — `RUNOFF_STEPS` (3) scenes from the `runoff` deck, ending on the
+  runoff debate (`required`, `moment: 1`). `poll` effects now move the head-to-head
+  (`shiftRunoff`, damped by `RUNOFF_WEIGHT`); `driftRunoff` adds a small wobble between
+  steps. A well-played fortnight is worth roughly +2 points playing safe and up to +8
+  taking every risk: enough to decide a close runoff, never enough to save a lost one.
+- `resolveRunoff()` — counts exactly the head-to-head the player has been reading for a
+  fortnight. No hidden second roll.
 
 ### 3. Blocked nomination → a "nomination" scene
 If the party won't nominate you (`nominationBlocked()`: standing below the threshold),

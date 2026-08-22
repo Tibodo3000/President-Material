@@ -61,8 +61,15 @@ function makeFigure(partyKey, usedNames, rank) {
     party: partyKey,
     rank,
     age: Math.max(26, START_AGE + model.minAge + randInt(model.spread)),
+    // LE PARLEMENT EUROPÉEN N'ÉTAIT NULLE PART. Aucune figure n'était jamais
+    // députée européenne, ni à la création ni par promotion : le joueur
+    // pouvait siéger à Strasbourg sans y croiser un seul nom connu, et le
+    // rapport de force ne montrait jamais personne à ce poste. Le siège est
+    // plus rare que les autres, comme dans la vraie vie, mais il existe.
     position: model.position ||
-      (rank === "espoir" ? ["militant", "conseiller"][randInt(2)] : ["maire", "depute"][randInt(2)]),
+      (rank === "espoir"
+        ? ["militant", "conseiller", "conseiller"][randInt(3)]
+        : ["maire", "depute", "depute", "euro"][randInt(4)]),
     progress: 0,
     stats: {
       charisme: model.floor + randInt(5),
@@ -112,11 +119,18 @@ function newGame(character) {
   // cadres qui attendent leur tour et ses jeunes pressés.
   const rivals = [];
   partyKeys.forEach((key) => {
-    // Cinq figures par parti au lieu de trois. Un paysage à dix-huit noms
-    // était trop pauvre pour qu'on y reconnaisse quelqu'un, et surtout trop
-    // pauvre pour former un gouvernement : il n'y avait jamais assez de
-    // députés disponibles pour qu'un camp au pouvoir ait des ministres.
-    ["chef", "cadre", "cadre", "espoir", "espoir"].forEach((rank) => {
+    // Huit figures par parti, ET CE SONT DES PONTES. On est passé de trois à
+    // cinq quand le paysage était trop pauvre pour former un gouvernement,
+    // puis à huit pour qu'un parti au pouvoir ait encore des députés après
+    // avoir fourni un Premier ministre et trois ministres.
+    //
+    // La composition compte autant que le nombre. À quatre espoirs sur huit,
+    // la moitié d'une fédération était faite de militants de trente ans dont
+    // personne n'a entendu parler : on ne reconnaissait aucun nom d'un tour
+    // sur l'autre. Un parti, ce sont des cadres installés qui se disputent
+    // la place, et deux jeunes qui poussent derrière. Les jeunes montent
+    // tout seuls, et les places se libèrent avec les retraites.
+    ["chef", "cadre", "cadre", "cadre", "cadre", "cadre", "espoir", "espoir"].forEach((rank) => {
       rivals.push(makeFigure(key, usedNames, rank));
     });
   });
@@ -127,6 +141,8 @@ function newGame(character) {
     // Tous les camps traversés. Une étiquette d'origine ne se décolle jamais
     // tout à fait, et certains traits ne se donnent qu'à ceux qui en viennent.
     parties: [character.party],
+    // Combien de fois le parti vous a présenté à la présidentielle.
+    presidentialRuns: 0,
     stats: computeStats(character),
     money: computeMoney(character),
     // Ce avec quoi on entre en politique. Sert de point zéro : la justice
@@ -153,6 +169,10 @@ function newGame(character) {
     race: null,           // la campagne d'une élection ordinaire, en cours
     president: null,      // { name, party } ou { isPlayer: true }
     presidentTerms: 1,    // mandats consécutifs déjà faits par le sortant
+    approval: 52,         // la cote du gouvernement dans le pays, 0 à 100
+    assembly: null,       // les 577 sièges, par parti ; fixés à chaque législative
+    coalition: null,      // les partis qui soutiennent le gouvernement
+    dissolution: null,    // le tour d'une législative anticipée, s'il y en a une
     log: [],
     ended: null,
     card: null, // la carte affichée à droite : { kind, ... }
@@ -214,11 +234,19 @@ const LANDSCAPE_FLOOR = 1.5;
  * interchangeables, et le choix du parti ne voulait plus rien dire.
  */
 function naturalShare(key) {
-  return 24 - PARTIES[key].difficulty * 3;
+  return 28 - PARTIES[key].difficulty * 5;
 }
 
-/** Vitesse du rappel vers le socle, par tour. */
-const LANDSCAPE_PULL = 0.05;
+/**
+ * Vitesse du rappel vers le socle, par tour.
+ *
+ * Elle était deux fois plus forte, et c'est ce qui rendait le tableau
+ * illisible : un choc encaissé revenait à son point de départ en une dizaine
+ * de tours, si bien que rien de ce qui arrivait dans la partie ne laissait de
+ * trace. Le paysage doit garder la mémoire de ce qu'on lui fait, sinon il
+ * n'est qu'un décor qui tremble.
+ */
+const LANDSCAPE_PULL = 0.03;
 
 /** Répartition de départ, adossée à la difficulté des partis. */
 function initialLandscape(state) {
@@ -241,6 +269,285 @@ function rulingParty() {
   return game.president.isPlayer ? game.party : game.president.party;
 }
 
+/* ==========================================================================
+   LE POUVOIR : SA COTE, SA MAJORITÉ
+   ==========================================================================
+   Le jeu savait QUI gouverne, jamais COMMENT. Un parti au pouvoir voyait sa
+   part s'éroder dans le tableau, et c'était tout : rien ne disait si le
+   gouvernement était aimé ou détesté, rien ne distinguait un exécutif qui
+   tient l'Assemblée d'un exécutif qui négocie chaque texte. Or c'est
+   exactement là que se joue une carrière : on ne fait pas la même chose dans
+   l'opposition face à un pouvoir à trente pour cent de cote et face au même
+   pouvoir à soixante.
+
+   DEUX VALEURS, ET ELLES SE VOIENT. La cote du gouvernement bouge à chaque
+   tour, tirée par ce que pèse le parti au pouvoir, usée par l'exercice, et
+   secouée par un peu de hasard ; les événements la déplacent aussi, avec
+   l'effet "approval". La majorité, elle, se fixe à chaque législative et ne
+   bouge plus jusqu'à la suivante.
+   ========================================================================== */
+
+/** Ce que gouverner coûte par tour, et de plus en plus au second mandat. */
+const APPROVAL_WEAR = 1.3;
+
+/**
+ * Vitesse de rappel vers la cote que mérite le parti au pouvoir, et amplitude
+ * du bruit autour.
+ *
+ * Le premier réglage rappelait trop fort et secouait trop peu : mesurée sur
+ * soixante-dix carrières, la cote tenait entre quarante-quatre et
+ * cinquante-neuf neuf fois sur dix. Un gouvernement n'était jamais ni aimé ni
+ * détesté, seulement tiède, et les scènes qui demandent un pouvoir aux abois
+ * ne sortaient donc jamais. Un rappel plus lâche et un bruit plus large font
+ * de vraies traversées du désert, et de vrais états de grâce.
+ */
+const APPROVAL_PULL = 0.09;
+const APPROVAL_NOISE = 9;
+
+/**
+ * La cote que vaudrait le gouvernement au vu de la seule force de son camp.
+ * Un parti à seize pour cent gouverne autour de cinquante ; à vingt-huit, il
+ * est porté ; à huit, il ne l'est plus par personne.
+ */
+function approvalTarget() {
+  const ruling = rulingParty();
+  if (!ruling) return 50;
+  return clamp100(30 + (game.landscape[ruling] || 16) * 1.25);
+}
+
+function driftApproval() {
+  if (!game.president) return;
+
+  let move = (approvalTarget() - game.approval) * APPROVAL_PULL;
+  move -= APPROVAL_WEAR + (game.presidentTerms - 1) * 1.1;
+  move += (Math.random() - 0.5) * APPROVAL_NOISE;
+
+  game.approval = clamp100(game.approval + move);
+}
+
+/* --------------------------------------------------------------------------
+   L'ASSEMBLÉE
+   --------------------------------------------------------------------------
+   Cinq cent soixante-dix-sept sièges, répartis le soir des législatives et
+   plus retouchés jusqu'aux suivantes.
+
+   LE SCRUTIN MAJORITAIRE N'EST PAS PROPORTIONNEL, et c'est tout l'intérêt de
+   le modéliser : à deux tours, dans cinq cent soixante-dix-sept duels, un
+   parti à vingt-huit pour cent des voix rafle bien plus de vingt-huit pour
+   cent des sièges, et un parti à huit n'a presque rien même s'il a des
+   électeurs partout. On élève donc les parts à une puissance avant de
+   normaliser : c'est la façon la plus simple d'obtenir cette amplification,
+   et elle se règle d'un seul chiffre.
+
+   La cote du gouvernement pèse en plus, parce qu'on vote les législatives un
+   an après la présidentielle et qu'on donne encore sa chance à celui qu'on
+   vient d'élire, ou qu'on le lui reprend déjà.
+
+   Il n'y a pas de Sénat. Ce n'est pas un oubli : il ne se dissout pas, il ne
+   censure pas, et il ne changerait rien à une carrière.
+   -------------------------------------------------------------------------- */
+
+const ASSEMBLY_SEATS = 577;
+
+/** La majorité absolue : deux cent quatre-vingt-neuf sièges. */
+const ASSEMBLY_MAJORITY = Math.floor(ASSEMBLY_SEATS / 2) + 1;
+
+/**
+ * L'AMPLIFICATION DU SCRUTIN MAJORITAIRE.
+ *
+ * À 1,7, le premier parti plafonnait à trente pour cent des sièges et la
+ * majorité absolue n'existait tout simplement pas : deux fois sur mille en
+ * soixante-dix carrières. Or une Assemblée où personne ne peut jamais
+ * gouverner seul n'est pas une Assemblée, c'est une impasse permanente.
+ *
+ * À 2,1, un camp qui domine nettement l'opinion sort avec une majorité, un
+ * camp qui domine de peu sort avec une majorité relative, et un paysage
+ * éclaté ne donne rien à personne. C'est le comportement du scrutin
+ * majoritaire à deux tours.
+ */
+const ASSEMBLY_POWER = 2.1;
+
+/** Répartit les sièges. Appelé le soir de chaque législative, et seulement là. */
+function computeAssembly() {
+  const ruling = rulingParty();
+
+  const poids = {};
+  Object.keys(PARTIES).forEach((key) => {
+    const part = Math.max(0.5, game.landscape[key] || 0);
+    // La prime au camp du président, ou la note qu'il paie : un an après son
+    // élection, on lui donne une majorité ou on la lui refuse.
+    const souffle = key === ruling ? 1 + (game.approval - 50) / 160 : 1;
+    // Chaque scrutin a ses accidents locaux.
+    poids[key] = Math.pow(part, ASSEMBLY_POWER) * souffle * (0.9 + Math.random() * 0.2);
+  });
+
+  const total = Object.values(poids).reduce((s, w) => s + w, 0) || 1;
+  const sieges = {};
+  let places = 0;
+  Object.keys(poids).forEach((key) => {
+    sieges[key] = Math.round((poids[key] / total) * ASSEMBLY_SEATS);
+    places += sieges[key];
+  });
+
+  // L'arrondi ne tombe jamais juste : le reste va au plus gros groupe.
+  const plusGros = Object.keys(sieges).reduce((a, b) => (sieges[a] >= sieges[b] ? a : b));
+  sieges[plusGros] += ASSEMBLY_SEATS - places;
+
+  game.assembly = sieges;
+  formCoalition();
+  return sieges;
+}
+
+/**
+ * LE BLOC QUI SOUTIENT LE GOUVERNEMENT.
+ *
+ * Un gouvernement ne gouverne jamais seul : une majorité présidentielle est
+ * toujours une coalition, et les partis idéologiquement les plus proches
+ * votent ses textes sans être de son parti. Sans cela, la majorité absolue
+ * n'existait pas du tout, un pour cent des tours mesurés.
+ *
+ * ON RENVOIE LA LISTE, PAS UN NOMBRE PONDÉRÉ. Le premier réglage comptait
+ * les voisins pour trois cinquièmes de leurs sièges : cela donnait un
+ * gouvernement à trois cent soixante-dix-sept sièges alors qu'aucun parti
+ * affiché n'en avait plus de cent soixante-neuf, et le joueur n'avait aucun
+ * moyen de refaire l'addition. Une information qu'on ne peut pas vérifier
+ * n'est pas une information. Le bloc est donc une liste de partis, ses
+ * sièges s'additionnent exactement, et l'interface les nomme.
+ *
+ * En échange de cette franchise, on est plus exigeant sur qui en fait
+ * partie : la moitié de la distance de voisinage, c'est-à-dire le camp
+ * immédiatement adjacent, pas tout le côté de l'hémicycle.
+ */
+const COALITION_DISTANCE = NEIGHBOUR_DISTANCE / 2;
+
+/**
+ * QUI SOUTIENT, ÇA SE NÉGOCIE, ÇA NE SE DÉDUIT PAS.
+ *
+ * Le bloc était une fonction de la seule distance idéologique : avec les
+ * centristes au pouvoir, les sociaux-démocrates soutenaient dans toutes les
+ * parties, à tous les tours, sans exception. Un paysage qui donne toujours
+ * la même réponse ne raconte rien.
+ *
+ * La coalition se forme donc au soir de chaque législative, une fois, et
+ * tient jusqu'aux suivantes. La proximité donne sa chance à chaque camp, et
+ * la cote du gouvernement pèse : on rejoint volontiers un pouvoir qui monte,
+ * on laisse seul un pouvoir qui coule. Le parti du président en fait
+ * évidemment partie, et un pacte signé par le joueur tient quoi qu'il
+ * arrive, parce que celui-là, il l'a payé.
+ */
+function formCoalition() {
+  const ruling = rulingParty();
+  if (!ruling) { game.coalition = []; return game.coalition; }
+
+  const pacte = ruling === game.party ? allyParty() : null;
+  const bloc = [];
+
+  Object.keys(PARTIES).forEach((key) => {
+    if (key === ruling || key === pacte) { bloc.push(key); return; }
+
+    const distance = ideologicalDistance(key, ruling);
+    if (distance > NEIGHBOUR_DISTANCE) return;
+
+    const proximite = 1 - distance / NEIGHBOUR_DISTANCE;
+    const chance = 0.10 + proximite * 0.5 + (game.approval - 50) / 220;
+    if (Math.random() < chance) bloc.push(key);
+  });
+
+  game.coalition = bloc;
+  return bloc;
+}
+
+function governmentBloc() {
+  const ruling = rulingParty();
+  if (!ruling || !game.assembly) return [];
+  if (!game.coalition || !game.coalition.includes(ruling)) return formCoalition();
+  return game.coalition;
+}
+
+function governmentSeats() {
+  if (!game.assembly) return 0;
+  return governmentBloc().reduce((total, key) => total + (game.assembly[key] || 0), 0);
+}
+
+/**
+ * « absolue », « relative » ou « aucune ». C'est ce que lisent les événements.
+ *
+ * Le seuil du milieu ne se compte pas en sièges mais en rang : un
+ * gouvernement qui est le premier groupe de l'Assemblée gouverne, en
+ * négociant chaque texte ; un gouvernement qui n'est même pas le premier
+ * groupe ne gouverne que parce que ceux d'en face ne s'entendent pas. Un
+ * seuil fixe au tiers classait « sans majorité » un camp de cent
+ * soixante-quinze sièges qui dominait pourtant l'hémicycle.
+ */
+function majorityState() {
+  const sieges = governmentSeats();
+  if (sieges >= ASSEMBLY_MAJORITY) return "absolue";
+  if (!game.assembly) return "relative";
+
+  const plusGros = Math.max(...Object.values(game.assembly));
+  return sieges >= plusGros ? "relative" : "aucune";
+}
+
+/** Qui occupe Matignon : le joueur, une figure, ou personne. */
+function primeMinister() {
+  if (game.position === "premier") {
+    return { name: game.character.name || t("sheet_name_empty"), party: game.party,
+             sex: game.character.sex, isPlayer: true };
+  }
+  const figure = game.rivals.find((r) => r.position === "premier");
+  return figure ? { name: figure.name, party: figure.party, sex: figure.sex } : null;
+}
+
+/**
+ * LA NATURE DU GOUVERNEMENT. Un Premier ministre du parti du président
+ * gouverne avec sa majorité ; un Premier ministre venu d'ailleurs est un
+ * gouvernement d'ouverture, et cela se paie des deux côtés.
+ */
+function governmentKind() {
+  const pm = primeMinister();
+  const ruling = rulingParty();
+  if (!pm || !ruling) return null;
+  return pm.party === ruling ? "majorite" : "ouverture";
+}
+
+/** Ce que l'onglet affiche : les sièges du bloc, et ceux du seul parti. */
+function rulingPartySeats() {
+  const ruling = rulingParty();
+  return ruling && game.assembly ? game.assembly[ruling] || 0 : 0;
+}
+
+/**
+ * LA CENSURE QUI ARRIVE SANS VOUS.
+ *
+ * Une dissolution ne pouvait tomber que par un choix du joueur, dans une
+ * scène rare, sur un jet réussi : mesurée sur quatre-vingts carrières
+ * entières, elle n'est jamais arrivée une seule fois. Un mécanisme qui
+ * n'existe jamais n'existe pas.
+ *
+ * Un gouvernement très impopulaire et sans majorité absolue peut donc
+ * désormais tomber tout seul, que le joueur soit député d'opposition,
+ * ministre ou maire d'une ville moyenne qui l'apprend à la radio. C'est
+ * ainsi que ces choses se passent : on est rarement celui qui compte les
+ * voix. Le président dissout dans la foulée et le pays revote.
+ */
+const CENSURE_APPROVAL = 26;
+const CENSURE_CHANCE = 0.11;
+
+function maybeCensure() {
+  if (game.dissolution || !game.president) return;
+  if (game.approval > CENSURE_APPROVAL) return;
+  if (majorityState() === "absolue") return;
+  if (Math.random() > CENSURE_CHANCE) return;
+
+  game.dissolution = game.turn + 1;
+  game.approval = clamp100(game.approval - 6);
+
+  addLog({
+    fr: "Une motion de censure est adoptée et le gouvernement tombe. Le président dissout l'Assemblée dans la nuit : le pays revote dans six semaines.",
+    en: "A no-confidence motion passes and the government falls. The president dissolves the Assembly overnight: the country votes again in six weeks.",
+  });
+}
+
 /** Le parti allié au camp du joueur, s'il y en a un. */
 function allyParty() {
   return game.alliance ? game.alliance.party : null;
@@ -256,13 +563,17 @@ function driftLandscape() {
   const floor = Object.keys(PARTIES).reduce((sum, key) => sum + naturalShare(key), 0) / 100;
 
   Object.keys(game.landscape).forEach((key) => {
-    let move = (Math.random() - 0.5) * 1.6;
+    // Moins de bruit qu'avant : quand tout tremble sans raison, le joueur ne
+    // peut pas voir ce que ses choix ont fait. Le mouvement doit être causé.
+    let move = (Math.random() - 0.5) * 0.9;
 
     // Le rappel vers ce que le parti pèse naturellement dans le pays.
     move += (naturalShare(key) / floor - game.landscape[key]) * LANDSCAPE_PULL;
 
-    // Gouverner use : le camp au pouvoir perd du terrain, doucement.
-    if (key === ruling) move -= 0.5;
+    // GOUVERNER USE, ET DE PLUS EN PLUS. Un premier mandat s'entame
+    // doucement, un second se paie plein tarif : c'est ce qui fait respirer
+    // le tableau au lieu de le laisser figé sur ses socles.
+    if (key === ruling) move -= 0.45 + (game.presidentTerms - 1) * 0.5;
 
     // Une figure populaire tire son parti vers le haut.
     const figure = figureOf(key);
@@ -285,6 +596,77 @@ function driftLandscape() {
   });
 
   normalizeLandscape(game.landscape);
+  reportLandscape();
+}
+
+/* ==========================================================================
+   DIRE POURQUOI ÇA BOUGE
+   ==========================================================================
+   Le tableau montrait des flèches et jamais une raison. Un parti montait de
+   quatre points en six ans sans que rien, nulle part, ne l'explique : le
+   joueur voyait le résultat d'une mécanique qu'il ne pouvait pas apprendre.
+
+   On surveille donc les mouvements de fond — pas ceux d'un tour, qui ne
+   veulent rien dire — et quand un camp a franchi une marche, on l'écrit dans
+   le journal avec la cause la plus probable. C'est une lecture d'éditorial,
+   pas un relevé : on dit « le pays se lasse de ceux qui gouvernent », jamais
+   « moins 0,9 point par tour ».
+   ========================================================================== */
+
+/**
+ * Le mouvement qu'il faut avoir accumulé pour qu'on en parle. Deux points et
+ * demi : au-dessus, le tableau bougeait sans que le journal l'explique jamais
+ * ; en dessous, on commenterait le bruit.
+ */
+const LANDSCAPE_STORY = 2.5;
+
+function reportLandscape() {
+  if (!game.landscapeMarks) game.landscapeMarks = { ...game.landscape };
+
+  const ruling = rulingParty();
+
+  Object.keys(game.landscape).forEach((key) => {
+    const depuis = game.landscapeMarks[key];
+    if (depuis === undefined) { game.landscapeMarks[key] = game.landscape[key]; return; }
+
+    const ecart = game.landscape[key] - depuis;
+    if (Math.abs(ecart) < LANDSCAPE_STORY) return;
+
+    game.landscapeMarks[key] = game.landscape[key];
+    const monte = ecart > 0;
+
+    // La cause la plus probable, dans l'ordre où elle compte.
+    let texte;
+    if (!monte && key === ruling) texte = {
+      fr: "Dans le pays, {party_the:" + key + "} " + accordParti(key, "s'érode", "s'érodent") +
+          ". C'est ce qui arrive quand on gouverne, et personne au pouvoir n'a jamais trouvé le remède.",
+      en: "Out in the country, {party_the:" + key + "} are slipping. That is what governing does, and nobody in power has ever found the cure.",
+    };
+    else if (monte && key === game.party) texte = {
+      fr: "Les intentions de vote pour {party_the:" + key + "} montent nettement, et l'on commence à écrire que vous y êtes pour quelque chose.",
+      en: "Voting intentions for {party_the:" + key + "} are up sharply, and people are starting to write that you have something to do with it.",
+    };
+    else if (!monte && key === game.party) texte = {
+      fr: "Dans les sondages, {party_the:" + key + "} " + accordParti(key, "décroche", "décrochent") +
+          ". En réunion, personne ne vous regarde en le disant, ce qui est pire que de vous regarder.",
+      en: "In the polls, {party_the:" + key + "} are falling away. In meetings nobody looks at you while saying it, which is worse than if they did.",
+    };
+    else if (monte) texte = {
+      fr: "Partout, {party_the:" + key + "} " + accordParti(key, "progresse", "progressent") +
+          ". On " + accordParti(key, "l'invitait", "les invitait") + " pour meubler, on " +
+          accordParti(key, "l'invite", "les invite") + " maintenant pour ce " +
+          accordParti(key, "qu'elle pèse", "qu'ils pèsent") + ".",
+      en: "Everywhere you look, {party_the:" + key + "} are gaining. They used to be invited to fill airtime; now they are invited for what they weigh.",
+    };
+    else texte = {
+      fr: "Le reflux est net : {party_the:" + key + "} " + accordParti(key, "recule", "reculent") +
+          ", et " + accordParti(key, "ses", "leurs") +
+          " cadres commencent à se demander tout haut si c'est le programme ou la personne.",
+      en: "The retreat is clear: {party_the:" + key + "} are losing ground, and their people are starting to ask out loud whether it is the programme or the person.",
+    };
+
+    addLog(texte);
+  });
 }
 
 /**
@@ -360,7 +742,7 @@ function sortedLandscape() {
  * presse et l'appartement où l'on reçoit.
  */
 function driftToward(current, target, hold) {
-  const rate = target < current ? DRIFT * (1 - hold) : DRIFT;
+  const rate = target < current ? DRIFT_DOWN * (1 - hold) : DRIFT;
   return clamp100(current + (target - current) * rate);
 }
 
@@ -390,6 +772,11 @@ function loadGame() {
 
 function electionAtTurn(turn) {
   if (turn <= 0) return null;
+  // Une dissolution insère des législatives hors calendrier. Elles comptent
+  // comme les autres, elles apparaissent dans la frise, et elles ne
+  // décalent pas le calendrier ordinaire : l'Assemblée élue à chaud reprend
+  // simplement le cycle là où il en était.
+  if (game.dissolution === turn) return ELECTIONS.find((e) => e.id === "legislatives");
   return ELECTIONS.find((e) => turn % e.cycle === e.offset) || null;
 }
 
@@ -402,10 +789,65 @@ function nextElection() {
   return null;
 }
 
+/* ==========================================================================
+   LE CALENDRIER ÉLECTORAL
+   ==========================================================================
+   Les échéances tombaient sans prévenir. La prochaine était écrite en petit
+   au milieu de la fiche, entre les traits et le budget ; les suivantes
+   n'existaient nulle part. On découvrait le congrès qui décide de la
+   direction du parti le jour où il se tenait, avec la cote qu'on avait ce
+   jour-là, et il était trop tard pour en avoir une autre.
+
+   Une carrière politique se prépare à trois ans, pas à six mois. Le
+   calendrier donne donc les quatre prochaines échéances et, pour chacune, ce
+   qu'elle veut dire pour vous AUJOURD'HUI : le siège qu'on peut prendre,
+   celui qu'on défend, l'investiture qui n'est pas gagnée, ou le scrutin qui
+   se jouera sans vous. C'est une projection, pas une promesse : elle est
+   lue avec la fonction et la cote du moment, et c'est précisément ce qui la
+   rend utile, puisqu'on a le temps de les changer.
+   ========================================================================== */
+
+/** Combien d'échéances on montre. Quatre couvrent trois à cinq ans. */
+const CALENDAR_LENGTH = 4;
+
+/** Jusqu'où on cherche. Deux cycles complets suffisent toujours. */
+const CALENDAR_HORIZON = 26;
+
+function electionCalendar() {
+  const suite = [];
+  for (let ahead = 1; ahead <= CALENDAR_HORIZON && suite.length < CALENDAR_LENGTH; ahead++) {
+    const e = electionAtTurn(game.turn + ahead);
+    if (e) suite.push({ id: e.id, inTurns: ahead, stake: playerStake(e.id) });
+  }
+  return suite;
+}
+
+/**
+ * Dans combien de temps, en toutes lettres. Un tour vaut six mois, et
+ * « dans 2.5 ans » ne se dit pas.
+ */
+function horizonLabel(turns) {
+  if (turns <= 1) return t("cal_six_months");
+  if (turns === 2) return t("cal_one_year");
+  // « dans 1 ans et demi » ne se dit pas : la première année s'écrit en toutes lettres.
+  if (turns === 3) return t("cal_one_year_half");
+
+  const ans = Math.floor(turns / 2);
+  const demi = turns % 2 === 1;
+  return t(demi ? "cal_years_half" : "cal_years").replace("{n}", ans);
+}
+
 /**
  * Ce que cette élection propose au joueur selon sa fonction actuelle.
  * Renvoie null si elle ne le concerne pas (elle se joue alors sans lui).
  */
+/**
+ * La cote au parti à partir de laquelle un cadre prend une tête de liste
+ * municipale plutôt qu'une place sur celle d'un autre. En dessous, on fait
+ * le nombre ; au-dessus, on porte la ville.
+ */
+const CADRE_MAYOR_STANDING = 50;
+
 function playerStake(electionId) {
   const pos = game.position;
 
@@ -422,20 +864,61 @@ function playerStake(electionId) {
     // seuil calé sur cinq réélections sur six, mesuré en partie réelle.
     if (pos === "maire") return { target: "maire", threshold: 60, defense: true };
     if (pos === "militant") return { target: "conseiller", threshold: 41 };
-    if (pos === "cadre") return { target: "conseiller", threshold: 43 };
+    // LA MARCHE MANQUANTE. Le cadre ne pouvait viser que le conseil, et la
+    // mairie n'était donc accessible qu'à un conseiller municipal encore en
+    // poste le jour du scrutin, une fois tous les six ans. Entre-temps, le
+    // siège européen se prend avec une cote de 14 contre 57, et il arrive
+    // avant : le conseiller partait à Strasbourg avant d'avoir pu viser
+    // l'hôtel de ville. Résultat mesuré sur cent vingt carrières entières,
+    // dix-sept pour cent seulement passaient par une mairie.
+    //
+    // Un secrétaire de fédération qui pèse prend une tête de liste sans être
+    // passé par le conseil : c'est ainsi que ça se fait. Les autres restent
+    // sur la liste de quelqu'un d'autre.
+    if (pos === "cadre") {
+      return game.standing >= CADRE_MAYOR_STANDING
+        ? { target: "maire", threshold: 62 }
+        : { target: "conseiller", threshold: 43 };
+    }
     // Le conseiller qui vise la mairie brigue la tête de liste, pas un
     // deuxième siège : échouer le laisse au conseil, où il était déjà.
     if (pos === "conseiller") return { target: "maire", threshold: 57 };
     return null;
   }
   if (electionId === "europeennes") {
-    // La liste européenne est la porte de service : elle s'ouvre plus
-    // facilement que les autres, et elle vaut moins cher.
-    if (pos === "euro") return { target: "euro", threshold: 22, defense: true };
-    if (pos === "maire") return { target: "euro", threshold: 20 };
-    if (pos === "conseiller") return { target: "euro", threshold: 14 };
-    if (pos === "cadre") return { target: "euro", threshold: 14 };
-    if (pos === "militant") return { target: "euro", threshold: 12 };
+    /* La liste européenne est la porte de service : elle s'ouvre plus
+       facilement que les autres, et elle vaut moins cher.
+
+       ELLE ÉTAIT GRANDE OUVERTE. Les seuils valaient 12 à 22 quand le score
+       d'une européenne tourne autour de soixante : quarante-cinq à cinquante
+       points de marge, c'est-à-dire un siège offert à qui le demandait. Le
+       résultat se lisait dans les carrières : quatre-vingt-trois pour cent
+       d'entre elles passaient par Strasbourg, contre dix-sept par une
+       mairie. Le député européen n'était pas une voie alternative, c'était
+       la voie normale, et le conseiller municipal partait à Bruxelles avant
+       d'avoir pu viser son hôtel de ville.
+
+       Le coupable était le VENT, pas les seuils : le rapport de force pesait
+       2,6 fois son poids ici contre 0,35 aux municipales, si bien que la
+       part nationale du camp faisait à elle seule tout le score. Le
+       coefficient est ramené dans le rang avec les autres (voir
+       PARTY_WEIGHT), et les seuils restent bas, à peine relevés, parce que
+       la base d'une européenne est basse par construction : on y vote pour
+       une étiquette, la personne du candidat n'y fait presque rien.
+
+       Reste que la porte était trop grande ouverte : quatre-vingt-deux pour
+       cent des carrières passaient par Strasbourg contre dix-huit par une
+       mairie. Les seuils de conquête ont donc été relevés jusqu'à ce que les
+       deux voies s'équilibrent, en mesurant à chaque palier sur quatre-vingt
+       -dix carrières entières plutôt qu'en le devinant. Le seuil de DÉFENSE,
+       lui, reste bien plus bas que ceux de conquête : garder un siège doit
+       être plus facile que d'en prendre un, c'est tout le sujet de
+       INCUMBENT_EDGE. */
+    if (pos === "euro") return { target: "euro", threshold: 40, defense: true };
+    if (pos === "maire") return { target: "euro", threshold: 52 };
+    if (pos === "conseiller") return { target: "euro", threshold: 46 };
+    if (pos === "cadre") return { target: "euro", threshold: 46 };
+    if (pos === "militant") return { target: "euro", threshold: 44 };
     return null;
   }
   if (electionId === "legislatives") {
@@ -465,8 +948,19 @@ function playerStake(electionId) {
     return null;
   }
   if (electionId === "presidentielle") {
-    // Un Premier ministre est un présidentiable, qu'il dirige son parti ou
-    // non : c'est même la façon la plus classique de le devenir.
+    // Deux candidatures par carrière, quel que soit le chemin. Au-delà, le
+    // parti cherche un visage neuf, et c'est ce qu'il fait dans la vraie vie.
+    if ((game.presidentialRuns || 0) >= PRIMARY_MAX_RUNS) return null;
+
+    // C'EST LA PRIMAIRE QUI DÉSIGNE, PAS LA FONCTION. Le jeu réservait la
+    // présidentielle au chef du parti : un ministre brillant, très bien coté
+    // et connu du pays voyait passer chaque échéance sans qu'on lui propose
+    // jamais rien. On concourt désormais parce qu'on a gagné l'investiture.
+    if (game.nominee === "player") return { target: "president", threshold: 0 };
+    if (game.nominee) return null;
+
+    // Filet de sécurité : si aucune primaire n'a eu lieu, la direction du
+    // parti reste la porte d'entrée qu'elle a toujours été.
     if (pos === "chef" || pos === "premier") return { target: "president", threshold: 0 };
     return null;
   }
@@ -541,8 +1035,86 @@ function partyWind() {
   return share - average;
 }
 
-function electionScore(electionId) {
-  return electionBase(electionId) + Math.random() * 12;
+/**
+ * LA PART DE HASARD D'UNE SOIRÉE ÉLECTORALE.
+ *
+ * Elle valait Math.random() * 12 : une bande plate de douze points, où
+ * toutes les fortunes étaient également probables. Douze points, quand le
+ * rapport de force en déplaçait trente-neuf à lui seul, ne laissaient
+ * aucune place au doute : mesuré scrutin par scrutin, on passait de zéro
+ * pour cent de victoires à cent en franchissant cinq points de paysage. Ce
+ * n'étaient pas des courbes, c'étaient des falaises, et le joueur n'a jamais
+ * vu une élection se jouer de peu.
+ *
+ * Trois tirages moyennés font une cloche : les soirées ordinaires se
+ * ressemblent, les surprises existent et restent rares, ce qui est
+ * exactement le comportement d'un scrutin. La moyenne reste à six points,
+ * de sorte qu'aucun seuil du jeu n'a besoin d'être retouché ; c'est
+ * seulement l'écart-type qui passe de trois et demi à six, et la zone où le
+ * résultat est réellement incertain qui passe de six points à vingt.
+ */
+const LUCK_MEAN = 6;
+const LUCK_SPREAD = 36;
+
+function electionLuck() {
+  // Trois dés moyennés : une cloche entre −0,5 et +0,5, écart-type 1/6.
+  const cloche = (Math.random() + Math.random() + Math.random()) / 3 - 0.5;
+  return LUCK_MEAN + cloche * LUCK_SPREAD;
+}
+
+/**
+ * LE POIDS DU RAPPORT DE FORCE, SCRUTIN PAR SCRUTIN.
+ *
+ * Le coefficient dit combien de points de score vaut UN point de part
+ * nationale au-dessus de la moyenne. Il valait 0,35 aux municipales et 2,6
+ * aux européennes : passer de dix à vingt-cinq pour cent dans le pays
+ * rapportait cinq points sur un scrutin et trente-neuf sur l'autre. Le
+ * premier ne se sentait pas, le second écrasait tout le reste et
+ * transformait l'élection en interrupteur.
+ *
+ * Les quatre coefficients sont désormais du même ordre de grandeur, et
+ * classés comme ils doivent l'être : plus le scrutin est national, plus
+ * l'étiquette pèse. Passer de dix à vingt-cinq pour cent vaut vingt-deux
+ * points aux européennes, dix-huit aux législatives, dix aux municipales.
+ * Cela déplace toujours une élection ; cela ne la décide plus tout seul.
+ *
+ * LE CONGRÈS GARDE SON SIGNE NÉGATIF, et ce n'est pas un oubli : on n'y
+ * vote pas dans le pays mais entre militants, et un parti qui s'effondre
+ * cherche un visage neuf quand un parti qui gagne garde le sien. La
+ * magnitude passe seulement de 0,25 à 0,15, pour que ce soit une couleur et
+ * non un verrou.
+ */
+const PARTY_WEIGHT = {
+  municipales: 0.7,
+  legislatives: 1.2,
+  europeennes: 1.5,
+  congres: -0.15,
+};
+
+/**
+ * L'AVANTAGE DU SORTANT.
+ *
+ * Un sortant a son nom sur les panneaux depuis six ans, un bilan à montrer
+ * et une machine locale qui a déjà gagné une fois. Le moteur lui donnait
+ * l'inverse : un seuil PLUS HAUT que celui d'un challenger, soixante-huit
+ * contre quarante-six pour un siège de député, compensé seulement par de
+ * meilleures statistiques. Et une défaite en défense se paie au tarif
+ * majoré, effets négatifs multipliés par 1,4, mandat perdu. Défendre était
+ * donc le mauvais côté du pari, ce qui est l'exact contraire de la vie
+ * politique réelle, où l'on bat très rarement un sortant.
+ *
+ * L'avantage est fort là où l'on vote pour quelqu'un qu'on croise au
+ * marché, faible là où l'on vote pour une étiquette qu'on ne connaît pas.
+ */
+const INCUMBENT_EDGE = {
+  municipales: 14,
+  legislatives: 9,
+  europeennes: 4,
+  congres: 6,
+};
+
+function electionScore(electionId, stake) {
+  return electionBase(electionId, stake) + electionLuck();
 }
 
 /**
@@ -551,15 +1123,19 @@ function electionScore(electionId) {
  * montrer un nombre : les jauges sont des abstractions, elles ne se récitent
  * pas.
  */
-function electionBase(electionId) {
-  const dice = 0;
+function electionBase(electionId, stake) {
+  const vent = partyWind() * (PARTY_WEIGHT[electionId] || 0);
+  // Le sortant, plus ce que les traits font gagner ou perdre ICI : un ancrage
+  // local vaut sept points dans sa ville et rien du tout à Strasbourg.
+  const dice = (stake && stake.defense ? INCUMBENT_EDGE[electionId] || 0 : 0) +
+    traitElections(game, electionId);
 
   if (electionId === "municipales") {
     // UN SCRUTIN DE PERSONNES. On vote pour quelqu'un qu'on croise au marché,
     // et l'étiquette ne pèse presque rien : un maire sortant peut survivre à
     // l'effondrement national de son parti, et cela arrive tout le temps.
     return game.popularity * 0.75 + statScore(game, "reseau") * 2.4 +
-      statScore(game, "energie") + partyWind() * 0.35 + dice;
+      statScore(game, "energie") + vent + dice;
   }
   if (electionId === "europeennes") {
     // LE SCRUTIN LE PLUS NATIONAL DE TOUS. Personne ne connaît les candidats,
@@ -567,7 +1143,7 @@ function electionBase(electionId) {
     // personne du candidat ne fait presque rien, ce qui est bien le problème
     // des européennes.
     return game.popularity * 0.35 + statScore(game, "notoriete") * 0.8 +
-      partyWind() * 2.6 + dice;
+      vent + dice;
   }
   if (electionId === "legislatives") {
     // Un scrutin national mais incarné : on est élu sous une couleur, dans une
@@ -575,7 +1151,7 @@ function electionBase(electionId) {
     // députés avec lui, y compris les bons.
     // On envoie à l'Assemblée quelqu'un dont on peut dire qu'il y a sa place.
     return game.popularity * 0.6 + statScore(game, "eloquence") + statScore(game, "reseau") +
-      statScore(game, "credibilite") * 0.7 + partyWind() * 2 + dice;
+      statScore(game, "credibilite") * 0.7 + vent + dice;
   }
   // LE CONGRÈS. Il ne se joue pas devant le pays mais entre militants : la
   // popularité n'y entre pas, la cote au parti y fait tout. Un parti qui
@@ -583,7 +1159,7 @@ function electionBase(electionId) {
   // Un congrès choisit une tête d'affiche pour les cinq ans qui viennent :
   // la stature y pèse plus que partout ailleurs sauf à la présidentielle.
   return game.standing * 0.8 + statScore(game, "reseau") + statScore(game, "eloquence") * 0.5 +
-    statScore(game, "credibilite") * 0.9 - partyWind() * 0.25 + dice;
+    statScore(game, "credibilite") * 0.9 + vent + dice;
 }
 
 /* --------------------------------------------------------------------------
@@ -620,6 +1196,17 @@ function setPresident(who) {
 
   game.presidentTerms = same ? game.presidentTerms + 1 : 1;
   game.president = who;
+
+  // L'ÉTAT DE GRÂCE. Un président qu'on vient d'élire est populaire, et il
+  // l'est d'autant plus qu'il est neuf : un sortant reconduit reprend là où
+  // il s'était arrêté, avec seulement le sursaut du soir de victoire.
+  game.approval = same ? clamp100(game.approval + 8) : 62;
+  game.dissolution = null;
+  // Un président neuf renégocie sa majorité : le bloc d'avant ne le suit pas
+  // par héritage.
+  game.coalition = null;
+  // L'investiture ne vaut que pour une élection : la suivante se rejoue.
+  game.nominee = null;
   shiftLandscape(who && (who.isPlayer ? game.party : who.party), +6);
 
   ensureGovernment();
@@ -658,8 +1245,20 @@ function setPresident(who) {
    pas président contre son propre parti, on le devient avec lui.
    -------------------------------------------------------------------------- */
 
-const PULL_MIN = 0.65;
-const PULL_MAX = 1.6;
+/*
+ * CE QU'UN CANDIDAT PEUT FAIRE DE SON PARTI.
+ *
+ * La fourchette allait de 0,65 à 1,6 : un très bon candidat multipliait sa
+ * base par plus du double de ce qu'un mauvais en tirait, et le rapport de
+ * force ne décidait donc plus rien. On voyait gagner des candidats de partis
+ * à douze pour cent, ce qui n'arrive pas.
+ *
+ * Resserrée, elle laisse encore un excellent candidat sur-performer nettement
+ * son étiquette — c'est le sujet du jeu — sans lui permettre d'effacer un
+ * écart de dix points dans le pays.
+ */
+const PULL_MIN = 0.72;
+const PULL_MAX = 1.34;
 
 function clampPull(value) {
   return Math.max(PULL_MIN, Math.min(PULL_MAX, value));
@@ -695,6 +1294,300 @@ function figurePull(figure, incumbent) {
     (Math.random() - 0.5) * 0.3
   );
   return incumbent ? pull * 1.45 : pull;
+}
+
+/* ==========================================================================
+   LA CHRONOLOGIE D'UNE CAMPAGNE
+   ==========================================================================
+   Une campagne se joue en quelques temps tirés au hasard, et le hasard ne
+   sait pas lire un calendrier. On a donc vu le soir du premier tour tomber
+   avant le porte-à-porte de la dernière semaine, ce qui suffit à démolir
+   toute une campagne : le joueur cesse de croire ce qu'on lui raconte.
+
+   Les scènes datées portent un "moment", compté en temps AVANT LA FIN de la
+   campagne : 1 pour le dernier temps, 2 pour les deux derniers, 3 pour les
+   trois derniers. Plus le chiffre est petit, plus la scène est tardive. Un
+   couple [6, 4] donne un créneau fermé des deux côtés, pour ce qui n'a de
+   sens qu'au début : les cinq cents signatures ne se ramassent pas la veille
+   du vote. Les scènes sans "moment" se jouent n'importe quand, parce qu'un
+   scandale ou une caisse vide n'ont pas de date.
+
+   Deux règles suffisent alors. Une scène datée attend son créneau et ne le
+   dépasse pas. Et elle n'apparaît jamais après une scène plus tardive déjà
+   jouée : le calendrier ne revient pas en arrière.
+   ========================================================================== */
+
+/** Le créneau d'une scène, [au plus tôt, au plus tard], ou null si elle flotte. */
+function momentWindow(ev) {
+  if (ev.moment === undefined) return null;
+  return Array.isArray(ev.moment) ? ev.moment : [ev.moment, 1];
+}
+
+/** Sa date, pour l'ordre. Plus le chiffre est petit, plus la scène est tardive. */
+function momentOf(ev) {
+  const creneau = momentWindow(ev);
+  return creneau ? creneau[0] : null;
+}
+
+/**
+ * Cette scène est-elle à sa place ? "state" est la campagne en cours, celle
+ * du joueur, celle qu'il soutient ou une élection ordinaire ; elle retient
+ * dans "moment" la scène la plus tardive déjà jouée.
+ */
+function momentFits(ev, state, steps) {
+  const creneau = momentWindow(ev);
+  if (!creneau) return true;
+
+  const reste = steps - state.step;
+  // Trop tôt : il reste plus de temps de campagne que la scène n'en admet.
+  if (reste > creneau[0]) return false;
+  // Trop tard : son créneau est passé.
+  if (reste < creneau[1]) return false;
+  // Le calendrier ne revient pas en arrière.
+  return state.moment == null || creneau[0] <= state.moment;
+}
+
+/** Retient la date de la scène jouée, pour que la suivante s'y tienne. */
+function rememberMoment(ev, state) {
+  const moment = momentOf(ev);
+  if (moment !== null && (state.moment == null || moment < state.moment)) {
+    state.moment = moment;
+  }
+}
+
+/* ==========================================================================
+   LA PRÉSIDENTIELLE DES AUTRES
+   ==========================================================================
+   Quand le joueur n'est pas candidat, la plus grande élection du jeu se
+   réglait en une phrase et un vainqueur tiré au sort. Cinq ans basculaient
+   sans qu'il ait rien à en dire.
+
+   Elle se joue maintenant en trois temps, avec des scènes qui dépendent de
+   ce qu'on est : un militant colle des affiches, un ministre défend un
+   bilan, un chef de parti négocie un désistement, et celui qui est plus
+   populaire que son propre candidat doit décider s'il le porte ou s'il
+   s'installe pour la fois d'après.
+
+   Ce qu'on y gagne ou qu'on y perd s'accumule dans "bonus", qui pèse ensuite
+   sur le tirage du vainqueur. Un peu, jamais assez pour renverser le pays :
+   on ne fait pas élire un candidat en collant des affiches, on l'aide.
+   ========================================================================== */
+
+const SUPPORT_STEPS = 3;
+
+/** Ce qu'un point de soutien vaut en points d'intentions de vote. */
+const SUPPORT_WEIGHT = 0.5;
+
+function startSupport(nominee) {
+  game.support = { step: 0, bonus: 0, used: [], moment: null, nominee: nominee || null };
+  return { kind: "support", id: drawSupport().id, resolved: false };
+}
+
+function drawSupport() {
+  const used = game.support.used;
+  const situation = SUPPORT_EVENTS.filter((ev) => eventMatches({ ...ev, id: null }, game));
+  const datees = situation.filter((ev) => momentFits(ev, game.support, SUPPORT_STEPS));
+  const eligible = datees.filter((ev) => !used.includes(ev.id));
+
+  // Le repli ignore ce qui a déjà été joué dans CETTE campagne plutôt que
+  // d'ouvrir des scènes qui ne correspondent pas à la situation. Le dernier
+  // recours ouvre les scènes sans date : revoir un décor coûte moins cher
+  // que raconter le premier tour après le second.
+  const pool = eligible.length
+    ? eligible
+    : (datees.length ? datees : situation.filter((ev) => momentOf(ev) === null));
+
+  const ev = pool.length ? pool[randInt(pool.length)] : SUPPORT_EVENTS[0];
+  used.push(ev.id);
+  rememberMoment(ev, game.support);
+  setScene(ev);
+  return ev;
+}
+
+/**
+ * Le dépouillement. Le camp du joueur part avec ce que vaut son parti, plus
+ * ce que la campagne du joueur y a ajouté ou retiré.
+ */
+function resolveSupport() {
+  const bonus = game.support.bonus * SUPPORT_WEIGHT;
+  const limited = incumbentTermLimited();
+
+  const ruling = rulingParty();
+  const poids = Object.keys(PARTIES).map((key) => ({
+    key,
+    weight: Math.max(0.5, game.landscape[key] +
+      (key === game.party ? bonus : 0) +
+      (!limited && key === ruling ? 30 : 0)),
+  }));
+
+  const total = poids.reduce((sum, w) => sum + w.weight, 0);
+  let tirage = Math.random() * total;
+  let gagnant = poids[poids.length - 1].key;
+  for (const w of poids) { tirage -= w.weight; if (tirage <= 0) { gagnant = w.key; break; } }
+
+  ensureLeaders();
+  const figure = figureOf(gagnant);
+  if (figure) setPresident({ name: figure.name, party: gagnant });
+
+  const mien = gagnant === game.party;
+  game.support = null;
+
+  if (mien) {
+    bumpStanding(game, 10);
+    bumpPop(game, 4);
+    return {
+      fr: (figure ? figure.name : "") + " est élu{e} président{e} de la République. Votre camp gouverne, et vous avez fait campagne pour lui.",
+      en: (figure ? figure.name : "") + " is elected president. Your side is in power, and you campaigned for it.",
+    };
+  }
+  bumpStanding(game, -4);
+  return {
+    fr: (figure ? figure.name : "") + " ({party:" + gagnant + "}) remporte l'élection présidentielle. Votre camp repart pour cinq ans d'opposition.",
+    en: (figure ? figure.name : "") + " ({party:" + gagnant + "}) wins the presidential election. Your side faces five more years in opposition.",
+  };
+}
+
+/* ==========================================================================
+   LA PRIMAIRE
+   ==========================================================================
+   Un parti ne se réveille pas le matin de la présidentielle avec un candidat.
+   Il en désigne un, quelques mois avant, et cette désignation est le vrai
+   tournant d'une carrière : c'est là qu'on cesse d'être un espoir.
+
+   Le moteur ne connaissait que la fonction — chef du parti, et personne
+   d'autre. Un ministre très bien coté, connu et crédible n'avait aucune
+   porte : il lisait « vous n'êtes pas investi » à chaque échéance sans
+   pouvoir rien y faire. Il peut maintenant se présenter, ou choisir qui
+   soutenir, et l'un comme l'autre se paie.
+   ========================================================================== */
+
+/** Combien de tours avant la présidentielle la primaire se joue. */
+const PRIMARY_LEAD = 3;
+
+/** La cote au parti en dessous de laquelle on ne concourt même pas. */
+/*
+ * Elle était à 42, à la portée de presque toutes les carrières : le joueur
+ * disputait trois à quatre présidentielles par partie et finissait par en
+ * gagner une. L'Élysée tombait dans plus d'un quart des parties, contre trois
+ * pour cent avant que la primaire n'existe. Une candidature à la présidence
+ * doit rester le sommet d'une carrière, pas un rendez-vous quinquennal.
+ */
+const PRIMARY_FLOOR = 58;
+
+/**
+ * Ce qu'un candidat malheureux traîne à la primaire suivante. On ne redevient
+ * pas le champion naturel de son camp cinq ans après l'avoir mené à la
+ * défaite : les mêmes qui vous ont porté rappellent qu'ils avaient prévenu.
+ */
+const PRIMARY_BEATEN = 14;
+
+/**
+ * COMBIEN DE FOIS UN PARTI VOUS PRÉSENTE.
+ *
+ * Deux, et c'est déjà généreux. Sans cette limite, une carrière bien menée
+ * restait au-dessus du seuil pendant trente ans et se présentait à chaque
+ * échéance : trois à quatre finales par partie, dont on finit forcément par
+ * en gagner une. L'Élysée devenait une question de patience.
+ *
+ * Deux candidatures, c'est le maximum qu'on voit dans une vraie carrière, et
+ * la seconde se dispute avec l'étiquette de celui qui a déjà perdu.
+ */
+const PRIMARY_MAX_RUNS = 2;
+
+/**
+ * Le poids d'un prétendant dans une primaire : ce que l'appareil pèse, ce que
+ * le pays connaît, et ce qu'on imagine de lui à l'Élysée. Les militants
+ * votent pour celui qu'ils croient capable de gagner, ce qui n'est pas la
+ * même chose que celui qu'ils préfèrent.
+ */
+function primaryWeight(standing, popularity, credibilite, rang) {
+  return standing * 0.5 + popularity * 0.35 + credibilite * 1.2 + rang * 2.2;
+}
+
+/**
+ * LA FONCTION COMPTE AUTANT QUE LA COTE. Le joueur ne pesait que sa cote au
+ * parti, si bien qu'un cadre sans mandat très bien noté battait un chef de
+ * parti installé. Un congrès ne choisit pas ainsi : il cherche quelqu'un
+ * qu'on puisse mettre sur une affiche nationale.
+ */
+function playerPrimaryWeight() {
+  return primaryWeight(
+    game.standing, game.popularity,
+    statScore(game, "credibilite") * 1.7,
+    POSITION_RANK[game.position] || 0
+  ) - (game.beatenNominee ? PRIMARY_BEATEN : 0);
+}
+
+function figurePrimaryWeight(f) {
+  const rang = { chef: 66, premier: 62, ministre: 54, depute: 46, maire: 44, euro: 42 };
+  return primaryWeight(
+    rang[f.position] || 36, f.popularity,
+    (f.stats.credibilite || 5) * 1.7,
+    POSITION_RANK[f.position] || 0
+  );
+}
+
+/**
+ * Les prétendants, LE PRÉSIDENT EN EXERCICE MIS À PART.
+ *
+ * Il figurait dans la liste, et souvent en tête : on proposait donc au joueur
+ * une primaire dont la favorite était la personne déjà à l'Élysée, ce qui ne
+ * veut rien dire. Un sortant qui peut se représenter n'a pas de primaire à
+ * gagner, il est le candidat ; un sortant en fin de second mandat n'est plus
+ * candidat du tout.
+ */
+function primaryField() {
+  return game.rivals
+    .filter((r) => r.party === game.party &&
+      !["militant", "cadre"].includes(r.position) &&
+      !isPresident(r))
+    .sort((a, b) => figurePrimaryWeight(b) - figurePrimaryWeight(a))
+    .slice(0, 3);
+}
+
+/**
+ * La primaire est-elle à l'ordre du jour ? Seulement une fois par
+ * présidentielle, et seulement si le joueur pèse assez pour que la question
+ * se pose. En dessous, l'appareil désigne sans lui et il l'apprend par la
+ * presse, comme avant.
+ */
+/**
+ * Dans combien de tours la présidentielle ? On la cherche explicitement :
+ * nextElection() renvoie le scrutin le plus proche, et ce n'est presque
+ * jamais celui-là — la primaire ne se déclenchait donc jamais.
+ */
+function turnsToPresidential() {
+  for (let ahead = 1; ahead <= 24; ahead++) {
+    const e = electionAtTurn(game.turn + ahead);
+    if (e && e.id === "presidentielle") return ahead;
+  }
+  return null;
+}
+
+function primaryDue() {
+  if (game.nominee) return false;
+  if ((game.presidentialRuns || 0) >= PRIMARY_MAX_RUNS) return false;
+  if (turnsToPresidential() !== PRIMARY_LEAD) return false;
+
+  // Un président de votre camp qui peut se représenter EST le candidat :
+  // aucun parti n'organise une primaire contre son propre président.
+  if (rulingParty() === game.party && !incumbentTermLimited() &&
+      game.president && !game.president.isPlayer) {
+    return false;
+  }
+
+  return game.standing >= PRIMARY_FLOOR;
+}
+
+/**
+ * Désigne le candidat du parti quand le joueur ne concourt pas, ou quand il
+ * perd. Renvoie la figure retenue.
+ */
+function designateNominee() {
+  const champ = primaryField();
+  if (!champ.length) return null;
+  game.nominee = champ[0].name;
+  return champ[0];
 }
 
 /* ==========================================================================
@@ -759,8 +1652,29 @@ function presidentialField() {
 }
 
 function startCampaign() {
-  game.campaign = { step: 0, field: presidentialField(), lastId: null, used: [], phase: "campaign" };
+  // C'est le seul endroit par lequel une candidature présidentielle du joueur
+  // passe réellement : le compteur va donc ici, et pas dans la primaire. Il y
+  // était, et la limite ne servait à rien pour un chef de parti, qui est
+  // candidat de droit à chaque échéance.
+  game.presidentialRuns = (game.presidentialRuns || 0) + 1;
+
+  game.campaign = { step: 0, field: presidentialField(), lastId: null, used: [], moment: null, phase: "campaign" };
   game.card = { kind: "campaign", id: drawCampaignEvent().id, resolved: false };
+}
+
+/**
+ * LA FIGURE DERRIÈRE UNE LIGNE DE SONDAGE. Le sondage ne retient qu'un nom et
+ * un parti ; les textes, eux, ont besoin de savoir à qui ils parlent. Sans ce
+ * détour par la liste des figures, l'adversaire d'une campagne était accordé
+ * au masculin quoi qu'il arrive, ce que le reste du jeu avait déjà corrigé
+ * partout ailleurs.
+ */
+function campaignFigure(candidate) {
+  if (!candidate || !candidate.name) return null;
+  const figure = game.rivals.find((r) => r.name === candidate.name);
+  return figure
+    ? { name: figure.name, party: figure.party, position: figure.position, sex: figure.sex }
+    : { name: candidate.name, party: candidate.party, position: "chef" };
 }
 
 /**
@@ -772,23 +1686,60 @@ function campaignOpponent() {
   const others = game.campaign.field.filter((c) => !c.isPlayer && c.name);
   if (!others.length) return null;
 
-  const best = others.reduce((top, c) => (c.share > top.share ? c : top), others[0]);
-  return { name: best.name, party: best.party, position: "chef" };
+  return campaignFigure(others.reduce((top, c) => (c.share > top.share ? c : top), others[0]));
 }
 
 /**
- * Un temps de campagne. Deux règles, dans cet ordre : jamais deux fois le
- * même moment dans une campagne, et on préfère toujours ce que le joueur n'a
- * jamais vu. Une campagne dure six temps et une carrière peut en compter
- * plusieurs : à la troisième, on finit par repasser par des scènes connues,
- * mais jamais dans la même année.
+ * Le plus petit du champ. On ne propose pas le même marché au favori et à
+ * celui qui plafonne à cinq pour cent : les scènes qui parlent d'un appoint
+ * portent "cast": "minor".
  */
-function drawCampaignEvent() {
-  const used = game.campaign.used || (game.campaign.used = []);
+function campaignMinor() {
+  const others = game.campaign.field.filter((c) => !c.isPlayer && c.name);
+  if (!others.length) return null;
 
-  const eligible = CAMPAIGN_EVENTS.filter((ev) => {
+  return campaignFigure(others.reduce((bas, c) => (c.share < bas.share ? c : bas), others[0]));
+}
+
+/**
+ * Le tirage d'une scène de campagne, premier ou second tour.
+ *
+ * Trois règles, dans cet ordre. Les scènes OBLIGATOIRES passent devant tout
+ * le monde dès qu'il ne reste plus que le temps qu'il leur faut : une
+ * présidentielle sans grand débat n'existe pas, et on ne va pas la confier
+ * au hasard. Ensuite on ne rejoue jamais le même moment dans une même
+ * campagne. Enfin on préfère toujours ce que le joueur n'a jamais vu : une
+ * carrière peut compter trois présidentielles, et à la troisième on repasse
+ * forcément par des scènes connues, mais jamais dans la même année.
+ */
+function pickCampaignScene(deck, state, steps) {
+  const used = state.used || (state.used = []);
+
+  const enAttente = deck.filter((ev) =>
+    ev.required && !used.includes(ev.id) && eventMatches({ ...ev, id: null }, game) &&
+    (state.moment == null || momentOf(ev) === null || momentOf(ev) <= state.moment));
+
+  const obligatoires = enAttente.filter((ev) => momentFits(ev, state, steps));
+
+  // Le temps restant ne suffit plus qu'à elles : la plus tardive passe.
+  if (obligatoires.length >= steps - state.step) {
+    const rang = (ev) => (momentOf(ev) === null ? Infinity : momentOf(ev));
+    return obligatoires.reduce((tard, ev) => (rang(ev) > rang(tard) ? ev : tard), obligatoires[0]);
+  }
+
+  // UNE OBLIGATOIRE SE RÉSERVE SA PLACE. Le débat porte une date, et toute
+  // scène plus tardive jouée avant lui la lui ferme définitivement : on avait
+  // ainsi une présidentielle sur vingt qui se terminait sans débat, parce que
+  // « dix jours avant le vote » était tombé d'abord. Tant qu'une obligatoire
+  // attend, ce qui vient après elle dans le calendrier attend aussi.
+  const dates = enAttente.map(momentOf).filter((m) => m !== null);
+  const plancher = dates.length ? Math.max(...dates) : null;
+
+  const eligible = deck.filter((ev) => {
     const weight = ev.weight === undefined ? 2 : ev.weight;
     if (weight <= 0 || used.includes(ev.id)) return false;
+    if (!momentFits(ev, state, steps)) return false;
+    if (plancher !== null && momentOf(ev) !== null && momentOf(ev) < plancher) return false;
     return eventMatches({ ...ev, id: null }, game);
   });
 
@@ -801,15 +1752,27 @@ function drawCampaignEvent() {
     for (let i = 0; i < weight; i++) pool.push(ev);
   });
 
-  const ev = pool.length ? pool[randInt(pool.length)] : CAMPAIGN_EVENTS[0];
-  used.push(ev.id);
+  return pool.length ? pool[randInt(pool.length)] : (obligatoires[0] || deck[0]);
+}
+
+/** Un temps de la campagne du premier tour. */
+function drawCampaignEvent() {
+  const ev = pickCampaignScene(CAMPAIGN_EVENTS, game.campaign, CAMPAIGN_STEPS);
+  game.campaign.used.push(ev.id);
+  rememberMoment(ev, game.campaign);
   game.campaign.lastId = ev.id;
-  game.scene = campaignOpponent() || game.scene;
+  // Une scène qui déclare son casting l'obtient ; les autres parlent de celui
+  // qui est devant, parce que c'est de lui qu'une campagne finit par parler.
+  game.scene =
+    (ev.cast === "minor" ? campaignMinor() : ev.cast ? castFor(ev) : campaignOpponent()) ||
+    game.scene;
   return ev;
 }
 
+/** Les deux paquets portent des identifiants distincts : on cherche dans les deux. */
 function campaignEventById(id) {
-  return CAMPAIGN_EVENTS.find((e) => e.id === id) || CAMPAIGN_EVENTS[0];
+  return CAMPAIGN_EVENTS.find((e) => e.id === id) ||
+    RUNOFF_EVENTS.find((e) => e.id === id) || CAMPAIGN_EVENTS[0];
 }
 
 /** Le nom affiché d'un candidat, traduit à la volée si c'est une clé. */
@@ -852,9 +1815,73 @@ function resolveFirstRound() {
   }
 }
 
-/** Second tour : les voix des éliminés décident, et elles ne se commandent pas. */
-function resolveRunoff() {
+/* ==========================================================================
+   L'ENTRE-DEUX-TOURS
+   ==========================================================================
+   Le joueur qualifié passait du dimanche soir au verdict sans qu'on lui
+   demande rien : quinze jours, le moment le plus regardé de la vie politique
+   française, et pas une décision à prendre.
+
+   Les reports sont désormais calculés le soir même du premier tour. Le
+   joueur voit d'entrée ce que le pays lui a laissé, souvent quarante-sept
+   pour cent et deux semaines pour trouver le reste, et il joue trois temps
+   pour aller le chercher. Le dernier est toujours le grand débat.
+   ========================================================================== */
+
+/** Le soir du premier tour : les reports tombent, le face-à-face commence. */
+function startDuel() {
   const result = runoff(game.campaign.field, game);
+  game.campaign.duel = { step: 0, used: [], moment: null, field: result.finalists };
+  game.campaign.phase = "duel";
+  game.card = { kind: "campaign", id: drawRunoffEvent().id, resolved: false };
+}
+
+/** Au second tour il n'y a plus qu'un adversaire, et on ne parle que de lui. */
+function runoffOpponent() {
+  return campaignFigure(game.campaign.duel.field.find((c) => !c.isPlayer && c.name));
+}
+
+/**
+ * Le candidat qu'on va chercher entre les deux tours : le plus gros des
+ * éliminés, parce que ce sont ses voix qui décident. Les scènes qui le
+ * mettent en scène portent "cast": "eliminated".
+ */
+function eliminatedCandidate() {
+  const finalistes = game.campaign.duel.field.map((c) => c.name);
+  const dehors = game.campaign.field.filter((c) =>
+    !c.isPlayer && c.name && !finalistes.includes(c.name));
+  if (!dehors.length) return null;
+
+  return campaignFigure(dehors.reduce((top, c) => (c.share > top.share ? c : top), dehors[0]));
+}
+
+/** Un temps d'entre-deux-tours. */
+function drawRunoffEvent() {
+  const duel = game.campaign.duel;
+  const ev = pickCampaignScene(RUNOFF_EVENTS, duel, RUNOFF_STEPS);
+  duel.used.push(ev.id);
+  rememberMoment(ev, duel);
+  game.scene =
+    (ev.cast === "eliminated" ? eliminatedCandidate() : runoffOpponent()) || game.scene;
+  return ev;
+}
+
+/** Le face-à-face, trié : c'est ce sondage-là qui compte désormais. */
+function duelField() {
+  return [...game.campaign.duel.field].sort((a, b) => b.share - a.share);
+}
+
+/**
+ * Second tour : les voix des éliminés décident, et elles ne se commandent
+ * pas. Ce qu'on dépouille est exactement ce que le joueur a lu pendant
+ * quinze jours ; le repli recalcule les reports pour une partie sauvegardée
+ * avant que l'entre-deux-tours n'existe.
+ */
+function resolveRunoff() {
+  const duel = game.campaign.duel;
+  const result = duel
+    ? { finalists: duelField(), winner: duelField()[0] }
+    : runoff(game.campaign.field, game);
   game.campaign.runoff = result;
 
   const me = result.finalists.find((c) => c.isPlayer);
@@ -870,24 +1897,49 @@ function resolveRunoff() {
     game.ended = { type: "victory" };
     return;
   }
-  concedeElection(result.winner);
+  concedeElection(result.winner, me ? Math.round(me.share) : undefined);
 }
 
 /**
  * Ce que coûte une présidentielle perdue, quel que soit le tour où elle
  * s'arrête. Renvoie vrai si le parti retire la direction dans la foulée.
  */
-function concedeElection(winner) {
+/**
+ * Une présidentielle perdue, et ce qu'elle laisse.
+ *
+ * ÊTRE ALLÉ AU SECOND TOUR NE SE PERD PAS. Le moteur ne comptait que la
+ * défaite : on sortait d'un second tour à quarante-neuf pour cent avec
+ * quatorze points de cote en moins, et l'on se retrouvait incapable d'obtenir
+ * l'investiture de son propre parti. C'est l'inverse de ce qui se passe — un
+ * finaliste devient le patron de son camp, même battu, surtout de peu.
+ *
+ * On ne retire par ailleurs la direction qu'à ceux qui l'avaient : le message
+ * s'affichait pour des candidats qui n'avaient jamais dirigé le parti.
+ */
+function concedeElection(winner, share) {
   setPresident({ name: winner.name, party: winner.party });
   bump(game, "notoriete", +1);
   bumpPop(game, +6);
-  bumpStanding(game, -14);
   shiftLandscape(game.party, -4);
 
-  if (game.standing >= NOMINATION_THRESHOLD.chef) return false;
+  // Le second tour compte double : y être allé installe, y avoir frôlé la
+  // victoire installe pour longtemps.
+  // Avoir mené son camp à la défaite se paie à la primaire suivante.
+  game.beatenNominee = true;
 
-  // On perd la direction, pas un mandat : il n'y en avait plus depuis le
-  // congrès qui vous avait fait chef.
+  const finaliste = share !== undefined;
+  if (finaliste) {
+    const marge = 50 - share;
+    if (marge <= 2) { bumpStanding(game, 10); bump(game, "credibilite", 2); }
+    else if (marge <= 8) { bumpStanding(game, 4); bump(game, "credibilite", 1); }
+    else bumpStanding(game, -6);
+  } else {
+    bumpStanding(game, -14);
+  }
+
+  const etaitChef = game.position === "chef";
+  if (!etaitChef || game.standing >= NOMINATION_THRESHOLD.chef) return false;
+
   setOffice(game, officeAfterDefeat(game));
   bump(game, "reputation", -1);
   if (game.campaign && game.campaign.result) game.campaign.result.lostLeadership = true;
@@ -933,8 +1985,12 @@ function ensureGovernment() {
 
   if (!ruling) return;
 
-  // Le joueur occupe Matignon : personne d'autre ne l'occupe.
-  const playerIsPM = ruling === game.party && game.position === "premier";
+  // LE JOUEUR OCCUPE MATIGNON : PERSONNE D'AUTRE NE L'OCCUPE. On exigeait
+  // ici que son camp gouverne, alors qu'un gouvernement d'ouverture met
+  // précisément à Matignon quelqu'un qui n'est pas du parti du président.
+  // Le moteur nommait donc un second Premier ministre à côté du joueur, et
+  // le pays en avait deux.
+  const playerIsPM = game.position === "premier";
   const inGov = game.rivals.filter((r) => r.party === ruling &&
     (r.position === "ministre" || r.position === "premier"));
 
@@ -992,8 +2048,15 @@ function evolveRivals() {
 
     if (Math.random() < 0.3) r.progress++;
 
+    // L'échelle passe désormais par Strasbourg, comme celle du joueur : un
+    // conseiller qui monte va au Parlement européen une fois sur trois, et
+    // l'on en revient député.
     if (r.position === "militant" && r.progress >= 3) { r.position = "conseiller"; r.progress = 0; }
-    else if (r.position === "conseiller" && r.progress >= 4) { r.position = "maire"; r.progress = 0; }
+    else if (r.position === "conseiller" && r.progress >= 4) {
+      r.position = Math.random() < 0.33 ? "euro" : "maire";
+      r.progress = 0;
+    }
+    else if (r.position === "euro" && r.progress >= 5) { r.position = "depute"; r.progress = 0; }
     else if (r.position === "maire" && r.progress >= 5) { r.position = "depute"; r.progress = 0; }
 
     // La popularité glisse vers ce que valent les statistiques et la fonction,
@@ -1138,6 +2201,12 @@ function castFor(ev) {
     const notables = camp.filter((r) => !["militant", "cadre"].includes(r.position));
     figure = pickByWeight(notables.length ? notables : camp);
   }
+  // Il a existé ici un casting "senior", qui prenait quelqu'un qui pèse,
+  // d'où qu'il vienne. Une seule scène s'en servait, la guerre interne, et
+  // elle se jouait donc contre un député d'en face cinq fois sur six. Le
+  // casting est parti avec le bug : une rivalité de parti se caste dans le
+  // parti, et il n'existe aucune scène qui veuille « n'importe qui, mais
+  // gradé ».
 
   if (!figure) figure = pickByWeight(others) || anyRival(game);
   // LE SEXE SUIT LA FIGURE. Il était laissé de côté ici, et tous les textes
@@ -1337,6 +2406,17 @@ function promoteWithinParty() {
    ========================================================================== */
 
 function advanceTurn() {
+  // LE SOIR DES LÉGISLATIVES. On recompose l'Assemblée en quittant le tour
+  // où elles se tenaient, et pas à l'intérieur du dépouillement : il y a
+  // cinq chemins pour traverser une législative — on s'y présente, on la
+  // regarde, l'investiture est refusée, on fait dissidence, on part — et
+  // c'est le seul point par lequel ils passent tous.
+  const sortante = electionAtTurn(game.turn);
+  if (sortante && sortante.id === "legislatives") {
+    computeAssembly();
+    game.dissolution = null;
+  }
+
   game.turn++;
   game.age += 0.5;
   const compte = applyBudget(game);
@@ -1357,6 +2437,8 @@ function advanceTurn() {
   // lisible d'un coup d'œil.
   game.landscapeBefore = { ...game.landscape };
   driftLandscape();
+  driftApproval();
+  maybeCensure();
   ensureGovernment();
   maybeDefection();
   applyTraitTurn(game);
@@ -1378,6 +2460,13 @@ function advanceTurn() {
     return;
   }
 
+  // La primaire tombe quelques mois avant la présidentielle, à un moment où
+  // aucune autre échéance n'occupe le calendrier.
+  if (primaryDue()) {
+    game.card = { kind: "primaire", resolved: false };
+    return;
+  }
+
   const election = electionAtTurn(game.turn);
 
   // La présidentielle où le joueur est candidat devient une campagne de six
@@ -1395,8 +2484,15 @@ function advanceTurn() {
     // Trop loin du compte pour avoir jamais été candidat : le scrutin se joue
     // sans vous et on vous le raconte de l'extérieur, au lieu de vous
     // annoncer le refus d'une investiture que vous n'aviez pas demandée.
-    if (stake && nominationBlocked(stake) && !inTheRunning(stake)) {
-      game.card = { kind: "election", id: election.id, resolved: false, aside: true };
+    // La présidentielle qu'on ne dispute pas se joue quand même : trois
+    // temps où l'on porte son camp, ou pas.
+    if (election.id === "presidentielle" && !stake) {
+      game.card = startSupport(game.nominee);
+      return;
+    }
+
+    if (!stake || (nominationBlocked(stake) && !inTheRunning(stake))) {
+      game.card = startAside(election.id);
       return;
     }
 
@@ -1536,8 +2632,37 @@ function quietEvent() {
   return pool.length ? pool[randInt(pool.length)] : EVENTS[0];
 }
 
+/**
+ * Prépare la carte d'un scrutin qui se joue sans vous. Le résultat du vote
+ * tombe tout de suite — le pays vote, le paysage bouge, un président sort
+ * peut-être des urnes — et la scène raconte ce que vous, vous en faites.
+ */
+function startAside(electionId) {
+  const resultat = backgroundElectionText(electionId);
+  addLog(resultat);
+  const ev = drawAside();
+  return {
+    kind: "aside", id: ev.id, election: electionId,
+    intro: fillMarks(L(resultat)), resolved: false,
+  };
+}
+
+function drawAside() {
+  const eligible = ASIDE_EVENTS.filter((ev) => eventMatches({ ...ev, id: null }, game));
+  let pool = eligible.length ? eligible : ASIDE_EVENTS;
+  const autres = pool.filter((ev) => ev.id !== game.lastAsideId);
+  if (autres.length) pool = autres;
+
+  const ev = pool[randInt(pool.length)];
+  game.lastAsideId = ev.id;
+  setScene(ev);
+  return ev;
+}
+
 function eventById(id) {
-  return EVENTS.find((e) => e.id === id) ||
+  return SUPPORT_EVENTS.find((e) => e.id === id) ||
+    ASIDE_EVENTS.find((e) => e.id === id) ||
+    EVENTS.find((e) => e.id === id) ||
     NOMINATION_EVENTS.find((e) => e.id === id) ||
     EVENTS[0];
 }
@@ -1607,17 +2732,21 @@ function resolveElectionRun(electionId) {
       return { won: true, final: true };
     }
 
+    // Chemin de secours : le joueur peut y avoir été finaliste, et un second
+    // tour compte quel que soit le chemin qui y mène.
+    const moi = result.finalists.find((f) => f.isPlayer);
+
     return {
       won: false,
       beatenBy: result.winner.name,
-      lostLeadership: concedeElection(result.winner),
+      lostLeadership: concedeElection(result.winner, moi ? Math.round(moi.share) : undefined),
     };
   }
 
   // Une défense perdue ne renvoie nulle part : le mandat est perdu et rien ne
   // le remplace. Le reste — ce que la soirée coûte ou rapporte — dépend de la
   // marge, et applyOutcome s'en charge pour les deux chemins.
-  const res = applyOutcome(stake, electionScore(electionId) - stake.threshold);
+  const res = applyOutcome(stake, electionScore(electionId, stake) - stake.threshold);
   return { won: res.won, outcome: res };
 }
 
@@ -1782,7 +2911,7 @@ function raceSteps(electionId, target) {
 }
 
 function startRace(electionId, stake) {
-  game.race = { id: electionId, step: 0, bonus: 0, used: [], stake };
+  game.race = { id: electionId, step: 0, bonus: 0, used: [], moment: null, stake };
   game.card = { kind: "race", id: drawRaceEvent().id, resolved: false };
 }
 
@@ -1792,12 +2921,13 @@ function startRace(electionId, stake) {
  */
 function drawRaceEvent() {
   const used = game.race.used;
-  const dernier = game.race.step === raceSteps(game.race.id) - 1;
+  const temps = raceSteps(game.race.id);
   const eligible = RACE_EVENTS.filter((ev) => {
     if (used.includes(ev.id)) return false;
     if (ev.race && !ev.race.includes(game.race.id)) return false;
-    // Une scène de dernière semaine n'a aucun sens au premier temps.
-    if (ev.last && !dernier) return false;
+    // Une scène de dernière semaine n'a aucun sens au premier temps, et une
+    // scène de cinquième semaine n'en a plus une fois qu'on l'a passée.
+    if (!momentFits(ev, game.race, temps)) return false;
     return eventMatches({ ...ev, id: null }, game);
   });
 
@@ -1807,12 +2937,13 @@ function drawRaceEvent() {
   const fresh = eligible.filter((ev) => !game.seen[ev.id]);
   const repli = sansTrace(eligible);
   const secours = sansTrace(RACE_EVENTS.filter((ev) =>
-    !ev.last && (!ev.race || ev.race.includes(game.race.id))));
+    momentOf(ev) === null && (!ev.race || ev.race.includes(game.race.id))));
 
   const pool = fresh.length ? fresh : (repli.length ? repli : secours);
   const ev = pool.length ? pool[randInt(pool.length)] : RACE_EVENTS[0];
 
   used.push(ev.id);
+  rememberMoment(ev, game.race);
   setScene(ev);
   return ev;
 }
@@ -1854,7 +2985,7 @@ function racePoll() {
 function pollFor(electionId, stake, bonus) {
   if (electionId === "congres") return null;
 
-  const marge = electionBase(electionId) + (bonus || 0) + 6 - stake.threshold;
+  const marge = electionBase(electionId, stake) + (bonus || 0) + LUCK_MEAN - stake.threshold;
   const moi = Math.max(5, Math.min(58, 31 + marge * 0.85));
 
   // Les concurrents sérieux : les partis les mieux placés, sans le vôtre.
@@ -1890,7 +3021,7 @@ function pollFor(electionId, stake, bonus) {
  * campagne.
  */
 function moodFor(electionId, stake, bonus) {
-  const marge = electionBase(electionId) + (bonus || 0) + 6 - stake.threshold;
+  const marge = electionBase(electionId, stake) + (bonus || 0) + LUCK_MEAN - stake.threshold;
   if (marge >= 10) return "race_mood_won";
   if (marge >= 2) return "race_mood_ahead";
   if (marge >= -6) return "race_mood_close";
@@ -1941,6 +3072,57 @@ function outcomeFor(marge) {
   return ELECTION_OUTCOMES.find((o) => marge >= o.min);
 }
 
+/* ==========================================================================
+   OÙ L'ON SE PRÉSENTE
+   ==========================================================================
+   L'appareil place ses candidats, et c'est lui qui décide qui va dans la
+   ville imprenable et qui va dans le siège qu'on gagne les yeux fermés. Le
+   joueur subissait ce placement sans jamais le voir : le même seuil pour
+   tout le monde, la même soirée électorale.
+
+   Il peut désormais peser dessus, MAIS SEULEMENT S'IL PÈSE. En dessous du
+   seuil de cote, on prend ce qu'on vous donne et la question ne se pose même
+   pas ; au-dessus, on décroche son téléphone et l'on choisit son terrain.
+   C'est la seule chose que la cote au parti achète qui ne soit pas une
+   investiture, et c'est bien ce qu'elle achète dans la vraie vie.
+
+   TROIS TERRAINS, TROIS PARIS.
+
+   Le bastion se gagne presque à coup sûr et ne prouve rien : on hérite d'un
+   siège, on n'en gagne pas un, et les gains sont réduits en conséquence.
+
+   Le siège ordinaire ne change rien : c'est le jeu tel qu'il était.
+
+   La circonscription imprenable est le pari du jeu. On la perd huit fois sur
+   dix, mais on ne perd QUE l'élection : l'appareil ne fait pas payer une
+   défaite là où il n'attendait rien, et personne ne vous reprochera d'avoir
+   échoué où les autres refusaient d'aller. Et si elle tombe, elle rapporte
+   presque le double, parce qu'on ne gagne pas ce siège-là sans que le pays
+   entier l'apprenne.
+   ========================================================================== */
+
+/** La cote au parti à partir de laquelle on choisit son terrain. */
+const SEAT_CHOICE_STANDING = 55;
+
+const SEAT_KINDS = {
+  bastion:    { threshold: -9,  gain: 0.5, perte: 1 },
+  ordinaire:  { threshold: 0,   gain: 1,   perte: 1 },
+  imprenable: { threshold: 11,  gain: 1.8, perte: 0 },
+};
+
+/**
+ * Le choix n'est proposé que pour une conquête, sur un scrutin où l'on est
+ * réellement placé quelque part. On ne choisit pas où défendre son propre
+ * siège, et un congrès de parti n'a pas de circonscription.
+ */
+const SEAT_ELECTIONS = ["municipales", "legislatives", "europeennes"];
+
+function seatChoiceAvailable(electionId, stake) {
+  return Boolean(stake) && !stake.defense &&
+    SEAT_ELECTIONS.includes(electionId) &&
+    game.standing >= SEAT_CHOICE_STANDING;
+}
+
 /**
  * Applique le résultat et renvoie de quoi le raconter. Le mandat perdu, lui,
  * est traité par l'appelant : c'est la seule chose qui diffère entre une
@@ -1955,8 +3137,20 @@ function applyOutcome(stake, marge) {
   // amortit seulement la chute.
   const dur = !won && stake.defense;
 
+  // Le terrain choisi module ce que la soirée rapporte ou coûte. Il ne
+  // touche jamais à la fonction obtenue : on est député de la même façon
+  // qu'on ait gagné un bastion ou une ville imprenable.
+  const terrain = SEAT_KINDS[stake.seat] || SEAT_KINDS.ordinaire;
+  // LE FACTEUR SUIT LE RÉSULTAT, PAS LE SIGNE DE L'EFFET. En l'appliquant
+  // au signe, une défaite honorable dans une imprenable voyait ses maigres
+  // gains multipliés par 1,8 pendant que ses pertes étaient annulées :
+  // perdre y rapportait plus que de ne pas se présenter. « Pas de perte »
+  // veut dire zéro, pas prime.
+  const facteur = won ? terrain.gain : terrain.perte;
+
   Object.entries(out.effects).forEach(([key, value]) => {
-    const v = dur ? (value > 0 ? 0 : Math.round(value * 1.4) - 4) : value;
+    const module = value * facteur;
+    const v = dur ? (value > 0 ? 0 : Math.round(value * 1.4) - 4) : Math.round(module);
     if (!v) return;
     if (key === "popularity") bumpPop(game, v);
     else if (key === "standing") bumpStanding(game, v);
@@ -2004,16 +3198,48 @@ function outcomeText(res) {
   };
 }
 
+/**
+ * Le dépouillement de la primaire. Le joueur s'est présenté : on compare son
+ * poids à celui du meilleur des autres, avec la part de hasard qui fait qu'une
+ * primaire n'est jamais jouée d'avance.
+ */
+function resolvePrimary(effort) {
+  const champ = primaryField();
+  const rival = champ[0] || null;
+  const moi = playerPrimaryWeight() + effort + (Math.random() - 0.5) * 14;
+  const eux = rival ? figurePrimaryWeight(rival) + (Math.random() - 0.5) * 14 : 0;
+
+  if (moi >= eux) {
+    game.nominee = "player";
+    return { gagne: true, rival };
+  }
+  game.nominee = rival ? rival.name : null;
+  return { gagne: false, rival };
+}
+
 /** Le dépouillement, une fois les temps de campagne joués. */
 function resolveRace() {
   const stake = game.race.stake;
   const sondage = racePoll();
-  const score = electionScore(game.race.id) + game.race.bonus;
+  const score = electionScore(game.race.id, stake) + game.race.bonus;
   const before = snapshot(game);
 
   const res = applyOutcome(stake, score - stake.threshold);
-  const texte = outcomeText(res);
   const won = res.won;
+  let texte = outcomeText(res);
+
+  // La note de la dissidence : l'appareil la présente une fois le résultat
+  // connu, et il la module selon le résultat.
+  if (game.race.rebel) {
+    bumpStanding(game, won ? REBEL_COST_WON : REBEL_COST_LOST);
+    bump(game, "energie", -1);
+    const suite = won
+      ? { fr: " Vous y êtes allé contre l'appareil et vous avez gagné. Il vous le fera payer moins cher que prévu, et pendant beaucoup plus longtemps.",
+          en: " You went against the machine and you won. It will charge you less than it intended, and for a great deal longer." }
+      : { fr: " Vous y êtes allé contre l'appareil et vous avez perdu. Il n'y a pas de mot pour cela au siège, seulement une liste, et vous y êtes.",
+          en: " You went against the machine and you lost. There is no word for that at headquarters, only a list, and you are on it." };
+    texte = { fr: texte.fr + suite.fr, en: texte.en + suite.en };
+  }
 
   game.race.result = { won, text: texte, poll: sondage, changes: diffSince(before, game) };
   addLog(texte);
@@ -2034,10 +3260,27 @@ function seasonLabel() {
 }
 
 /** Une jauge 0-100 : libellé, barre et valeur. */
-function renderGauge(key, value, labelKey) {
+/**
+ * Une jauge, avec LE REPÈRE DE SON NIVEAU NATUREL.
+ *
+ * Les deux jauges glissaient toutes seules vers une cible que le joueur ne
+ * voyait nulle part : il constatait une baisse sans jamais pouvoir apprendre
+ * d'où elle venait. Le repère est le même que celui du plafond d'énergie, qui
+ * existait déjà et qui fonctionnait : un trait sur la barre, et une phrase au
+ * survol qui dit ce que c'est.
+ */
+function renderGauge(key, value, labelKey, target) {
   document.getElementById("gauge-" + key + "-label").textContent = t(labelKey);
   document.getElementById("gauge-" + key + "-fill").style.width = value + "%";
   document.getElementById("gauge-" + key + "-value").textContent = value;
+
+  const bar = document.getElementById("gauge-" + key + "-fill").parentElement;
+  if (target === undefined) return;
+
+  bar.classList.add("has-ceiling");
+  bar.style.setProperty("--ceiling", clamp100(target) + "%");
+  const ligne = bar.closest(".gauge") || bar.parentElement;
+  if (ligne) ligne.setAttribute("title", t("gauge_target_title"));
 }
 
 function renderStatus() {
@@ -2057,8 +3300,8 @@ function renderStatus() {
   document.getElementById("sheet-meta-2").textContent = t("pos_" + game.position);
 
   // Les deux jauges de carrière, en tête de fiche.
-  renderGauge("pop", game.popularity, "label_popularity");
-  renderGauge("standing", game.standing, "label_standing");
+  renderGauge("pop", game.popularity, "label_popularity", popularityTarget(game));
+  renderGauge("standing", game.standing, "label_standing", standingTarget(game));
 
   document.querySelectorAll(".stat-row").forEach((row) => {
     const stat = row.getAttribute("data-stat");
@@ -2087,18 +3330,9 @@ function renderStatus() {
   soldeEl.textContent = (solde < 0 ? "−" : "+") + formatMoney(Math.abs(solde)) + " " + t("budget_per_year");
   soldeEl.classList.toggle("is-negative", solde < 0);
 
-  // Prochaine échéance
-  const next = nextElection();
-  const deadline = document.getElementById("sheet-deadline");
-  if (next) {
-    const years = next.inTurns / 2;
-    const when = years <= 0.5
-      ? t("deadline_soon")
-      : (currentLang === "fr" ? "dans " + years + " an" + (years > 1 ? "s" : "") : "in " + years + " year" + (years > 1 ? "s" : ""));
-    deadline.textContent = t("elec_" + next.election.id) + " · " + when;
-  } else {
-    deadline.textContent = "—";
-  }
+  // La prochaine échéance a quitté la fiche : elle est en haut de colonne,
+  // dans le calendrier, avec les trois suivantes et ce qu'elles engagent.
+  // La répéter ici en une ligne muette n'ajoutait rien.
 
   // Traits : ce que la carrière a laissé sur le personnage, avec ce que
   // chacun change écrit noir sur blanc.
@@ -2106,6 +3340,45 @@ function renderStatus() {
   document.getElementById("trait-rows").innerHTML = traits.length
     ? traitRowsHTML(traits)
     : '<p class="trait-empty">' + t("traits_none") + "</p>";
+}
+
+/* ---------- Le calendrier, au-dessus de la carte ---------- */
+
+/**
+ * La frise. La première échéance porte tout : c'est celle qu'on prépare.
+ * Les suivantes s'effacent progressivement, parce qu'à cinq ans on ne
+ * prépare rien, on se contente de savoir que ça existe.
+ */
+function renderCalendar() {
+  const host = document.getElementById("election-calendar");
+  if (!host) return;
+
+  // Deux moments où le calendrier n'a plus rien à annoncer. Pendant une
+  // campagne, on est dedans : le laisser affiché déplaçait l'attention hors
+  // de la seule chose qui compte. Et sur l'écran de fin, il ne reste aucune
+  // échéance à personne ; on y annonçait encore des européennes à quelqu'un
+  // qui venait de mourir.
+  const muet = Boolean(game.campaign || game.race || game.support || game.ended ||
+    (game.card && game.card.kind === "end"));
+  const suite = muet ? [] : electionCalendar();
+  if (!suite.length) { host.innerHTML = ""; host.hidden = true; return; }
+  host.hidden = false;
+
+  // UNE DATE ET UN NOM, RIEN DE PLUS. Chaque case portait aussi une ligne
+  // disant ce que le scrutin engageait pour le joueur, « conseiller
+  // municipal à votre portée ». C'était du bruit : trois lignes par case,
+  // quatre cases, et l'œil ne trouvait plus la seule chose qu'il cherchait,
+  // qui est la date. Ce que vaut une échéance se lit quand elle arrive.
+  const cases = suite.map((entry, i) => (
+    '<li class="cal-step' + (i === 0 ? " is-next" : "") + '">' +
+      '<span class="cal-mark" aria-hidden="true"></span>' +
+      '<span class="cal-when">' + horizonLabel(entry.inTurns) + "</span>" +
+      '<span class="cal-name">' + t("elec_" + entry.id) + "</span>" +
+    "</li>"
+  )).join("");
+
+  host.setAttribute("aria-label", t("cal_title"));
+  host.innerHTML = '<ol class="cal-track">' + cases + "</ol>";
 }
 
 /* ==========================================================================
@@ -2130,6 +3403,189 @@ function trendHTML(key) {
 
   return '<span class="force-trend ' + (delta > 0 ? "is-up" : "is-down") + '">' +
     (delta > 0 ? "▲" : "▼") + Math.abs(delta).toFixed(1) + "</span>";
+}
+
+/* --------------------------------------------------------------------------
+   L'HÉMICYCLE
+   --------------------------------------------------------------------------
+   DEUX RAPPORTS DE FORCE, ET IL NE FAUT SURTOUT PAS LES CONFONDRE. Celui de
+   l'opinion dit ce que pèse chaque camp dans le pays ; celui de l'Assemblée
+   dit combien de sièges il a arrachés. Le scrutin majoritaire fait que les
+   deux ne se ressemblent pas du tout : un parti à vingt-huit pour cent des
+   voix peut détenir la moitié des sièges, un parti à neuf pour cent n'en a
+   presque aucun. Les afficher l'un sous l'autre dans le même panneau les
+   faisait lire comme une seule et même chose. Ils ont donc chacun leur
+   onglet, leur titre et leur unité.
+
+   Les sièges sont rangés de la gauche vers la droite comme dans un vrai
+   hémicycle : ce n'est pas une décoration, c'est la seule disposition qui
+   permette de voir d'un coup d'œil s'il existe une majorité quelque part.
+   -------------------------------------------------------------------------- */
+
+/** L'ordre de placement, de la gauche de l'hémicycle vers la droite. */
+const HEMICYCLE_ORDER = ["radical_left", "socdem", "centrists", "liberals", "conservatives", "identitarians"];
+
+/** Combien de rangées de bancs. Dix se lisent ; vingt font un moiré. */
+const HEMICYCLE_ROWS = 10;
+
+/**
+ * Place les 577 sièges en arcs concentriques. Chaque rangée reçoit un nombre
+ * de sièges proportionnel à son rayon, sans quoi les rangées du fond seraient
+ * aussi serrées que celles du premier rang.
+ */
+function hemicycleSeats() {
+  const rInt = 40, rExt = 98;
+  const rayons = [];
+  for (let i = 0; i < HEMICYCLE_ROWS; i++) {
+    rayons.push(rInt + (rExt - rInt) * (i / (HEMICYCLE_ROWS - 1)));
+  }
+
+  const sommeRayons = rayons.reduce((s, r) => s + r, 0);
+  const parRangee = rayons.map((r) => Math.max(1, Math.round((r / sommeRayons) * ASSEMBLY_SEATS)));
+
+  // L'arrondi ne tombe pas juste : on ajuste sur la rangée du fond.
+  let total = parRangee.reduce((s, n) => s + n, 0);
+  parRangee[parRangee.length - 1] += ASSEMBLY_SEATS - total;
+
+  // Chaque siège reçoit son angle. On parcourt rangée par rangée, mais on
+  // trie ensuite par angle pour que les partis se posent bien de gauche à
+  // droite à travers toutes les rangées.
+  const places = [];
+  rayons.forEach((rayon, i) => {
+    const n = parRangee[i];
+    for (let j = 0; j < n; j++) {
+      const angle = Math.PI * (n === 1 ? 0.5 : j / (n - 1));
+      places.push({ angle, rayon });
+    }
+  });
+
+  places.sort((a, b) => b.angle - a.angle);
+  return places;
+}
+
+function hemicycleHTML() {
+  if (!game.assembly) return "";
+
+  const places = hemicycleSeats();
+  const couleurs = [];
+  HEMICYCLE_ORDER.forEach((key) => {
+    for (let i = 0; i < (game.assembly[key] || 0); i++) couleurs.push(key);
+  });
+
+  const points = places.map((p, i) => {
+    const key = couleurs[i] || HEMICYCLE_ORDER[0];
+    const x = 100 + Math.cos(p.angle) * p.rayon;
+    const y = 104 - Math.sin(p.angle) * p.rayon;
+    return '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) +
+      '" r="2.6" fill="var(--p-' + key + ')" />';
+  }).join("");
+
+  return '<svg class="hemicycle" viewBox="0 0 200 112" role="img" aria-label="' +
+    t("label_assembly") + '">' + points + "</svg>";
+}
+
+/**
+ * LE PRÉSIDENT N'EST PAS L'ÉGAL DE SON PREMIER MINISTRE.
+ *
+ * Les deux fonctions étaient présentées côte à côte, deux fiches de même
+ * taille, comme deux champs d'un même formulaire. C'est faux sur le fond :
+ * sous la Cinquième République, l'un est élu par le pays et l'autre est
+ * nommé par lui. Et c'était plat à regarder, parce que deux blocs de poids
+ * égal ne font aucune composition.
+ *
+ * L'Élysée prend donc la place d'un titre, dans la serif d'affichage, avec
+ * la mise en page que le jeu emploie déjà pour présenter quelqu'un : le
+ * surtitre en petites capitales, le nom, la ligne de contexte en dessous.
+ * Matignon suit sur une ligne, à sa place. La couleur du camp éclaire le
+ * fond, comme l'or éclaire la fiche du candidat.
+ */
+function renderExecutive(president, pm, nature) {
+  const parti = president ? president.party : (pm ? pm.party : game.party);
+  const mandat = game.presidentTerms >= 2 ? t("term_second") : t("term_first");
+
+  const matignon = pm
+    ? '<p class="exec-pm">' +
+        '<span class="exec-pm-label">' + fillGender(t("label_pm"), pm) + "</span>" +
+        '<span class="exec-pm-name' + (pm.isPlayer ? " is-mine" : "") + '">' + pm.name +
+          (pm.party !== parti
+            ? ' <span style="color:var(--p-' + pm.party + ')">' + t("party_" + pm.party) + "</span>"
+            : "") + "</span>" +
+      "</p>"
+    : '<p class="exec-pm"><span class="exec-pm-label">' + t("label_pm") +
+        '</span><span class="exec-pm-name">' + t("president_vacant") + "</span></p>";
+
+  return (
+    '<div class="exec" style="--tint:var(--p-' + parti + ')">' +
+      '<div class="exec-head">' +
+        '<p class="exec-office">' + fillGender(t("label_president"), president) + "</p>" +
+        '<p class="exec-person' + (president && president.isPlayer ? " is-mine" : "") + '">' +
+          (president ? president.name : t("president_vacant")) + "</p>" +
+        (president
+          ? '<p class="exec-meta">' + t("party_" + president.party) + " · " + mandat + "</p>"
+          : "") +
+      "</div>" +
+      matignon +
+      (nature ? '<p class="exec-kind is-' + nature + '">' + t("gov_" + nature) + "</p>" : "") +
+      '<div class="exec-approval">' +
+        '<span class="exec-approval-label">' + t("label_approval") + "</span>" +
+        '<span class="power-track"><span class="power-fill" style="width:' +
+          Math.round(game.approval) + '%"></span></span>' +
+        '<span class="exec-approval-value">' + Math.round(game.approval) + "%</span>" +
+      "</div>" +
+    "</div>"
+  );
+}
+
+/**
+ * L'ONGLET DU POUVOIR. Qui est à l'Élysée, qui est à Matignon, de quelle
+ * nature est le gouvernement, ce que le pays en pense, et ce qu'il peut
+ * faire voter. C'est l'onglet qu'on ouvre en premier parce que c'est le
+ * décor dans lequel toute la carrière se joue.
+ */
+function renderAssembly() {
+  const pane = document.getElementById("pane-assembly");
+  if (!pane || !game.assembly) return;
+
+  const ruling = rulingParty();
+  const sieges = governmentSeats();
+  const etat = majorityState();
+  const nature = governmentKind();
+
+  // game.president ne retient qu'un nom et un parti : le sexe se retrouve
+  // dans la liste des figures, sans quoi toutes les présidentes de la
+  // République s'appelaient « Président ».
+  const president = game.president
+    ? (game.president.isPlayer
+        ? { name: game.character.name || t("sheet_name_empty"), party: game.party,
+            sex: game.character.sex, isPlayer: true }
+        : { ...game.president,
+            sex: (game.rivals.find((r) => r.name === game.president.name) || {}).sex })
+    : null;
+
+  // On marque qui soutient le gouvernement : sans cela, le total du bloc
+  // était un nombre qui ne correspondait à aucune ligne du tableau.
+  const bloc = governmentBloc();
+  const lignes = HEMICYCLE_ORDER
+    .filter((key) => game.assembly[key])
+    .map((key) =>
+      '<div class="seat-row' + (key === game.party ? " is-mine" : "") +
+        (bloc.includes(key) ? " is-bloc" : "") + '">' +
+        '<span class="seat-dot" style="background:var(--p-' + key + ')"></span>' +
+        '<span class="seat-party">' + t("party_" + key) +
+          (key === ruling
+            ? ' <span class="force-tag">' + t("force_ruling") + "</span>"
+            : bloc.includes(key) ? ' <span class="force-tag is-bloc">' + t("force_support") + "</span>" : "") +
+        "</span>" +
+        '<span class="seat-count">' + game.assembly[key] + "</span>" +
+      "</div>"
+    ).join("");
+
+  pane.innerHTML =
+    renderExecutive(president, primeMinister(), nature) +
+    hemicycleHTML() +
+    '<p class="power-note is-' + etat + '">' +
+      t("majority_" + etat).replace("{n}", sieges) + "</p>" +
+    '<div class="seat-list">' + lignes + "</div>";
 }
 
 function renderLandscape() {
@@ -2157,7 +3613,7 @@ function renderLandscape() {
 
     return (
       '<div class="force-row' + (mine ? " is-mine" : "") +
-        '" style="--tint:var(--p-' + key + ')">' +
+        '" data-party="' + key + '" style="--tint:var(--p-' + key + ')">' +
         '<div class="force-head">' +
           '<span class="force-party">' + t("party_" + key) +
             (key === ruling ? ' <span class="force-tag">' + t("force_ruling") + "</span>" : "") +
@@ -2167,16 +3623,24 @@ function renderLandscape() {
         "</div>" +
         '<span class="force-track"><span class="force-fill" style="width:' +
           Math.min(100, share * 2.4) + '%"></span></span>' +
+        '<button type="button" class="force-toggle">' + t("force_people") +
+          " (" + people.length + ")</button>" +
+        '<div class="force-people">' +
         people.map((p) =>
           '<div class="force-person' + (p.isPlayer ? " is-player" : "") +
             (p.position === "chef" ? " is-leader" : "") + '">' +
             '<span class="force-name">' + p.name +
-              (p.name === presidentName() && !p.isPlayer ? " ★" : "") + "</span>" +
+              // Une petite étoile ne se voyait pas. Le président porte
+              // désormais un vrai badge, comme le parti au pouvoir.
+              (p.name === presidentName() && !p.isPlayer
+                ? ' <span class="force-tag is-president">' + t("force_president") + "</span>"
+                : "") + "</span>" +
             '<span class="force-role">' + t("pos_" + p.position) +
               " · " + Math.floor(p.age) + " " + t("age_short") + "</span>" +
             '<span class="force-pop">' + Math.round(p.popularity) + "</span>" +
           "</div>"
         ).join("") +
+        "</div>" +
       "</div>"
     );
   }).join("");
@@ -2215,6 +3679,8 @@ function fxLabel(fx) {
     return t(fx.key === "popularity" ? "label_popularity" : "label_standing") + " " + signed(fx.delta);
   }
   if (fx.kind === "poll") return t("label_poll_short") + " " + signed(fx.delta) + " " + t("label_points");
+  if (fx.kind === "approval") return t("label_approval") + " " + signed(fx.delta) + " " + t("label_points");
+  if (fx.kind === "dissolve") return t("fx_dissolve");
   if (fx.kind === "money") return (fx.delta > 0 ? "+" : "−") + formatMoney(Math.abs(fx.delta));
   // Le rapport de force : le parti concerné, puis ce qu'il gagne ou perd.
   if (fx.kind === "landscape") {
@@ -2421,6 +3887,98 @@ function unlockReasons(when) {
   return parts;
 }
 
+/* ==========================================================================
+   QUAND ON REFUSE DE SE LAISSER ÉCARTER
+   ==========================================================================
+   Le refus d'investiture était un mur : à un point du seuil, avec soixante-dix
+   de cote et une bonne popularité, on lisait « ce ne sera pas vous » et on
+   n'avait que des scènes de couloir pour s'occuper. Aucune part de hasard,
+   aucun recours, rien à décider.
+
+   Deux portes s'ouvrent donc sur chaque carte d'investiture refusée.
+
+   SE PRÉSENTER QUAND MÊME — la candidature dissidente. On y va contre
+   l'appareil, le scrutin a lieu pour de bon, et la direction fait payer
+   l'affront quoi qu'il arrive. Réservée à ceux qui sont assez près du compte
+   pour que ce ne soit pas ridicule.
+
+   CLAQUER LA PORTE — on ne prend pas la direction d'un parti qui n'en veut
+   pas, alors on en change. C'est cher, définitif, et parfois c'est la seule
+   chose qui reste.
+   ========================================================================== */
+
+/** L'écart au seuil en dessous duquel une dissidence n'est pas grotesque. */
+const REBEL_REACH = 12;
+
+/**
+ * CE QUE COÛTE DE SE PRÉSENTER SANS L'INVESTITURE.
+ *
+ * Le handicap est la machine qui manque : pas de fichier, pas de colleurs
+ * d'affiches, pas un élu du coin pour se montrer à côté de vous. Il pèse sur
+ * le scrutin comme pèserait une campagne mal menée.
+ *
+ * La note, elle, tombe au dépouillement et pas au départ. La présenter avant
+ * rendait le bouton inutile : on part déjà sous le seuil d'investiture, lui
+ * retirer encore douze points de cote avant le vote rendait le scrutin
+ * imperdable pour l'appareil. « La direction fait payer quoi qu'il arrive »
+ * veut dire après le résultat, pas à la place du résultat.
+ *
+ * Et gagner rachète une partie de l'affront, parce qu'on ne discute pas avec
+ * quelqu'un qui vient de gagner. Perdre coûte le double : c'est ce qui fait
+ * de la dissidence un pari et non une option gratuite.
+ *
+ * Le handicap a été calé sur la fenêtre, pas choisi à vue. À moins sept, on
+ * ne gagnait plus du tout dès neuf points d'écart : la porte s'ouvrait sur
+ * une défaite certaine, ce qui est pire que de ne pas l'ouvrir. À moins
+ * quatre, le pari se tient d'un bout à l'autre de la fenêtre, mesuré sur
+ * cinq cents congrès par point d'écart :
+ *
+ *   écart au seuil    2     4     6     8    10    12
+ *   victoires        76%   63%   49%   35%   22%   12%
+ */
+const REBEL_HANDICAP = -4;
+const REBEL_COST_WON = -6;
+const REBEL_COST_LOST = -16;
+
+function rebelGap(card) {
+  const need = NOMINATION_THRESHOLD[card.target];
+  if (need === undefined) return null;
+  return need - game.standing;
+}
+
+function rebellionButtons(card) {
+  if (!card.target) return "";
+
+  const gap = rebelGap(card);
+  let html = "";
+
+  if (gap !== null && gap <= REBEL_REACH) {
+    html += '<button type="button" class="event-choice is-unlocked" data-rebel="run">' +
+      '<span class="choice-key" aria-hidden="true">◆</span>' +
+      '<span class="choice-label">' + t("rebel_run") + "</span>" +
+      '<span class="choice-notes"><span class="choice-why">' + t("rebel_run_note") + "</span></span>" +
+      "</button>";
+  }
+
+  const refuge = rebelRefuge();
+  if (refuge) {
+    html += '<button type="button" class="event-choice is-unlocked" data-rebel="leave">' +
+      '<span class="choice-key" aria-hidden="true">◆</span>' +
+      '<span class="choice-label">' + t("rebel_leave").replace("{party}", t("party_the_" + refuge)) + "</span>" +
+      '<span class="choice-notes"><span class="choice-why">' + t("rebel_leave_note") + "</span></span>" +
+      "</button>";
+  }
+  return html;
+}
+
+/** Le camp voisin le mieux placé pour vous accueillir. */
+function rebelRefuge() {
+  const voisins = Object.keys(PARTIES)
+    .filter((k) => k !== game.party && ideologicalDistance(k, game.party) <= NEIGHBOUR_DISTANCE)
+    .sort((a, b) => game.landscape[b] - game.landscape[a]);
+  return voisins[0] || null;
+}
+
 /** En dessous d'une chance sur quatre, on prévient. */
 const RISKY_CHANCE = 0.25;
 
@@ -2518,6 +4076,29 @@ function renderCard() {
     return;
   }
 
+  // LE CHOIX DU TERRAIN. Trois portes, et chacune dit ce qu'elle coûte : le
+  // jeu ne donne jamais une probabilité, il dit de quoi on joue.
+  if (card.kind === "seat") {
+    const stake = playerStake(card.id);
+    const poste = stake ? t("pos_low_" + stake.target) || t("pos_" + stake.target).toLowerCase() : "";
+
+    host.innerHTML =
+      '<div class="event-card event-card-election">' +
+        '<p class="event-tag">' + t("elec_" + card.id) + " · " + t("seat_tag") + " · " + cardHeader() + "</p>" +
+        '<p class="event-text">' + fillMarks(t("seat_intro").replace("{pos}", poste)) + "</p>" +
+        '<div class="event-choices">' +
+          ["bastion", "ordinaire", "imprenable"].map((kind) =>
+            '<button type="button" class="event-choice" data-seat="' + kind + '">' +
+              '<span class="choice-label">' + t("seat_" + kind) + "</span>" +
+              '<span class="choice-notes"><span class="choice-why">' +
+                t("seat_" + kind + "_note") + "</span></span>" +
+            "</button>"
+          ).join("") +
+        "</div>" +
+      "</div>";
+    return;
+  }
+
   // Une investiture refusée se joue comme un événement ordinaire, avec ses
   // choix, mais sous l'étiquette de l'élection qui l'a provoquée.
   if (card.kind === "nomination") {
@@ -2541,7 +4122,8 @@ function renderCard() {
           ? '<p class="event-text event-result">' + card.resultText + "</p>" +
             changesHTML(card.resultChanges) + continueButton("data-continue")
           : enjeu + '<p class="event-text">' + fillText(ev.text, game) + "</p>" +
-            '<div class="event-choices">' + choiceButtons(ev, game) + "</div>") +
+            '<div class="event-choices">' + choiceButtons(ev, game) +
+              rebellionButtons(card) + "</div>") +
       "</div>";
     return;
   }
@@ -2549,6 +4131,92 @@ function renderCard() {
   // Les temps d'une campagne ordinaire, puis le dépouillement.
   if (card.kind === "race" && game.race) {
     renderRaceCard(host, card);
+    return;
+  }
+
+  // Une carte qui ne fait que raconter un résultat, sans scène derrière.
+  if (card.kind === "info") {
+    host.innerHTML =
+      '<div class="event-card event-card-election">' +
+        '<p class="event-tag">' + t(card.tagKey) + " · " + cardHeader() + "</p>" +
+        '<p class="event-text event-result">' + card.resultText + "</p>" +
+        changesHTML(card.resultChanges) + continueButton("data-continue") +
+      "</div>";
+    return;
+  }
+
+  // LA PRÉSIDENTIELLE DES AUTRES, en trois temps.
+  if (card.kind === "support" && game.support) {
+    const ev = eventById(card.id);
+    const dernier = game.support.step >= SUPPORT_STEPS - 1;
+
+    host.innerHTML =
+      '<div class="event-card event-card-election">' +
+        '<p class="event-tag">' + t("elec_presidentielle") + " · " +
+          t("step_of").replace("{n}", game.support.step + 1)
+                     .replace("{total}", SUPPORT_STEPS) + " · " + cardHeader() + "</p>" +
+        (card.resolved
+          ? '<p class="event-text event-result">' + card.resultText + "</p>" +
+            changesHTML(card.resultChanges) +
+            continueButton(dernier ? "data-support-done" : "data-support-next")
+          : '<p class="event-text nomination-stake">' + t("support_intro") + "</p>" +
+            '<p class="event-text">' + fillText(ev.text, game) + "</p>" +
+            '<div class="event-choices">' + choiceButtons(ev, game) + "</div>") +
+      "</div>";
+    return;
+  }
+
+  // LA PRIMAIRE. On y voit qui d'autre y va, et ce que chacun pèse : le
+  // joueur décide en connaissance de cause, comme pour les autres scrutins.
+  if (card.kind === "primaire") {
+    const champ = primaryField();
+    const meneur = champ[0];
+
+    const liste = champ.length
+      ? '<div class="poll"><p class="poll-title">' + t("primaire_field") + "</p>" +
+        champ.map((f) =>
+          '<div class="poll-row" style="--tint:var(--p-' + f.party + ')">' +
+            '<span class="poll-name">' + f.name + "</span>" +
+            '<span class="poll-track"></span>' +
+            '<span class="poll-share">' + t("pos_" + f.position) + "</span>" +
+          "</div>").join("") + "</div>"
+      : "";
+
+    const boutons = card.resolved ? "" :
+      '<button type="button" class="event-choice" data-primaire="run">' + t("primaire_run") + "</button>" +
+      '<button type="button" class="event-choice" data-primaire="hard">' + t("primaire_run_hard") + "</button>" +
+      (meneur
+        ? '<button type="button" class="event-choice" data-primaire="back">' +
+          t("primaire_back").replace("{name}", meneur.name) + "</button>"
+        : "") +
+      '<button type="button" class="event-choice" data-primaire="out">' + t("primaire_out") + "</button>";
+
+    host.innerHTML =
+      '<div class="event-card event-card-election">' +
+        '<p class="event-tag">' + t("primaire_tag") + " · " + cardHeader() + "</p>" +
+        (card.resolved
+          ? '<p class="event-text event-result">' + card.resultText + "</p>" +
+            changesHTML(card.resultChanges) + continueButton("data-continue")
+          : '<p class="event-text">' + t("primaire_intro") + "</p>" + liste +
+            '<div class="event-choices">' + boutons + "</div>") +
+      "</div>";
+    return;
+  }
+
+  // Un scrutin qui se joue sans vous : on annonce le résultat, puis on
+  // demande ce que vous avez fait de ces six semaines.
+  if (card.kind === "aside") {
+    const ev = eventById(card.id);
+    host.innerHTML =
+      '<div class="event-card event-card-election">' +
+        '<p class="event-tag">' + t("elec_" + card.election) + " · " + cardHeader() + "</p>" +
+        '<p class="event-text nomination-stake">' + card.intro + "</p>" +
+        (card.resolved
+          ? '<p class="event-text event-result">' + card.resultText + "</p>" +
+            changesHTML(card.resultChanges) + continueButton("data-continue")
+          : '<p class="event-text">' + fillText(ev.text, game) + "</p>" +
+            '<div class="event-choices">' + choiceButtons(ev, game) + "</div>") +
+      "</div>";
     return;
   }
 
@@ -2679,7 +4347,11 @@ function blockedPitch(stake) {
 /* ---------- Rendu de la campagne ---------- */
 
 /** Le sondage, en barres empilées : l'information centrale de la campagne. */
-function pollHTML(list, titleKey) {
+function pollHTML(list, titleKey, scale) {
+  // L'échelle est taillée pour un premier tour, où le mieux placé plafonne
+  // vers trente pour cent. À deux, elle doit revenir à un pour un, sinon
+  // quarante-sept et cinquante-trois donnent deux barres pleines identiques.
+  const echelle = scale || 1.8;
   return (
     '<div class="poll">' +
       '<p class="poll-title">' + t(titleKey || "label_poll") + "</p>" +
@@ -2688,7 +4360,7 @@ function pollHTML(list, titleKey) {
           '" style="--tint:var(--p-' + (c.party || game.party) + ')">' +
           '<span class="poll-name">' + fieldName(c) + "</span>" +
           '<span class="poll-track"><span class="poll-fill" style="width:' +
-            Math.min(100, c.share * 1.8) + '%"></span></span>' +
+            Math.min(100, c.share * echelle) + '%"></span></span>' +
           '<span class="poll-share">' + Math.round(c.share) + "%</span>" +
         "</div>"
       ).join("") +
@@ -2717,7 +4389,8 @@ function renderCampaignCard(host, card) {
     host.innerHTML =
       '<div class="event-card event-card-campaign">' +
         '<p class="event-tag">' + t("label_round2") + " · " + cardHeader() + "</p>" +
-        pollHTML(campaign.runoff.finalists, "label_round2") +
+        // Le titre du sondage répétait mot pour mot celui de la carte.
+        pollHTML(campaign.runoff.finalists, "label_result", 1) +
         '<p class="event-text event-result">' +
           L(res.playerWon
             ? { fr: "Vous êtes élu président de la République avec " + res.myShare + " % des voix.",
@@ -2758,6 +4431,29 @@ function renderCampaignCard(host, card) {
     return;
   }
 
+  // Les quinze jours du face-à-face. Même carte, mais le sondage affiché
+  // n'est plus le premier tour : c'est le duel, et il fait cent pour cent.
+  if (campaign.phase === "duel") {
+    const scene = campaignEventById(card.id);
+    const duel = campaign.duel;
+    const dernier = duel.step >= RUNOFF_STEPS - 1;
+
+    host.innerHTML =
+      '<div class="event-card event-card-campaign">' +
+        '<p class="event-tag">' + t("label_between") + " · " + t("step_of")
+          .replace("{n}", duel.step + 1).replace("{total}", RUNOFF_STEPS) + "</p>" +
+        pollHTML(duelField(), "label_round2", 1) +
+        '<p class="event-sub-tag">' + L(scene.tag) + "</p>" +
+        '<p class="event-text' + (card.resolved ? " event-result" : "") + '">' +
+          (card.resolved ? card.resultText : fillText(scene.text, game)) + "</p>" +
+        (card.resolved ? changesHTML(card.resultChanges) : "") +
+        (card.resolved
+          ? continueButton(dernier ? "data-campaign-verdict" : "data-duel-next")
+          : '<div class="event-choices">' + choiceButtons(scene, game) + "</div>") +
+      "</div>";
+    return;
+  }
+
   const ev = campaignEventById(card.id);
   const header = t("label_campaign") + " · " + t("step_of")
     .replace("{n}", step + 1).replace("{total}", CAMPAIGN_STEPS);
@@ -2789,10 +4485,23 @@ function electionPitch(electionId, stake) {
       en: "Your seat is on the line. Defeat would hand you nothing back: you only hold one office, and you would no longer have it.",
     });
   }
-  return L({
+  // ON NE TIENT QU'UN MANDAT. Le joueur qui brigue autre chose que son
+  // propre siège n'était prévenu de rien : il découvrait après coup que sa
+  // mairie avait servi de monnaie d'échange. Perdre ne coûte rien ici, c'est
+  // gagner qui coûte, et c'est exactement l'arbitrage qu'il faut poser avant
+  // le vote et non après. C'est aussi la règle réelle depuis la loi sur le
+  // cumul : on ne démissionne pas pour se présenter, on choisit une fois élu.
+  const quitte = MANDATES.includes(game.position) ? game.position : null;
+  const enJeu = L({
     fr: "Les " + t("elec_" + electionId).toLowerCase() + " approchent. Une investiture est à portée : " + t("pos_" + stake.target).toLowerCase() + ".",
     en: "The " + t("elec_" + electionId).toLowerCase() + " are coming. A nomination is within reach: " + t("pos_" + stake.target).toLowerCase() + ".",
   });
+  if (!quitte) return enJeu;
+
+  return enJeu + " " + fillMarks(L({
+    fr: "Vous êtes {pos_low:" + quitte + "} : gagner vous ferait rendre ce mandat le soir même. Perdre ne vous le prendrait pas.",
+    en: "You are {pos_low:" + quitte + "}: winning would mean giving that seat up the same evening. Losing would not take it from you.",
+  }));
 }
 
 function renderJournal() {
@@ -2999,7 +4708,24 @@ function handleClick(event) {
     return;
   }
 
+  // Le soir du premier tour ouvre l'entre-deux-tours au lieu de trancher.
   if (target.hasAttribute("data-campaign-runoff")) {
+    startDuel();
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  if (target.hasAttribute("data-duel-next")) {
+    game.campaign.duel.step++;
+    driftRunoff(game);
+    game.card = { kind: "campaign", id: drawRunoffEvent().id, resolved: false };
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  if (target.hasAttribute("data-campaign-verdict")) {
     resolveRunoff();
     game.campaign.phase = "runoff";
     saveGame();
@@ -3066,6 +4792,15 @@ function handleClick(event) {
     const id = game.card.id;
     const stake = playerStake(id);
 
+    // Quand on pèse assez pour choisir son terrain, on le choisit avant de
+    // faire campagne : c'est une décision, elle mérite son écran.
+    if (seatChoiceAvailable(id, stake)) {
+      game.card = { kind: "seat", id, resolved: false };
+      saveGame();
+      renderAll();
+      return;
+    }
+
     // Tout sauf la présidentielle passe désormais par deux ou trois temps de
     // campagne. La présidentielle, elle, a déjà les siens.
     if (stake && id !== "presidentielle") {
@@ -3096,6 +4831,135 @@ function handleClick(event) {
       game.card.resultText = fillMarks(L(soir));
       addLog(soir);
     }
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  /* ---------- Les deux portes d'une investiture refusée ---------- */
+
+  // LA DISSIDENCE. Le scrutin a lieu pour de bon, avec les mêmes temps de
+  // campagne que n'importe quel autre, mais on le mène sans la machine : le
+  // handicap part avec la campagne et ne se rattrape qu'en la jouant bien.
+  if (target.getAttribute("data-rebel") === "run") {
+    const carte = game.card;
+    const stake = playerStake(carte.election);
+    if (!stake) return;
+
+    startRace(carte.election, stake);
+    game.race.bonus += REBEL_HANDICAP;
+    game.race.rebel = true;
+    addLog({
+      fr: "Vous déposez votre candidature sans l'investiture {party_of:" + game.party + "}. Le siège apprend la nouvelle par la presse, ce qui était le but.",
+      en: "You file your candidacy without the party's endorsement. Headquarters learns of it from the press, which was the point.",
+    });
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  // CLAQUER LA PORTE. switchParty fait tout le travail : la marque de
+  // renégat, la cote qu'on laisse derrière soi, le paysage qui se déplace.
+  // Reste à dire ce qu'il advient du siège qu'on ne défendra pas.
+  if (target.getAttribute("data-rebel") === "leave") {
+    const carte = game.card;
+    const refuge = rebelRefuge();
+    if (!refuge) return;
+
+    const avant = snapshot(game);
+    const quitte = switchParty(game, refuge);
+    if (!quitte) return;
+
+    const rendu = carte.defends
+      ? standDown({ defense: true, target: carte.defends })
+      : null;
+
+    carte.resolved = true;
+    carte.resultChanges = diffSince(avant, game);
+    carte.resultText = fillMarks(L({
+      fr: "Vous écrivez une lettre de quatre lignes et vous la rendez publique avant qu'on ait pu la lire au siège. On vous accueille le jour même chez {party_the:" + refuge + "}, avec des égards que vous ne reverrez plus jamais.",
+      en: "You write a four-line letter and make it public before anyone at headquarters has read it. You are taken in the same day by {party_the:" + refuge + "}, with a warmth you will never see again.",
+    }) + (rendu ? " " + L(rendu) : ""));
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  // Le terrain choisi : on l'inscrit dans l'enjeu et la campagne commence.
+  if (target.hasAttribute("data-seat")) {
+    const choix = target.getAttribute("data-seat");
+    const id = game.card.id;
+    const stake = playerStake(id);
+    if (!stake) return;
+
+    const terrain = SEAT_KINDS[choix] || SEAT_KINDS.ordinaire;
+    startRace(id, { ...stake, seat: choix, threshold: stake.threshold + terrain.threshold });
+    addLog({
+      fr: fillMarks("Vous obtenez d'être placé " + t("seat_log_" + choix) + " pour {elec_low:" + id + "}."),
+      en: fillMarks("You get yourself placed " + t("seat_log_" + choix) + " for {elec_low:" + id + "}."),
+    });
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  if (target.hasAttribute("data-support-next")) {
+    game.support.step++;
+    game.card = { kind: "support", id: drawSupport().id, resolved: false };
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  if (target.hasAttribute("data-support-done")) {
+    const before = snapshot(game);
+    const texte = resolveSupport();
+    addLog(texte);
+    game.card = { kind: "info", tagKey: "elec_presidentielle", resolved: true,
+                  resultText: fillMarks(L(texte)), resultChanges: diffSince(before, game) };
+    saveGame();
+    renderAll();
+    return;
+  }
+
+  if (target.hasAttribute("data-primaire")) {
+    const quoi = target.getAttribute("data-primaire");
+    const before = snapshot(game);
+    let texte;
+
+    if (quoi === "back") {
+      const meneur = primaryField()[0];
+      game.nominee = meneur ? meneur.name : null;
+      bumpStanding(game, +10);
+      bump(game, "reseau", +1);
+      bumpPop(game, -3);
+      texte = tBoth("primaire_backed", { name: meneur ? meneur.name : "" });
+    } else if (quoi === "out") {
+      designateNominee();
+      bumpStanding(game, -6);
+      texte = tBoth("primaire_out_result");
+    } else {
+      // Y aller à fond coûte l'énergie d'une campagne entière, et pèse.
+      const fond = quoi === "hard";
+      if (fond) { bump(game, "energie", -3); pay(game, -40000); }
+      const res = resolvePrimary(fond ? 9 : 0);
+
+      if (res.gagne) {
+        bumpStanding(game, +12);
+        bump(game, "notoriete", +2);
+        bumpPop(game, +6);
+        texte = tBoth("primaire_won");
+      } else {
+        bumpStanding(game, -8);
+        bump(game, "notoriete", +1);
+        texte = tBoth("primaire_lost", { name: res.rival ? res.rival.name : "" });
+      }
+    }
+
+    game.card.resolved = true;
+    game.card.resultText = L(texte);
+    game.card.resultChanges = diffSince(before, game);
+    addLog(texte);
     saveGame();
     renderAll();
     return;
@@ -3168,13 +5032,28 @@ function renderAll() {
   document.body.dataset.party = game.party;
   buildStatRows();
   renderStatus();
+  renderCalendar();
   renderCard();
+  renderAssembly();
   renderBudget();
   renderLandscape();
   renderJournal();
 }
 
+/*
+ * REPÈRE DE VERSION.
+ *
+ * Le navigateur garde le JavaScript en cache, y compris en rechargeant la
+ * page : on a passé trois échanges à chercher des bugs déjà corrigés dans le
+ * fichier mais absents de la partie en cours. Cette ligne s'affiche dans la
+ * console au démarrage. Si l'heure ne correspond pas à la dernière
+ * modification, c'est du cache : Cmd+Shift+R.
+ */
+const BUILD = "2026-08-21 11:45";
+
 (function init() {
+  console.log("President Material — version du " + BUILD);
+
   const saved = loadGame();
   if (saved) {
     game = saved;
@@ -3187,6 +5066,7 @@ function renderAll() {
     // Une sauvegarde d'avant l'historique des partis ne connaît que le camp
     // actuel : on part de là plutôt que de lui inventer un passé.
     if (!game.parties) game.parties = [game.party];
+    if (game.presidentialRuns === undefined) game.presidentialRuns = 0;
 
     // Une sauvegarde d'avant la crédibilité n'en a pas. On ne la met pas à
     // zéro : la carrière déjà jouée a construit une stature, et on la lui
@@ -3259,6 +5139,44 @@ function renderAll() {
     game.card = { kind: "event", id: drawEvent().id, resolved: false };
     saveGame();
   }
+
+  // LE PAYS TOURNE DÉJÀ QUAND LA CARRIÈRE COMMENCE. Il a un président, un
+  // Premier ministre et une Assemblée. newGame posait le président sans
+  // former son gouvernement : Matignon était vacant au premier tour, ce qui
+  // n'arrive jamais. Une partie sauvegardée avant tout cela en reçoit
+  // autant au chargement.
+  if (game.approval === undefined) game.approval = 52;
+  ensureGovernment();
+  if (!game.assembly) computeAssembly();
+
+  // ON RESAUVEGARDE. Le premier saveGame() a lieu plus haut, avant que le
+  // gouvernement soit formé et l'Assemblée répartie : ni l'un ni l'autre
+  // n'entrait donc dans la sauvegarde, et chaque rechargement de la page
+  // retirait les cinq cent soixante-dix-sept sièges au sort sous les yeux du
+  // joueur. Une Assemblée qui change quand on appuie sur F5 n'est pas une
+  // Assemblée.
+  saveGame();
+
+  // Les onglets du panneau. Un clic, rien à recharger : les deux volets
+  // sont rendus à chaque tour, on ne fait que montrer l'un ou l'autre.
+  const onglets = document.querySelector(".panel-tabs");
+  if (onglets) onglets.addEventListener("click", (event) => {
+    const bouton = event.target.closest(".panel-tab");
+    if (!bouton) return;
+    onglets.querySelectorAll(".panel-tab").forEach((b) => {
+      b.classList.toggle("is-active", b === bouton);
+    });
+    document.getElementById("pane-landscape").hidden = bouton.dataset.tab !== "landscape";
+    document.getElementById("pane-assembly").hidden = bouton.dataset.tab !== "assembly";
+  });
+
+  // Les figures d'un parti se déplient au clic, une par une.
+  const opinion = document.getElementById("pane-landscape");
+  if (opinion) opinion.addEventListener("click", (event) => {
+    const bouton = event.target.closest(".force-toggle");
+    if (!bouton) return;
+    bouton.closest(".force-row").classList.toggle("is-open");
+  });
 
   document.getElementById("event-area").addEventListener("click", handleClick);
   document.getElementById("sheet-budget").addEventListener("click", handleBudgetClick);

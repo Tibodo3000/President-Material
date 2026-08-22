@@ -64,6 +64,14 @@ const translations = {
     label_popularity: "Popularité",
     label_standing: "Cote au parti",
     label_next: "Prochaine échéance",
+
+    /* Le calendrier électoral, au-dessus de la carte. */
+    cal_title: "Ce qui vous attend",
+    cal_six_months: "dans six mois",
+    cal_one_year: "dans un an",
+    cal_one_year_half: "dans un an et demi",
+    cal_years: "dans {n} ans",
+    cal_years_half: "dans {n} ans et demi",
     label_president: "À l'Élysée",
     label_traits: "Traits",
     traits_none: "Rien encore",
@@ -83,13 +91,65 @@ const translations = {
     budget_fx_hold: "baisse ralentie de",
     budget_fx_protect: "Risque judiciaire évité",
     budget_fx_nerve: "Pari perdu amorti de",
+    force_president: "Président",
     force_ruling: "Au pouvoir",
     force_ally: "Allié",
+
+    /* Le pouvoir : sa cote, son Assemblée. */
+    label_approval: "Cote du gouvernement",
+    label_assembly: "Assemblée",
+    tab_opinion: "Dans l'opinion",
+    tab_power: "Le pouvoir",
+    label_president: "Président{e} de la République",
+    term_first: "premier mandat",
+
+    /* Le choix du terrain, quand la cote au parti permet de peser. */
+    seat_tag: "Votre placement",
+    seat_intro:
+      "Vous pesez assez pour qu'on vous demande votre avis sur l'endroit où l'on vous présente. Trois dossiers sont sur la table du secrétaire général, et il vous laisse choisir, ce qui n'arrive qu'aux gens dont il a besoin.",
+    seat_bastion: "Un bastion, gagné d'avance",
+    seat_bastion_note: "On vous offre le siège. Personne ne retiendra que vous l'avez gagné",
+    seat_ordinaire: "Un siège ordinaire, à disputer",
+    seat_ordinaire_note: "Ce qu'on donne à tout le monde : une vraie élection",
+    seat_imprenable: "Une circonscription imprenable",
+    seat_imprenable_note: "On ne vous en voudra pas d'y échouer, et tout le pays le saura si vous gagnez",
+    seat_log_bastion: "dans un bastion",
+    seat_log_ordinaire: "dans un siège disputé",
+    seat_log_imprenable: "dans une circonscription imprenable",
+    term_second: "second mandat",
+    label_pm: "{Premier} ministre",
+    gov_majorite: "Gouvernement de majorité : le Premier ministre est du parti du président.",
+    gov_ouverture: "Gouvernement d'ouverture : Matignon est allé chercher un autre camp.",
+    force_people: "Voir les figures",
+    force_support: "Soutient",
+    fx_dissolve: "Assemblée dissoute",
+    majority_absolue: "Majorité absolue : {n} sièges sur 577. Le gouvernement fait voter ce qu'il veut.",
+    majority_relative: "Majorité relative : {n} sièges. Chaque texte se négocie, et rien n'est acquis.",
+    majority_aucune: "Sans majorité : {n} sièges. Le gouvernement ne tient que par la division d'en face.",
     fx_join: "Vous rejoignez",
     fx_alliance: "Alliance",
     age_short: "ans",
     president_vacant: "Vacant",
     label_poll: "Intentions de vote",
+    label_result: "Résultat",
+    primaire_tag: "Primaire",
+    support_intro:
+      "Vous n'êtes pas candidat. La campagne de votre camp se joue quand même, et ce que vous en faites pèsera un peu sur le résultat.",
+    primaire_intro:
+      "Le parti doit désigner son candidat à la présidentielle. Les militants voteront dans trois mois, et pour la première fois de votre carrière votre nom circule sans que vous l'ayez soufflé à personne.",
+    primaire_field: "Ceux qui y vont aussi",
+    primaire_run: "Se présenter",
+    primaire_run_hard: "Se présenter et y consacrer tout ce que vous avez",
+    primaire_back: "Soutenir {name} et négocier votre place",
+    primaire_out: "Rester à l'écart",
+    primaire_won:
+      "Vous êtes désigné candidat du parti. Ceux qui vous combattaient hier écrivent vos discours à partir de lundi, et vous ne pourrez plus jamais leur en vouloir tout à fait.",
+    primaire_lost:
+      "{name} l'emporte. Vous appelez pour féliciter avant que la salle ne se vide, parce que c'est ce qu'on fait, et parce qu'on recompte les voix pendant des années.",
+    primaire_backed:
+      "Vous vous rangez derrière {name} avant le premier tour. Le soutien vaut ce qu'il coûte, et il vous coûte d'avoir renoncé sans avoir essayé.",
+    primaire_out_result:
+      "Vous laissez passer. Le parti désigne quelqu'un d'autre, et personne ne vous demandera pourquoi vous n'y étiez pas.",
     label_poll_before: "Ce que disent les sondages aujourd'hui",
     label_poll_short: "Sondage",
     label_campaign: "Campagne présidentielle",
@@ -111,15 +171,23 @@ const translations = {
     race_mood_lost: "C'est mal engagé, et tout le monde autour de vous le sait.",
     label_round1: "Premier tour",
     label_round2: "Second tour",
+    label_between: "Entre les deux tours",
     label_points: "pts",
 
     /* Conséquences affichées une fois le choix fait */
     choice_unlocked: "Ouvert par",
     choice_risky: "Très risqué",
+
+    /* Les deux portes d'une investiture refusée. */
+    rebel_run: "Se présenter sans l'investiture",
+    rebel_run_note: "Le scrutin a lieu, sans le parti derrière vous",
+    rebel_leave: "Claquer la porte et rejoindre {party}",
+    rebel_leave_note: "Définitif. On ne revient pas dans un parti qu'on a quitté",
     fx_end: "Fin de carrière",
     fx_strike_first: "On le remarque :",
     fx_strike_last: "Encore une et c'est une réputation :",
     fx_energy_cap: "Récupération",
+    gauge_target_title: "Le trait marque le niveau vers lequel cette jauge glisse toute seule : ce que valent vos statistiques, votre fonction et vos marques. Un coup d'éclat vous porte au-dessus, et le temps vous y ramène — lentement, et d'autant plus lentement que vous payez pour le retenir.",
     energy_ceiling_title: "L'énergie se dépense dans les choix et remonte lentement, mais jamais au-delà du repère : c'est là que votre récupération s'arrête, et il descend avec l'âge.",
     trait_family_caractere: "Caractère",
     trait_family_physique: "Physique",
@@ -137,8 +205,6 @@ const translations = {
     flag_carefulHealth: "Santé surveillée",
     flag_frailHealth: "Santé fragile",
     step_of: "Temps {n} sur {total}",
-    term_first: "1er mandat",
-    term_last: "2e mandat, non renouvelable",
     deadline_soon: "imminente",
 
     game_continue: "Continuer",
@@ -322,6 +388,7 @@ const translations = {
     stat_reputation: "Réputation",
 
     money_label: "Fortune",
+    money_section: "Vos moyens",
 
   },
 
@@ -379,6 +446,14 @@ const translations = {
     label_popularity: "Popularity",
     label_standing: "Party standing",
     label_next: "Next milestone",
+
+    /* The election calendar, above the card. */
+    cal_title: "What is coming",
+    cal_six_months: "in six months",
+    cal_one_year: "in a year",
+    cal_one_year_half: "in eighteen months",
+    cal_years: "in {n} years",
+    cal_years_half: "in {n} and a half years",
     label_president: "In office",
     label_traits: "Traits",
     traits_none: "Nothing yet",
@@ -398,13 +473,65 @@ const translations = {
     budget_fx_hold: "decline slowed by",
     budget_fx_protect: "Legal risk avoided",
     budget_fx_nerve: "Failed gamble cushioned by",
+    force_president: "President",
     force_ruling: "In office",
     force_ally: "Allied",
+
+    /* Power: its standing, its Assembly. */
+    label_approval: "Government approval",
+    label_assembly: "Assembly",
+    tab_opinion: "In the country",
+    tab_power: "Power",
+    label_president: "President of the Republic",
+    term_first: "first term",
+
+    /* Choosing your seat, when your party standing lets you weigh in. */
+    seat_tag: "Where you run",
+    seat_intro:
+      "You matter enough that they ask your opinion on where to field you. Three files are on the general secretary's desk and he lets you pick, which only happens to people he needs.",
+    seat_bastion: "A safe seat, won in advance",
+    seat_bastion_note: "The seat is handed to you. Nobody will remember you won it",
+    seat_ordinaire: "An ordinary seat, to be fought for",
+    seat_ordinaire_note: "What everyone else gets: a real election",
+    seat_imprenable: "An unwinnable constituency",
+    seat_imprenable_note: "Nobody will hold a defeat against you, and the whole country will know if you win",
+    seat_log_bastion: "in a safe seat",
+    seat_log_ordinaire: "in a contested seat",
+    seat_log_imprenable: "in an unwinnable constituency",
+    term_second: "second term",
+    label_pm: "Prime minister",
+    gov_majorite: "Majority government: the prime minister comes from the president's party.",
+    gov_ouverture: "Coalition government: the top job went to another camp.",
+    force_people: "Show the figures",
+    force_support: "Supports",
+    fx_dissolve: "Assembly dissolved",
+    majority_absolue: "Absolute majority: {n} seats out of 577. The government passes what it likes.",
+    majority_relative: "Relative majority: {n} seats. Every bill is negotiated and nothing is secure.",
+    majority_aucune: "No majority: {n} seats. The government survives only on the divisions opposite.",
     fx_join: "You join",
     fx_alliance: "Alliance",
     age_short: "yrs",
     president_vacant: "Vacant",
     label_poll: "Voting intentions",
+    label_result: "Result",
+    primaire_tag: "Primary",
+    support_intro:
+      "You are not the candidate. Your side's campaign happens anyway, and what you do with it will weigh a little on the result.",
+    primaire_intro:
+      "The party has to pick its presidential candidate. Members vote in three months, and for the first time in your career your name is going round without you having whispered it to anyone.",
+    primaire_field: "The others going for it",
+    primaire_run: "Stand",
+    primaire_run_hard: "Stand, and throw everything you have at it",
+    primaire_back: "Back {name} and negotiate your place",
+    primaire_out: "Stay out of it",
+    primaire_won:
+      "You are chosen as the party's candidate. The people who were fighting you yesterday start writing your speeches on Monday, and you will never quite be able to hold it against them.",
+    primaire_lost:
+      "{name} wins. You call to congratulate before the room empties, because that is what one does, and because people recount those votes for years.",
+    primaire_backed:
+      "You fall in behind {name} before the first round. The endorsement is worth what it costs, and it costs you having given up without trying.",
+    primaire_out_result:
+      "You let it pass. The party picks somebody else, and nobody will ask you why you were not there.",
     label_poll_before: "What the polls say today",
     label_poll_short: "Poll",
     label_campaign: "Presidential campaign",
@@ -426,15 +553,23 @@ const translations = {
     race_mood_lost: "It is going badly, and everyone around you knows it.",
     label_round1: "First round",
     label_round2: "Runoff",
+    label_between: "Between the rounds",
     label_points: "pts",
 
     /* Consequences shown once the choice is made */
     choice_unlocked: "Open to you:",
     choice_risky: "Long shot",
+
+    /* The two doors out of a refused nomination. */
+    rebel_run: "Run without the endorsement",
+    rebel_run_note: "The election still happens, with no party behind you",
+    rebel_leave: "Walk out and join {party}",
+    rebel_leave_note: "Final. Nobody returns to a party they have left",
     fx_end: "Career over",
     fx_strike_first: "People notice:",
     fx_strike_last: "One more and it sticks:",
     fx_energy_cap: "Recovery",
+    gauge_target_title: "The marker shows the level this gauge drifts to on its own: what your stats, your office and your reputation are worth. A big moment lifts you above it, and time brings you back down — slowly, and more slowly still if you pay to hold it.",
     energy_ceiling_title: "Energy is spent on choices and comes back slowly, but never past the marker: that is where your recovery stops, and it drops with age.",
     trait_family_caractere: "Character",
     trait_family_physique: "Appearance",
@@ -452,8 +587,6 @@ const translations = {
     flag_carefulHealth: "Health looked after",
     flag_frailHealth: "Frail health",
     step_of: "Stage {n} of {total}",
-    term_first: "1st term",
-    term_last: "2nd term, cannot run again",
     deadline_soon: "imminent",
 
     game_continue: "Continue",
@@ -637,9 +770,32 @@ const translations = {
     stat_reputation: "Reputation",
 
     money_label: "Wealth",
+    money_section: "Your means",
 
   },
 };
+
+/**
+ * LE NOMBRE GRAMMATICAL DES PARTIS, EN FRANÇAIS.
+ *
+ * « les Centristes progressent » mais « la Gauche radicale progresse ». Le
+ * nombre est une propriété du nom français du parti, il vit donc ici, avec
+ * les trois formes d'article que le français impose déjà. L'anglais n'en a
+ * pas besoin : « the Radical Left are gaining » passe pour tout le monde.
+ */
+const PARTY_PLURAL_FR = {
+  radical_left: false,
+  socdem: true,
+  centrists: true,
+  liberals: true,
+  conservatives: true,
+  identitarians: false,
+};
+
+/** Choisit la forme d'un verbe selon le parti dont on parle. */
+function accordParti(key, singulier, pluriel) {
+  return PARTY_PLURAL_FR[key] ? pluriel : singulier;
+}
 
 const STORAGE_KEY = "pm-lang";
 let currentLang = "fr";
@@ -647,6 +803,22 @@ let currentLang = "fr";
 /** Renvoie une chaîne traduite dans la langue active. */
 function t(key) {
   return (translations[currentLang] && translations[currentLang][key]) || key;
+}
+
+/**
+ * Le même libellé dans les deux langues, pour le journal. Une ligne écrite
+ * pendant une partie en français doit se relire en anglais si le joueur
+ * change de langue : on ne peut donc pas y ranger du texte déjà traduit.
+ */
+function tBoth(key, remplacements) {
+  const rendu = (lang) => {
+    let texte = (translations[lang] && translations[lang][key]) || key;
+    Object.entries(remplacements || {}).forEach(([marque, valeur]) => {
+      texte = texte.replace("{" + marque + "}", valeur);
+    });
+    return texte;
+  };
+  return { fr: rendu("fr"), en: rendu("en") };
 }
 
 /**
