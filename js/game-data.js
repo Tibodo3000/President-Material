@@ -890,7 +890,8 @@ function credibilityDrift(s) {
 /* ==========================================================================
    Interpréteur d'événements
    ==========================================================================
-   Les événements ne vivent plus dans le code mais dans js/events.data.js,
+   Les événements ne vivent plus dans le code mais dans js/events/*.data.js,
+   éclatés par thème et assemblés dans EVENT_DATA par js/events/_assemble.data.js,
    sous forme de données pures. Ce qui suit sait les lire : évaluer une
    condition, tirer un dé, appliquer des effets.
 

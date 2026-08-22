@@ -7,7 +7,7 @@
  * le générateur (randomName, dans js/data.js) se contente de piocher ici.
  *
  * (Il porte l'extension .js et non .json pour la même raison que
- * js/events.data.js : un vrai fichier .json exigerait un serveur web, alors
+ * js/events/ : un vrai fichier .json exigerait un serveur web, alors
  * que le jeu s'ouvre en double-cliquant sur index.html.)
  *
  * ----------------------------------------------------------------------------
