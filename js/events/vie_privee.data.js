@@ -528,8 +528,8 @@ const EV_vie_privee = [
                   "en": "Seven weekly minutes to say out loud what gets muttered in the executive. The ratings climb and your party learns to listen to the radio with dread." } },
     { "label": { "fr": "Refuser, ce n'est pas votre métier", "en": "Refuse, it is not your job" },
       "effects": { "standing": 5, "reputation": 1, "popularity": -3 },
-      "result": { "fr": "Vous répondez que vous n'êtes pas un animateur. La direction du parti approuve, et le créneau va à quelqu'un qui, lui, deviendra ministre.",
-                  "en": "You answer that you are not a broadcaster. The leadership approves, and the slot goes to somebody who will become a minister." } }
+      "result": { "fr": "Vous répondez que vous n'êtes pas un animateur. Le bureau politique approuve, et le créneau va à quelqu'un qui, lui, deviendra ministre.",
+                  "en": "You answer that you are not a broadcaster. The executive approves, and the slot goes to somebody who will become a minister." } }
   ]
 }
 ];

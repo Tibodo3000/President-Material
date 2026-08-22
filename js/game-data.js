@@ -44,8 +44,17 @@ const START_AGE = 30;
  *             gouverne et qui vous doit quelque chose, ou un camp voisin qui
  *             a besoin de vos voix et vous achète avec Matignon. On en
  *             ressort fusible, ou présidentiable, et parfois les deux.
+ *
+ * LA DIRECTION DU PARTI N'EST PLUS DANS CETTE LISTE. Elle y était, coincée
+ * entre ministre et Premier ministre, et le moteur en tirait la seule
+ * conclusion qu'il pouvait : prendre le parti, c'était rendre son mandat. Le
+ * joueur élu à la tête de son camp se réveillait donc sans siège, sans mairie
+ * et sans ministère, et les scènes de député cessaient de sortir. Or il n'y a
+ * pas un chef de parti en France qui ne soit pas aussi député, maire, ou les
+ * deux : c'est même l'inverse, la direction se prend PARCE QU'on a une base
+ * quelque part. Voir LA DIRECTION DU PARTI, plus bas.
  */
-const LADDER = ["militant", "cadre", "conseiller", "maire", "euro", "depute", "ministre", "chef", "premier"];
+const LADDER = ["militant", "cadre", "conseiller", "maire", "euro", "depute", "ministre", "premier"];
 
 /**
  * OÙ L'ON TOMBE QUAND ON PERD.
@@ -62,7 +71,49 @@ const LADDER = ["militant", "cadre", "conseiller", "maire", "euro", "depute", "m
 const NO_OFFICE_STANDING = 30;
 
 function officeAfterDefeat(s) {
+  // Diriger le parti EST un poste d'appareil : on ne redevient pas simple
+  // militant d'un parti qu'on préside. Perdre son mandat quand on tient la
+  // maison, c'est retomber au siège, jamais plus bas.
+  if (leadsParty(s)) return "cadre";
   return s.standing >= NO_OFFICE_STANDING ? "cadre" : "militant";
+}
+
+/* ==========================================================================
+   LA DIRECTION DU PARTI
+   ==========================================================================
+   Elle ne s'occupe pas, elle se porte. C'est un TITRE QUI SE CUMULE avec la
+   fonction, et c'est la seule chose du jeu qui se cumule — précisément parce
+   que c'est la seule qui se cumule dans la vraie vie. On ne quitte pas
+   l'Assemblée en prenant son parti ; on prend son parti parce qu'on tient
+   l'Assemblée, ou une ville, ou un ministère.
+
+   Elle vit donc dans un champ à part, `game.partyLead`, et le sommet atteint
+   dans la carrière la retient dans `game.peakLead` : une carrière qui a
+   dirigé un parti l'a dirigé, même si elle s'achève sans mandat.
+
+   CE QU'ELLE APPORTE. Trois choses, et elles s'ajoutent à ce que la fonction
+   donne déjà :
+     l'EXPOSITION   on parle de vous chaque dimanche matin, quel que soit
+                    votre mandat. C'est ce que la fonction seule ne donnait
+                    pas à un maire de préfecture.
+     le RANG        vous ne demandez plus l'investiture, vous la signez. Mais
+                    un chef sans mandat pèse moins qu'un chef qui en a un :
+                    le rang s'additionne, il ne remplace rien.
+     la STATURE     la direction d'un parti vaut à elle seule ce qu'un
+                    ministère vaut : on vous imagine dans le fauteuil.
+
+   Les trois chiffres reprennent ceux que la fonction « chef » avait quand
+   elle occupait une marche de l'échelle (22 d'exposition, 7 de rang, 15 de
+   stature), diminués de ce qu'un élu ordinaire a déjà : c'est le cumul qui
+   comble la différence, et non un cadeau.
+   ========================================================================== */
+
+const LEAD_EXPOSURE = 12;
+const LEAD_RANK = 4;
+
+/** Le joueur dirige-t-il son parti ? */
+function leadsParty(s) {
+  return Boolean(s && s.partyLead);
 }
 
 /* Les indemnités, le train de vie et les postes de dépense sont dans
@@ -149,6 +200,9 @@ const DRIFT_DOWN = 0.17;
  * important, la fonction est invisible, et c'est bien pour cela qu'on y
  * envoie les gens dont on veut se débarrasser.
  */
+/* La clé "chef" sert encore : les figures du jeu, elles, n'ont qu'une case et
+   la direction de leur parti EST leur fonction. Le joueur, lui, passe par
+   exposureOf() et rankOf(), qui savent additionner. */
 const POSITION_EXPOSURE = {
   militant: 0, cadre: 3, conseiller: 4, maire: 10, euro: 8, depute: 14,
   ministre: 28, chef: 22, premier: 40,
@@ -159,6 +213,16 @@ const POSITION_RANK = {
   militant: 0, cadre: 2, conseiller: 1, maire: 3, euro: 2, depute: 4,
   ministre: 5, chef: 7, premier: 6,
 };
+
+/** Ce que le joueur expose : sa fonction, plus la direction s'il l'a. */
+function exposureOf(s) {
+  return (POSITION_EXPOSURE[s.position] || 0) + (leadsParty(s) ? LEAD_EXPOSURE : 0);
+}
+
+/** Ce que le joueur pèse dans l'appareil : sa fonction, plus la direction. */
+function rankOf(s) {
+  return (POSITION_RANK[s.position] || 0) + (leadsParty(s) ? LEAD_RANK : 0);
+}
 
 function clamp100(v) {
   return Math.max(0, Math.min(100, Math.round(v)));
@@ -176,7 +240,7 @@ function popularityTarget(s) {
   return clamp100(
     2 + statScore(s, "notoriete") * 2.6 + statScore(s, "reputation") * 1.2 +
     statScore(s, "charisme") * 1.0 + statScore(s, "credibilite") * 0.35 +
-    POSITION_EXPOSURE[s.position] * 0.7 +
+    exposureOf(s) * 0.7 +
     // Un ministre porte le bilan d'un gouvernement qu'il n'a pas choisi. La
     // fonction fait connaître, elle ne fait pas aimer.
     (s.position === "ministre" ? -8 : 0) +
@@ -195,7 +259,7 @@ function standingTarget(s) {
     // présenter sans avoir honte : une direction n'investit pas quelqu'un
     // dont personne n'imagine le nom sur une affiche nationale.
     9 + statScore(s, "reseau") * 2.2 + statScore(s, "credibilite") * 1.1 +
-    fit * 2.5 + POSITION_RANK[s.position] * 3.2 +
+    fit * 2.5 + rankOf(s) * 3.2 +
     (s.flags.dirtyMoney ? -8 : 0) +
     traitTarget(s, "standing")
   );
@@ -864,12 +928,32 @@ function recoverEnergy(s) {
  *                     makeFigure()                 la stature des rivaux
  *
  * Plus la table ci-dessous, qui fait l'essentiel du travail : c'est elle qui
- * décide de la stature qu'une carrière atteint sans rien faire de spécial.
+ * décide de la stature qu'une carrière atteint sans rien faire de spécial,
+ * et credibilityTarget() juste en dessous, qui y ajoute la direction du parti.
  */
 const CREDIBILITY_BY_OFFICE = {
   militant: 3, cadre: 6, conseiller: 6, maire: 10,
   euro: 8, depute: 12, ministre: 16, chef: 15, premier: 19,
 };
+
+/**
+ * CE QUE LA DIRECTION DU PARTI VAUT EN STATURE. Elle vaut à elle seule ce
+ * qu'elle valait quand elle était une marche de l'échelle : quinze. On ne
+ * l'additionne pas à la fonction — un député qui prend son parti ne devient
+ * pas plus présidentiable qu'un chef de parti ordinaire — on prend le plus
+ * haut des deux. Au-dessus, seuls un ministère ou Matignon ajoutent quelque
+ * chose, parce que c'est là qu'on est vu en train de gouverner.
+ */
+const CREDIBILITY_LEAD = 15;
+const CREDIBILITY_LEAD_BONUS = 3;
+
+function credibilityTarget(s) {
+  const office = CREDIBILITY_BY_OFFICE[s.position];
+  if (office === undefined) return undefined;
+  if (!leadsParty(s)) return office;
+  return Math.max(office, CREDIBILITY_LEAD) +
+    (office > CREDIBILITY_LEAD ? CREDIBILITY_LEAD_BONUS : 0);
+}
 
 /** Marge au-dessus de la fonction qu'on peut tenir grâce à ses seuls choix. */
 const CREDIBILITY_OVERSHOOT = 4;
@@ -877,7 +961,7 @@ const CREDIBILITY_OVERSHOOT = 4;
 function credibilityDrift(s) {
   if (s.turn % 4 !== 0) return;
 
-  const cible = CREDIBILITY_BY_OFFICE[s.position];
+  const cible = credibilityTarget(s);
   if (cible === undefined) return;
 
   if (s.stats.credibilite < cible) bump(s, "credibilite", +1);
@@ -952,7 +1036,18 @@ function eventMatches(ev, s) {
   if (!w) return true;
 
   if (w.party && !w.party.includes(s.party)) return false;
-  if (w.position && !w.position.includes(s.position)) return false;
+
+  // LA POSITION, ET LE CAS PARTICULIER DE « CHEF ». La direction du parti
+  // n'est plus une fonction mais un titre qu'on cumule : dans une liste de
+  // positions, "chef" ne veut donc plus dire « votre case vaut chef » mais
+  // « vous dirigez votre parti », quel que soit le mandat que vous tenez à
+  // côté. Les quarante-trois événements écrits avant le cumul continuent de
+  // sortir, et ils sortent pour la bonne personne.
+  if (w.position && !w.position.some((p) => (p === "chef" ? leadsParty(s) : p === s.position))) return false;
+
+  // La même chose, écrite en clair, pour une scène qui parle de la direction
+  // sans rien exiger du mandat.
+  if (w.partyLead !== undefined && leadsParty(s) !== w.partyLead) return false;
   if (w.origin && !w.origin.includes(s.character.origin)) return false;
   if (w.background && !w.background.includes(s.character.background)) return false;
   if (w.personality && !w.personality.includes(s.character.personality)) return false;
@@ -1028,6 +1123,41 @@ function eventMatches(ev, s) {
     const voulu = Array.isArray(w.majority) ? w.majority : [w.majority];
     if (!voulu.includes(etat)) return false;
   }
+
+  /* ------------------------------------------------------------------------
+     OÙ L'ON EST ASSIS DANS L'HÉMICYCLE.
+     ------------------------------------------------------------------------
+     "ruling" disait si l'on avait l'Élysée, et c'était tout : entre un camp
+     qui gouverne avec deux cent quatre-vingt-quinze députés et le même camp
+     qui négocie chaque texte, entre une opposition qui est le premier groupe
+     et un groupe de dix-sept qui compte ses voix, le jeu ne faisait aucune
+     différence. Quatre conditions le disent maintenant, et elles se
+     combinent : c'est ce qui rend la carte d'Assemblée écrivable.
+
+       inCoalition   votre camp vote les textes du gouvernement. Avec
+                     "ruling": false, c'est l'allié du pouvoir — celui qui
+                     soutient sans avoir l'Élysée, et qui le paie deux fois.
+       firstGroup    votre parti est le premier groupe de l'Assemblée. Ce
+                     n'est pas la même chose que gouverner, et c'est
+                     exactement de là qu'on renverse un gouvernement.
+       pivot         le gouvernement n'a pas la majorité, et il l'aurait avec
+                     vous. C'est la position la plus chère de la République :
+                     on ne vous demande rien, on vous achète.
+       minSeats /    les sièges de votre parti. Cinq cent soixante-dix-sept
+       maxSeats      en tout, deux cent quatre-vingt-neuf font la majorité.
+     ---------------------------------------------------------------------- */
+  if (w.inCoalition !== undefined) {
+    const bloc = typeof governmentBloc === "function" ? governmentBloc() : [];
+    if (bloc.includes(s.party) !== w.inCoalition) return false;
+  }
+  if (w.firstGroup !== undefined) {
+    if (partyIsFirstGroup(s) !== w.firstGroup) return false;
+  }
+  if (w.pivot !== undefined) {
+    if (partyIsPivot(s) !== w.pivot) return false;
+  }
+  if (w.minSeats !== undefined && partySeats(s) < w.minSeats) return false;
+  if (w.maxSeats !== undefined && partySeats(s) > w.maxSeats) return false;
 
   // Le poids de votre camp dans le pays, en points d'intentions de vote.
   if (w.minShare !== undefined && (s.landscape[s.party] || 0) < w.minShare) return false;
@@ -1345,6 +1475,17 @@ function applyEffects(effects, s, soften) {
       if ((cible === "premier" || cible === "ministre" || before === "premier" ||
            before === "ministre") && typeof ensureGovernment === "function") {
         ensureGovernment();
+      }
+      return;
+    }
+    // LA DIRECTION DU PARTI, DONNÉE OU RENDUE HORS CONGRÈS. Une direction se
+    // prend au congrès, mais elle se perd aussi entre deux congrès : une
+    // direction collégiale qu'on accepte, une démission après une déroute,
+    // un intérim qu'on vous confie parce que personne d'autre n'en veut. Le
+    // mandat, lui, ne bouge pas : c'est tout l'objet du cumul.
+    if (key === "lead") {
+      if (typeof setPartyLead === "function" && setPartyLead(s, Boolean(value))) {
+        changes.push({ kind: "lead", on: Boolean(value) });
       }
       return;
     }

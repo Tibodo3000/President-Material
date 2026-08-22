@@ -104,6 +104,8 @@ Every rule reads and mutates it. Key fields:
   age, turn,          // age in years; turn counts six-month steps (2 turns = 1 year)
   position,           // current rung on the LADDER
   peakPosition,       // highest rung ever reached (a career is judged by its peak)
+  partyLead,          // do you lead your party? NOT a rung — it cumulates with the office
+  peakLead,           // did you ever lead it? the peak is read on two lines, not one
   flags: {},          // dirtyMoney, onTrial, frailHealth, carefulHealth, ageWarned…
   traits: [...],      // durable marks (trait ids from TRAIT_DATA)
   strikes: {},        // partial marks: { traitId: count } before a reputation sticks
@@ -113,6 +115,10 @@ Every rule reads and mutates it. Key fields:
   popularity, standing,   // the two career gauges, 0..100
   rivals: [...],      // the political landscape's named figures (5 per party)
   landscape: {},      // party → % vote share; landscapeBefore = last turn (for trends)
+  assembly: {},       // party → seats, out of 577; fixed on each legislative night
+  coalition: [...],   // the parties that vote the government's bills
+  approval,           // the government's standing in the country, 0..100
+  dissolution,        // the turn of a snap legislative election, if one is pending
   alliance,           // { party, turn } or null
   scene,              // the figure this card is staging (fixed when the card is drawn)
   race, campaign,     // active ordinary-election / presidential-campaign sub-state
@@ -134,6 +140,12 @@ The `init()` IIFE at the bottom of [game.js](../js/game.js) is defensive: it bac
 fields that older saves lack (credibility, party history, `startMoney`, the landscape,
 chains, etc.) rather than crashing or inventing a rich past. If you add a new field to
 `state`, add a matching backfill here so existing saves keep loading.
+
+The trickiest one is worth knowing about: saves written while `chef` was still a rung of the
+ladder carry `position: "chef"` and therefore no mandate at all. They are converted to
+`partyLead: true` with `position: "cadre"` — the leadership is handed back in its own field,
+and the player is put at headquarters, which is where they were actually leading from. The
+engine does not invent a constituency they never won.
 
 ---
 

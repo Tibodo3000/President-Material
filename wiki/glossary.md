@@ -32,8 +32,10 @@ lives. Filenames link to the file — search the function name inside to land on
 ## Loop rules & interpreter — [game-data.js](../js/game-data.js)
 | Symbol | What it does |
 |--------|--------------|
-| `START_AGE`, `LADDER` | Age 30; the office ladder |
+| `START_AGE`, `LADDER` | Age 30; the office ladder (the party leadership is *not* on it) |
 | `officeAfterDefeat`, `NO_OFFICE_STANDING` | Where you land when you lose |
+| `leadsParty`, `LEAD_EXPOSURE`, `LEAD_RANK` | The party leadership, which cumulates with the office |
+| `exposureOf`, `rankOf` | Office + leadership, as read by the gauge targets |
 | `ELECTIONS` | The electoral calendar (cycle/offset in turns) |
 | `DRIFT`, `driftToward`* | Gauge convergence rate (*`driftToward` is in game.js) |
 | `popularityTarget`, `standingTarget` | Stat-derived gauge targets |
@@ -48,7 +50,7 @@ lives. Filenames link to the file — search the function name inside to land on
 | `annualIncome`, `annualExpenses`, `annualBalance`, `applyBudget` | The semester ledger |
 | `investHold`, `investProtect`, `investNerve` | What spending buys |
 | `energyCeiling`, `recoverEnergy`, `fatigueMalus` | The energy system |
-| `credibilityDrift`, `CREDIBILITY_BY_OFFICE` | Stature from office |
+| `credibilityDrift`, `credibilityTarget`, `CREDIBILITY_BY_OFFICE`, `CREDIBILITY_LEAD` | Stature from office and from the party leadership |
 | `eventMatches(ev, s)` | Evaluate a `when` block — the core condition engine |
 | `fillText`, `fillBoth`, `fillGender`, `fillMarks`, `scenePresentation` | Text placeholder resolution |
 | `applyEffects(effects, s, soften)` | Apply an `effects` block; returns real changes |
@@ -73,6 +75,11 @@ lives. Filenames link to the file — search the function name inside to land on
 | `initialLandscape`, `naturalShare`, `driftLandscape`, `normalizeLandscape` | Vote-share model |
 | `moveShare`, `shiftLandscape`, `landscapeTarget` | Landscape mutation + effect targeting |
 | `figuresOf`, `leaderOf`, `figureOf`, `sortedLandscape` | Landscape queries |
+| **The Assembly** | |
+| `computeAssembly`, `ASSEMBLY_SEATS/MAJORITY/POWER` | The 577 seats, dealt on legislative night |
+| `formCoalition`, `governmentBloc`, `governmentSeats`, `majorityState` | Who backs the government, and how solidly |
+| `partySeats`, `partyIsFirstGroup`, `partyIsPivot` | Where the *player's* party sits in the chamber |
+| `driftApproval`, `approvalTarget`, `maybeCensure`, `primeMinister`, `governmentKind` | The government's standing and its fall |
 | `evolveRivals`, `retireFigure`, `ensureLeaders`, `ensureGovernment` | Rivals' background life |
 | `maybeDefection`, `defectionTarget`, `defectionWeight` | Floor-crossing |
 | `switchParty`, `setAlliance` | Player changes camp / signs a pact |
@@ -95,6 +102,8 @@ lives. Filenames link to the file — search the function name inside to land on
 | `drawEvent`, `quietEvent`, `laisseUneTrace`, `sansTrace`, `eventById` | Event drawing |
 | `setScene`, `castFor`, `pickByWeight` | Staging the figure |
 | `setOffice`, `promoteWithinParty`, `MANDATES`, `CADRE_IN/OUT` | Office transitions |
+| `setPartyLead` | Take or hand back the party leadership; never touches the office |
+| `leadershipText` | How a congress night is narrated (it is not an election) |
 | `standDown`, `lobbyGain` | Not running / working the machine |
 | `addLog`, `logText` | The journal |
 | **Rendering** | |

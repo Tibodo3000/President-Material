@@ -35,7 +35,7 @@ const DECKS = {
 };
 const THEME_FILES = {debuts:EV_debuts,medias:EV_medias,argent:EV_argent,appareil:EV_appareil,chaines:EV_chaines,
   rivaux:EV_rivaux,vie_privee:EV_vie_privee,partis:EV_partis,caractere:EV_caractere,institutions:EV_institutions,
-  grandes_decisions:EV_grandes_decisions,divers:EV_divers};
+  assemblee:EV_assemblee,grandes_decisions:EV_grandes_decisions,divers:EV_divers};
 const idTheme = {};
 for (const [t, arr] of Object.entries(THEME_FILES)) arr.forEach((e) => { idTheme[e.id] = t; });
 
@@ -51,16 +51,25 @@ const POSITIONS = Object.keys(trFR).filter((k) => k.startsWith("pos_") && !k.end
 const FLAGS = Object.keys(trFR).filter((k) => k.startsWith("flag_")).map((k) => k.slice(5));
 const ELECTION_IDS = Object.keys(trFR).filter((k) => k.startsWith("elec_") && !k.endsWith("_low")).map((k) => k.slice(5));
 const END_TYPES = ["victory", "retire", "withdrawal", "death", "conviction"];
-const CAST_OPTIONS = ["opponent", "leader", "camp", "camp_senior", "minor", "eliminated"];
+const CAST_OPTIONS = ["opponent", "leader", "ruling", "neighbour", "camp", "camp_senior", "minor", "eliminated"];
 const PLUS_KEYS = [...STAT_KEYS, "popularity", "standing", "money"];
 const LANDSCAPE_TARGETS = ["self", "scene", "ruling", "ally", ...PARTY_KEYS];
-const OFFICE_LIST = [...POSITIONS, "none"];
+/* "chef" n'est plus une fonction : la direction du parti se donne avec l'effet
+   "lead", et se lit dans une condition avec "partyLead" (ou avec "chef" dans
+   une liste de positions, qui veut dire « dirige son parti »). */
+const OFFICE_LIST = [...POSITIONS.filter((p) => p !== "chef"), "none"];
 const ALLIANCE_TARGETS = ["self", "scene", "ruling", "ally", ...PARTY_KEYS, "null"];
 const EFFECT_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "money", "poll", "score",
-  "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "join", "alliance", "end"]);
+  "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "join", "alliance",
+  "approval", "dissolve", "end"]);
 const WHEN_KEYS = new Set(["party","position","origin","background","personality","minAge","maxAge","minTurn","maxTurn",
   "minPopularity","maxPopularity","minStanding","maxStanding","minMoney","maxMoney","stat","flag","trait","anyTrait",
-  "notTrait","ruling","allied","minShare","rulingClose","legal","comms"]);
+  "notTrait","ruling","allied","minShare","rulingClose","legal","comms",
+  // L'exécutif, l'Assemblée et la direction du parti. Elles existaient dans le
+  // moteur et manquaient ici : l'éditeur signalait donc « condition inconnue »
+  // sur des conditions parfaitement valides.
+  "partyLead","majority","inCoalition","firstGroup","pivot","minSeats","maxSeats",
+  "minApproval","maxApproval","dissolved","belowPeak"]);
 const ALL_IDS = {};
 for (const arr of Object.values(DECKS)) arr.forEach((e) => { ALL_IDS[e.id] = (ALL_IDS[e.id] || 0) + 1; });
 
@@ -72,10 +81,15 @@ const WHEN_SPEC = {
   minAge:{t:"num"},maxAge:{t:"num"},minTurn:{t:"num"},maxTurn:{t:"num"},minPopularity:{t:"num"},maxPopularity:{t:"num"},
   minStanding:{t:"num"},maxStanding:{t:"num"},minMoney:{t:"num"},maxMoney:{t:"num"},minShare:{t:"num"},legal:{t:"num"},
   comms:{t:"num"}, ruling:{t:"bool"},allied:{t:"bool"},rulingClose:{t:"bool"}, stat:{t:"statmap"}, flag:{t:"flagmap"},
+  partyLead:{t:"bool"}, majority:{t:"multi",v:["absolue","relative","aucune"]},
+  inCoalition:{t:"bool"}, firstGroup:{t:"bool"}, pivot:{t:"bool"},
+  minSeats:{t:"num"}, maxSeats:{t:"num"}, minApproval:{t:"num"}, maxApproval:{t:"num"},
+  dissolved:{t:"bool"}, belowPeak:{t:"bool"},
 };
 const EFFECT_SPEC = {};
 STAT_KEYS.forEach((s) => EFFECT_SPEC[s] = {t:"num"});
-["popularity","standing","money","poll","score"].forEach((k) => EFFECT_SPEC[k] = {t:"num"});
+["popularity","standing","money","poll","score","approval"].forEach((k) => EFFECT_SPEC[k] = {t:"num"});
+EFFECT_SPEC.dissolve = {t:"bool"}; EFFECT_SPEC.lead = {t:"bool"};
 EFFECT_SPEC.trait = EFFECT_SPEC.strike = EFFECT_SPEC.untrait = {t:"trait"};
 EFFECT_SPEC.chain = {t:"idlist"}; EFFECT_SPEC.flags = {t:"flagmap"};
 EFFECT_SPEC.landscape = {t:"nummap",v:LANDSCAPE_TARGETS};
@@ -87,7 +101,7 @@ const HELP = {
   weight:"Poids de tirage (défaut 2). Plus haut = sort plus souvent. 0 = réservé aux chaînes, jamais au hasard.",
   repeatable:"Peut revenir dans une partie. Réservé aux « temps morts » sans conséquence durable.",
   once:"Ne se joue qu'une fois par partie — déjà le comportement par défaut de tout événement identifié.",
-  cast:"Qui est {rival} : opponent (autre parti), leader (chef adverse), camp / camp_senior (votre parti), minor / eliminated (présidentielle).",
+  cast:"Qui est {rival} : opponent (autre parti), leader (chef adverse), ruling (chef du camp au pouvoir), neighbour (chef du camp le plus proche), camp / camp_senior (votre parti), minor / eliminated (présidentielle).",
   tag:"Étiquette de catégorie en tête de carte. FR et EN obligatoires.",
   text:"La situation présentée au joueur. Marques : {rival}, {rival_party}, {party}, accords {il}/{le}/{he}…",
   delay:"Cible de chaîne : nombre de tours (min→max) avant que la suite ne tombe.",
@@ -114,6 +128,15 @@ const WHEN_HELP = {
   minMoney:"Fortune min. (€).", maxMoney:"Fortune max. (€).", minAge:"Âge min.", maxAge:"Âge max.",
   minStanding:"Cote au parti min.", maxStanding:"Cote au parti max.", minPopularity:"Popularité min.", maxPopularity:"Popularité max.",
   minTurn:"Tour min.", maxTurn:"Tour max.",
+  partyLead:"Le joueur dirige son parti (cumulable avec un mandat).",
+  majority:"État de l'Assemblée : absolue / relative / aucune.",
+  inCoalition:"Votre camp vote les textes du gouvernement.",
+  firstGroup:"Votre parti est le premier groupe de l'Assemblée.",
+  pivot:"Le gouvernement n'a pas la majorité et l'aurait avec vous.",
+  minSeats:"Sièges min. de votre parti (sur 577).", maxSeats:"Sièges max. de votre parti (sur 577).",
+  minApproval:"Cote du gouvernement min.", maxApproval:"Cote du gouvernement max.",
+  dissolved:"Législatives anticipées après dissolution.",
+  belowPeak:"La fonction actuelle est sous le sommet atteint.",
 };
 const FX_HELP = {
   trait:"Ajoute un trait (applique ses points).", strike:"Un écart de plus vers une marque à récidive.",
@@ -122,6 +145,8 @@ const FX_HELP = {
   join:"Change le joueur de parti.", alliance:"Signe (cible) ou rompt (null) un pacte.", end:"Termine la partie.",
   popularity:"Jauge de popularité (0-100).", standing:"Cote au parti (0-100).", money:"Argent (€).",
   poll:"Sondage présidentiel.", score:"Avantage de campagne locale.",
+  approval:"Cote du gouvernement (0-100).", dissolve:"Le président dissout : législatives au tour suivant.",
+  lead:"Donne (true) ou retire (false) la direction du parti. Le mandat ne bouge pas.",
 };
 
 /* ===== 3. Helpers DOM =================================================== */

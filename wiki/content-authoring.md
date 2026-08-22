@@ -24,13 +24,13 @@ deck) and reassembled into `EVENT_DATA` by `_assemble.data.js`. You can author t
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
-| `events` | Ordinary turns (211 events) | the full schema below |
+| `events` | Ordinary turns (237 events) | the full schema below |
 | `campaign` | The 6 steps before the first round, when the player runs (20) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
 | `runoff` | The 3 steps between the two rounds (8) | `poll` moves the head-to-head; `cast: "eliminated"` |
 | `support` | The 3 steps of a presidential campaign the player is not in (8) | effects use `score` |
-| `aside` | An ordinary election that happens without the player (varies) | effects use `score` |
+| `aside` | An ordinary election that happens without the player (6) | ordinary effects, no `score`. Split in two halves by `partyLead`: an election you merely watch is a different evening when you are the one who signed every nomination — **keep both halves populated**, `drawAside()` falls back to the whole deck when nothing matches |
 | `nomination` | When the party refuses to nominate you (10) | rewards `standing` different ways |
-| `races` | Steps of an ordinary election campaign (15) | effects use `score`; `race: [...]`, `moment` |
+| `races` | Steps of an ordinary election campaign (16) | effects use `score`; `race: [...]`, `moment` |
 
 ### Event shape
 ```jsonc
@@ -50,9 +50,13 @@ deck) and reassembled into `EVENT_DATA` by `_assemble.data.js`. You can author t
 
 ### `cast` — who `{rival}` refers to
 `"opponent"` (a figure from another party) · `"leader"` (another party's chief) ·
-`"camp"` (someone from your own party) · `"camp_senior"` (a weighty figure from your camp,
-for internal-nomination fights) · *absent* (anyone). The figure is fixed when the card is
-drawn, so the name is stable across question, result, and effects.
+`"ruling"` (the chief of the governing camp — the person you negotiate with when you hold
+the votes they lack) · `"neighbour"` (the chief of the camp closest to yours; an alliance is
+not signed with just anybody, and `"leader"` picks by weight, so a hard-left party was being
+offered a pact by the identitarians one time in six) · `"camp"` (someone from your own
+party) · `"camp_senior"` (a weighty figure from your camp, for internal-nomination fights) ·
+*absent* (anyone). The figure is fixed when the card is drawn, so the name is stable across
+question, result, and effects.
 
 Two casts exist only during a presidential election, where the field is known:
 `"minor"` (the smallest candidate of the first round — you do not offer the front-runner the
@@ -101,12 +105,30 @@ no longer drawn, it is scripted.
 "trait": ["orateur","teflon"]          // ALL of these traits
 "anyTrait": ["zozote","voix"]          // AT LEAST ONE
 "notTrait": ["renegat"]                // NONE of these
-"ruling": true                         // your camp governs
+"ruling": true                         // your camp holds the presidency
 "allied": false                        // you have a pact
+"partyLead": true                      // you lead your party (whatever office you hold)
 "minShare": 18                         // your camp's national weight, in points
 "rulingClose": true                    // a *neighbouring* camp governs (not yours)
+"belowPeak": true                      // your office is under the peak of your career
 "legal": 1,  "comms": 2                // minimum budget-post level reached
+
+// The executive and the Assembly
+"majority": ["relative","aucune"]      // "absolue" | "relative" | "aucune"; a list is an OR
+"minApproval": 40, "maxApproval": 34   // the government's standing in the country, 0..100
+"inCoalition": true                    // your camp votes the government's bills
+"firstGroup": true                     // your party is the largest group in the Assembly
+"pivot": true                          // the government has no majority, and would with you
+"minSeats": 60, "maxSeats": 32         // your party's seats, out of 577 (289 = a majority)
+"dissolved": true                      // a snap legislative election after a dissolution
 ```
+
+**A note on `"position"` and `"chef"`.** The party leadership is not an office any more
+(see *Leading the party* in [systems.md](systems.md)). Inside a `position` list, `"chef"`
+therefore means **"leads their party"**, whatever mandate they hold alongside it — so
+`"position": ["depute","ministre","chef"]` reads as "a senior figure", which is what it
+always meant. `"partyLead"` says the same thing on its own, for a scene that is about the
+leadership and does not care about the mandate.
 
 ### `choices` — two forms
 
@@ -155,6 +177,11 @@ calculator, ruins someone with an integrity reputation).
                                                 //   self, scene, ruling, ally, or a party key
 "office": "ministre"                            // grant an office (no election)
 "office": "none"                                // leave office → officeAfterDefeat() decides
+"lead": true   or   false                       // give / take back the party leadership.
+                                                //   The office does NOT move: that is the point.
+"approval": -8                                  // the government's standing, 0..100
+"dissolve": true                                // the president dissolves: snap legislatives
+                                                //   next turn, off-calendar
 "join": "scene"                                 // switch parties
 "alliance": "scene"   or   null                 // sign / break a pact
 "end": "conviction"                             // end the game with this type

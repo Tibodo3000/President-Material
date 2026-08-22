@@ -55,7 +55,7 @@ State is handed between pages through `localStorage`, not a router or framework.
 ### Content (pure data — edit freely, no code needed)
 | File | Contains |
 |------|----------|
-| [js/events/](../js/events/) | **276 events** across 7 decks (`events`, `campaign`, `runoff`, `nomination`, `support`, `aside`, `races`). Split by theme into 12 files (`debuts`, `medias`, `argent`, `appareil`, `chaines`, …) plus one file per auxiliary deck, all reassembled into `EVENT_DATA` by `_assemble.data.js`. The engine still reads a single `EVENT_DATA`. |
+| [js/events/](../js/events/) | **305 events** across 7 decks (`events`, `campaign`, `runoff`, `nomination`, `support`, `aside`, `races`). Split by theme into 13 files (`debuts`, `medias`, `argent`, `appareil`, `chaines`, `assemblee`, …) plus one file per auxiliary deck, all reassembled into `EVENT_DATA` by `_assemble.data.js`. The engine still reads a single `EVENT_DATA`. |
 | [js/traits.data.js](../js/traits.data.js) | All traits (character, physical, talent, party, reputation, money) |
 | [js/endings.data.js](../js/endings.data.js) | The narrated end-of-game screens, chosen by final state |
 | [js/budget.data.js](../js/budget.data.js) | Salaries, lifestyle, and the adjustable spending tiers |
@@ -90,8 +90,9 @@ State is handed between pages through `localStorage`, not a router or framework.
    resolved, and how the special modes (ordinary races, presidential campaign, blocked
    nominations) branch off the main loop.
 3. **[systems.md](systems.md)** — The actual rules: the two career gauges, stats & the
-   `/20` vs `/10` scaling, traits & strikes, energy, credibility, the money/budget model,
-   the political landscape, elections and the two-round presidential math.
+   `/20` vs `/10` scaling, traits & strikes, energy, credibility, the office ladder and the
+   party leadership that cumulates with it, the money/budget model, the political landscape,
+   the Assembly, elections and the two-round presidential math.
 4. **[content-authoring.md](content-authoring.md)** — The schemas. How to add an event
    (with every `when` condition and `effect` type), a trait, a party, an ending, a budget
    tier, or names — the reference you'll actually keep open while writing content.

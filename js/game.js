@@ -152,6 +152,10 @@ function newGame(character) {
     turn: 0,
     position: "militant",
     peakPosition: "militant",
+    // La direction du parti ne se range pas dans "position" : elle se cumule
+    // avec elle. Voir LA DIRECTION DU PARTI dans js/game-data.js.
+    partyLead: false,
+    peakLead: false,
     flags: {},
     traits: [],        // marques durables laissées par les choix
     strikes: {},       // écarts commis, avant qu'ils ne fassent une réputation
@@ -516,6 +520,51 @@ function rulingPartySeats() {
   return ruling && game.assembly ? game.assembly[ruling] || 0 : 0;
 }
 
+/* --------------------------------------------------------------------------
+   OÙ LE JOUEUR EST ASSIS.
+   --------------------------------------------------------------------------
+   L'Assemblée existait, elle était même dessinée dans le panneau, mais rien
+   n'en tirait la seule chose qui intéresse une carrière : ce que VOTRE camp y
+   pèse. Les trois fonctions ci-dessous sont lues par les conditions
+   d'événement "minSeats"/"maxSeats", "firstGroup" et "pivot".
+   -------------------------------------------------------------------------- */
+
+/** Les sièges du parti du joueur. */
+function partySeats(s) {
+  const state = s || game;
+  return game.assembly ? game.assembly[state.party] || 0 : 0;
+}
+
+/**
+ * Premier groupe de l'Assemblée. On peut l'être sans gouverner, et c'est même
+ * la position la plus incommode de la Cinquième : tout le monde vous demande
+ * des comptes sur un pouvoir que vous n'avez pas.
+ */
+function partyIsFirstGroup(s) {
+  const state = s || game;
+  if (!game.assembly) return false;
+  const plusGros = Math.max(...Object.values(game.assembly));
+  return (game.assembly[state.party] || 0) >= plusGros;
+}
+
+/**
+ * LE PIVOT. Le gouvernement n'a pas la majorité, et il l'aurait avec vos
+ * voix. Rien dans la Constitution ne décrit cette place et c'est la plus
+ * chère de la République : on ne vous demande pas de soutenir, on vous
+ * achète, et le prix se compte en ministères.
+ */
+function partyIsPivot(s) {
+  const state = s || game;
+  if (!game.assembly) return false;
+
+  const bloc = governmentBloc();
+  if (!bloc.length || bloc.includes(state.party)) return false;
+
+  const sieges = governmentSeats();
+  if (sieges >= ASSEMBLY_MAJORITY) return false;
+  return sieges + (game.assembly[state.party] || 0) >= ASSEMBLY_MAJORITY;
+}
+
 /**
  * LA CENSURE QUI ARRIVE SANS VOUS.
  *
@@ -585,7 +634,7 @@ function driftLandscape() {
     // bas : être populaire aide son camp, cela ne le porte pas à bout de bras.
     // Ce sont les événements qui doivent faire le gros du travail.
     if (key === game.party) {
-      move += ((game.popularity - 50) / 95) * (0.4 + POSITION_EXPOSURE[game.position] / 28);
+      move += ((game.popularity - 50) / 95) * (0.4 + exposureOf(game) / 28);
     }
 
     // Deux partis alliés finissent par ressembler à une offre de gouvernement,
@@ -936,7 +985,11 @@ function playerStake(electionId) {
   if (electionId === "congres") {
     // Le verrou de la partie : on ne prend pas la direction d'un parti parce
     // qu'on est aimé du pays, mais parce que l'appareil n'a pas trouvé mieux.
-    if (pos === "chef") return { target: "chef", threshold: 69, defense: true };
+    // LE SORTANT EST CELUI QUI TIENT LA MAISON, pas celui qui tient un
+    // mandat : on défend la direction avec le siège qu'on a, et le siège
+    // n'est pas dans la balance. Un congrès perdu ne prend pas une
+    // circonscription, il prend un titre.
+    if (game.partyLead) return { target: "chef", threshold: 69, defense: true };
     // Matignon est une rampe de lancement vers la direction du parti : on
     // arrive au congrès avec un bilan que les autres n'ont pas.
     if (pos === "premier") return { target: "chef", threshold: 64 };
@@ -961,7 +1014,7 @@ function playerStake(electionId) {
 
     // Filet de sécurité : si aucune primaire n'a eu lieu, la direction du
     // parti reste la porte d'entrée qu'elle a toujours été.
-    if (pos === "chef" || pos === "premier") return { target: "president", threshold: 0 };
+    if (game.partyLead || pos === "premier") return { target: "president", threshold: 0 };
     return null;
   }
   return null;
@@ -1009,6 +1062,35 @@ function setOffice(s, position) {
       en: "You step down as {pos_low:" + quitte + "}: you only get to hold one office at a time, and your successor was picked before you left.",
     });
   }
+  return true;
+}
+
+/**
+ * PRENDRE OU RENDRE LA DIRECTION DU PARTI.
+ *
+ * Elle ne passe pas par setOffice, et c'est tout le sujet : LE MANDAT NE
+ * BOUGE PAS. On prend la maison au congrès, on la rend au congrès suivant, à
+ * une présidentielle perdue de trop, ou en changeant de camp — jamais parce
+ * qu'on a été élu ailleurs.
+ *
+ * Renvoie true si quelque chose a changé, pour que l'affichage des
+ * conséquences ait quelque chose à montrer.
+ */
+function setPartyLead(s, on) {
+  const veut = Boolean(on);
+  if (Boolean(s.partyLead) === veut) return false;
+
+  s.partyLead = veut;
+  if (veut) s.peakLead = true;
+
+  // Un parti a un chef et un seul : celui qui portait le titre le rend, ou
+  // le reprend. La ligne de journal est écrite là-bas, avec les autres.
+  ensureLeaders();
+
+  // On ne dirige pas un parti depuis la liste des militants. Prendre la
+  // maison, c'est au minimum avoir un bureau dedans.
+  if (veut && s.position === "militant") setOffice(s, "cadre");
+
   return true;
 }
 
@@ -1514,7 +1596,7 @@ function playerPrimaryWeight() {
   return primaryWeight(
     game.standing, game.popularity,
     statScore(game, "credibilite") * 1.7,
-    POSITION_RANK[game.position] || 0
+    rankOf(game)
   ) - (game.beatenNominee ? PRIMARY_BEATEN : 0);
 }
 
@@ -1937,10 +2019,12 @@ function concedeElection(winner, share) {
     bumpStanding(game, -14);
   }
 
-  const etaitChef = game.position === "chef";
+  const etaitChef = leadsParty(game);
   if (!etaitChef || game.standing >= NOMINATION_THRESHOLD.chef) return false;
 
-  setOffice(game, officeAfterDefeat(game));
+  // On rend la maison, pas le siège : le mandat a été gagné ailleurs, par
+  // d'autres électeurs, et il n'était pas dans la balance.
+  setPartyLead(game, false);
   bump(game, "reputation", -1);
   if (game.campaign && game.campaign.result) game.campaign.result.lostLeadership = true;
   return true;
@@ -2119,7 +2203,7 @@ function ensureLeaders() {
     }
 
     const chefs = figures.filter((r) => r.position === "chef");
-    const playerLeads = key === game.party && game.position === "chef";
+    const playerLeads = key === game.party && leadsParty(game);
 
     if (playerLeads) {
       chefs.forEach((r) => {
@@ -2165,6 +2249,12 @@ function ensureLeaders() {
      "opponent"  une figure d'un autre parti, tirée au poids de son camp
      "leader"    le chef d'un autre parti, même pondération
      "camp"      une figure de votre propre parti, le concurrent de l'intérieur
+     "ruling"    le chef du camp qui gouverne — celui avec qui l'on négocie
+                 quand on tient les voix qui lui manquent
+     "neighbour" le chef du camp le plus proche du vôtre. Une alliance ne se
+                 signe pas avec n'importe qui : "leader" tirait au poids, si
+                 bien qu'un parti de gauche radicale se voyait proposer un
+                 pacte par les identitaires une fois sur six
      (rien)      n'importe qui, comme avant
    ========================================================================== */
 
@@ -2192,6 +2282,25 @@ function castFor(ev) {
 
   let figure = null;
   if (cast === "leader") figure = pickByWeight(others.filter((r) => r.position === "chef"));
+  // LE CHEF DU CAMP QUI GOUVERNE. C'est lui, et personne d'autre, qui vient
+  // chercher les voix qui lui manquent : une négociation de majorité ne se
+  // tire pas au sort.
+  else if (cast === "ruling") {
+    const gouverne = rulingParty();
+    figure = gouverne && gouverne !== game.party ? leaderOf(gouverne) : null;
+    if (!figure) figure = pickByWeight(others.filter((r) => r.position === "chef"));
+  }
+  // LE VOISIN. Le camp le moins éloigné du vôtre, celui avec qui un accord
+  // se raconte sans faire rire personne.
+  else if (cast === "neighbour") {
+    const voisins = Object.keys(PARTIES)
+      .filter((key) => key !== game.party)
+      .sort((a, b) => ideologicalDistance(a, game.party) - ideologicalDistance(b, game.party));
+    for (const key of voisins) {
+      figure = leaderOf(key);
+      if (figure) break;
+    }
+  }
   else if (cast === "opponent") figure = pickByWeight(others);
   else if (cast === "camp") figure = pickByWeight(camp);
   // Quelqu'un de son camp qui pèse assez pour disputer une investiture. Sans
@@ -2323,8 +2432,9 @@ function switchParty(s, key) {
   s.alliance = null;
 
   // La direction ne suit jamais : on arrive avec un bureau et un titre
-  // d'appareil, pas avec le parti qu'on vient de quitter.
-  if (s.position === "chef") s.position = "cadre";
+  // d'appareil, pas avec le parti qu'on vient de quitter. Le mandat, lui,
+  // suit — on ne démissionne pas de l'Assemblée en changeant de groupe.
+  s.partyLead = false;
 
   // Deux marques pour un seul geste : le pays retient le courage, l'appareil
   // retient le couteau.
@@ -2392,7 +2502,9 @@ function promoteWithinParty() {
     });
     return;
   }
-  if (game.position === "cadre" && game.standing < CADRE_OUT) {
+  // Sauf si l'on dirige le parti : on ne raye pas de l'organigramme celui
+  // qui préside la maison, si bas soit-il tombé.
+  if (game.position === "cadre" && game.standing < CADRE_OUT && !leadsParty(game)) {
     setOffice(game, "militant");
     addLog({
       fr: "On ne vous convoque plus aux réunions et votre nom a disparu de l'organigramme. Personne ne vous a rien dit : c'est ainsi qu'on le dit.",
@@ -2763,6 +2875,21 @@ function resolveElectionRun(electionId) {
  */
 function standDown(stake) {
   if (!stake || !stake.defense) return null;
+
+  // ON NE SE REPRÉSENTE PAS AU CONGRÈS. Ce n'est pas un mandat qui s'achève
+  // faute de candidat, c'est une maison qu'on rend à quelqu'un qui était dans
+  // la pièce. Le mandat, lui, ne bouge pas : c'est tout l'objet du cumul.
+  if (stake.target === "chef") {
+    setPartyLead(game, false);
+    bumpPop(game, -3);
+    bumpStanding(game, -10);
+    const rendue = {
+      fr: "Vous ne déposez pas de motion. La direction du parti passe à quelqu'un d'autre sans qu'un seul mandat ait été compté contre vous, ce qui est la façon la plus douce et la plus définitive de perdre une maison.",
+      en: "You table no motion. The party leadership goes to somebody else without a single delegate being counted against you, which is the gentlest and most final way to lose a house.",
+    };
+    addLog(rendue);
+    return rendue;
+  }
 
   const partant = game.position;
   setOffice(game, officeAfterDefeat(game));
@@ -3157,10 +3284,14 @@ function applyOutcome(stake, marge) {
     else bump(game, key, v);
   });
 
-  if (!won && stake.defense) setOffice(game, officeAfterDefeat(game));
+  // LE CONGRÈS NE DONNE PAS UNE FONCTION, IL DONNE UNE MAISON. Gagner ne
+  // prend pas votre siège, perdre ne vous en rend pas un : seul le titre
+  // change de main, et le mandat continue comme si de rien n'était.
+  if (stake.target === "chef") setPartyLead(game, won);
+  else if (!won && stake.defense) setOffice(game, officeAfterDefeat(game));
   else if (won) setOffice(game, stake.target);
 
-  return { won, key: out.key, defense: Boolean(stake.defense) };
+  return { won, key: out.key, defense: Boolean(stake.defense), target: stake.target };
 }
 
 /**
@@ -3168,6 +3299,11 @@ function applyOutcome(stake, marge) {
  * par l'appelant : ici on ne raconte que le score.
  */
 function outcomeText(res) {
+  // Un congrès ne se raconte pas comme une élection : on n'y devient pas
+  // « député », on y prend une maison, et l'on garde par ailleurs ce qu'on
+  // avait déjà.
+  if (res.target === "chef") return leadershipText(res);
+
   const poste = "{pos_low:" + game.position + "}";
 
   if (res.key === "large") return {
@@ -3196,6 +3332,51 @@ function outcomeText(res) {
     fr: "Déroute. Le score est si bas qu'il faudra des années pour que le chiffre cesse d'être cité.",
     en: "A rout. The number is so low it will be quoted back at you for years.",
   };
+}
+
+/**
+ * LA SOIRÉE D'UN CONGRÈS.
+ *
+ * Elle ne ressemble à aucune élection du jeu : le pays n'y est pas, on y
+ * compte des mandats de fédération dans une salle où tout le monde se
+ * connaît, et le perdant reste dans la pièce. On dit donc aussi, chaque
+ * fois, ce que le mandat devient — c'est-à-dire rien, et c'est précisément
+ * l'information qui manquait.
+ */
+function leadershipText(res) {
+  const mandat = MANDATES.includes(game.position) ? "{pos_low:" + game.position + "}" : null;
+  const garde = mandat
+    ? { fr: " Vous restez " + mandat + " : on ne rend pas une circonscription pour un bureau au siège.",
+        en: " You remain " + mandat + ": nobody gives up a constituency for a desk at headquarters." }
+    : { fr: "", en: "" };
+
+  if (res.won) {
+    const base = res.key === "large"
+      ? { fr: "Vous prenez la direction du parti dès le premier tour, et le score est tel que personne ne réclamera de second congrès.",
+          en: "You take the party leadership in the first round, by a margin wide enough that nobody will call for a second congress." }
+      : res.defense
+        ? { fr: "Vous gardez la maison. On vous a compté, on vous a pesé, et vous êtes toujours là le lundi matin.",
+            en: "You keep the house. They counted you, they weighed you, and you are still there on Monday morning." }
+        : { fr: "Vous prenez la direction du parti. Les mêmes qui vous combattaient vendredi vous applaudissent dimanche, et vous vous en souviendrez.",
+            en: "You take over the party. The people who fought you on Friday applaud you on Sunday, and you will remember it." };
+    return { fr: base.fr + garde.fr, en: base.en + garde.en };
+  }
+
+  const base = res.key === "narrow"
+    ? (res.defense
+        ? { fr: "Vous perdez la maison de quelques dizaines de mandats. Un écart pareil ne se referme pas : il fait de vous un recours permanent, ce qui est une place inconfortable et une place tout de même.",
+            en: "You lose the house by a few dozen delegates. A gap like that does not close: it makes you a permanent alternative, which is an uncomfortable place and a place all the same." }
+        : { fr: "Il vous manque quelques dizaines de mandats. Le soir même, tout le monde sait que vous reviendrez, à commencer par celui qui vient de vous battre.",
+            en: "You are a few dozen delegates short. That evening everyone knows you will be back, starting with the person who just beat you." })
+    : res.key === "honorable"
+      ? { fr: "Vous n'avez pas la maison, mais vous avez un courant, un nom sur une motion et des gens qui vous doivent quelque chose. C'est avec cela qu'on revient.",
+          en: "You do not have the house, but you have a faction, a name on a motion and people who owe you something. That is what you come back with." }
+      : res.defense
+        ? { fr: "Le congrès vous désavoue. On vous laisse parler douze minutes, on applaudit poliment, et quelqu'un d'autre est annoncé.",
+            en: "The congress disowns you. They let you speak for twelve minutes, applaud politely, and announce somebody else." }
+        : { fr: "Le congrès ne veut pas de vous. Ce n'est pas le pays qui vous a dit non, c'est votre propre camp, et cela se répare beaucoup moins vite.",
+            en: "The congress does not want you. It is not the country that said no, it is your own side, and that takes far longer to repair." };
+  return { fr: base.fr + garde.fr, en: base.en + garde.en };
 }
 
 /**
@@ -3297,7 +3478,10 @@ function renderStatus() {
   camp.textContent = t("party_" + game.party);
   meta.appendChild(camp);
 
-  document.getElementById("sheet-meta-2").textContent = t("pos_" + game.position);
+  // La fonction, et la maison si on la tient. Le joueur qui prend son parti
+  // doit voir, sur sa propre fiche, qu'il est toujours député.
+  document.getElementById("sheet-meta-2").textContent =
+    t("pos_" + game.position) + (leadsParty(game) ? " · " + t("pos_chef") : "");
 
   // Les deux jauges de carrière, en tête de fiche.
   renderGauge("pop", game.popularity, "label_popularity", popularityTarget(game));
@@ -3604,6 +3788,7 @@ function renderLandscape() {
     const people = [];
     if (mine) {
       people.push({ name: game.character.name || t("sheet_name_empty"), position: game.position,
+                    lead: leadsParty(game),
                     age: game.age, popularity: game.popularity, isPlayer: true });
     }
     figuresOf(key).forEach((figure) => {
@@ -3628,7 +3813,7 @@ function renderLandscape() {
         '<div class="force-people">' +
         people.map((p) =>
           '<div class="force-person' + (p.isPlayer ? " is-player" : "") +
-            (p.position === "chef" ? " is-leader" : "") + '">' +
+            (p.position === "chef" || p.lead ? " is-leader" : "") + '">' +
             '<span class="force-name">' + p.name +
               // Une petite étoile ne se voyait pas. Le président porte
               // désormais un vrai badge, comme le parti au pouvoir.
@@ -3636,6 +3821,7 @@ function renderLandscape() {
                 ? ' <span class="force-tag is-president">' + t("force_president") + "</span>"
                 : "") + "</span>" +
             '<span class="force-role">' + t("pos_" + p.position) +
+              (p.lead ? " · " + t("pos_chef") : "") +
               " · " + Math.floor(p.age) + " " + t("age_short") + "</span>" +
             '<span class="force-pop">' + Math.round(p.popularity) + "</span>" +
           "</div>"
@@ -3687,6 +3873,7 @@ function fxLabel(fx) {
     return t("party_" + fx.key) + " " + signed(fx.delta) + " " + t("label_points");
   }
   if (fx.kind === "office") return t("pos_" + fx.key);
+  if (fx.kind === "lead") return (fx.on ? "" : "✕ ") + t("pos_chef");
   if (fx.kind === "party") return t("fx_join") + " " + t("party_" + fx.key);
   if (fx.kind === "alliance") {
     return (fx.on ? "" : "✕ ") + t("fx_alliance") + " " + t("party_" + fx.key);
@@ -3724,6 +3911,7 @@ function fxDirection(fx) {
     return mine === (fx.delta > 0) ? "up" : "down";
   }
   if (fx.kind === "office") return fx.up ? "up" : "down";
+  if (fx.kind === "lead") return fx.on ? "up" : "down";
   if (fx.kind === "party") return "up";
   if (fx.kind === "alliance") return fx.on ? "up" : "down";
   return fx.delta > 0 ? "up" : "down";
@@ -3826,7 +4014,8 @@ function changesHTML(changes) {
  * que le joueur lise les conséquences d'un scrutin comme celles d'un choix.
  */
 function snapshot(s) {
-  return { popularity: s.popularity, standing: s.standing, money: s.money, stats: { ...s.stats } };
+  return { popularity: s.popularity, standing: s.standing, money: s.money,
+           partyLead: Boolean(s.partyLead), stats: { ...s.stats } };
 }
 
 function diffSince(before, s) {
@@ -3842,6 +4031,12 @@ function diffSince(before, s) {
     changes.push({ kind: "gauge", key: "standing", delta: s.standing - before.standing });
   }
   if (s.money !== before.money) changes.push({ kind: "money", delta: s.money - before.money });
+  // Prendre ou rendre la direction du parti ne bouge aucune jauge et ne se
+  // lisait donc nulle part dans les conséquences : c'est pourtant la seule
+  // chose qu'un congrès change.
+  if (Boolean(s.partyLead) !== Boolean(before.partyLead)) {
+    changes.push({ kind: "lead", on: Boolean(s.partyLead) });
+  }
   return changes;
 }
 
@@ -3861,6 +4056,7 @@ function unlockReasons(when) {
   if (when.origin) parts.push(names(when.origin, "origin_"));
   if (when.party) parts.push(names(when.party, "party_"));
   if (when.position) parts.push(names(when.position, "pos_"));
+  if (when.partyLead) parts.push(t("pos_chef"));
 
   const nomTrait = (id) => (TRAIT_DATA[id] ? L(TRAIT_DATA[id].label) : id);
   if (when.trait) parts.push(when.trait.map(nomTrait).join(" · "));
@@ -4479,6 +4675,23 @@ function electionPitch(electionId, stake) {
       en: "The presidential election has arrived. You lead your party: this may be your moment.",
     });
   }
+  // LE CONGRÈS NE MET PAS UN SIÈGE DANS LA BALANCE. Ce qui se joue est une
+  // maison, et le joueur doit le lire avant de se décider, pas après : c'est
+  // exactement l'information qui manquait quand prendre le parti coûtait un
+  // mandat.
+  if (stake.target === "chef") {
+    const mandat = MANDATES.includes(game.position)
+      ? fillMarks(L({
+          fr: " Vous restez {pos_low:" + game.position + "} quoi qu'il arrive : un congrès ne compte pas les électeurs, il compte les militants.",
+          en: " You remain {pos_low:" + game.position + "} either way: a congress does not count voters, it counts members.",
+        }))
+      : "";
+    return L(stake.defense
+      ? { fr: "Le congrès du parti. Votre direction est remise en jeu, et quelqu'un a déposé une motion contre vous.",
+          en: "The party congress. Your leadership is on the line, and somebody has tabled a motion against you." }
+      : { fr: "Le congrès du parti. La direction est à prendre, et l'on ne la prend pas au pays : on la prend aux fédérations.",
+          en: "The party congress. The leadership is there to be taken, and it is not taken from the country: it is taken from the federations." }) + mandat;
+  }
   if (stake.defense) {
     return L({
       fr: "Votre mandat remis en jeu. Une défaite ne vous rendrait rien : on ne tient qu'un mandat, et vous n'en auriez plus.",
@@ -4623,6 +4836,13 @@ function renderEnd(host) {
   const years = Math.floor(game.turn / 2);
   const traits = traitsOf(game);
 
+  // LE SOMMET D'UNE CARRIÈRE SE LIT SUR DEUX LIGNES, PAS UNE. La direction
+  // d'un parti n'est plus une marche de l'échelle : sans cette mention, une
+  // carrière qui a tenu son camp pendant douze ans se résumait à « député ».
+  const sommet = game.ended.type === "victory"
+    ? t("pos_president")
+    : t("pos_" + game.peakPosition) + (game.peakLead ? " · " + t("pos_chef") : "");
+
   host.innerHTML =
     '<div class="event-card end-card end-' + game.ended.type + '">' +
       '<p class="event-tag">' + cardHeader() + "</p>" +
@@ -4631,7 +4851,7 @@ function renderEnd(host) {
       '<div class="end-recap">' +
         '<p><span>' + t("end_recap_years") + "</span><strong>" + years + "</strong></p>" +
         '<p><span>' + t("end_recap_peak") + "</span><strong>" +
-          t(game.ended.type === "victory" ? "pos_president" : "pos_" + game.peakPosition) + "</strong></p>" +
+          sommet + "</strong></p>" +
         '<p><span>' + t("end_recap_money") + "</span><strong>" + formatMoney(game.money) + "</strong></p>" +
       "</div>" +
       (traits.length
@@ -5067,6 +5287,21 @@ const BUILD = "2026-08-21 11:45";
     // actuel : on part de là plutôt que de lui inventer un passé.
     if (!game.parties) game.parties = [game.party];
     if (game.presidentialRuns === undefined) game.presidentialRuns = 0;
+
+    // LE CUMUL. Les parties commencées quand la direction du parti était une
+    // marche de l'échelle ont un joueur dont la fonction VAUT « chef » et qui
+    // n'a donc plus de mandat du tout. On leur rend le titre dans son champ à
+    // part et on les repose au siège, qui est l'endroit d'où ils dirigeaient
+    // en réalité : on ne leur invente pas une circonscription qu'ils n'ont
+    // jamais gagnée.
+    if (game.partyLead === undefined) game.partyLead = false;
+    if (game.position === "chef") { game.partyLead = true; game.position = "cadre"; }
+    if (game.peakLead === undefined) game.peakLead = Boolean(game.partyLead);
+    if (!LADDER.includes(game.peakPosition)) {
+      game.peakLead = true;
+      game.peakPosition =
+        LADDER.indexOf(game.position) > LADDER.indexOf("cadre") ? game.position : "cadre";
+    }
 
     // Une sauvegarde d'avant la crédibilité n'en a pas. On ne la met pas à
     // zéro : la carrière déjà jouée a construit une stature, et on la lui

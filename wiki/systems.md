@@ -123,12 +123,15 @@ Families, in sheet display order (`TRAIT_FAMILIES`): `caractere`, `physique`, `t
 
 `LADDER` ([game-data.js](../js/game-data.js)):
 ```
-militant → cadre → conseiller → maire → euro → depute → ministre → chef → premier → (president)
+militant → cadre → conseiller → maire → euro → depute → ministre → premier → (president)
 ```
 
 **You hold only one office at a time.** No accumulation: a mayor elected as MP leaves the
 town hall that evening and doesn't get it back if beaten. This is what gives each rung its
 price — climbing means letting go.
+
+> **The one exception is the party leadership, and it is not on this ladder.** See
+> *Leading the party* below.
 
 **When you lose, you fall nowhere.** `officeAfterDefeat()`: a party job (`cadre`) if your
 standing still justifies it (`NO_OFFICE_STANDING = 30`), otherwise back to `militant`. You
@@ -144,6 +147,46 @@ presidential nomination — are the real bottlenecks of the game.
 
 ---
 
+## Leading the party — the only thing that cumulates
+
+`chef` used to be a rung of the ladder, wedged between `ministre` and `premier`. The engine
+drew the only conclusion it could: taking the party meant handing back your seat. A player
+elected leader of their own camp woke up with no constituency, no town hall and no ministry,
+and every MP-gated event stopped firing. There is not a party leader in France who is not
+also a deputy or a mayor; it is the other way round — you take the house *because* you have
+a base somewhere.
+
+**So the leadership left the ladder.** It lives in its own field, `state.partyLead`, and the
+career peak remembers it separately in `state.peakLead`. `state.position` keeps holding the
+office, and the two are displayed together on the sheet ("Député · Chef du parti").
+
+What it adds, on top of whatever the office already gives (`game-data.js`):
+
+| | Value | Read by |
+|---|---|---|
+| `LEAD_EXPOSURE` | +12 | `exposureOf()` → popularity target, landscape pull |
+| `LEAD_RANK` | +4 | `rankOf()` → standing target, primary weight |
+| `CREDIBILITY_LEAD` | 15 (a floor, +3 above it) | `credibilityTarget()` → stature drift |
+
+The three numbers restate what the old `chef` rung was worth (22 exposure, 7 rank, 15
+stature) minus what an ordinary elected official already has: the cumul closes the gap, it
+is not a gift. A leader with no mandate is therefore weaker inside the machine than a leader
+who is also an MP, which is exactly right.
+
+**Taking and losing it.** `setPartyLead()` ([game.js](../js/game.js)) is the only door.
+It is opened by the party congress (`electionStake("congres")` targets `"chef"`, and
+`applyOutcome` routes that target to `setPartyLead` instead of `setOffice`), by the `lead`
+event effect, and it is closed by: losing the congress you were defending, standing aside at
+that congress, a presidential run lost from too low a standing, or crossing the floor
+(`switchParty` — the mandate follows you, the leadership never does). **None of these touch
+`position`.** A congress is not an election: it counts members, not voters, and it cannot
+take a constituency away from anyone.
+
+`officeAfterDefeat()` also floors a leader at `cadre`: you do not go back to being a rank
+and file member of a party you chair.
+
+---
+
 ## The political landscape
 
 `state.landscape` maps each party to a % vote share that lives and breathes the whole
@@ -156,6 +199,33 @@ last turn so the UI can show ▲/▼ trends.
 
 The landscape decides the strength of presidential rivals and gives the player a readout of
 the game: who they're fighting and whether their camp is rising or collapsing.
+
+---
+
+## The Assembly — where the player actually sits
+
+577 seats, dealt on legislative-election night (`computeAssembly` in
+[game.js](../js/game.js)) and untouched until the next one. First-past-the-post is modelled
+by raising each party's vote share to `ASSEMBLY_POWER` (2.1) before normalising, so a party
+on 28% takes far more than 28% of the seats and a party on 8% takes almost nothing.
+`formCoalition()` then decides, once per legislature, which neighbouring camps vote the
+government's bills; `majorityState()` returns `"absolue"`, `"relative"` or `"aucune"`.
+
+All of that existed and drove almost nothing: five events out of 211 read the majority, and
+none asked the player what they intended to do about it. Four helper functions now expose
+the player's own position in the chamber, and they are what the event `when` grammar reads
+(`inCoalition`, `firstGroup`, `pivot`, `minSeats`/`maxSeats`):
+
+| Function | Says |
+|---|---|
+| `partySeats()` | how many seats your party holds |
+| `partyIsFirstGroup()` | your party is the largest group — which is *not* governing, and is the most uncomfortable place in the Fifth Republic |
+| `partyIsPivot()` | the government has no majority and would have one with you. Nothing in the constitution describes this position and it is the most expensive one in the country |
+| `governmentBloc()` | the parties that vote the government's bills |
+
+The [assemblee](../js/events/assemblee.data.js) deck covers the whole matrix (camp in power
+or not × absolute / relative / no majority × with or without a pact), plus the five-step
+alliance chain a party leader plays when a legislative election gives nobody a majority.
 
 ---
 

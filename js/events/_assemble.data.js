@@ -55,6 +55,13 @@
  * CASTING ("cast") — qui est la figure désignée par {rival} :
  *   "opponent"     une figure d'un autre parti, tirée au poids de son camp
  *   "leader"       le chef d'un autre parti, même pondération
+ *   "ruling"       le chef du camp qui gouverne. C'est lui, et personne
+ *                  d'autre, qui vient chercher les voix qui lui manquent :
+ *                  une négociation de majorité ne se tire pas au sort.
+ *   "neighbour"    le chef du camp le plus proche du vôtre. Une alliance ne
+ *                  se signe pas avec n'importe qui, et "leader" tirait au
+ *                  poids : un parti de gauche radicale se voyait proposer un
+ *                  pacte par les identitaires une fois sur six.
  *   "camp"         une figure de votre propre parti
  *   "camp_senior"  une figure de votre parti qui pèse assez pour vous
  *                  disputer quelque chose : ni militant, ni cadre. C'est le
@@ -74,7 +81,16 @@
  *
  * CONDITIONS ("when") — toutes doivent être remplies :
  *   "party":       ["radical_left", "socdem"]     le parti du joueur
- *   "position":    ["maire", "depute"]            sa fonction
+ *   "position":    ["maire", "depute"]            sa fonction. ATTENTION :
+ *                                                 "chef" dans cette liste ne
+ *                                                 désigne plus une case mais
+ *                                                 un titre, « dirige son
+ *                                                 parti », quel que soit le
+ *                                                 mandat tenu à côté. La
+ *                                                 direction se cumule.
+ *   "partyLead": true                             la même chose, écrite en
+ *                                                 clair, sans rien exiger du
+ *                                                 mandat
  *   "origin":      ["bourgeois"]                  son origine sociale
  *   "background":  ["business"]                   son parcours
  *   "personality": ["provocative"]                son caractère
@@ -103,6 +119,24 @@
  *   "rulingClose": true                           un camp VOISIN gouverne
  *                                                 (proche idéologiquement, et
  *                                                 ce n'est pas le vôtre)
+ *
+ *   OÙ L'ON EST ASSIS DANS L'HÉMICYCLE. "ruling" ne dit que l'Élysée ; ces
+ *   quatre-là disent le reste, et elles se combinent.
+ *   "inCoalition": true                           votre camp vote les textes
+ *                                                 du gouvernement. Avec
+ *                                                 "ruling": false, c'est
+ *                                                 l'allié du pouvoir, qui le
+ *                                                 paie deux fois.
+ *   "firstGroup": true                            votre parti est le premier
+ *                                                 groupe de l'Assemblée. Ce
+ *                                                 n'est pas gouverner, et
+ *                                                 c'est de là qu'on renverse.
+ *   "pivot": true                                 le gouvernement n'a pas la
+ *                                                 majorité, et il l'aurait
+ *                                                 avec vous. La place la plus
+ *                                                 chère de la République.
+ *   "minSeats": 60, "maxSeats": 32                les sièges de votre parti,
+ *                                                 sur 577 (289 = la majorité)
  *
  * CHOIX ("choices") — deux formes possibles.
  *
@@ -185,6 +219,16 @@
  *          sans rien. ON NE RETOMBE JAMAIS SUR UN MANDAT : quitter un poste
  *          ne rend pas celui d'avant, il ne reste que ce que le parti veut
  *          bien vous garder. Le moteur décide entre cadre et militant.
+ *   "lead": true                                         vous donne la
+ *          DIRECTION DU PARTI, et "lead": false vous la retire. Elle n'est
+ *          pas une fonction : LE MANDAT NE BOUGE PAS. C'est la seule chose
+ *          du jeu qui se cumule, parce que c'est la seule qui se cumule dans
+ *          la vraie vie. La direction se prend normalement au congrès ; cet
+ *          effet sert aux scènes qui la donnent ou la reprennent entre deux.
+ *   "approval": -8                                       la cote du
+ *          gouvernement dans le pays, de 0 à 100.
+ *   "dissolve": true                                     le président dissout
+ *          l'Assemblée : des législatives au tour suivant, hors calendrier.
  *   "join": "scene"                                      vous changez de parti
  *   "alliance": "scene"                                  signe un pacte
  *   "alliance": null                                     le rompt
@@ -196,7 +240,7 @@
 
 /* Assemblé depuis js/events/*.data.js — voir le schéma ci-dessus. */
 const EVENT_DATA = {
-  events: [].concat(EV_debuts, EV_medias, EV_argent, EV_appareil, EV_chaines, EV_rivaux, EV_vie_privee, EV_partis, EV_caractere, EV_institutions, EV_grandes_decisions, EV_divers),
+  events: [].concat(EV_debuts, EV_medias, EV_argent, EV_appareil, EV_chaines, EV_rivaux, EV_vie_privee, EV_partis, EV_caractere, EV_institutions, EV_assemblee, EV_grandes_decisions, EV_divers),
   campaign: EV_campaign,
   runoff: EV_runoff,
   nomination: EV_nomination,

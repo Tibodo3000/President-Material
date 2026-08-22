@@ -269,13 +269,25 @@ const EV_appareil = [
    quelqu'un d'un autre camp. La rivalité, elle, peut venir des deux côtés :
    celui qui occupe la place que vous visez n'est pas toujours assis à côté
    de vous.
+
+   ON NE CONVOITE PAS UNE PLACE QU'ON OCCUPE DÉJÀ. Ces deux scènes-là n'avaient
+   aucune condition de fonction, et elles sortaient donc pour un chef de parti :
+   on lui expliquait qu'une députée de son propre camp « occupe exactement la
+   place qu'il vise », alors qu'au-dessus de lui, dans son parti, il n'y a rien.
+   Elles portent désormais "partyLead": false.
+
+   Le miroir existe maintenant, et c'est le troisième de la série : une fois
+   arrivé, ce n'est plus vous qui visez une place, c'est la vôtre qu'on vise.
+   Une succession, en revanche, n'a pas de miroir : un chef de parti ne fait
+   pas la queue pour une place vacante dans son camp, c'est lui qui l'attribue,
+   et cela se joue dans "chef_investitures".
    ========================================================================== */
 
 {
   "id": "rival_interne",
   "weight": 5,
   "cast": "camp_senior",
-  "when": { "minTurn": 8, "minStanding": 25 },
+  "when": { "minTurn": 8, "minStanding": 25, "partyLead": false },
   "tag": { "fr": "Guerre interne", "en": "Internal war" },
   "text": {
     "fr": "{rival} occupe exactement la place que vous visez, et l'occupe bien. Trois personnes vous ont rapporté cette semaine que votre nom revenait dans ses conversations, jamais en bien.",
@@ -305,6 +317,49 @@ const EV_appareil = [
       "effects": { "standing": -3, "sangfroid": 2, "energie": 1 },
       "result": { "fr": "Vous ne faites rien pendant deux ans. {Il} ne se trompe pas, et vous avez appris la patience, ce qui ne se monnaie nulle part.",
                   "en": "You do nothing for two years. {He} does not slip, and you have learned patience, which is negotiable nowhere." } }
+  ]
+},
+
+
+{
+  "id": "chef_conteste",
+  "weight": 5,
+  "cast": "camp_senior",
+  "when": { "partyLead": true, "minTurn": 12 },
+  "tag": { "fr": "Guerre interne", "en": "Internal war" },
+  "text": {
+    "fr": "{rival} fait le tour des fédérations depuis six semaines sans jamais prononcer votre nom, ce qui est la façon la plus claire de le prononcer. Une motion circule, elle n'a pas encore de titre, et trois personnes vous ont déjà juré qu'elles ne la signeraient pas.",
+    "en": "{rival} has been touring the federations for six weeks without once saying your name, which is the clearest possible way of saying it. A motion is going round, it does not have a title yet, and three people have already sworn to you that they will not sign it."
+  },
+  "choices": [
+    { "label": { "fr": "Écraser tout de suite, avant que la motion ait un titre", "en": "Crush it now, before the motion has a title" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.4, "standing": 0.04 }, "dice": 16 },
+      "success": { "effects": { "standing": 10, "reseau": 2, "reputation": -2, "energie": -3 },
+        "result": { "fr": "Onze coups de téléphone en deux jours et la motion ne trouve plus personne pour la porter. {Il} apprend par un tiers qu'{il} n'a plus de fédérations, et l'on ne saura jamais que vous avez eu peur.",
+                    "en": "Eleven phone calls in two days and the motion can no longer find anybody to carry it. {He} learns from a third party that {he} has no federations left, and nobody will ever know you were frightened." } },
+      "failure": { "effects": { "standing": -11, "reputation": -2, "popularity": -3, "energie": -3 },
+        "result": { "fr": "Vous cognez trop tôt et vous désignez {celui} qu'il fallait ignorer. La motion a maintenant un titre, un porte-parole et deux cents signatures, dont quatre de gens qui vous avaient juré le contraire.",
+                    "en": "You hit too early and you point out the very person you should have ignored. The motion now has a title, a spokesperson and two hundred signatures, four of them from people who had sworn otherwise." } } },
+
+    { "label": { "fr": "{Le} faire entrer à la direction", "en": "Bring {him} into the leadership" },
+      "effects": { "standing": -6, "reseau": 2, "credibilite": 1, "sangfroid": 1, "landscape": { "self": 0.6 } },
+      "result": { "fr": "Numéro deux, un titre inventé pour l'occasion et un bureau au même étage que le vôtre. On n'achète jamais une loyauté, on loue un silence, et le loyer augmente tous les ans.",
+                  "en": "Number two, a title invented for the occasion and an office on your own floor. You never buy loyalty, you rent silence, and the rent goes up every year." } },
+
+    { "label": { "fr": "Convoquer un congrès extraordinaire et trancher devant les militants", "en": "Call a special congress and settle it in front of the members" },
+      "when": { "minStanding": 55 },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "eloquence": 0.45, "standing": 0.04 }, "dice": 16 },
+      "success": { "effects": { "standing": 13, "credibilite": 2, "notoriete": 1, "energie": -3, "popularity": 3 },
+        "result": { "fr": "Vous allez au-devant du vote au lieu de l'attendre, et vous l'emportez largement dans une salle qui n'attendait que d'être consultée. Une direction qui se fait réélire est plus forte qu'une direction qui dure.",
+                    "en": "You go out to meet the vote instead of waiting for it, and you win comfortably in a hall that was only waiting to be asked. A leadership that gets itself re-elected is stronger than a leadership that merely lasts." } },
+      "failure": { "effects": { "lead": false, "standing": -9, "popularity": -5, "credibilite": -2, "energie": -3 },
+        "result": { "fr": "Vous avez organisé vous-même le vote qui vous emporte. La salle applaudit poliment votre discours de douze minutes, puis {rival} est annoncé{e}, et vous restez élu de votre circonscription, ce qui est tout ce qu'il vous reste.",
+                    "en": "You organised the vote that removed you. The hall politely applauds your twelve-minute speech, then {rival} is announced, and you remain the member for your constituency, which is all you have left." } } },
+
+    { "label": { "fr": "Ne rien voir, et travailler", "en": "See nothing, and get on with the work" },
+      "effects": { "sangfroid": 2, "credibilite": 1, "standing": -4, "energie": 1 },
+      "result": { "fr": "Vous passez six mois à ne pas répondre. La motion existe toujours, elle a cessé de grossir, et personne dans la maison ne sait plus très bien si vous êtes serein ou si vous n'avez rien vu.",
+                  "en": "You spend six months not answering. The motion still exists, it has stopped growing, and nobody in the building is quite sure any more whether you are serene or simply did not notice." } }
   ]
 },
 
@@ -352,7 +407,7 @@ const EV_appareil = [
   "once": true,
   "weight": 5,
   "cast": "camp_senior",
-  "when": { "minTurn": 14, "minStanding": 35 },
+  "when": { "minTurn": 14, "minStanding": 35, "partyLead": false },
   "tag": { "fr": "Succession", "en": "Succession" },
   "text": {
     "fr": "{rival} annonce qu'{il} ne se représentera pas. La place est ouverte, quatre personnes la veulent, et les trois autres se connaissent depuis plus longtemps que vous ne les connaissez."
