@@ -132,7 +132,28 @@
   <script src="js/traits.data.js"></script>
   <script src="js/budget.data.js"></script>
   <script src="js/endings.data.js"></script>
-  <script src="js/events.data.js"></script>
+  <!-- Événements, éclatés par thème puis assemblés dans EVENT_DATA.
+       Tous les EV_* doivent être chargés avant _assemble.data.js, qui les
+       concatène, lui-même avant game-data.js qui lit EVENT_DATA. -->
+  <script src="js/events/debuts.data.js"></script>
+  <script src="js/events/medias.data.js"></script>
+  <script src="js/events/argent.data.js"></script>
+  <script src="js/events/appareil.data.js"></script>
+  <script src="js/events/chaines.data.js"></script>
+  <script src="js/events/rivaux.data.js"></script>
+  <script src="js/events/vie_privee.data.js"></script>
+  <script src="js/events/partis.data.js"></script>
+  <script src="js/events/caractere.data.js"></script>
+  <script src="js/events/institutions.data.js"></script>
+  <script src="js/events/grandes_decisions.data.js"></script>
+  <script src="js/events/divers.data.js"></script>
+  <script src="js/events/campaign.data.js"></script>
+  <script src="js/events/runoff.data.js"></script>
+  <script src="js/events/nomination.data.js"></script>
+  <script src="js/events/support.data.js"></script>
+  <script src="js/events/aside.data.js"></script>
+  <script src="js/events/races.data.js"></script>
+  <script src="js/events/_assemble.data.js"></script>
   <script src="js/game-data.js"></script>
   <script src="js/game.js"></script>
 </body>
