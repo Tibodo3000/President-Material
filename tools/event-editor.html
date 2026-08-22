@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éditeur d'événements · President Material</title>
+<style>
+  :root {
+    --bg:#10141f; --panel:#171c2b; --panel-2:#1e2536; --panel-3:#232c40; --line:#2a3346;
+    --ink:#e7ecf5; --dim:#93a0b8; --gold:#c9a24b; --gold-soft:#e5c983;
+    --ok:#57b894; --warn:#d9a441; --err:#e0645f;
+    --mono:ui-monospace,"Cascadia Code","SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+  header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line);}
+  header h1{font-size:15px;margin:0;font-weight:600;letter-spacing:.3px;}
+  header h1 .star{color:var(--gold);}
+  header .sp{flex:1;}
+  select,input,textarea,button{background:var(--panel-2);color:var(--ink);
+    border:1px solid var(--line);border-radius:6px;padding:5px 8px;font-size:13px;font-family:inherit;}
+  input[type=text]{min-width:120px;}
+  textarea{font-family:inherit;resize:vertical;width:100%;line-height:1.45;}
+  button{cursor:pointer;} button:hover{border-color:var(--gold);}
+  button.primary{background:var(--gold);color:#201a08;border-color:var(--gold);font-weight:600;}
+  button.primary:hover{background:var(--gold-soft);}
+  button.mini{padding:2px 7px;font-size:12px;}
+  .muted{color:var(--dim);font-size:12px;}
+
+  main{display:grid;grid-template-columns:280px minmax(440px,1fr) 360px;height:calc(100vh - 53px);}
+  .col{overflow:auto;padding:12px;} .col+.col{border-left:1px solid var(--line);}
+
+  /* list */
+  .count{color:var(--dim);font-size:12px;margin:0 0 8px;}
+  .ev{padding:7px 9px;border:1px solid transparent;border-radius:6px;cursor:pointer;}
+  .ev:hover{background:var(--panel);}
+  .ev.sel{background:var(--panel-2);border-color:var(--gold);}
+  .ev .id{font-family:var(--mono);font-size:12px;color:var(--gold-soft);word-break:break-all;}
+  .ev .tag{font-size:11.5px;color:var(--dim);}
+  .ev .badge{float:right;font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:4px;padding:0 5px;}
+
+  /* form */
+  .toolbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+  .target{font-size:12px;color:var(--dim);margin:0 0 12px;}
+  .target code{color:var(--gold-soft);font-family:var(--mono);}
+  fieldset{border:1px solid var(--line);border-radius:8px;margin:0 0 12px;padding:10px 12px;background:var(--panel);}
+  legend{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--dim);padding:0 6px;font-weight:600;}
+  .frow{display:flex;gap:8px;align-items:flex-start;margin:6px 0;}
+  .flabel{flex:none;width:88px;color:var(--dim);font-size:12px;padding-top:6px;}
+  .fin{flex:1;} .num{max-width:110px;flex:none;}
+  .bitext{flex:1;display:flex;flex-direction:column;gap:5px;}
+  .bt{display:flex;gap:6px;align-items:flex-start;}
+  .bt .lang{flex:none;width:22px;font-size:10px;color:var(--dim);padding-top:6px;}
+  .fmulti{flex:1;min-height:64px;}
+  .sub{border-left:2px solid var(--line);margin:4px 0 4px 4px;padding:4px 0 4px 10px;}
+  .krow{display:flex;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap;}
+  .krow select,.krow input{padding:3px 6px;}
+  .fadd{color:var(--gold-soft);border-style:dashed;}
+  .card{border:1px solid var(--line);border-radius:8px;margin:0 0 10px;padding:10px;background:var(--panel-2);}
+  .card > .chead{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .card > .chead .n{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;}
+  .card > .chead .sp{flex:1;}
+  .branch{border:1px solid var(--line);border-radius:6px;padding:8px;margin-top:8px;background:var(--panel);}
+  .branch > .bt-title{font-size:11px;color:var(--gold-soft);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  .seg button{border:0;border-radius:0;background:var(--panel-2);padding:4px 10px;}
+  .seg button.on{background:var(--gold);color:#201a08;font-weight:600;}
+  .rm{color:var(--err);border-color:var(--line);}
+  label.chk{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;color:var(--ink);cursor:pointer;}
+
+  /* inspector */
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--dim);margin:4px 0 8px;font-weight:600;}
+  .sec{margin-bottom:18px;}
+  .v{display:flex;gap:8px;padding:4px 0;font-size:12.5px;align-items:baseline;}
+  .v .mark{flex:none;width:14px;font-weight:700;}
+  .v.error .mark{color:var(--err);} .v.warn .mark{color:var(--warn);} .v.ok .mark{color:var(--ok);}
+  .v code{font-family:var(--mono);color:var(--gold-soft);}
+  .pv{border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:8px;background:var(--panel);}
+  .pv .lang{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;}
+  .pv .txt{font-size:13px;margin:3px 0 0;}
+  .pv .ch{border-top:1px dashed var(--line);margin-top:8px;padding-top:7px;}
+  .pv .ch .lbl{color:var(--gold-soft);font-size:12.5px;}
+  .pv .ch .fx{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:2px;}
+  .pv .ch .res{font-size:12px;color:var(--dim);margin-top:2px;}
+  details.json{margin-top:8px;} details.json pre{font-family:var(--mono);font-size:11.5px;
+    background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;max-height:260px;}
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="star">★</span> Éditeur d'événements</h1>
+  <select id="deck"></select>
+  <select id="theme"></select>
+  <input type="text" id="search" placeholder="Rechercher id / texte…">
+  <span class="sp"></span>
+  <span class="muted" id="loadInfo"></span>
+</header>
+
+<main>
+  <section class="col" id="listCol">
+    <p class="count" id="listCount"></p>
+    <div id="list"></div>
+  </section>
+
+  <section class="col" id="editCol">
+    <div class="toolbar">
+      <button id="btnNew">+ Nouvel événement</button>
+      <button id="btnDup">Dupliquer</button>
+      <span class="sp"></span>
+      <button class="primary" id="btnCopy">Copier le JSON</button>
+    </div>
+    <p class="target" id="target"></p>
+    <div id="formHost"></div>
+    <details class="json"><summary class="muted">Voir le JSON</summary><pre id="jsonOut"></pre></details>
+  </section>
+
+  <section class="col" id="inspectCol">
+    <div class="sec"><h2>Validation</h2><div id="validation"></div></div>
+    <div class="sec"><h2>Aperçu</h2><div id="preview"></div></div>
+  </section>
+</main>
+
+<datalist id="allIds"></datalist>
+
+<script src="../js/script.js"></script>
+<script src="../js/names.data.js"></script>
+<script src="../js/traits.data.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/budget.data.js"></script>
+<script src="../js/events/debuts.data.js"></script>
+<script src="../js/events/medias.data.js"></script>
+<script src="../js/events/argent.data.js"></script>
+<script src="../js/events/appareil.data.js"></script>
+<script src="../js/events/chaines.data.js"></script>
+<script src="../js/events/rivaux.data.js"></script>
+<script src="../js/events/vie_privee.data.js"></script>
+<script src="../js/events/partis.data.js"></script>
+<script src="../js/events/caractere.data.js"></script>
+<script src="../js/events/institutions.data.js"></script>
+<script src="../js/events/grandes_decisions.data.js"></script>
+<script src="../js/events/divers.data.js"></script>
+<script src="../js/events/campaign.data.js"></script>
+<script src="../js/events/runoff.data.js"></script>
+<script src="../js/events/nomination.data.js"></script>
+<script src="../js/events/support.data.js"></script>
+<script src="../js/events/aside.data.js"></script>
+<script src="../js/events/races.data.js"></script>
+<script src="../js/events/_assemble.data.js"></script>
+
+<script>
+"use strict";
+
+/* ============================ Vocabulaire (données réelles) ============================ */
+const DECKS = {
+  events:EVENT_DATA.events, campaign:EVENT_DATA.campaign, runoff:EVENT_DATA.runoff,
+  nomination:EVENT_DATA.nomination, support:EVENT_DATA.support, aside:EVENT_DATA.aside, races:EVENT_DATA.races,
+};
+const THEME_FILES = {debuts:EV_debuts,medias:EV_medias,argent:EV_argent,appareil:EV_appareil,
+  chaines:EV_chaines,rivaux:EV_rivaux,vie_privee:EV_vie_privee,partis:EV_partis,caractere:EV_caractere,
+  institutions:EV_institutions,grandes_decisions:EV_grandes_decisions,divers:EV_divers};
+const idTheme = {};
+for (const [t,arr] of Object.entries(THEME_FILES)) arr.forEach((e)=>{idTheme[e.id]=t;});
+
+const trFR = translations.fr;
+const PARTY_KEYS = Object.keys(PARTIES);
+const STAT_KEYS = Object.keys(BASE_STATS);
+const TRAIT_LIST = Object.keys(TRAIT_DATA);
+const TRAIT_IDS = new Set(TRAIT_LIST);
+const ORIGINS = Object.keys(STAT_MODIFIERS.origin);
+const BACKGROUNDS = Object.keys(STAT_MODIFIERS.background);
+const PERSONALITIES = Object.entries(TRAIT_DATA).filter(([,d])=>d.family==="caractere").map(([id])=>id);
+const POSITIONS = Object.keys(trFR).filter((k)=>k.startsWith("pos_")&&!k.endsWith("_low")).map((k)=>k.slice(4));
+const FLAGS = Object.keys(trFR).filter((k)=>k.startsWith("flag_")).map((k)=>k.slice(5));
+const ELECTION_IDS = Object.keys(trFR).filter((k)=>k.startsWith("elec_")&&!k.endsWith("_low")).map((k)=>k.slice(5));
+const END_TYPES = ["victory","retire","withdrawal","death","conviction"]; // types de fin du moteur
+const CAST_OPTIONS = ["opponent","leader","camp","camp_senior","minor","eliminated"];
+const PLUS_KEYS = [...STAT_KEYS,"popularity","standing","money"];
+const LANDSCAPE_TARGETS = ["self","scene","ruling","ally",...PARTY_KEYS];
+const OFFICE_LIST = [...POSITIONS,"none"];
+const ALLIANCE_TARGETS = ["self","scene","ruling","ally",...PARTY_KEYS,"null"];
+
+const EFFECT_KEYS = new Set([...STAT_KEYS,"popularity","standing","money","poll","score",
+  "flags","trait","strike","untrait","chain","landscape","office","join","alliance","end"]);
+const WHEN_KEYS = new Set(["party","position","origin","background","personality",
+  "minAge","maxAge","minTurn","maxTurn","minPopularity","maxPopularity","minStanding","maxStanding",
+  "minMoney","maxMoney","stat","flag","trait","anyTrait","notTrait","ruling","allied","minShare",
+  "rulingClose","legal","comms"]);
+
+const ALL_IDS = {};
+for (const arr of Object.values(DECKS)) arr.forEach((e)=>{ALL_IDS[e.id]=(ALL_IDS[e.id]||0)+1;});
+document.getElementById("allIds").innerHTML = Object.keys(ALL_IDS).map((id)=>'<option value="'+id+'">').join("");
+document.getElementById("loadInfo").textContent =
+  Object.values(DECKS).reduce((n,a)=>n+a.length,0)+" événements chargés";
+
+/* Spécification des conditions et des effets : type de widget par clé. */
+const WHEN_SPEC = {
+  party:{t:"multi",v:PARTY_KEYS}, position:{t:"multi",v:POSITIONS}, origin:{t:"multi",v:ORIGINS},
+  background:{t:"multi",v:BACKGROUNDS}, personality:{t:"multi",v:PERSONALITIES},
+  trait:{t:"multi",v:TRAIT_LIST}, anyTrait:{t:"multi",v:TRAIT_LIST}, notTrait:{t:"multi",v:TRAIT_LIST},
+  minAge:{t:"num"},maxAge:{t:"num"},minTurn:{t:"num"},maxTurn:{t:"num"},
+  minPopularity:{t:"num"},maxPopularity:{t:"num"},minStanding:{t:"num"},maxStanding:{t:"num"},
+  minMoney:{t:"num"},maxMoney:{t:"num"},minShare:{t:"num"},legal:{t:"num"},comms:{t:"num"},
+  ruling:{t:"bool"},allied:{t:"bool"},rulingClose:{t:"bool"}, stat:{t:"statmap"}, flag:{t:"flagmap"},
+};
+const EFFECT_SPEC = {};
+STAT_KEYS.forEach((s)=>EFFECT_SPEC[s]={t:"num"});
+["popularity","standing","money","poll","score"].forEach((k)=>EFFECT_SPEC[k]={t:"num"});
+EFFECT_SPEC.trait={t:"trait"}; EFFECT_SPEC.strike={t:"trait"}; EFFECT_SPEC.untrait={t:"trait"};
+EFFECT_SPEC.chain={t:"idlist"}; EFFECT_SPEC.flags={t:"flagmap"};
+EFFECT_SPEC.landscape={t:"nummap",v:LANDSCAPE_TARGETS};
+EFFECT_SPEC.office={t:"select",v:OFFICE_LIST}; EFFECT_SPEC.join={t:"select",v:LANDSCAPE_TARGETS};
+EFFECT_SPEC.alliance={t:"select",v:ALLIANCE_TARGETS}; EFFECT_SPEC.end={t:"select",v:END_TYPES};
+
+/* ============================ Helper DOM ============================ */
+function h(tag, attrs, ...kids){
+  const e=document.createElement(tag);
+  for(const k in (attrs||{})){
+    const val=attrs[k];
+    if(k==="class")e.className=val;
+    else if(k[0]==="o"&&k[1]==="n")e[k]=val;
+    else if(val===true)e.setAttribute(k,"");
+    else if(val!=null&&val!==false)e.setAttribute(k,val);
+  }
+  for(const kid of kids){ if(kid==null||kid===false)continue; e.append(kid.nodeType?kid:document.createTextNode(kid)); }
+  return e;
+}
+const clone=(o)=>JSON.parse(JSON.stringify(o));
+const opt=(v,label,sel)=>h("option",{value:v,selected:sel?"":false},label==null?v:label);
+
+/* ============================ État ============================ */
+let curDeck="events", curTheme="*", selectedId=null, model=null;
+
+/* ============================ Liste ============================ */
+const deckSel=document.getElementById("deck");
+Object.keys(DECKS).forEach((d)=>deckSel.appendChild(opt(d, d+" ("+DECKS[d].length+")")));
+const themeSel=document.getElementById("theme");
+function fillThemes(){
+  themeSel.innerHTML="";
+  ["*",...Object.keys(THEME_FILES)].forEach((t)=>themeSel.appendChild(opt(t, t==="*"?"tous les thèmes":t)));
+  themeSel.style.display=curDeck==="events"?"":"none";
+}
+function currentList(){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  return DECKS[curDeck].filter((e)=>{
+    if(curDeck==="events"&&curTheme!=="*"&&idTheme[e.id]!==curTheme)return false;
+    if(!q)return true;
+    return (e.id+" "+JSON.stringify(e.tag||"")+" "+JSON.stringify(e.text||"")).toLowerCase().includes(q);
+  });
+}
+function renderList(){
+  const list=currentList();
+  document.getElementById("listCount").textContent=list.length+" événement(s)";
+  const host=document.getElementById("list"); host.innerHTML="";
+  list.forEach((e)=>{
+    const id=h("div",{class:"id"},e.id);
+    if(curDeck==="events")id.appendChild(h("span",{class:"badge"},idTheme[e.id]||"?"));
+    const div=h("div",{class:"ev"+(e.id===selectedId?" sel":""),onclick:()=>selectEvent(e.id)},
+      id, h("div",{class:"tag"}, e.tag?(e.tag.fr||""):""));
+    host.appendChild(div);
+  });
+}
+
+/* ============================ Widgets de formulaire ============================ */
+function txt(obj,key,{ph,area,keep}={}){
+  const e=area?h("textarea",{class:"fin",rows:area===true?2:area}):h("input",{type:"text",class:"fin"});
+  e.value=obj[key]==null?"":obj[key]; if(ph)e.placeholder=ph;
+  e.oninput=()=>{ if(e.value===""&&!keep)delete obj[key]; else obj[key]=e.value; sync(); };
+  return e;
+}
+function numw(obj,key){
+  const e=h("input",{type:"number",class:"fin num",step:"any"});
+  e.value=obj[key]==null?"":obj[key];
+  e.oninput=()=>{ if(e.value==="")delete obj[key]; else obj[key]=Number(e.value); sync(); };
+  return e;
+}
+function boolw(obj,key){
+  const s=h("select",{class:"fin num"}, opt("true"), opt("false"));
+  s.value=String(!!obj[key]); s.onchange=()=>{ obj[key]=(s.value==="true"); sync(); };
+  return s;
+}
+function selectw(obj,key,vocab,{empty}={}){
+  const s=h("select",{class:"fin"});
+  if(empty)s.appendChild(opt("","— aucun —"));
+  vocab.forEach((v)=>s.appendChild(opt(v)));
+  s.value=obj[key]==null?"":String(obj[key]);
+  s.onchange=()=>{ const v=s.value; if(v==="null")obj[key]=null; else if(v==="")delete obj[key]; else obj[key]=v; sync(); };
+  return s;
+}
+function multiw(owner,key,vocab){
+  const s=h("select",{multiple:true,class:"fmulti",size:Math.min(7,Math.max(3,vocab.length))});
+  vocab.forEach((v)=>s.appendChild(opt(v,v,(owner[key]||[]).includes(v))));
+  s.onchange=()=>{ const vals=[...s.selectedOptions].map((o)=>o.value); if(vals.length)owner[key]=vals; else delete owner[key]; sync(); };
+  return s;
+}
+function biText(obj,{area}={}){
+  if(typeof obj.fr!=="string")obj.fr=""; if(typeof obj.en!=="string")obj.en="";
+  return h("div",{class:"bitext"},
+    h("div",{class:"bt"},h("span",{class:"lang"},"FR"),txt(obj,"fr",{area,keep:true})),
+    h("div",{class:"bt"},h("span",{class:"lang"},"EN"),txt(obj,"en",{area,keep:true})));
+}
+function frow(label,...widgets){ return h("div",{class:"frow"},h("span",{class:"flabel"},label),...widgets); }
+
+/* clé→nombre (landscape, plus) et clé→bool (flags) */
+function nummap(owner,key,vocab){
+  const obj=owner[key]||{}; const box=h("div",{class:"sub"});
+  Object.keys(obj).forEach((k)=>{
+    box.appendChild(h("div",{class:"krow"},
+      keySel(obj,k,vocab,()=>rebuild()),
+      numMapVal(obj,k),
+      h("button",{class:"mini rm",onclick:()=>{delete obj[k]; if(!Object.keys(obj).length)delete owner[key]; rebuild();}},"×")));
+  });
+  const avail=vocab.filter((v)=>!(v in obj));
+  if(avail.length){
+    const add=h("select",{class:"fadd"},opt("","+ clé…"),...avail.map((v)=>opt(v)));
+    add.onchange=()=>{ if(!add.value)return; if(!owner[key])owner[key]={}; owner[key][add.value]=0; rebuild(); };
+    box.appendChild(add);
+  }
+  return box;
+}
+function numMapVal(obj,k){ const e=h("input",{type:"number",class:"num",step:"any"}); e.value=obj[k]; e.oninput=()=>{obj[k]=Number(e.value); sync();}; return e; }
+function keySel(obj,oldKey,vocab,after){
+  const s=h("select",{},...vocab.filter((v)=>v===oldKey||!(v in obj)).map((v)=>opt(v,v,v===oldKey)));
+  s.onchange=()=>{ const val=obj[oldKey]; delete obj[oldKey]; obj[s.value]=val; after(); };
+  return s;
+}
+function flagmap(owner,key){
+  const obj=owner[key]||{}; const box=h("div",{class:"sub"});
+  Object.keys(obj).forEach((k)=>{
+    box.appendChild(h("div",{class:"krow"},
+      keySel(obj,k,FLAGS,()=>rebuild()), boolw(obj,k),
+      h("button",{class:"mini rm",onclick:()=>{delete obj[k]; if(!Object.keys(obj).length)delete owner[key]; rebuild();}},"×")));
+  });
+  const avail=FLAGS.filter((v)=>!(v in obj));
+  if(avail.length){
+    const add=h("select",{class:"fadd"},opt("","+ drapeau…"),...avail.map((v)=>opt(v)));
+    add.onchange=()=>{ if(!add.value)return; if(!owner[key])owner[key]={}; owner[key][add.value]=true; rebuild(); };
+    box.appendChild(add);
+  }
+  return box;
+}
+function statmap(owner,key){
+  const obj=owner[key]||{}; const box=h("div",{class:"sub"});
+  Object.keys(obj).forEach((s)=>{
+    const rng=obj[s]||(obj[s]={});
+    box.appendChild(h("div",{class:"krow"},
+      keySel(obj,s,STAT_KEYS,()=>rebuild()),
+      "min",rngNum(rng,"min"),"max",rngNum(rng,"max"),
+      h("button",{class:"mini rm",onclick:()=>{delete obj[s]; if(!Object.keys(obj).length)delete owner[key]; rebuild();}},"×")));
+  });
+  const avail=STAT_KEYS.filter((v)=>!(v in obj));
+  if(avail.length){
+    const add=h("select",{class:"fadd"},opt("","+ stat…"),...avail.map((v)=>opt(v)));
+    add.onchange=()=>{ if(!add.value)return; if(!owner[key])owner[key]={}; owner[key][add.value]={min:0}; rebuild(); };
+    box.appendChild(add);
+  }
+  return box;
+}
+function rngNum(rng,which){ const e=h("input",{type:"number",class:"num",step:"any"}); e.value=rng[which]==null?"":rng[which];
+  e.oninput=()=>{ if(e.value==="")delete rng[which]; else rng[which]=Number(e.value); sync(); }; return e; }
+
+/* Éditeur de conditions (when) sur owner[key] */
+function whenEditor(owner,key){
+  const w=owner[key]; const box=h("div",{class:"sub"});
+  if(w) Object.keys(w).forEach((ck)=>{
+    const spec=WHEN_SPEC[ck]||{t:"num"};
+    let widget;
+    if(spec.t==="multi")widget=multiw(w,ck,spec.v);
+    else if(spec.t==="num")widget=numw(w,ck);
+    else if(spec.t==="bool")widget=boolw(w,ck);
+    else if(spec.t==="statmap")widget=statmap(w,ck);
+    else if(spec.t==="flagmap")widget=flagmap(w,ck);
+    box.appendChild(h("div",{class:"krow"},
+      h("span",{class:"muted",style:"min-width:90px"},ck), widget,
+      h("button",{class:"mini rm",onclick:()=>{delete w[ck]; if(!Object.keys(w).length)delete owner[key]; rebuild();}},"×")));
+  });
+  const avail=Object.keys(WHEN_SPEC).filter((k)=>!(w&&k in w));
+  const add=h("select",{class:"fadd"},opt("","+ condition…"),...avail.map((k)=>opt(k)));
+  add.onchange=()=>{ if(!add.value)return; if(!owner[key])owner[key]={}; owner[key][add.value]=defaultWhen(add.value); rebuild(); };
+  box.appendChild(add);
+  return box;
+}
+function defaultWhen(k){ const t=(WHEN_SPEC[k]||{}).t;
+  return t==="multi"?[]:t==="bool"?true:t==="statmap"?{}:t==="flagmap"?{}:0; }
+
+/* Éditeur d'effets sur owner[key] */
+function effectsEditor(owner,key){
+  const fx=owner[key]; const box=h("div",{class:"sub"});
+  if(fx) Object.keys(fx).forEach((ek)=>{
+    const spec=EFFECT_SPEC[ek]||{t:"num"};
+    let widget;
+    if(spec.t==="num")widget=numw(fx,ek);
+    else if(spec.t==="trait")widget=selectw(fx,ek,TRAIT_LIST);
+    else if(spec.t==="select")widget=selectw(fx,ek,spec.v);
+    else if(spec.t==="idlist")widget=idlistw(fx,ek);
+    else if(spec.t==="flagmap")widget=flagmap(fx,ek);
+    else if(spec.t==="nummap")widget=nummap(fx,ek,spec.v);
+    box.appendChild(h("div",{class:"krow"},
+      h("span",{class:"muted",style:"min-width:90px"},ek), widget,
+      h("button",{class:"mini rm",onclick:()=>{delete fx[ek]; if(!Object.keys(fx).length)delete owner[key]; rebuild();}},"×")));
+  });
+  const avail=Object.keys(EFFECT_SPEC).filter((k)=>!(fx&&k in fx));
+  const add=h("select",{class:"fadd"},opt("","+ effet…"),...avail.map((k)=>opt(k)));
+  add.onchange=()=>{ if(!add.value)return; if(!owner[key])owner[key]={}; owner[key][add.value]=defaultEffect(add.value); rebuild(); };
+  box.appendChild(add);
+  return box;
+}
+function defaultEffect(k){ const t=(EFFECT_SPEC[k]||{}).t;
+  if(t==="trait")return TRAIT_LIST[0]; if(t==="select")return EFFECT_SPEC[k].v[0];
+  if(t==="idlist")return ""; if(t==="flagmap"||t==="nummap")return {}; return 0; }
+function idlistw(fx,key){
+  const cur=fx[key]; const e=h("input",{type:"text",class:"fin",list:"allIds",placeholder:"id, id, …"});
+  e.value=Array.isArray(cur)?cur.join(", "):(cur||"");
+  e.oninput=()=>{ const ids=e.value.split(/[,\s]+/).filter(Boolean); fx[key]=ids.length<=1?(ids[0]||""):ids; sync(); };
+  return e;
+}
+
+/* effectsIf : liste de { when, effects } */
+function effectsIfEditor(branch){
+  const box=h("div",{class:"sub"});
+  (branch.effectsIf||[]).forEach((rule,i)=>{
+    box.appendChild(h("div",{class:"branch"},
+      h("div",{class:"bt-title"},"effectsIf ["+i+"]",
+        h("button",{class:"mini rm",style:"float:right",onclick:()=>{branch.effectsIf.splice(i,1); if(!branch.effectsIf.length)delete branch.effectsIf; rebuild();}},"×")),
+      frow("condition",whenEditor(rule,"when")),
+      frow("effets",effectsEditor(rule,"effects"))));
+  });
+  box.appendChild(h("button",{class:"mini fadd",onclick:()=>{(branch.effectsIf||(branch.effectsIf=[])).push({when:{},effects:{}}); rebuild();}},"+ effectsIf"));
+  return box;
+}
+
+/* liste { when, value } : bonus / chanceBonus */
+function bonusEditor(roll,key,label){
+  const box=h("div",{class:"sub"});
+  (roll[key]||[]).forEach((b,i)=>{
+    box.appendChild(h("div",{class:"branch"},
+      h("div",{class:"bt-title"},label+" ["+i+"]",
+        h("button",{class:"mini rm",style:"float:right",onclick:()=>{roll[key].splice(i,1); if(!roll[key].length)delete roll[key]; rebuild();}},"×")),
+      frow("valeur",numw(b,"value")),
+      frow("condition",whenEditor(b,"when"))));
+  });
+  box.appendChild(h("button",{class:"mini fadd",onclick:()=>{(roll[key]||(roll[key]=[])).push({value:0,when:{}}); rebuild();}},"+ "+label));
+  return box;
+}
+
+/* Une branche (choix direct, success ou failure) : effets + result + effectsIf */
+function branchEditor(branch){
+  if(!branch.result)branch.result={fr:"",en:""};
+  return h("div",{},
+    frow("effets",effectsEditor(branch,"effects")),
+    frow("result",biText(branch.result,{area:true})),
+    frow("cond.",effectsIfEditor(branch)));
+}
+
+/* Un roll */
+function rollEditor(choice){
+  const roll=choice.roll;
+  const isChance=roll.chance!==undefined;
+  const seg=h("div",{class:"seg"},
+    h("button",{class:isChance?"":"on",onclick:()=>{delete roll.chance;delete roll.chanceBonus; if(roll.base===undefined&&roll.difficulty===undefined)roll.base=12; if(!roll.stat)roll.stat=STAT_KEYS[0]; rebuild();}},"score composite"),
+    h("button",{class:isChance?"on":"",onclick:()=>{["base","difficulty","stat","plus","bonus","dice"].forEach((k)=>delete roll[k]); roll.chance=0.5; rebuild();}},"probabilité fixe"));
+  const body=h("div",{});
+  if(isChance){
+    body.appendChild(frow("chance",numw(roll,"chance")));
+    body.appendChild(frow("chanceBonus",bonusEditor(roll,"chanceBonus","chanceBonus")));
+  } else {
+    body.appendChild(frow("base",numw(roll,"base")));
+    body.appendChild(frow("stat",selectw(roll,"stat",STAT_KEYS)));
+    body.appendChild(frow("dice",numw(roll,"dice")));
+    body.appendChild(frow("plus",nummap(roll,"plus",PLUS_KEYS)));
+    body.appendChild(frow("bonus",bonusEditor(roll,"bonus","bonus")));
+  }
+  return h("div",{class:"branch"},h("div",{class:"bt-title"},"roll"),seg,body);
+}
+
+/* Un choix */
+function choiceEditor(choice,i,choices){
+  if(!choice.label)choice.label={fr:"",en:""};
+  const hasRoll=!!choice.roll;
+  const head=h("div",{class:"chead"},
+    h("span",{class:"n"},"Choix "+(i+1)),
+    h("span",{class:"sp"}),
+    h("button",{class:"mini",onclick:()=>{if(i>0){[choices[i-1],choices[i]]=[choices[i],choices[i-1]];rebuild();}}},"↑"),
+    h("button",{class:"mini",onclick:()=>{if(i<choices.length-1){[choices[i+1],choices[i]]=[choices[i],choices[i+1]];rebuild();}}},"↓"),
+    h("button",{class:"mini rm",onclick:()=>{choices.splice(i,1);rebuild();}},"Supprimer"));
+  const toggle=h("div",{class:"seg"},
+    h("button",{class:hasRoll?"":"on",onclick:()=>{if(hasRoll){delete choice.roll;delete choice.success;delete choice.failure; if(!choice.result)choice.result={fr:"",en:""}; if(!choice.effects)choice.effects={}; rebuild();}}},"effet certain"),
+    h("button",{class:hasRoll?"on":"",onclick:()=>{if(!hasRoll){choice.roll={base:12,stat:STAT_KEYS[0]}; choice.success={effects:{},result:{fr:"",en:""}}; choice.failure={effects:{},result:{fr:"",en:""}}; delete choice.effects; delete choice.result; rebuild();}}},"jet (roll)"));
+
+  const body=h("div",{});
+  body.appendChild(frow("label",biText(choice.label)));
+  body.appendChild(frow("when",whenEditor(choice,"when")));
+  body.appendChild(frow("type",toggle));
+  if(hasRoll){
+    body.appendChild(rollEditor(choice));
+    if(!choice.success)choice.success={effects:{},result:{fr:"",en:""}};
+    if(!choice.failure)choice.failure={effects:{},result:{fr:"",en:""}};
+    body.appendChild(h("div",{class:"branch"},h("div",{class:"bt-title"},"success"),branchEditor(choice.success)));
+    body.appendChild(h("div",{class:"branch"},h("div",{class:"bt-title"},"failure"),branchEditor(choice.failure)));
+  } else {
+    body.appendChild(branchEditor(choice));
+  }
+  return h("div",{class:"card"},head,body);
+}
+
+/* ============================ Formulaire complet ============================ */
+function isCampaignDeck(){ return ["campaign","support","races"].includes(curDeck); }
+function rebuild(){
+  const host=document.getElementById("formHost"); host.innerHTML="";
+  if(!model){ host.appendChild(h("p",{class:"muted"},"Sélectionnez un événement à gauche, ou créez-en un.")); sync(); return; }
+
+  // Général
+  const gen=h("fieldset",{},h("legend",{},"Général"));
+  gen.appendChild(frow("id",txt(model,"id",{keep:true,ph:"identifiant_unique"})));
+  gen.appendChild(frow("weight",numw(model,"weight")));
+  gen.appendChild(frow("options",
+    chk(model,"repeatable","repeatable"), chk(model,"once","once"),
+    isCampaignDeck()?chk(model,"required","required"):null));
+  gen.appendChild(frow("cast",selectw(model,"cast",CAST_OPTIONS,{empty:true})));
+  gen.appendChild(frow("tag",biText(model.tag||(model.tag={fr:"",en:""}))));
+  gen.appendChild(frow("text",biText(model.text||(model.text={fr:"",en:""}),{area:3})));
+  if(curDeck==="races")gen.appendChild(frow("race",multiw(model,"race",ELECTION_IDS)));
+  if(isCampaignDeck())gen.appendChild(frow("moment",momentEditor(model)));
+  gen.appendChild(frow("delay",delayEditor(model)));
+  host.appendChild(gen);
+
+  // Conditions
+  const cond=h("fieldset",{},h("legend",{},"Conditions (when)"),whenEditor(model,"when"));
+  host.appendChild(cond);
+
+  // Choix
+  const choices=model.choices||(model.choices=[]);
+  const chBox=h("fieldset",{},h("legend",{},"Choix ("+choices.length+")"));
+  choices.forEach((c,i)=>chBox.appendChild(choiceEditor(c,i,choices)));
+  chBox.appendChild(h("button",{class:"mini fadd",onclick:()=>{choices.push({label:{fr:"",en:""},effects:{},result:{fr:"",en:""}});rebuild();}},"+ Ajouter un choix"));
+  host.appendChild(chBox);
+
+  sync();
+}
+function chk(obj,key,label){
+  const c=h("input",{type:"checkbox"}); c.checked=!!obj[key];
+  c.onchange=()=>{ if(c.checked)obj[key]=true; else delete obj[key]; sync(); };
+  return h("label",{class:"chk"},c,label);
+}
+function momentEditor(model){
+  // number, or pair [a,b]
+  const isPair=Array.isArray(model.moment);
+  const wrap=h("span",{class:"krow"});
+  const toggle=h("label",{class:"chk"},(()=>{const c=h("input",{type:"checkbox"});c.checked=isPair;
+    c.onchange=()=>{ model.moment=c.checked?[6,4]:1; rebuild(); }; return c;})(),"paire");
+  if(isPair){
+    wrap.append(numArr(model.moment,0),numArr(model.moment,1));
+  } else {
+    const e=h("input",{type:"number",class:"num"}); e.value=model.moment==null?"":model.moment;
+    e.oninput=()=>{ if(e.value==="")delete model.moment; else model.moment=Number(e.value); sync(); }; wrap.append(e);
+  }
+  wrap.append(toggle); return wrap;
+}
+function numArr(arr,i){ const e=h("input",{type:"number",class:"num"}); e.value=arr[i]; e.oninput=()=>{arr[i]=Number(e.value); sync();}; return e; }
+function delayEditor(model){
+  const has=Array.isArray(model.delay);
+  const wrap=h("span",{class:"krow"});
+  const c=h("input",{type:"checkbox"}); c.checked=has;
+  c.onchange=()=>{ if(c.checked)model.delay=[1,2]; else delete model.delay; rebuild(); };
+  wrap.append(h("label",{class:"chk"},c,"délai (chaîne)"));
+  if(has)wrap.append(numArr(model.delay,0),"→",numArr(model.delay,1));
+  return wrap;
+}
+
+/* ============================ Sync : validation, aperçu, JSON ============================ */
+function targetFile(){
+  if(curDeck==="events"){ const t=selectedId&&idTheme[selectedId]; return t?"js/events/"+t+".data.js":"js/events/<thème>.data.js"; }
+  return "js/events/"+curDeck+".data.js";
+}
+function sync(){
+  document.getElementById("target").innerHTML=
+    model?("Fichier cible : <code>"+targetFile()+"</code> · l'éditeur n'écrit rien, copiez le JSON."):"";
+  document.getElementById("jsonOut").textContent=model?JSON.stringify(model,null,2):"";
+  renderValidation(model);
+  renderPreview(model);
+}
+
+/* -- validation (identique à la v1, lit un objet) -- */
+function isText(o){return o&&typeof o==="object"&&typeof o.fr==="string"&&typeof o.en==="string";}
+function checkEffects(fx,where,out){
+  if(!fx||typeof fx!=="object")return;
+  for(const [k,v] of Object.entries(fx)){
+    if(!EFFECT_KEYS.has(k)){out.push(["error","Effet inconnu <code>"+k+"</code> ("+where+")"]);continue;}
+    if((k==="trait"||k==="strike"||k==="untrait")&&!TRAIT_IDS.has(v))out.push(["error","Trait inexistant <code>"+v+"</code> ("+where+")"]);
+    if(k==="chain")(Array.isArray(v)?v:[v]).forEach((id)=>{ if(id&&!ALL_IDS[id])out.push(["warn","Chaîne vers un id inconnu <code>"+id+"</code> ("+where+")"]); });
+    if(k==="office"&&!OFFICE_LIST.includes(v))out.push(["warn","Fonction inconnue <code>"+v+"</code> ("+where+")"]);
+    if(k==="landscape"&&v&&typeof v==="object")Object.keys(v).forEach((tg)=>{ if(!LANDSCAPE_TARGETS.includes(tg))out.push(["warn","Cible landscape inconnue <code>"+tg+"</code> ("+where+")"]); });
+  }
+}
+function checkWhen(when,where,out){
+  if(!when||typeof when!=="object")return;
+  for(const [k,v] of Object.entries(when)){
+    if(!WHEN_KEYS.has(k)){out.push(["warn","Condition inconnue <code>"+k+"</code> ("+where+")"]);continue;}
+    const inList=(arr,ok,label)=>(arr||[]).forEach((x)=>{ if(!ok(x))out.push(["error",label+" invalide <code>"+x+"</code> ("+where+")"]); });
+    if(k==="party")inList(v,(x)=>PARTY_KEYS.includes(x),"Parti");
+    if(k==="position")inList(v,(x)=>POSITIONS.includes(x),"Fonction");
+    if(k==="origin")inList(v,(x)=>ORIGINS.includes(x),"Origine");
+    if(k==="background")inList(v,(x)=>BACKGROUNDS.includes(x),"Parcours");
+    if(k==="personality")inList(v,(x)=>PERSONALITIES.includes(x),"Personnalité");
+    if(k==="trait"||k==="anyTrait"||k==="notTrait")inList(v,(x)=>TRAIT_IDS.has(x),"Trait");
+    if(k==="stat"&&v&&typeof v==="object")Object.keys(v).forEach((s)=>{ if(!STAT_KEYS.includes(s))out.push(["error","Stat inconnue <code>"+s+"</code> ("+where+")"]); });
+    if(k==="flag"&&v&&typeof v==="object")Object.keys(v).forEach((f)=>{ if(!FLAGS.includes(f))out.push(["warn","Drapeau inconnu <code>"+f+"</code> ("+where+")"]); });
+  }
+}
+function validateEvent(ev){
+  const out=[];
+  if(!ev.id||typeof ev.id!=="string")out.push(["error","id manquant"]);
+  else if(ALL_IDS[ev.id]>1&&ev.id!==selectedId)out.push(["error","id <code>"+ev.id+"</code> déjà utilisé ailleurs"]);
+  if(!isText(ev.tag))out.push(["error","tag doit avoir fr et en"]);
+  if(!isText(ev.text))out.push(["error","text doit avoir fr et en"]);
+  checkWhen(ev.when,"when",out);
+  if(!Array.isArray(ev.choices)||!ev.choices.length){out.push(["error","au moins un choix requis"]);return out;}
+  if(!ev.choices.some((c)=>!c.when||!Object.keys(c.when).length))out.push(["error","au moins un choix doit être inconditionnel (sans when)"]);
+  ev.choices.forEach((c,i)=>{
+    const at="choix "+(i+1);
+    if(!isText(c.label))out.push(["error","label fr/en manquant ("+at+")"]);
+    checkWhen(c.when,at+".when",out);
+    if(c.roll){
+      const r=c.roll;
+      if(r.chance===undefined&&!STAT_KEYS.includes(r.stat))out.push(["error","roll : stat inconnue ou chance manquante ("+at+")"]);
+      if(!c.success||!c.failure)out.push(["error","roll : success et failure requis ("+at+")"]);
+      [["success",c.success],["failure",c.failure]].forEach(([br,b])=>{ if(!b)return;
+        if(!isText(b.result))out.push(["error","result fr/en manquant ("+at+" / "+br+")"]);
+        checkEffects(b.effects,at+"."+br,out);
+        (b.effectsIf||[]).forEach((e,j)=>{checkWhen(e.when,at+"."+br+".effectsIf["+j+"]",out);checkEffects(e.effects,at+"."+br+".effectsIf",out);}); });
+      (r.bonus||[]).forEach((b,j)=>checkWhen(b.when,at+".roll.bonus["+j+"]",out));
+      (r.chanceBonus||[]).forEach((b,j)=>checkWhen(b.when,at+".roll.chanceBonus["+j+"]",out));
+    } else {
+      if(!isText(c.result))out.push(["error","result fr/en manquant ("+at+")"]);
+      checkEffects(c.effects,at,out);
+      (c.effectsIf||[]).forEach((e,j)=>{checkWhen(e.when,at+".effectsIf["+j+"]",out);checkEffects(e.effects,at+".effectsIf",out);});
+    }
+  });
+  return out;
+}
+function renderValidation(obj){
+  const host=document.getElementById("validation"); host.innerHTML="";
+  if(!obj){host.appendChild(vline("warn","Aucun événement"));return;}
+  const issues=validateEvent(obj);
+  if(!issues.length){host.appendChild(vline("ok","Aucun problème détecté"));return;}
+  issues.forEach(([lvl,msg])=>host.appendChild(vline(lvl,msg)));
+}
+function vline(lvl,msg){
+  return h("div",{class:"v "+lvl}, h("span",{class:"mark"}, lvl==="error"?"✕":lvl==="warn"?"!":"✓"),
+    (()=>{const s=h("span");s.innerHTML=msg;return s;})());
+}
+
+/* -- aperçu -- */
+const GENDER={il:"elle",le:"la",lui:"elle",celui:"celle",un:"une",e:"e",he:"she",him:"her",his:"her"};
+function fillMarks(text,lang){
+  const partyName=(k)=>translations[lang]["party_"+k]||k;
+  return String(text||"").replace(/\{([A-Za-zÀ-ÿ]+)\}/g,(m,w)=>{
+    const key=w.charAt(0).toLowerCase()+w.slice(1);
+    if(key==="rival")return "Agnès Martin ("+partyName(PARTY_KEYS[0])+")";
+    if(key==="rival_party")return partyName(PARTY_KEYS[1]);
+    if(key==="party")return partyName("socdem");
+    if(GENDER[key]===undefined)return m;
+    const f=GENDER[key];
+    return w.charAt(0)===key.charAt(0)?f:f.charAt(0).toUpperCase()+f.slice(1);
+  });
+}
+function fxSummary(fx){ return fx?Object.entries(fx).map(([k,v])=>k+"="+(typeof v==="object"?JSON.stringify(v):v)).join("  "):""; }
+function el(tag,cls,text){const e=h(tag,{class:cls});e.textContent=text;return e;}
+function renderPreview(obj){
+  const host=document.getElementById("preview"); host.innerHTML="";
+  if(!obj||!obj.text)return;
+  ["fr","en"].forEach((lang)=>{
+    const box=h("div",{class:"pv"}); box.appendChild(el("div","lang",lang));
+    box.appendChild(el("p","txt",fillMarks((obj.text&&obj.text[lang])||"",lang)));
+    (obj.choices||[]).forEach((c)=>{
+      const ch=h("div",{class:"ch"});
+      ch.appendChild(el("div","lbl","▸ "+fillMarks((c.label&&c.label[lang])||"",lang)));
+      const branches=c.roll?[["✓",c.success],["✗",c.failure]]:[["",c]];
+      branches.forEach(([mk,b])=>{ if(!b)return;
+        const fx=fxSummary(b.effects); if(fx)ch.appendChild(el("div","fx",mk+" "+fx));
+        if(b.result)ch.appendChild(el("div","res",mk+" "+fillMarks((b.result&&b.result[lang])||"",lang))); });
+      box.appendChild(ch);
+    });
+    host.appendChild(box);
+  });
+}
+
+/* ============================ Sélection & actions ============================ */
+function selectEvent(id){
+  selectedId=id;
+  const ev=DECKS[curDeck].find((e)=>e.id===id);
+  model=ev?clone(ev):null;
+  renderList(); rebuild();
+}
+function template(){ return {id:"nouvel_evenement",tag:{fr:"",en:""},text:{fr:"",en:""},
+  choices:[{label:{fr:"",en:""},effects:{},result:{fr:"",en:""}}]}; }
+
+document.getElementById("btnNew").onclick=()=>{ selectedId=null; model=template(); renderList(); rebuild(); };
+document.getElementById("btnDup").onclick=()=>{ if(!model)return; model=clone(model); model.id=(model.id||"event")+"_copie"; selectedId=null; renderList(); rebuild(); };
+document.getElementById("btnCopy").onclick=async()=>{
+  if(!model)return; const txt=JSON.stringify(model,null,2);
+  try{await navigator.clipboard.writeText(txt);}catch(e){const ta=document.createElement("textarea");ta.value=txt;document.body.append(ta);ta.select();document.execCommand("copy");ta.remove();}
+  const b=document.getElementById("btnCopy"),old=b.textContent; b.textContent="Copié ✓"; setTimeout(()=>b.textContent=old,1200);
+};
+
+deckSel.onchange=()=>{ curDeck=deckSel.value; curTheme="*"; fillThemes(); selectedId=null; model=null; renderList(); rebuild(); };
+themeSel.onchange=()=>{ curTheme=themeSel.value; renderList(); };
+document.getElementById("search").oninput=renderList;
+
+fillThemes(); renderList(); rebuild();
+</script>
+</body>
+</html>
