@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Éditeur d'événements · President Material</title>
+<link rel="stylesheet" href="editor.css">
+</head>
+<body>
+
+<header>
+  <h1><span class="star">★</span> Éditeur d'événements</h1>
+  <select id="deck" title="Deck d'événements"></select>
+  <select id="theme" title="Thème (deck events)"></select>
+  <input type="text" id="search" placeholder="Rechercher id / texte…">
+  <span class="sp"></span>
+  <span class="muted" id="loadInfo"></span>
+</header>
+
+<main>
+  <section class="col" id="listCol">
+    <p class="count" id="listCount"></p>
+    <div id="list"></div>
+  </section>
+
+  <section class="col" id="editCol">
+    <div class="toolbar">
+      <div class="tgroup">
+        <button id="btnNew">+ Nouvel</button>
+        <button id="btnDup">Dupliquer</button>
+      </div>
+      <div class="tgroup">
+        <button id="btnUndo" title="Annuler (Ctrl+Z)">↶</button>
+        <button id="btnRedo" title="Rétablir (Ctrl+Y)">↷</button>
+      </div>
+      <div class="tgroup">
+        <button id="btnSave" class="primary" title="Enregistrer le brouillon (Ctrl+S)">Enregistrer</button>
+        <button id="btnLoadDraft" title="Charger le brouillon enregistré">Charger</button>
+        <button id="btnDelDraft" class="danger" title="Supprimer le brouillon enregistré">Suppr.</button>
+        <button id="btnRevert" class="danger" title="Revenir à la version d'origine">Réinitialiser</button>
+      </div>
+      <div class="tgroup">
+        <button id="btnValidate" title="Vérifier que l'événement est complet et utilisable">Valider</button>
+        <button id="btnCopy" title="Copier le JSON à coller dans le fichier de thème">Copier JSON</button>
+      </div>
+      <span class="sp"></span>
+      <span class="status" id="status"></span>
+    </div>
+
+    <p class="target" id="target"></p>
+    <div class="banner" id="banner"></div>
+    <div id="formHost"></div>
+    <details class="json"><summary class="muted">Voir le JSON</summary><pre id="jsonOut"></pre></details>
+  </section>
+
+  <section class="col" id="inspectCol">
+    <div class="sec"><h2>Validation</h2><div id="validation"></div></div>
+    <div class="sec"><h2>Aperçu</h2><div id="preview"></div></div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+<datalist id="allIds"></datalist>
+
+<!-- Données réelles du jeu (scripts classiques : fonctionnent en file://). -->
+<script src="../js/script.js"></script>
+<script src="../js/names.data.js"></script>
+<script src="../js/traits.data.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/budget.data.js"></script>
+<script src="../js/events/debuts.data.js"></script>
+<script src="../js/events/medias.data.js"></script>
+<script src="../js/events/argent.data.js"></script>
+<script src="../js/events/appareil.data.js"></script>
+<script src="../js/events/chaines.data.js"></script>
+<script src="../js/events/rivaux.data.js"></script>
+<script src="../js/events/vie_privee.data.js"></script>
+<script src="../js/events/partis.data.js"></script>
+<script src="../js/events/caractere.data.js"></script>
+<script src="../js/events/institutions.data.js"></script>
+<script src="../js/events/grandes_decisions.data.js"></script>
+<script src="../js/events/divers.data.js"></script>
+<script src="../js/events/campaign.data.js"></script>
+<script src="../js/events/runoff.data.js"></script>
+<script src="../js/events/nomination.data.js"></script>
+<script src="../js/events/support.data.js"></script>
+<script src="../js/events/aside.data.js"></script>
+<script src="../js/events/races.data.js"></script>
+<script src="../js/events/_assemble.data.js"></script>
+
+<!-- Logique de l'éditeur. -->
+<script src="editor.js"></script>
+</body>
+</html>
