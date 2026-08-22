@@ -9,13 +9,22 @@ The golden rule everywhere: **every player-facing string is `{ "fr": "...", "en"
 
 ---
 
-## Adding an EVENT — [events.data.js](../js/events.data.js)
+## Adding an EVENT — [js/events/](../js/events/)
+
+Events live in **`js/events/`**, split by theme (one file per theme, one per auxiliary
+deck) and reassembled into `EVENT_DATA` by `_assemble.data.js`. You can author two ways:
+
+- **By hand** — add an object to the right theme/deck file (schema below).
+- **With the [event editor](../tools/event-editor.html)** (`tools/event-editor.html`,
+  double-click) — a form builds the event, validates it against the real vocab, previews
+  the FR/EN text, and names the exact file to paste the exported JSON into. Recommended;
+  it catches the mistakes below before they reach the data.
 
 `EVENT_DATA` has seven decks. Pick the right one:
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
-| `events` | Ordinary turns (160 events) | the full schema below |
+| `events` | Ordinary turns (211 events) | the full schema below |
 | `campaign` | The 6 steps before the first round, when the player runs (20) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
 | `runoff` | The 3 steps between the two rounds (8) | `poll` moves the head-to-head; `cast: "eliminated"` |
 | `support` | The 3 steps of a presidential campaign the player is not in (8) | effects use `score` |

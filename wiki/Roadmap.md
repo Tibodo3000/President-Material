@@ -129,9 +129,15 @@ tasse.
 
 ## 5. Éclater les événements par fichier
 
-**L'idée.** Sortir les événements de l'unique
-[events.data.js](../js/events.data.js) (≈ 6 400 lignes) vers un **dossier dédié**,
-avec **un fichier par thématique et/ou par mandat**.
+> ✅ **Livré.** Les 276 événements sont répartis dans `js/events/` : 12 fichiers
+> thématiques (`debuts`, `medias`, `argent`, `appareil`, `chaines`, `rivaux`,
+> `vie_privee`, `partis`, `caractere`, `institutions`, `grandes_decisions`,
+> `divers`) plus un fichier par deck auxiliaire, réassemblés dans `EVENT_DATA` par
+> `_assemble.data.js`. **Sans build** (stratégie 1 ci-dessous), moteur inchangé,
+> découpage vérifié par égalité profonde contre l'ancien fichier.
+
+**L'idée.** Sortir les événements de l'unique `js/events.data.js` (≈ 9 300 lignes)
+vers un **dossier dédié**, avec **un fichier par thématique et/ou par mandat**.
 
 **Pourquoi.** Le fichier est devenu difficile à naviguer. Il est déjà découpé en
 ~20 sections numérotées (Débuts de carrière, Médias, Argent, Appareil, Chaîne
@@ -160,6 +166,15 @@ qui s'ignorent.
 ---
 
 ## 6. Un éditeur d'événements (authoring)
+
+> ✅ **Livré.** [`tools/event-editor.html`](../tools/event-editor.html) — page
+> autonome, sans dépendance, ouverte par double-clic. Elle charge les vraies
+> données du jeu (vocabulaire toujours synchronisé), construit un événement via un
+> **formulaire complet** (général, conditions `when`, choix certains ou à jet,
+> effets, branches, `effectsIf`), **valide** en direct contre le schéma, **prévisualise**
+> le texte FR/EN, **enregistre des brouillons** dans `localStorage` avec annulation /
+> rétablissement, et **exporte le JSON** en nommant le fichier de thème cible. Logique
+> dans `tools/editor.js`, styles dans `tools/editor.css`.
 
 **L'idée.** Un outil pour créer et modifier les événements sans écrire le JSON à
 la main.
@@ -301,8 +316,8 @@ au pouvoir, un boom récompense celui qui gouverne. Cette couche donne une **mé
 | 2 | Docker + GitHub Actions | Infra / déploiement | Faible | Non |
 | 3 | Camemberts par institution | UI + modèle de données | Élevé | Oui (3 répartitions) |
 | 4 | Responsive mobile | UI / CSS | Moyen | Non |
-| 5 | Éclater les événements | Organisation du code | Moyen | Non |
-| 6 | Éditeur d'événements | Outillage | Moyen | Non |
+| 5 | Éclater les événements ✅ | Organisation du code | Moyen | Non |
+| 6 | Éditeur d'événements ✅ | Outillage | Moyen | Non |
 | 7 | Calendrier électoral dynamique | Gameplay + modèle de données | Moyen | Oui (échéancier mutable) |
 | 8 | Conjoncture nationale (events majeurs) | Gameplay | Élevé | Oui (couche de modificateurs) |
 

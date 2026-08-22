@@ -21,7 +21,9 @@ what the rules are, and how to add content without touching engine code.
   JSON-shaped objects. The rules that *read* that content live in a few calculation
   files. The DOM-driving engine is isolated in `game.js`.
 - **Adding content requires no code.** New events, traits, parties, endings, names,
-  and budget tiers are all data entries. The engine interprets them.
+  and budget tiers are all data entries. The engine interprets them — and a form-based
+  **event editor** (`tools/event-editor.html`, double-click) makes writing events
+  point-and-click.
 - **Everything is bilingual (FR/EN).** Every player-facing string is either a
   dictionary key (`t("...")`) or an inline `{ fr, en }` object read by `L(...)`.
 
@@ -53,7 +55,7 @@ State is handed between pages through `localStorage`, not a router or framework.
 ### Content (pure data — edit freely, no code needed)
 | File | Contains |
 |------|----------|
-| [js/events.data.js](../js/events.data.js) | **198 events** across 4 decks: `events`, `campaign`, `nomination`, `races` |
+| [js/events/](../js/events/) | **276 events** across 7 decks (`events`, `campaign`, `runoff`, `nomination`, `support`, `aside`, `races`). Split by theme into 12 files (`debuts`, `medias`, `argent`, `appareil`, `chaines`, …) plus one file per auxiliary deck, all reassembled into `EVENT_DATA` by `_assemble.data.js`. The engine still reads a single `EVENT_DATA`. |
 | [js/traits.data.js](../js/traits.data.js) | All traits (character, physical, talent, party, reputation, money) |
 | [js/endings.data.js](../js/endings.data.js) | The narrated end-of-game screens, chosen by final state |
 | [js/budget.data.js](../js/budget.data.js) | Salaries, lifestyle, and the adjustable spending tiers |
@@ -72,6 +74,11 @@ State is handed between pages through `localStorage`, not a router or framework.
 | [js/script.js](../js/script.js) | The i18n dictionary (`translations`) + language switch + `t()` / `L()` |
 | [js/create.js](../js/create.js) · [party.js](../js/party.js) · [tirage.js](../js/tirage.js) | Thin per-page glue |
 | [css/style.css](../css/style.css) | All styling; party colors are driven by a single `data-party` attribute |
+
+### Tooling (dev-only, not shipped with the game)
+| File | Contains |
+|------|----------|
+| [tools/event-editor.html](../tools/event-editor.html) | Standalone **form-based event editor** — open by double-click. Loads the real game data so every dropdown matches what exists (parties, traits, stats, positions); builds an event through a form (general, `when` conditions, choices, rolls, effects, branches); validates live against the schema; previews FR/EN with placeholders resolved; **saves drafts to `localStorage`** with undo/redo; and exports JSON with the target theme file named. Logic in [tools/editor.js](../tools/editor.js), styles in [tools/editor.css](../tools/editor.css). |
 
 ---
 
