@@ -130,7 +130,8 @@ Every rule reads and mutates it. Key fields:
 ```
 
 The `card.kind` is the discriminator that drives `renderCard()`:
-`"event"`, `"nomination"`, `"election"`, `"race"`, `"campaign"`, `"end"`.
+`"scrutin"` (an election announcing itself), `"event"`, `"nomination"`, `"election"`,
+`"aside"`, `"support"`, `"seat"`, `"primaire"`, `"race"`, `"campaign"`, `"info"`, `"end"`.
 
 ---
 

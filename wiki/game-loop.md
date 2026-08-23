@@ -39,13 +39,33 @@ Then it decides **which card** to show:
 
 ```
 election due this turn?
-├─ presidentielle AND player leads party → startCampaign()   (6-step campaign)
-├─ other election:
-│   ├─ blocked & hopeless (too far below threshold) → informational "aside" election card
-│   ├─ blocked but in reach → drawNomination()  (a nomination-refused scene)
-│   └─ eligible → an "election" card (run / stand aside)
-└─ no election → drawEvent()  (a normal event card)
+├─ the party congress → straight to enterElection()   (no opening: see below)
+├─ yes → a "scrutin" card: the election announces itself   (advanceTurn stops here)
+│         └─ Continue → enterElection()  ─┬─ presidentielle AND the player runs → startCampaign()
+│                                         ├─ presidentielle without them → startSupport()
+│                                         ├─ no stake, or hopeless → startAside()
+│                                         ├─ blocked but in reach → drawNomination()
+│                                         └─ eligible → an "election" card (run / stand aside)
+└─ no  → drawEvent()  (a normal event card)
 ```
+
+**An election announces itself before it is played.** `advanceTurn` used to drop straight
+into the election card, with the name of the contest tucked into the same line, case and
+colour as an ordinary scene's title: `Législatives · 46 ans · Printemps · Année 17` looked
+exactly like `Guerre interne · 49 ans · Printemps · Année 20`. Nothing told the player they
+had changed regime.
+
+Every election therefore opens on a **`scrutin` card** (`renderScrutinCard`): what is being
+elected, the state of the country (`forcesHTML`, the same table as a campaign poll; for a
+party congress, the contenders instead, because a congress does not ask the country), the
+outgoing Assembly for a legislative, and — the line that was missing everywhere — **what is
+at stake for the player** (`scrutinStake`): a seat you are defending, a nomination in reach,
+the party leadership, or nothing at all. It costs a click, not a turn: `enterElection()`
+runs in the same six months, from the same `game.turn`.
+
+**The party congress has no opening card.** It has no balance of forces to show — a congress
+does not ask the country — and its own card already says everything an opening would. A
+presentation window every four years to announce a members' meeting is a click for nothing.
 
 ---
 
@@ -60,8 +80,15 @@ Every interactive card follows the same two-phase shape:
 `renderCard()` ([game.js](../js/game.js)) switches on `card.kind` and renders the right
 template. `handleClick()` is the single delegated click handler on `#event-area`; it
 reads `data-*` attributes on the clicked button (`data-choice`, `data-run`, `data-skip`,
-`data-lobby`, `data-continue`, `data-race-next`, `data-campaign-next`, …) and drives the
-state machine.
+`data-lobby`, `data-scrutin`, `data-continue`, `data-race-next`, `data-campaign-next`, …)
+and drives the state machine.
+
+**The election band.** Everything that belongs to an election carries a `card-banner` at
+the top of the card (`electionBanner(id, sub)`): the name of the contest, and the stage
+when there is one ("Législatives · Temps 2 sur 3", "Présidentielle · Entre les deux tours").
+A card without a band is an ordinary turn. That is the only thing the player needs to know
+before reading the card, and the date line below it drops back to being a discreet marker
+rather than a title.
 
 **Resolving a choice** goes through `resolveChoice()` ([game-data.js](../js/game-data.js)):
 - If the choice has a `roll`, it rolls (`rollSucceeds`) and picks the `success` or
@@ -148,6 +175,28 @@ Every scheduled election still resolves in the background so the country always 
 president and the landscape keeps moving. `backgroundElectionText()` picks a winner by
 weighted vote share (`weightedParty()`, with an incumbent bonus for a re-electable
 sitting president) and nudges the landscape.
+
+**The presidential election is the exception, and it used to be the worst card in the
+game.** Three scenes were played blind, an invisible counter went up, and on the third
+click a weighted draw named a president out of nowhere. The two things had no relation to
+each other: what the player had been shown for three scenes and what decided the election
+were separate systems, and there was nothing to watch.
+
+It now runs on **a real field that the player can see move** (`supportField()`), built
+exactly like a candidacy's except that the player is not in it — their camp is, carried by
+whoever the primary nominated, flagged `mine`. Each of the three scenes shows the poll and
+a mood line (`supportPoll`, `supportMood`); a `score` effect moves their camp's line
+(`shiftSupport`, same diminishing returns as `shiftPoll`); the rivals move between scenes
+(`driftSupport`). Then `resolveSupport()` **counts that field and nothing else**: the same
+`runoff()` that resolves the player's own second round transfers the eliminated
+candidates' votes, and the result card shows both rounds. A pact is honoured there too —
+`runoff()` gives the ally's transfer to `isPlayer || mine`, because a pact is between
+parties, not people.
+
+Measured over 200 careers and 1361 such elections: the player's camp wins 11%, loses the
+runoff 15%, is out in the first round 75%, and a sitting camp is returned 55% of the time.
+Three scenes played well move their line by up to about seven points, which decides a close
+election and never a lost one.
 
 ---
 

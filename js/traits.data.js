@@ -504,6 +504,26 @@ const TRAIT_DATA = {
     "energy": -2
   },
 
+  /* ÉPUISÉ n'est pas USÉ. L'usure est l'érosion d'une fin de carrière et ne
+     se soigne pas ; l'épuisement est un état aigu qu'on s'inflige en forçant,
+     et dont on revient si l'on s'arrête vraiment. Il ne coûte pas d'énergie
+     directement — on l'a déjà dépensée, c'est bien le problème — il coûte les
+     nerfs et la capacité à récupérer, ce qui est la façon dont l'épuisement
+     s'installe : on tient, et on ne remonte plus. Deux récidives : une nuit
+     blanche n'épuise personne. */
+  "epuise": {
+    "family": "physique",
+    "kind": "mark",
+    "strikes": 2,
+    "label": { "fr": "Épuisé", "en": "Burned out" },
+    "desc": {
+      "fr": "Vous tenez sur la réserve depuis si longtemps que vous ne savez plus à quoi ressemble le repos. Rien ne se voit, tout se sent : la phrase de trop, le réveil à quatre heures, et cette impression de courir après une journée qui a commencé sans vous.",
+      "en": "You have been running on reserve so long that you no longer know what rest feels like. Nothing shows, everything is felt: the sentence too many, waking at four, and the sense of chasing a day that started without you."
+    },
+    "stats": { "sangfroid": -2 },
+    "energy": -1
+  },
+
   /* ==========================================================================
      TALENT — ce que vous savez faire
      ========================================================================== */

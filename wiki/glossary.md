@@ -50,6 +50,8 @@ lives. Filenames link to the file — search the function name inside to land on
 | `annualIncome`, `annualExpenses`, `annualBalance`, `applyBudget` | The semester ledger |
 | `investHold`, `investProtect`, `investNerve` | What spending buys |
 | `energyCeiling`, `recoverEnergy`, `fatigueMalus` | The energy system |
+| `energyCost`, `payEnergy` | What a choice costs, and the residual overdraft |
+| `wearOut`, `burnout`, `STRAIN_*`, `BURNOUT_*` | Strain, the `epuise` mark, and the career that stops (game.js) |
 | `credibilityDrift`, `credibilityTarget`, `CREDIBILITY_BY_OFFICE`, `CREDIBILITY_LEAD` | Stature from office and from the party leadership |
 | `eventMatches(ev, s)` | Evaluate a `when` block — the core condition engine |
 | `fillText`, `fillBoth`, `fillGender`, `fillMarks`, `scenePresentation` | Text placeholder resolution |
@@ -85,6 +87,7 @@ lives. Filenames link to the file — search the function name inside to land on
 | `switchParty`, `setAlliance` | Player changes camp / signs a pact |
 | **Calendar & elections** | |
 | `electionAtTurn`, `nextElection` | Calendar lookups |
+| `electionCalendar`, `horizonLabel`, `renderCalendar` | The strip above the card: where you are, then the four deadlines ahead |
 | `playerStake(electionId)` | What an election offers the player (target + threshold) |
 | `electionScore`, `electionBase`, `partyWind` | Ordinary-election scoring |
 | `nominationBlocked`, `inTheRunning`, `drawNomination` | The nomination gate |
@@ -92,12 +95,17 @@ lives. Filenames link to the file — search the function name inside to land on
 | `startRace`, `drawRaceEvent`, `raceSteps`, `racePoll`, `pollFor`, `resolveRace` | Ordinary campaigns |
 | `moodFor`, `raceMood` | The narrated "how it's going" phrase |
 | `startCampaign`, `presidentialField`, `campaignOpponent`, `drawCampaignEvent` | Presidential campaign |
+| `startSupport`, `supportField`, `supportPoll`, `supportMood`, `resolveSupport` | The presidential election the player is not in, with a poll that moves |
+| `shiftSupport`, `driftSupport` | What a `score` effect and the rivals do to that poll |
 | `resolveFirstRound`, `resolveRunoff`, `concedeElection` | Presidential resolution |
 | `setPresident`, `presidentName`, `isPresident`, `incumbentTermLimited`, `MAX_TERMS` | The presidency |
 | `playerPull`, `figurePull` | A candidacy's weight |
 | `backgroundElectionText`, `weightedParty` | Elections without the player |
 | **Turn & cards** | |
 | `advanceTurn()` | The per-turn pipeline |
+| `enterElection(id)` | The second beat of an election: what `advanceTurn` used to do inline |
+| `electionBanner`, `renderScrutinCard` | The election band, and the card that opens a contest |
+| `forcesHTML`, `pretendantsHTML`, `sortanteHTML`, `scrutinStake` | What an opening card shows: the country, the contenders, the outgoing Assembly, and what it means for you |
 | `warnAboutAge` | The two one-time end-of-career warnings |
 | `drawEvent`, `quietEvent`, `laisseUneTrace`, `sansTrace`, `eventById` | Event drawing |
 | `setScene`, `castFor`, `pickByWeight` | Staging the figure |

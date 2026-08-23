@@ -79,9 +79,53 @@ impossible; bad news always costs full price. Some traits (téflon) absorb a sha
   health flags and some traits shift it. The UI draws a marker on the energy bar at this
   ceiling.
 - **Cost of fatigue** (`fatigueMalus`): below 8, a penalty applies to *every* roll — you
-  prepare badly and miss. Below a threshold, some choices are *hidden entirely* (a
-  `when: { stat: { energie: { min: 8 } } }` on the choice), and the UI shows an
-  "exhausted" note so the player knows options were removed, not just points.
+  prepare badly and miss. Some choices are also *hidden entirely* by a
+  `when: { stat: { energie: { min: 8 } } }`, and the UI shows an "exhausted" note so the
+  player knows options were removed, not just points.
+
+### You cannot spend what you do not have
+
+`energie` is clamped at 0, so a choice costing three points cost *nothing* to somebody who
+had none. Once empty, you said yes to everything for free, and the one resource the game
+asks you to manage became an unlimited overdraft: zero was the best position in the game,
+which is the exact opposite of what it is meant to say.
+
+`availableChoices()` ([game-data.js](../js/game-data.js)) therefore **removes any choice
+you cannot afford**. The gating cost is `energyCost(choice)` — the *worst* branch of a
+roll, since you choose before you know which one comes out, and a choice must never be able
+to end in an overdraft. A safety net keeps the cheapest option when everything is too
+expensive: a card with no playable choice is not a card.
+
+`payEnergy()` still exists for the residual overdraft — trait risks, conditional extra
+effects on top of a cost already paid — and charges the unpayable part to `sangfroid`,
+which is what gives way first when you do not sleep.
+
+### Living on empty: strain, `epuise`, and burnout
+
+You do not burn out on one sleepless night, you burn out on years without margin.
+`wearOut()` ([game.js](../js/game.js)) keeps a **strain** counter on `state.strain`:
+
+| | |
+|---|---|
+| `STRAIN_LOW` (3) | at or below this energy, strain climbs by 1 each turn |
+| `STRAIN_REST` (7) | at or above it, strain falls by 1 — easing off genuinely undoes it |
+| `STRAIN_STRIKE` (5) | every five points, the body sends a sign: a strike toward `epuise` |
+| `BURNOUT_STRAIN` (14) | past this, and only while still empty, the career can stop |
+
+`epuise` ("Épuisé") is **not** `use` ("Usé"). Wear is the erosion of a late career and does
+not heal; exhaustion is an acute state you inflict on yourself and come back from. It costs
+`sangfroid` −2 and two points of recovery ceiling, needs two strikes to land, and
+`fatigue_arret` can lift it — for twelve points of standing.
+
+Burnout ends the career as a `withdrawal`, **warned one turn ahead** (`burnout()`): a
+game-over that falls without notice is a game-over you did not get to play. The narrated
+ending is `burnout` in [endings.data.js](../js/endings.data.js) for anyone under 58, since
+"the party calls it a transition" means nothing at forty-three.
+
+Measured over 150 careers: a player choosing at random ends up exhausted 10% of the time and
+warned 3%; a player who always takes the most demanding option is exhausted 95% of the time
+and forced out by their body in 93% of careers. Forcing has a term, and it is a career
+choice rather than a random punishment.
 
 ---
 

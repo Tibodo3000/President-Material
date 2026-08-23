@@ -1151,36 +1151,53 @@ body {
   list-style: none;
   margin: 0;
   padding: 0;
+  position: relative;
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
+}
+
+/* LE RAIL VA JUSQU'AU BOUT, ET S'ÉTEINT.
+
+   Il était découpé en segments, un par case, et celui de la dernière était
+   masqué : la frise s'arrêtait donc net sur la quatrième échéance, cent
+   soixante pixels avant le bord de la carte, et l'œil lisait un trait
+   inachevé plutôt qu'un axe.
+
+   C'est maintenant une seule ligne, tirée sur toute la largeur. Elle
+   commence dorée sous « maintenant », vire à la couleur des traits, puis se
+   dissout : au-delà de la dernière échéance montrée, le temps continue et
+   l'on n'en sait rien. Le dégradé dit cela mieux qu'une ligne coupée. */
+.cal-track::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  /* Le rail déborde la marge du texte pour aller jusqu'au bord de la carte
+     qu'il surmonte : les mots s'alignent sur le texte, le trait sur la boîte.
+     Sans cela il s'arrêtait une marge trop tôt et la frise avait l'air
+     coupée. */
+  right: -1.8rem;
+  height: 1px;
+  background: linear-gradient(90deg,
+    var(--gold) 0,
+    var(--gold-dim) 7%,
+    var(--line-2) 26%,
+    var(--line-2) 68%,
+    transparent 100%);
 }
 
 .cal-step {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
-  padding-right: 1.1rem;
+  padding-right: 0.85rem;
 }
-
-/* Le fil qui relie une échéance à la suivante, à hauteur des pastilles. */
-.cal-step::after {
-  content: "";
-  position: absolute;
-  top: 3px;
-  left: 9px;
-  right: 0;
-  height: 1px;
-  background: var(--line-2);
-}
-
-.cal-step:last-child::after { display: none; }
 
 .cal-mark {
-  width: 7px;
-  height: 7px;
-  margin-bottom: 0.62rem;
+  width: 9px;
+  height: 9px;
+  margin-bottom: 0.72rem;
   border: 1.5px solid var(--line-2);
   border-radius: 50%;
   background: var(--bg);
@@ -1188,54 +1205,78 @@ body {
   z-index: 1;
 }
 
+/* Deux lignes réservées, toujours. Un « 3 ans et demi » qui passait à la
+   ligne poussait son nom d'élection d'un cran vers le bas et le rang entier
+   partait de travers. */
+/* La frise est un repère, pas un titre : elle se lit d'un coup d'œil et ne
+   doit jamais disputer la place à la carte. Assez petite pour que « Congrès
+   du parti » tienne sur une ligne dans une case de cent trente pixels. */
 .cal-when {
-  font-size: 0.56rem;
+  min-height: 1.35em;
+  font-size: 0.52rem;
   font-weight: 700;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--faint);
 }
 
 .cal-name {
   font-family: var(--font-display);
-  font-size: 0.88rem;
+  font-size: 0.78rem;
   color: var(--muted);
-  line-height: 1.25;
+  line-height: 1.22;
 }
 
 
-/* CE QU'ON PRÉPARE. La première échéance est la seule sur laquelle on peut
-   encore agir : elle prend la pastille pleine et la lumière. */
-.cal-step.is-next .cal-mark {
+/* OÙ L'ON EST. La pastille pleine était sur la première échéance, et sur une
+   frise une pastille pleine à gauche veut dire « vous êtes ici » : on lisait
+   donc que la présidentielle avait lieu maintenant alors qu'elle était dans
+   un an. Le plein appartient au présent, et à rien d'autre. */
+.cal-step.is-now .cal-mark {
   border-color: var(--gold);
   background: var(--gold);
-  box-shadow: 0 0 0 3.5px var(--gold-ghost);
+  box-shadow: 0 0 0 4px var(--gold-ghost);
 }
 
-.cal-step.is-next .cal-when { color: var(--gold); }
+.cal-step.is-now .cal-when { color: var(--gold); }
+.cal-step.is-now .cal-name { color: var(--ink); }
+
+/* CE QU'ON PRÉPARE. La prochaine échéance est la seule sur laquelle on peut
+   encore agir : elle garde la lumière, mais en anneau. Un cercle ouvert est
+   une date à venir ; un disque plein est une date atteinte. */
+.cal-step.is-next .cal-mark {
+  border-color: var(--gold);
+  border-width: 2px;
+}
+
+.cal-step.is-next .cal-when { color: var(--gold-2); }
 .cal-step.is-next .cal-name { color: var(--ink); }
 
-/* L'éloignement se lit sans qu'on ait à l'écrire. */
-.cal-step:nth-child(3) { opacity: 0.72; }
-.cal-step:nth-child(4) { opacity: 0.5; }
+/* L'ÉLOIGNEMENT SE LIT DANS L'ENCRE, PAS DANS L'OPACITÉ. Deux cases à moitié
+   transparentes sur un fond sombre ne se lisaient plus du tout : on croyait
+   à un défaut d'affichage plutôt qu'à une échéance lointaine. On baisse donc
+   la couleur du nom, en gardant le texte net. */
+.cal-step:nth-child(4) .cal-name { color: color-mix(in srgb, var(--muted) 72%, transparent); }
+.cal-step:nth-child(5) .cal-name { color: color-mix(in srgb, var(--muted) 52%, transparent); }
+.cal-step:nth-child(5) .cal-when { color: color-mix(in srgb, var(--faint) 72%, transparent); }
 
 
-/* SUR TÉLÉPHONE, ON EN MONTRE DEUX. Quatre échéances en deux rangées
+/* SUR TÉLÉPHONE, ON EN MONTRE TROIS. Quatre échéances en deux rangées
    poussaient la carte du tour entièrement sous la ligne de flottaison : on
-   ouvrait le jeu sur un agenda au lieu d'une scène. Deux tiennent sur une
-   seule rangée, couvrent déjà deux à trois ans, et laissent la carte à
-   l'écran. Le fil disparaît avec la troisième colonne. */
+   ouvrait le jeu sur un agenda au lieu d'une scène. Le présent tient dans
+   peu de place et n'a pas à en prendre autant qu'une échéance : il prend la
+   largeur de son texte, les deux suivantes se partagent le reste. Le rail
+   disparaît, faute de place pour qu'il veuille dire quelque chose. */
 @media (max-width: 620px) {
   .calendar { padding: 0 1.2rem; }
   .cal-track {
     grid-auto-flow: row;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: auto repeat(2, minmax(0, 1fr));
     gap: 0 0.9rem;
   }
+  .cal-track::before { display: none; }
   .cal-step { padding-right: 0; }
-  .cal-step::after { display: none; }
-  .cal-step:nth-child(n + 3) { display: none; }
-  .cal-step:nth-child(2) { opacity: 0.72; }
+  .cal-step:nth-child(n + 4) { display: none; }
 }
 
 
@@ -1852,6 +1893,92 @@ body {
 }
 
 .event-card-election::before { opacity: 0.9; }
+
+/* ---------- Le bandeau de scrutin ----------
+   Une élection se lisait comme une scène ordinaire : le nom du scrutin était
+   posé dans la même ligne, la même casse et la même couleur que le titre d'un
+   événement. Il occupe désormais toute la largeur, au-dessus de tout, avec un
+   filet doré sous lui : on sait avant de lire qu'on est dans une campagne, et
+   une carte sans bandeau est un tour ordinaire. */
+.card-banner {
+  margin: -1.7rem -1.8rem 1.3rem;
+  padding: 0.85rem 1.8rem 0.7rem;
+  border-bottom: 1px solid var(--gold-dim);
+  background: linear-gradient(180deg, var(--gold-ghost), transparent);
+  text-align: center;
+}
+
+.card-banner-name {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gold-2);
+}
+
+.card-banner-step {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* Sous un bandeau, la ligne de date n'est plus un titre : elle redevient ce
+   qu'elle est, un repère discret. */
+.card-banner + .event-tag {
+  color: var(--faint);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+}
+
+/* ---------- La carte d'ouverture d'un scrutin ---------- */
+
+.scrutin-lede {
+  color: var(--ink);
+  margin-bottom: 1.4rem;
+}
+
+/* Étiquette au-dessus, phrase en dessous : une étiquette posée à gauche
+   décale le début du texte d'une ligne à l'autre, et sa longueur change avec
+   la langue. */
+.scrutin-line {
+  margin: 0 0 0.9rem;
+  padding: 0.7rem 0.95rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.scrutin-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.scrutin-value {
+  display: block;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* Ce qui se joue pour le joueur : c'est l'information de la carte, elle est
+   la seule à porter la couleur du camp. */
+.scrutin-line.is-you {
+  border-color: color-mix(in srgb, var(--party, var(--gold)) 40%, var(--line));
+  background: color-mix(in srgb, var(--party, var(--gold)) 7%, transparent);
+  margin-bottom: 1.5rem;
+}
+
+.scrutin-line.is-you .scrutin-value { color: var(--ink); }
 
 .event-tag {
   font-size: 0.66rem;

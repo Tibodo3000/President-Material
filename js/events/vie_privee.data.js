@@ -532,4 +532,164 @@ const EV_vie_privee = [
                   "en": "You answer that you are not a broadcaster. The executive approves, and the slot goes to somebody who will become a minister." } }
   ]
 }
+,
+
+/* ==========================================================================
+   19. TENIR À VIDE
+   --------------------------------------------------------------------------
+   L'énergie se dépensait sans jamais rien dire. On la voyait descendre, on
+   la voyait toucher le fond, et rien dans le jeu ne s'en apercevait : pas
+   une scène ne parlait de la fatigue, et l'on traversait dix ans à sec sans
+   qu'un seul personnage vous demande comment vous alliez.
+
+   Ces scènes sortent quand la réserve est basse. Elles proposent toujours la
+   même chose sous des formes différentes : lever le pied, ou tenir. Lever le
+   pied coûte à l'appareil et rend de la marge ; tenir ne coûte rien tout de
+   suite, et c'est exactement ce qui le rend dangereux. La dette de fatigue
+   fait le reste (voir wearOut dans js/game.js).
+   ========================================================================== */
+
+{
+  "id": "fatigue_agenda",
+  "weight": 4,
+  "when": { "stat": { "energie": { "max": 5 } }, "minTurn": 6 },
+  "tag": { "fr": "L'agenda", "en": "The diary" },
+  "text": {
+    "fr": "Votre directrice de cabinet vous présente la semaine : vingt-huit rendez-vous, quatre déplacements, deux nuits chez vous. Elle ne vous demande plus si cela vous va, elle vous montre l'écran et attend.",
+    "en": "Your chief of staff runs you through the week: twenty-eight meetings, four trips, two nights at home. She has stopped asking whether it suits you; she just turns the screen round and waits."
+  },
+  "choices": [
+    { "label": { "fr": "Faire couper la moitié", "en": "Have half of it cut" },
+      "effects": { "energie": 4, "sangfroid": 1, "standing": -7, "notoriete": -1 },
+      "result": { "fr": "Quatorze annulations en une matinée, dont trois qu'on ne vous reproposera pas. Vous dormez, et le siège apprend le même jour que vous avez commencé à choisir.",
+                  "en": "Fourteen cancellations in one morning, three of which will not be offered again. You sleep, and headquarters learns the same day that you have started picking and choosing." } },
+
+    { "label": { "fr": "Tout garder, comme d'habitude", "en": "Keep the lot, as usual" },
+      "effects": { "standing": 6, "reseau": 1, "energie": -2, "popularity": 1 },
+      "result": { "fr": "Vous faites les vingt-huit. Personne ne vous en remerciera parce que personne n'a vu la semaine, seulement les vingt-huit personnes qui vous ont vu dix minutes chacune.",
+                  "en": "You do all twenty-eight. Nobody will thank you because nobody saw the week, only the twenty-eight people who each saw you for ten minutes." } },
+
+    { "label": { "fr": "Envoyer votre suppléant partout où c'est possible", "en": "Send your deputy wherever you can" },
+      "roll": { "base": 14, "stat": "reseau", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "energie": 3, "reseau": 2, "standing": -2 },
+        "result": { "fr": "Il fait le travail et il le fait bien, ce qui est une bonne et une mauvaise nouvelle. Vous récupérez trois soirées et une question que vous vous poserez encore dans cinq ans.",
+                    "en": "He does the job and does it well, which is good news and bad news. You get back three evenings and a question you will still be asking yourself in five years." } },
+      "failure": { "effects": { "standing": -8, "popularity": -4, "energie": 1 },
+        "result": { "fr": "Deux organisateurs sur trois annulent en apprenant que ce ne sera pas vous. On ne vous invitait pas pour un discours, on vous invitait pour une photo.",
+                    "en": "Two organisers out of three cancel on learning it will not be you. They were not inviting you for a speech, they were inviting you for a photograph." } } }
+  ]
+},
+
+{
+  "id": "fatigue_stimulants",
+  "weight": 4,
+  "cast": "camp",
+  "when": { "stat": { "energie": { "max": 3 } }, "notTrait": ["drogue"], "minTurn": 8 },
+  "tag": { "fr": "Ce qui fait tenir", "en": "What gets you through" },
+  "text": {
+    "fr": "{rival} vous voit lutter contre le sommeil à quinze heures et vous glisse une boîte sans étiquette dans la poche, avec un nom de médecin. {Il} ne fait pas de commentaire, ce qui est la façon la plus efficace d'en faire un.",
+    "en": "{rival} watches you fight off sleep at three in the afternoon and slips an unlabelled box into your pocket, with a doctor's name. {He} makes no comment, which is the most effective comment available."
+  },
+  "choices": [
+    { "label": { "fr": "Appeler le médecin", "en": "Call the doctor" },
+      "effects": { "trait": "drogue", "energie": 4, "money": -3000 },
+      "result": { "fr": "Trois semaines plus tard vous tenez les journées de dix-huit heures sans y penser. C'est exactement ce qu'on vous avait promis, et personne ne vous a promis la suite.",
+                  "en": "Three weeks later you are getting through eighteen-hour days without thinking about it. That is exactly what was promised, and nobody promised you what comes after." } },
+
+    { "label": { "fr": "Rendre la boîte, sans commentaire non plus", "en": "Hand the box back, without comment either" },
+      "effects": { "sangfroid": 2, "reputation": 1, "energie": -1 },
+      "result": { "fr": "Vous la reposez sur son bureau le lendemain matin. Rien n'est dit, et vous savez maintenant une chose sur {lui} qu'{il} sait que vous savez.",
+                  "en": "You leave it on their desk the next morning. Nothing is said, and you now know something about {him} that {he} knows you know." } },
+
+    { "label": { "fr": "Prendre un vrai rendez-vous médical", "en": "Book a real medical appointment" },
+      "effects": { "energie": 3, "flags": { "carefulHealth": true }, "money": -1500, "standing": -3 },
+      "result": { "fr": "Analyses, tension, deux ordonnances et une phrase sur le sommeil que vous n'écoutez qu'à moitié. Vous en ressortez avec un cadre, ce qui vaut mieux qu'une boîte.",
+                  "en": "Blood work, blood pressure, two prescriptions and a sentence about sleep you only half hear. You come out with a framework, which is worth more than a box." } }
+  ]
+},
+
+{
+  "id": "fatigue_derapage",
+  "weight": 4,
+  "when": { "stat": { "energie": { "max": 4 } }, "minTurn": 8 },
+  "tag": { "fr": "Une phrase de trop", "en": "One sentence too many" },
+  "text": {
+    "fr": "Quatrième interview de la journée, la même question qu'aux trois premières, et une journaliste qui ne peut pas savoir que c'est la quatrième. Vous sentez très bien ce qui est en train de monter.",
+    "en": "The fourth interview of the day, the same question as the first three, and a reporter who has no way of knowing it is the fourth. You can feel exactly what is rising."
+  },
+  "choices": [
+    { "label": { "fr": "Répondre calmement, une fois de plus", "en": "Answer calmly, one more time" },
+      "roll": { "base": 13, "stat": "sangfroid", "plus": { "eloquence": 0.4 }, "dice": 16 },
+      "success": { "effects": { "sangfroid": 1, "reputation": 1, "energie": -1 },
+        "result": { "fr": "Vous refaites la réponse pour la quatrième fois avec la même patience qu'à la première. Personne ne saura jamais ce que ces quarante secondes vous ont coûté.",
+                    "en": "You give the answer a fourth time with the same patience as the first. Nobody will ever know what those forty seconds cost you." } },
+      "failure": { "effects": { "popularity": -8, "reputation": -2, "notoriete": 2, "strike": "menteur", "energie": -1 },
+        "result": { "fr": "Vous lâchez six mots sur le niveau des questions qu'on vous pose. La séquence tourne le soir même, et personne ne dira que vous n'aviez pas dormi depuis trois jours.",
+                    "en": "You let slip six words about the standard of the questions you get asked. The clip is everywhere by evening, and nobody will mention that you had not slept for three days." } } },
+
+    { "label": { "fr": "Écourter l'entretien poliment", "en": "Cut the interview short, politely" },
+      "effects": { "energie": 1, "notoriete": -1, "popularity": -2, "sangfroid": 1 },
+      "result": { "fr": "Vous invoquez l'horaire, ce que personne ne croit et que tout le monde accepte. La journaliste écrira que vous aviez l'air fatigué, ce qui est le mot qu'on emploie quand on en pense un autre.",
+                  "en": "You cite the schedule, which nobody believes and everybody accepts. The reporter will write that you looked tired, which is the word people use when they mean another one." } }
+  ]
+},
+
+{
+  "id": "fatigue_proche",
+  "weight": 3,
+  "when": { "stat": { "energie": { "max": 4 } }, "minTurn": 12 },
+  "tag": { "fr": "Ce qu'on vous dit chez vous", "en": "What they tell you at home" },
+  "text": {
+    "fr": "Quelqu'un qui vous connaît depuis toujours vous dit, sans élever la voix, que vous n'êtes plus la même personne depuis deux ans. Pas pire : plus la même. C'est la formulation qui vous empêche de répondre.",
+    "en": "Someone who has known you forever tells you, without raising their voice, that you have not been the same person for two years. Not worse: not the same. It is the phrasing that stops you answering."
+  },
+  "choices": [
+    { "label": { "fr": "Entendre, et lever le pied pour de bon", "en": "Take it in, and genuinely ease off" },
+      "effects": { "energie": 5, "sangfroid": 2, "reputation": 1, "standing": -9, "popularity": -3 },
+      "result": { "fr": "Six mois sans un déplacement le week-end. Votre cote au parti le sent passer et vous retrouvez la capacité de finir une phrase, ce qui n'a pas de prix et n'a aucune valeur au siège.",
+                  "en": "Six months without a single weekend trip. Your standing in the party feels it, and you get back the ability to finish a sentence, which is priceless and worth nothing at headquarters." } },
+
+    { "label": { "fr": "Promettre que c'est bientôt fini", "en": "Promise it is nearly over" },
+      "effects": { "energie": -1, "standing": 2, "reputation": -1 },
+      "result": { "fr": "Vous donnez une date, et vous savez en la donnant qu'il y en aura une autre après. C'est la promesse la plus fréquente de la vie politique et la moins souvent tenue.",
+                  "en": "You give a date, and you know as you give it that there will be another after it. It is the most common promise in politics and the least often kept." } },
+
+    { "label": { "fr": "Répondre que c'est le métier", "en": "Answer that this is the job" },
+      "effects": { "sangfroid": -1, "energie": -1, "standing": 3, "popularity": -1 },
+      "result": { "fr": "C'est vrai, et c'est la pire chose à dire. La conversation s'arrête là, et elle ne reprendra pas : on ne discute pas deux fois avec quelqu'un qui a raison.",
+                  "en": "It is true, and it is the worst thing to say. The conversation ends there and will not resume: nobody argues twice with somebody who is right." } }
+  ]
+},
+
+{
+  "id": "fatigue_arret",
+  "weight": 6,
+  "when": { "trait": ["epuise"], "minTurn": 10 },
+  "tag": { "fr": "L'arrêt", "en": "The stop" },
+  "text": {
+    "fr": "Le médecin ne discute pas et ne propose rien : il vous dit ce qui arrivera si vous continuez, avec des mots que vous n'aviez jamais entendus appliqués à vous. Trois mois, dit-il. Vous pensez immédiatement au calendrier.",
+    "en": "The doctor does not argue and does not offer options: he tells you what will happen if you carry on, in words you had never heard applied to yourself. Three months, he says. Your first thought is the calendar."
+  },
+  "choices": [
+    { "label": { "fr": "Prendre les trois mois", "en": "Take the three months" },
+      "effects": { "untrait": "epuise", "energie": 6, "sangfroid": 2, "standing": -12, "popularity": -5,
+                   "flags": { "carefulHealth": true } },
+      "result": { "fr": "Un communiqué de six lignes, trois mois de silence, et un retour où l'on vous demande surtout comment vous allez. Vous avez perdu une place dans l'ordre des choses et vous avez récupéré votre corps.",
+                  "en": "A six-line statement, three months of silence, and a return where the first thing anyone asks is how you are. You have lost a place in the order of things and got your body back." } },
+
+    { "label": { "fr": "Prendre trois semaines et appeler ça trois mois", "en": "Take three weeks and call it three months" },
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "energie": 3, "standing": -4, "reputation": -1 },
+        "result": { "fr": "Vingt jours, et vous revenez avant qu'on ait eu le temps de vous remplacer. Vous n'êtes pas guéri, vous êtes reposé, et vous savez très bien que ce n'est pas la même chose.",
+                    "en": "Twenty days, and you are back before anyone has had time to replace you. You are not better, you are rested, and you know perfectly well those are not the same thing." } },
+      "failure": { "effects": { "energie": -2, "sangfroid": -2, "popularity": -4, "standing": -5 },
+        "result": { "fr": "Vous rentrez au bout de neuf jours parce qu'un dossier ne pouvait pas attendre. Il pouvait attendre. Vous le comprendrez plus tard, et pas de vous-même.",
+                    "en": "You come back after nine days because a file could not wait. It could have waited. You will realise that later, and not by yourself." } } },
+
+    { "label": { "fr": "Ne rien arrêter du tout", "en": "Stop nothing at all" },
+      "effects": { "energie": -2, "sangfroid": -1, "standing": 5, "credibilite": 1 },
+      "result": { "fr": "Vous ne prenez pas un jour et personne, dans tout l'appareil, ne vous dit que c'est une erreur. C'est même le contraire : on vous le fait remarquer avec admiration, et c'est ainsi que ces choses finissent.",
+                  "en": "You take not one day off, and nobody in the entire machine tells you it is a mistake. Quite the opposite: they point it out admiringly, and that is how these things end." } }
+  ]
+}
 ];

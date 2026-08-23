@@ -827,6 +827,50 @@ function shiftPoll(s, delta) {
 }
 
 /**
+ * La même chose, pour la campagne d'un camp que le joueur soutient sans y
+ * être candidat. On déplace la ligne de son parti, pas la sienne : il n'en a
+ * pas. Les rendements décroissants sont les mêmes, parce que c'est la même
+ * campagne vue d'un cran plus loin.
+ */
+function shiftSupport(s, delta) {
+  const field = s.support && s.support.field;
+  const mien = field && field.find((c) => c.mine);
+  if (!mien) return;
+
+  const before = mien.share;
+  const move = delta > 0 ? delta * Math.max(0.18, 1 - mien.share / 42) : delta;
+  mien.share = Math.max(1, Math.min(92, mien.share + move));
+  const moved = mien.share - before;
+
+  const autres = field.filter((c) => !c.mine);
+  const pool = autres.reduce((sum, c) => sum + c.share, 0) || 1;
+  autres.forEach((c) => { c.share = Math.max(1, c.share - moved * (c.share / pool)); });
+
+  const total = field.reduce((sum, c) => sum + c.share, 0) || 1;
+  field.forEach((c) => { c.share = (c.share / total) * 100; });
+}
+
+/**
+ * La vie du sondage entre deux temps d'une campagne qu'on soutient. Les
+ * autres bougent, exactement comme quand c'est vous le candidat : une
+ * campagne où seul votre camp remue n'est pas une campagne.
+ */
+function driftSupport(s) {
+  const field = s.support && s.support.field;
+  if (!field || !field.length) return;
+
+  const autres = field.filter((c) => !c.mine);
+  if (!autres.length) return;
+  const best = autres.reduce((top, c) => (c.share > top.share ? c : top), autres[0]);
+  autres.forEach((c) => {
+    c.share = Math.max(1, c.share + (Math.random() - 0.5) * 2.4 + (c === best ? 0.5 : 0));
+  });
+
+  const total = field.reduce((sum, c) => sum + c.share, 0) || 1;
+  field.forEach((c) => { c.share = (c.share / total) * 100; });
+}
+
+/**
  * Le sondage d'un second tour. Deux noms, cent pour cent à partager : ce que
  * l'un prend, l'autre le perd, exactement, et c'est ce qui rend ces quinze
  * jours si durs. Plus on est haut, plus chaque point coûte cher, parce qu'en
@@ -895,6 +939,41 @@ function energyCeiling(s) {
 function recoverEnergy(s) {
   if (s.turn % 4 !== 0) return;
   if (s.stats.energie < energyCeiling(s)) bump(s, "energie", +2);
+}
+
+/* --------------------------------------------------------------------------
+   LE DÉCOUVERT RÉSIDUEL.
+   --------------------------------------------------------------------------
+   Un choix trop cher n'est plus proposé (voir availableChoices), et c'est là
+   que se joue l'essentiel. Mais tout ce qui coûte de l'énergie ne passe pas
+   par un bouton : un risque de trait, une conséquence conditionnelle qui
+   s'ajoute à un coût déjà payé, un temps de campagne. Ce qui reste à payer
+   quand la caisse est vide se prend sur les nerfs, parce que c'est ce qui
+   lâche en premier quand on ne dort pas, et s'inscrit dans la dette de
+   fatigue que tient wearOut().
+   -------------------------------------------------------------------------- */
+
+function payEnergy(s, cost) {
+  const changes = [];
+  const paye = Math.min(s.stats.energie, cost);
+
+  if (paye > 0) {
+    bump(s, "energie", -paye);
+    changes.push({ kind: "stat", key: "energie", delta: -paye });
+  }
+
+  const manque = cost - paye;
+  if (manque <= 0) return changes;
+
+  s.strain = (s.strain || 0) + manque;
+
+  const avant = s.stats.sangfroid;
+  bump(s, "sangfroid", -Math.max(1, Math.round(manque / 2)));
+  if (s.stats.sangfroid !== avant) {
+    changes.push({ kind: "stat", key: "sangfroid", delta: s.stats.sangfroid - avant });
+  }
+
+  return changes;
 }
 
 /* ==========================================================================
@@ -1338,6 +1417,12 @@ function applyEffects(effects, s, soften) {
 
   Object.entries(effects).forEach(([key, raw]) => {
     const value = amorti(key, raw);
+    // Dépenser de l'énergie n'est pas modifier une statistique : on peut
+    // dépenser ce qu'on n'a pas, et cela se paie autrement. Voir payEnergy.
+    if (key === "energie" && value < 0) {
+      payEnergy(s, -value).forEach((c) => changes.push(c));
+      return;
+    }
     if (STAT_KEYS.includes(key)) {
       const before = s.stats[key];
       bump(s, key, value);
@@ -1367,7 +1452,10 @@ function applyEffects(effects, s, soften) {
     // L'avantage pris dans une campagne, la sienne ou celle qu'on soutient.
     if (key === "score") {
       if (s.race) s.race.bonus += value;
-      else if (s.support) s.support.bonus += value;
+      // La présidentielle qu'on ne dispute pas a désormais un sondage, et
+      // c'est lui qu'on déplace : le compteur invisible d'avant ne se voyait
+      // nulle part et ne se recoupait avec rien.
+      else if (s.support) shiftSupport(s, value * SUPPORT_WEIGHT);
       return;
     }
     // Ce qu'un choix fait à la cote du gouvernement. Un député d'opposition
@@ -1522,9 +1610,44 @@ function applyEffects(effects, s, soften) {
  * au bon élément du tableau.
  */
 function availableChoices(ev, s) {
-  return ev.choices
+  const ouverts = ev.choices
     .map((choice, index) => ({ choice, index }))
     .filter(({ choice }) => !choice.when || eventMatches({ when: choice.when }, s));
+
+  // ON NE DÉPENSE PAS CE QU'ON N'A PAS.
+  //
+  // L'énergie est bornée à zéro : un choix qui coûtait trois points ne
+  // coûtait donc plus rien à qui n'en avait plus. Arrivé à sec, on répondait
+  // oui à tout gratuitement, et la seule ressource que le jeu demande de
+  // gérer devenait un plafond de dépenses illimité. Le zéro était la
+  // meilleure position du jeu, ce qui est l'exact contraire de ce qu'il
+  // raconte.
+  //
+  // Une option qui demande trois jours de vie n'est plus proposée à qui n'en
+  // a plus trois. On retient le coût le PLUS ÉLEVÉ des branches d'un jet :
+  // au moment de choisir, on ne sait pas si l'on va réussir, et un choix ne
+  // doit jamais pouvoir se solder par un découvert.
+  const reste = s.stats.energie;
+  const abordables = ouverts.filter(({ choice }) => energyCost(choice) <= reste);
+  if (abordables.length) return abordables;
+
+  // FILET. Une carte sans aucun choix jouable n'est pas une carte. Si tout
+  // est trop cher, on laisse les moins chers : à ce stade le personnage
+  // n'a plus le luxe de choisir, il a celui de faire le minimum.
+  const minimum = Math.min(...ouverts.map(({ choice }) => energyCost(choice)));
+  return ouverts.filter(({ choice }) => energyCost(choice) === minimum);
+}
+
+/**
+ * Ce qu'un choix coûte en énergie, au pire. Un jet coûte ce que coûte sa
+ * branche la plus chère : on choisit avant de savoir laquelle sortira.
+ */
+function energyCost(choice) {
+  const cout = (branche) => {
+    const e = branche && branche.effects && branche.effects.energie;
+    return e < 0 ? -e : 0;
+  };
+  return Math.max(cout(choice), cout(choice.success), cout(choice.failure));
 }
 
 /* ---------- Jets de dés ---------- */
@@ -1896,7 +2019,9 @@ function runoff(field, s) {
     const weights = finalists.map((f) => {
       const proximity = 1 - ideologicalDistance(out.party, f.party);
       const base = (0.38 + Math.pow(Math.max(0.05, proximity), 2)) * (1 - rejectionRate(f, s));
-      return allied && f.isPlayer ? base * 2.6 : base;
+      // Le pacte vaut pour votre camp, que vous soyez le candidat ou non :
+      // c'est un accord entre partis, pas entre personnes.
+      return allied && (f.isPlayer || f.mine) ? base * 2.6 : base;
     });
 
     const total = weights[0] + weights[1] || 1;

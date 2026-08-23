@@ -67,11 +67,17 @@ const translations = {
 
     /* Le calendrier électoral, au-dessus de la carte. */
     cal_title: "Ce qui vous attend",
-    cal_six_months: "dans six mois",
-    cal_one_year: "dans un an",
-    cal_one_year_half: "dans un an et demi",
-    cal_years: "dans {n} ans",
-    cal_years_half: "dans {n} ans et demi",
+    cal_now: "Maintenant",
+    cal_elec_municipales: "Municipales",
+    cal_elec_legislatives: "Législatives",
+    cal_elec_europeennes: "Européennes",
+    cal_elec_congres: "Congrès du parti",
+    cal_elec_presidentielle: "Présidentielle",
+    cal_six_months: "Six mois",
+    cal_one_year: "Un an",
+    cal_one_year_half: "18 mois",
+    cal_years: "{n} ans",
+    cal_years_half: "{n} ans et demi",
     label_president: "À l'Élysée",
     label_traits: "Traits",
     traits_none: "Rien encore",
@@ -164,7 +170,36 @@ const translations = {
       "Vous avez tiré deux bonnes cartes. Cela ne se dira jamais dans un portrait de presse, où l'on parlera de travail et de mérite, mais vous partez avec une avance que d'autres passeront leur carrière à combler.",
     draw_mix_difficile:
       "Le sort ne vous a rien épargné. Deux choses vous seront reprochées avant même que vous ayez ouvert la bouche, et il faudra faire une carrière avec ça, ce qui est arrivé à de meilleurs que vous.",
+    /* ---- L'ouverture d'un scrutin ----------------------------------------
+       Une élection se présente avant de se jouer : ce qu'on élit, qui est en
+       face, et ce qui se joue pour vous. La dernière ligne est celle qui
+       manquait le plus : on découvrait après coup qu'on défendait un siège. */
+    scrutin_forces: "Les forces en présence",
+    scrutin_outgoing: "L'Assemblée sortante",
+    scrutin_you: "Ce qui se joue pour vous",
+    scrutin_you_none: "Rien. Votre nom ne sera sur aucun bulletin, et le pays votera sans vous demander votre avis.",
+    scrutin_you_run: "Vous pouvez briguer un mandat de {pos}. L'appareil vous laisse concourir.",
+    scrutin_you_run_lead: "Vous pouvez prendre la direction du parti. L'appareil vous laisse concourir.",
+    scrutin_you_defend: "Vous remettez votre mandat de {pos} en jeu. Le perdre ne vous rendrait rien.",
+    scrutin_you_defend_lead: "Votre direction du parti est remise en jeu. Votre mandat, lui, ne l'est pas.",
+    scrutin_you_president: "Vous êtes candidat à l'élection présidentielle. Il n'y a rien au-dessus.",
+    scrutin_you_blocked: "L'appareil ne veut pas vous investir {pos}. Il reste des façons de forcer la porte.",
+    scrutin_you_blocked_lead: "L'appareil ne veut pas de vous à la direction. Il reste des façons de forcer la porte.",
+    scrutin_you_far: "L'investiture {pos} ne se discute même pas : vous êtes trop loin du compte.",
+    scrutin_you_far_lead: "La direction du parti ne se discute même pas : vous êtes trop loin du compte.",
+    scrutin_lede_municipales:
+      "Trente-six mille communes votent le même dimanche. On y élit des gens qu'on croise au marché, et c'est le seul scrutin où l'étiquette compte moins que le nom.",
+    scrutin_lede_legislatives:
+      "Cinq cent soixante-dix-sept circonscriptions, cinq cent soixante-dix-sept duels. C'est l'Assemblée qui sort des urnes, et avec elle la majorité du président, ou son absence.",
+    scrutin_lede_europeennes:
+      "Une seule circonscription, le pays entier, et des listes que les appareils composent. On y vote pour une étiquette, et l'on y envoie volontiers ceux dont on veut la place.",
+    scrutin_lede_presidentielle:
+      "Deux tours, cinq ans, et la seule fonction qui compte vraiment. Il faut d'abord être dans les deux premiers ; ensuite seulement il faut convaincre ceux qui ont voté pour quelqu'un d'autre.",
     race_result: "Dépouillement",
+    support_mood_first: "Votre camp est en tête, et l'on commence à vous demander ce que vous ferez d'un ministère.",
+    support_mood_second: "Votre camp est en position d'aller au second tour. Rien n'est joué, tout est possible.",
+    support_mood_close: "Votre camp joue le second tour à quelques dizaines de milliers de voix près.",
+    support_mood_out: "Votre camp est distancé. Il faudrait un accident pour qu'il soit encore là dimanche soir.",
     race_mood_won: "Vous êtes donné gagnant, et personne n'y croit vraiment.",
     race_mood_ahead: "Vous avez pris une avance que vos adversaires commencent à commenter.",
     race_mood_close: "Rien n'est joué. Quelques centaines de voix décideront.",
@@ -449,11 +484,17 @@ const translations = {
 
     /* The election calendar, above the card. */
     cal_title: "What is coming",
-    cal_six_months: "in six months",
-    cal_one_year: "in a year",
-    cal_one_year_half: "in eighteen months",
-    cal_years: "in {n} years",
-    cal_years_half: "in {n} and a half years",
+    cal_now: "Now",
+    cal_elec_municipales: "Local",
+    cal_elec_legislatives: "Parliamentary",
+    cal_elec_europeennes: "European",
+    cal_elec_congres: "Party congress",
+    cal_elec_presidentielle: "Presidential",
+    cal_six_months: "Six months",
+    cal_one_year: "One year",
+    cal_one_year_half: "18 months",
+    cal_years: "{n} years",
+    cal_years_half: "{n}½ years",
     label_president: "In office",
     label_traits: "Traits",
     traits_none: "Nothing yet",
@@ -546,7 +587,33 @@ const translations = {
       "You drew two good cards. It will never be mentioned in a press profile, where the talk will be of work and merit, but you start with a lead others will spend a career closing.",
     draw_mix_difficile:
       "Fate spared you nothing. Two things will be held against you before you have opened your mouth, and a career will have to be built on that, which has happened to better people than you.",
+    /* ---- The opening of an election -------------------------------------- */
+    scrutin_forces: "Where the country stands",
+    scrutin_outgoing: "The outgoing Assembly",
+    scrutin_you: "What is at stake for you",
+    scrutin_you_none: "Nothing. Your name will be on no ballot, and the country will vote without asking your opinion.",
+    scrutin_you_run: "You can run for {pos}. The machine is letting you stand.",
+    scrutin_you_run_lead: "You can take the party leadership. The machine is letting you stand.",
+    scrutin_you_defend: "Your seat as {pos} is on the line. Losing it would hand you nothing back.",
+    scrutin_you_defend_lead: "Your party leadership is on the line. Your seat is not.",
+    scrutin_you_president: "You are a candidate for the presidency. There is nothing above it.",
+    scrutin_you_blocked: "The machine will not nominate you for {pos}. There are still ways to force the door.",
+    scrutin_you_blocked_lead: "The machine does not want you leading it. There are still ways to force the door.",
+    scrutin_you_far: "The nomination for {pos} is not even discussed: you are far too short.",
+    scrutin_you_far_lead: "The leadership is not even up for discussion: you are far too short.",
+    scrutin_lede_municipales:
+      "Thirty-six thousand communes vote on the same Sunday. People elect somebody they run into at the market, and it is the one contest where the label counts for less than the name.",
+    scrutin_lede_legislatives:
+      "Five hundred and seventy-seven constituencies, five hundred and seventy-seven duels. The Assembly comes out of these ballot boxes, and with it the president's majority, or the lack of one.",
+    scrutin_lede_europeennes:
+      "One constituency, the whole country, and lists drawn up by party machines. People vote for a label, and machines are happy to send away anybody whose job they want.",
+    scrutin_lede_presidentielle:
+      "Two rounds, five years, and the only office that really counts. First you have to finish in the top two; only then do you have to win over the people who voted for somebody else.",
     race_result: "The count",
+    support_mood_first: "Your side is leading, and people are starting to ask what you would do with a ministry.",
+    support_mood_second: "Your side is in position for the runoff. Nothing is settled and anything is possible.",
+    support_mood_close: "Your side is a few tens of thousands of votes away from the runoff.",
+    support_mood_out: "Your side is trailing. It would take an accident for it to still be there on Sunday night.",
     race_mood_won: "You are the favourite, and nobody quite believes it.",
     race_mood_ahead: "You have built a lead your opponents have started to mention.",
     race_mood_close: "It is wide open. A few hundred votes will decide it.",

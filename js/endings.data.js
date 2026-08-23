@@ -187,6 +187,22 @@ const ENDING_DATA = [
    * particuliers d'abord, la sortie ordinaire en dernier.
    */
 
+  /* LE BURNOUT. Le retrait forcé n'existait qu'à partir de soixante-deux ans :
+     une carrière menée à vide pendant vingt ans ne s'arrêtait jamais pour
+     cela, elle s'arrêtait de vieillesse. L'épuisement a maintenant sa sortie
+     à tout âge, et celle-ci est réservée à ceux qu'il prend avant l'heure :
+     « l'appareil parle de transition » ne veut rien dire à quarante-trois ans. */
+  {
+    "id": "burnout",
+    "from": "withdrawal",
+    "when": { "maxAge": 58, "trait": ["epuise"] },
+    "title": { "fr": "Arrêt de travail", "en": "Signed off" },
+    "text": {
+      "fr": "Vous n'êtes pas tombé de haut, vous vous êtes arrêté net, un mardi, dans un couloir que vous empruntiez depuis douze ans. Le mot qu'on emploie tient en deux syllabes et personne ne l'écrira dans un communiqué. Vous aviez l'âge où l'on commence, et vous avez déjà tout donné.",
+      "en": "You did not fall from a height, you simply stopped, on a Tuesday, in a corridor you had walked for twelve years. The word people use has two syllables and nobody will put it in a statement. You were the age at which careers begin, and you had already given everything."
+    }
+  },
+
   {
     "id": "senilite",
     "from": "withdrawal",
