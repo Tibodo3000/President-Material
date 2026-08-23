@@ -1,8 +1,10 @@
 # The game loop
 
-What actually happens each turn, how cards are drawn and resolved, and how the special
-modes branch off. The engine is [game.js](../js/game.js); the interpreter it calls is in
-[game-data.js](../js/game-data.js).
+What actually happens each turn, how cards are drawn and resolved, and how the set
+pieces branch off. The engine is [game.js](../js/game.js); the interpreter it calls is
+in [game-data.js](../js/game-data.js); each set piece lives in its own file under
+[js/game/modes/](../js/game/modes/) and registers itself with the engine
+([registry.js](../js/game/registry.js)).
 
 ---
 
@@ -77,11 +79,15 @@ Every interactive card follows the same two-phase shape:
 2. **Resolved** — the player picked a choice; shows the *result text* + the change chips
    (`fx` pills), and a **Continue** button.
 
-`renderCard()` ([game.js](../js/game.js)) switches on `card.kind` and renders the right
-template. `handleClick()` is the single delegated click handler on `#event-area`; it
-reads `data-*` attributes on the clicked button (`data-choice`, `data-run`, `data-skip`,
-`data-lobby`, `data-scrutin`, `data-continue`, `data-race-next`, `data-campaign-next`, …)
-and drives the state machine.
+`renderCard()` ([game.js](../js/game.js)) looks `card.kind` up in the **mode registry**
+and hands over; only the ordinary event card is drawn by the engine itself.
+`handleClick()` is the single delegated click handler on `#event-area`: it reads the
+`data-*` attribute of the clicked button, asks the **displayed card's mode** first, and
+falls through to the engine's generic branches (`data-choice`, `data-continue`,
+`data-restart`) when the mode does not know that button. That is what lets `data-choice`
+mean one thing on a campaign card and another on an ordinary event, without the engine
+knowing either mode exists. See *The set pieces* in
+[architecture.md](architecture.md).
 
 **The election band.** Everything that belongs to an election carries a `card-banner` at
 the top of the card (`electionBanner(id, sub)`): the name of the contest, and the stage
@@ -123,9 +129,21 @@ eventually fall in every game. See `laisseUneTrace()`.
 
 ---
 
-## The three special modes
+## The set pieces
 
-Most turns are a single event card. Three situations replace that with a mini-flow.
+Most turns are a single event card. A handful of situations replace that with a
+multi-screen flow, and each one owns a file: its state, its draw, its resolution, its
+card and its buttons.
+
+| Set piece | File | Card kinds |
+|---|---|---|
+| Presidential election, both rounds | [presidentielle.js](../js/game/modes/presidentielle.js) | `campaign` |
+| Run or stand aside · refused nomination | [investiture.js](../js/game/modes/investiture.js) | `election`, `nomination` |
+| Ordinary election campaign · choice of ground | [race.js](../js/game/modes/race.js) | `race`, `seat` |
+| The presidential election you are not in | [soutien.js](../js/game/modes/soutien.js) | `support` |
+| The primary | [primaire.js](../js/game/modes/primaire.js) | `primaire` |
+| The card that opens an election | [scrutin.js](../js/game/modes/scrutin.js) | `scrutin` |
+| The ballot that happens without you | [aside.js](../js/game/modes/aside.js) | `aside` |
 
 ### 1. Ordinary election → a "race" (2–3 steps)
 When the player runs in a municipal/European/legislative/congress election, it isn't one
@@ -139,7 +157,9 @@ picks an outcome tier, and narrates it. The player sees a poll and a mood phrase
   so it can't lie without the result also lying.
 - Outcome tiers: `ELECTION_OUTCOMES` in [game.js](../js/game.js) map a margin to text +
   effects (`large`, `win`, `narrow`, `honorable`, `loss`, `rout`). A losing *defense*
-  costs extra — you lose a seat, not just a try.
+  costs extra — you lose a seat, not just a try. These stay in the engine on purpose:
+  an election can be resolved without any campaign, and `resolveElectionRun()` does
+  exactly that.
 
 ### 2. Presidential election → 6 steps, then a fortnight
 When the player leads their party at a presidential election, `startCampaign()` opens a

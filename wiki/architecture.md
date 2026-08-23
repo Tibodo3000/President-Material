@@ -7,20 +7,28 @@ shape of the state that flows through it all.
 
 ## The layering
 
-The codebase is built in four layers, from inert data up to the DOM. Each layer only
+The codebase is built in five layers, from inert data up to the DOM. Each layer only
 depends on the ones below it.
 
 ```
-┌─────────────────────────────────────────────────────────────┐
+┌───────────────────────────────────────────────────────────────┐
+│  MODES            js/game/modes/*.js  (one per set piece)     │  ← own their card
+├───────────────────────────────────────────────────────────────┤
 │  CONTROLLERS      create.js · party.js · tirage.js · game.js  │  ← touch the DOM
-├─────────────────────────────────────────────────────────────┤
+├───────────────────────────────────────────────────────────────┤
 │  RULES / CALC     data.js · game-data.js                      │  ← pure functions
-├─────────────────────────────────────────────────────────────┤
+├───────────────────────────────────────────────────────────────┤
 │  CONTENT (DATA)   *.data.js                                   │  ← strict JSON shape
-├─────────────────────────────────────────────────────────────┤
+├───────────────────────────────────────────────────────────────┤
 │  I18N             script.js  (translations, t(), L())         │  ← loaded first
-└─────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────┘
 ```
+
+**The modes layer is the odd one out**: it sits *above* the controller and depends on
+it, not the reverse. A mode owns one card kind end to end — its state, its draw, its
+resolution, its rendering and its buttons — and registers itself in `MODES`
+([js/game/registry.js](../js/game/registry.js)). `game.js` never names a mode: it
+looks the card up in the registry and hands over.
 
 **Why `.data.js` and not `.json`?** A real `.json` file fetched by the page would
 require a web server (CORS blocks `file://` fetches). By making the data a `.js` file
@@ -42,16 +50,30 @@ was loaded before it. Each page's `<script>` tags encode its dependency chain.
 
 **game.html** (the full stack):
 ```
-script.js        → translations, t(), L()
-names.data.js    → NAME_DATA
-data.js          → BASE_STATS, PARTIES, computeStats(), the draw…
-traits.data.js   → TRAIT_DATA
-budget.data.js   → BUDGET_DATA
-endings.data.js  → ENDING_DATA
-events.data.js   → EVENT_DATA
-game-data.js     → the loop's rules + event interpreter
-game.js          → the engine (IIFE that boots on load)
+script.js          → translations, t(), L()
+names.data.js      → NAME_DATA
+data.js            → BASE_STATS, PARTIES, computeStats(), the draw…
+traits.data.js     → TRAIT_DATA
+budget.data.js     → BUDGET_DATA
+endings.data.js    → ENDING_DATA
+events/*.data.js   → EV_*, then _assemble.data.js → EVENT_DATA
+game-data.js       → the loop's rules + event interpreter
+game/registry.js   → MODES = {} — must precede every mode file
+game/modes/*.js    → each one writes its entry into MODES on load
+game.js            → the engine (IIFE that boots on load)
 ```
+
+Two rules govern where a mode file may sit:
+
+- **`registry.js` before the modes**, because they assign into `MODES` at load time.
+- **the modes before `game.js`**, because `game.js` declares `let game`, and a `let`
+  at the top level of a classic script is *not* a property of `window` — it is a
+  binding in the shared global lexical scope, readable by every script but only once
+  its own script has run. Modes only touch `game` inside functions called later, so
+  they are safe; the reverse order would not be.
+
+Everything else is order-free: `function` declarations hoist within their file, and
+every cross-file call happens at runtime, once the page is fully loaded.
 
 The creation pages load a subset: `script.js`, `names.data.js`, `traits.data.js`,
 `data.js`, then their own controller. `party.html` and `tirage.html` are the same set
@@ -59,6 +81,61 @@ with a different final controller.
 
 > If you add a data file, wire it into the `<script>` list of every page that needs it,
 > **before** the code that reads it.
+
+---
+
+## The set pieces (`js/game/modes/`)
+
+Most turns are one card: read it, choose, continue. A handful of situations replace
+that with a **multi-screen flow** — a campaign, a race, a primary, a refused
+nomination. Each is a small state machine with its own state, its own draw, its own
+resolution, its own card and its own buttons, and each lives in **one file**.
+
+| File | Card kinds (`MODES` keys) | What it is |
+|---|---|---|
+| [presidentielle.js](../js/game/modes/presidentielle.js) | `campaign` | six campaign steps, first round, then the runoff fortnight |
+| [investiture.js](../js/game/modes/investiture.js) | `election`, `nomination` | run or stand aside; and the refused nomination, with the two doors out |
+| [race.js](../js/game/modes/race.js) | `race`, `seat` | the 2–3 step campaign of an ordinary election, and the choice of ground |
+| [soutien.js](../js/game/modes/soutien.js) | `support` | the presidential election you are not in |
+| [primaire.js](../js/game/modes/primaire.js) | `primaire` | who the party puts up |
+| [scrutin.js](../js/game/modes/scrutin.js) | `scrutin` | the card that opens an election |
+| [aside.js](../js/game/modes/aside.js) | `aside` | the ballot that happens without you |
+
+### The contract
+
+A mode registers itself under the **card kind** it draws
+([registry.js](../js/game/registry.js)):
+
+```js
+MODES.race = {
+  ready:  () => Boolean(game.race),   // optional: is the mode's state in place?
+  render: renderRaceCard,             // draws into #event-area
+  clicks: { "data-race-next": raceNext, "data-race-done": raceDone },
+};
+```
+
+`renderCard()` looks up `MODES[card.kind]` and hands over; `handleClick()` asks the
+**displayed** card's mode first, and only then falls through to the engine's generic
+branches (`data-choice`, `data-continue`, `data-restart`). That last part is what lets
+`data-choice` mean one thing on a campaign card and another on an ordinary event,
+without the engine knowing either mode exists.
+
+Two extra keys exist for exactly one case, and are named rather than hidden:
+`renderWhenEnded` and `clicksWhenEnded`. A won presidential election sets `game.ended`
+*before* the count is shown — so that one card must still draw, and its dismiss button
+must still answer, after everything else has frozen.
+
+**What stays in the engine.** Anything two modes share, or that a mode and the engine
+share: `momentOf` / `momentFits` / `rememberMoment` (scene timing, used by three
+modes), `pollHTML` (the poll widget, used by four), `standDown`, and the vocabulary of
+a result (`ELECTION_OUTCOMES`, `applyOutcome`, `outcomeText`) — an election can be
+resolved without a campaign, and `resolveElectionRun()` does exactly that.
+
+**The one dependency that points the wrong way**: `enterElection()` in `game.js` calls
+`startRace()`, `startSupport()`, `startAside()` to *open* a mode. Something has to
+decide which set piece a given election becomes, and that decision reads the player's
+stake, which is engine business. The registry removes the engine's knowledge of how a
+mode draws and behaves, not of when one begins.
 
 ---
 

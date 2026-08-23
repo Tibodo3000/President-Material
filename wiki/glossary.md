@@ -90,40 +90,56 @@ lives. Filenames link to the file — search the function name inside to land on
 | `electionCalendar`, `horizonLabel`, `renderCalendar` | The strip above the card: where you are, then the four deadlines ahead |
 | `playerStake(electionId)` | What an election offers the player (target + threshold) |
 | `electionScore`, `electionBase`, `partyWind` | Ordinary-election scoring |
-| `nominationBlocked`, `inTheRunning`, `drawNomination` | The nomination gate |
 | `applyOutcome`, `outcomeFor`, `outcomeText`, `ELECTION_OUTCOMES` | Result tiers → effects/text |
-| `startRace`, `drawRaceEvent`, `raceSteps`, `racePoll`, `pollFor`, `resolveRace` | Ordinary campaigns |
-| `moodFor`, `raceMood` | The narrated "how it's going" phrase |
-| `startCampaign`, `presidentialField`, `campaignOpponent`, `drawCampaignEvent` | Presidential campaign |
-| `startSupport`, `supportField`, `supportPoll`, `supportMood`, `resolveSupport` | The presidential election the player is not in, with a poll that moves |
+| `pollFor`, `moodFor` | The poll behind a contest, and its narrated mood — read by the race *and* by the card that offers it |
 | `shiftSupport`, `driftSupport` | What a `score` effect and the rivals do to that poll |
-| `resolveFirstRound`, `resolveRunoff`, `concedeElection` | Presidential resolution |
 | `setPresident`, `presidentName`, `isPresident`, `incumbentTermLimited`, `MAX_TERMS` | The presidency |
 | `playerPull`, `figurePull` | A candidacy's weight |
 | `backgroundElectionText`, `weightedParty` | Elections without the player |
 | **Turn & cards** | |
 | `advanceTurn()` | The per-turn pipeline |
 | `enterElection(id)` | The second beat of an election: what `advanceTurn` used to do inline |
-| `electionBanner`, `renderScrutinCard` | The election band, and the card that opens a contest |
-| `forcesHTML`, `pretendantsHTML`, `sortanteHTML`, `scrutinStake` | What an opening card shows: the country, the contenders, the outgoing Assembly, and what it means for you |
+| `electionBanner` | The band at the top of every election card |
 | `warnAboutAge` | The two one-time end-of-career warnings |
 | `drawEvent`, `quietEvent`, `laisseUneTrace`, `sansTrace`, `eventById` | Event drawing |
 | `setScene`, `castFor`, `pickByWeight` | Staging the figure |
 | `setOffice`, `promoteWithinParty`, `MANDATES`, `CADRE_IN/OUT` | Office transitions |
 | `setPartyLead` | Take or hand back the party leadership; never touches the office |
 | `leadershipText` | How a congress night is narrated (it is not an election) |
-| `standDown`, `lobbyGain` | Not running / working the machine |
+| `standDown` | Handing back a mandate you will not defend |
 | `addLog`, `logText` | The journal |
 | **Rendering** | |
 | `renderAll` | Repaint everything (sets `data-party`) |
 | `renderStatus`, `renderGauge`, `renderLandscape`, `renderJournal`, `renderBudget` | The left sheet & panels |
-| `renderCard` | The right card — switches on `card.kind` |
-| `renderRaceCard`, `renderCampaignCard`, `renderEnd` | Special-mode cards |
+| `renderCard` | The right card — looks `card.kind` up in `MODES`, draws the ordinary event itself |
+| `renderEnd` | The end-of-game recap |
 | `choiceButton`, `choiceButtons`, `unlockReasons` | Choice buttons + why-unlocked notes |
 | `fxChip`, `fxLabel`, `fxDirection`, `effectsHTML`, `changesHTML` | The consequence chips |
 | `traitRowsHTML`, `traitRowHTML`, `traitEffectText` | Traits on the sheet |
 | `pollHTML`, `snapshot`, `diffSince` | Poll bars; before/after diffing for elections |
 | `handleClick`, `handleBudgetClick`, `retire` | Input handlers |
+
+## The set pieces — [js/game/modes/](../js/game/modes/)
+
+Each file owns one flow end to end and registers itself in `MODES`
+([registry.js](../js/game/registry.js)): `ready?`, `render`, `clicks`. The engine
+never names them. See *The set pieces* in [architecture.md](architecture.md).
+
+| Symbol | Where | What it does |
+|--------|-------|--------------|
+| `MODES`, `modeFor`, `modeClick` | [registry.js](../js/game/registry.js) | The registry, and the two lookups the engine makes |
+| `startCampaign`, `presidentialField`, `campaignOpponent`, `campaignMinor`, `drawCampaignEvent`, `pickCampaignScene` | [presidentielle.js](../js/game/modes/presidentielle.js) | The six campaign steps and their scene picker |
+| `resolveFirstRound`, `startDuel`, `drawRunoffEvent`, `duelField`, `resolveRunoff`, `concedeElection` | [presidentielle.js](../js/game/modes/presidentielle.js) | First-round verdict, the fortnight, the runoff count |
+| `renderCampaignCard`, `campaignChoice`, `campaignNext`, `campaignRunoff`, `duelNext`, `campaignVerdict`, `campaignDone` | [presidentielle.js](../js/game/modes/presidentielle.js) | Its card and its six buttons |
+| `nominationBlocked`, `inTheRunning`, `drawNomination`, `lobbyGain` | [investiture.js](../js/game/modes/investiture.js) | The nomination gate, and working the machine |
+| `rebelGap`, `rebellionButtons`, `rebelRefuge`, `rebelChoice`, `REBEL_*` | [investiture.js](../js/game/modes/investiture.js) | The two doors out of a refused nomination |
+| `renderElectionCard`, `renderNominationCard`, `electionPitch`, `blockedPitch`, `electionRun`, `electionSkip`, `electionLobby` | [investiture.js](../js/game/modes/investiture.js) | Run or stand aside, and the refused-nomination scene |
+| `startRace`, `raceSteps`, `drawRaceEvent`, `racePoll`, `raceMood`, `resolveRace`, `RACE_STEPS` | [race.js](../js/game/modes/race.js) | The 2–3 step campaign of an ordinary election |
+| `seatChoiceAvailable`, `renderSeatCard`, `seatChoice`, `SEAT_KINDS` | [race.js](../js/game/modes/race.js) | Choosing the ground before running on it |
+| `startSupport`, `supportField`, `supportPoll`, `supportMood`, `resolveSupport` | [soutien.js](../js/game/modes/soutien.js) | The presidential election the player is not in |
+| `primaryDue`, `primaryField`, `designateNominee`, `resolvePrimary`, `PRIMARY_*` | [primaire.js](../js/game/modes/primaire.js) | Who the party puts up |
+| `renderScrutinCard`, `forcesHTML`, `sortanteHTML`, `scrutinStake` | [scrutin.js](../js/game/modes/scrutin.js) | The card that opens a contest: the country, the outgoing Assembly, what it means for you |
+| `startAside`, `drawAside`, `renderAsideCard` | [aside.js](../js/game/modes/aside.js) | The ballot that happens without you |
 
 ## Page controllers
 | File | Entry points |

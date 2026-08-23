@@ -156,6 +156,16 @@
   <script src="js/events/races.data.js"></script>
   <script src="js/events/_assemble.data.js"></script>
   <script src="js/game-data.js"></script>
+  <!-- Les temps forts. registry.js cree MODES ; chaque mode s'y inscrit au
+       chargement, donc tous AVANT game.js, qui ne le lit qu'a l'execution. -->
+  <script src="js/game/registry.js"></script>
+  <script src="js/game/modes/aside.js"></script>
+  <script src="js/game/modes/scrutin.js"></script>
+  <script src="js/game/modes/soutien.js"></script>
+  <script src="js/game/modes/primaire.js"></script>
+  <script src="js/game/modes/presidentielle.js"></script>
+  <script src="js/game/modes/race.js"></script>
+  <script src="js/game/modes/investiture.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>

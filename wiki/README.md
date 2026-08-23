@@ -19,7 +19,9 @@ what the rules are, and how to add content without touching engine code.
   design decision (e.g. why data files are `.js` and not `.json`).
 - **Data is separated from logic.** Content lives in `*.data.js` files as strict
   JSON-shaped objects. The rules that *read* that content live in a few calculation
-  files. The DOM-driving engine is isolated in `game.js`.
+  files. The DOM-driving engine is isolated in `game.js`, and each **set piece** of the
+  game — a presidential campaign, an ordinary race, a primary, a refused nomination —
+  owns a file in `js/game/modes/` that registers itself with the engine.
 - **Adding content requires no code.** New events, traits, parties, endings, names,
   and budget tiers are all data entries. The engine interprets them — and a form-based
   **event editor** (`tools/event-editor.html`, double-click) makes writing events
@@ -70,7 +72,9 @@ State is handed between pages through `localStorage`, not a router or framework.
 ### Engine & controllers
 | File | Contains |
 |------|----------|
-| [js/game.js](../js/game.js) | The game loop engine: state, turn cycle, rivals, landscape, elections, campaigns, all rendering |
+| [js/game.js](../js/game.js) | The game loop engine: state, turn cycle, rivals, landscape, the Assembly, election maths, the ordinary event card, and all the rendering that is not a set piece |
+| [js/game/registry.js](../js/game/registry.js) | `MODES` — the set-piece registry the engine consults instead of naming each mode |
+| [js/game/modes/](../js/game/modes/) | One file per set piece, each owning its state, draw, resolution, card and buttons: `presidentielle`, `investiture`, `race`, `soutien`, `primaire`, `scrutin`, `aside` |
 | [js/script.js](../js/script.js) | The i18n dictionary (`translations`) + language switch + `t()` / `L()` |
 | [js/create.js](../js/create.js) · [party.js](../js/party.js) · [tirage.js](../js/tirage.js) | Thin per-page glue |
 | [css/style.css](../css/style.css) | All styling; party colors are driven by a single `data-party` attribute |
@@ -78,6 +82,7 @@ State is handed between pages through `localStorage`, not a router or framework.
 ### Tooling (dev-only, not shipped with the game)
 | File | Contains |
 |------|----------|
+| [tools/regression.js](../tools/regression.js) | **Non-regression harness.** `node tools/regression.js > before.txt`, refactor, run again, `diff`. Loads the game's scripts in the order `game.html` declares them, with a seeded `Math.random` and a fake DOM, then plays whole careers by clicking the buttons actually rendered, and writes a deterministic trace (game state + a hash of every panel's HTML, at every step). An empty diff means nothing changed. `PM_CAREERS` / `PM_STEPS` tune the run; coverage goes to stderr. It tells you the game *changed*, never that it is *good* — it does not replace opening the page. |
 | [tools/event-editor.html](../tools/event-editor.html) | Standalone **form-based event editor** — open by double-click. Loads the real game data so every dropdown matches what exists (parties, traits, stats, positions); builds an event through a form (general, `when` conditions, choices, rolls, effects, branches); validates live against the schema; previews FR/EN with placeholders resolved; **saves drafts to `localStorage`** with undo/redo; and exports JSON with the target theme file named. Logic in [tools/editor.js](../tools/editor.js), styles in [tools/editor.css](../tools/editor.css). |
 
 ---
@@ -87,8 +92,8 @@ State is handed between pages through `localStorage`, not a router or framework.
 1. **[architecture.md](architecture.md)** — Layering, script load order, the page-to-page
    handoff, the shape of the game `state` object, and the localStorage keys.
 2. **[game-loop.md](game-loop.md)** — What happens each turn, how a card is drawn and
-   resolved, and how the special modes (ordinary races, presidential campaign, blocked
-   nominations) branch off the main loop.
+   resolved, and how the set pieces (ordinary races, presidential campaign, primary,
+   blocked nominations) branch off the main loop — with the file that owns each.
 3. **[systems.md](systems.md)** — The actual rules: the two career gauges, stats & the
    `/20` vs `/10` scaling, traits & strikes, energy, credibility, the office ladder and the
    party leadership that cumulates with it, the money/budget model, the political landscape,

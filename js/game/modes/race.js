@@ -1,0 +1,300 @@
+/*
+ * TEMPS FORT — LA COURSE D'UNE ÉLECTION ORDINAIRE.
+ *
+ * Municipales, européennes, législatives, congrès : quand le joueur s'y
+ * présente, ce n'est pas un clic. Deux ou trois temps de campagne, chacun
+ * déplaçant un avantage CACHÉ (l'effet "score"), puis le dépouillement à la
+ * marge. Le joueur voit un sondage et une phrase d'ambiance — « c'est
+ * serré » — jamais un chiffre : le sondage EST la marge traduite en
+ * pourcentages, il ne peut donc pas mentir sans que le résultat mente aussi.
+ *
+ * Le mode couvre aussi LE CHOIX DU TERRAIN (la carte "seat") : trois portes,
+ * et chacune dit ce qu'elle coûte. Elle précède la course et n'existe que
+ * pour elle, d'où les deux entrées dans le registre en fin de fichier.
+ *
+ * Ce que le moteur garde : ce que VAUT un résultat (ELECTION_OUTCOMES,
+ * outcomeFor, applyOutcome, outcomeText, leadershipText) et le calcul du
+ * sondage (pollFor, moodFor). Une élection peut se résoudre sans campagne —
+ * resolveElectionRun s'en sert aussi.
+ */
+
+/** Combien de temps dure une campagne, selon ce qui se joue. */
+const RACE_STEPS = {
+  municipales: 2,
+  congres: 2,
+  europeennes: 2,
+  legislatives: 3,
+};
+
+/**
+ * On ne fait pas campagne pour soi quand on brigue un siège de conseiller :
+ * on est sur la liste de quelqu'un d'autre, on colle des affiches à son nom
+ * et on découvre son propre score le dimanche soir. Un seul temps suffit à
+ * raconter ça ; deux en faisaient une campagne personnelle qu'elle n'est pas.
+ */
+const RACE_STEPS_BY_TARGET = { conseiller: 1 };
+
+function raceSteps(electionId, target) {
+  const cible = target || (game.race && game.race.stake && game.race.stake.target);
+  if (cible && RACE_STEPS_BY_TARGET[cible] !== undefined) return RACE_STEPS_BY_TARGET[cible];
+  return RACE_STEPS[electionId] || 2;
+}
+
+function startRace(electionId, stake) {
+  game.race = { id: electionId, step: 0, bonus: 0, used: [], moment: null, stake };
+  game.card = { kind: "race", id: drawRaceEvent().id, resolved: false };
+}
+
+/**
+ * Un temps de campagne. On préfère toujours ce que le joueur n'a jamais vu,
+ * et on ne rejoue jamais deux fois la même scène dans une même campagne.
+ */
+function drawRaceEvent() {
+  const used = game.race.used;
+  const temps = raceSteps(game.race.id);
+  const eligible = RACE_EVENTS.filter((ev) => {
+    if (used.includes(ev.id)) return false;
+    if (ev.race && !ev.race.includes(game.race.id)) return false;
+    // Une scène de dernière semaine n'a aucun sens au premier temps, et une
+    // scène de cinquième semaine n'en a plus une fois qu'on l'a passée.
+    if (!momentFits(ev, game.race, temps)) return false;
+    return eventMatches({ ...ev, id: null }, game);
+  });
+
+  // Le dernier recours ignore les scènes déjà jouées dans CETTE campagne
+  // plutôt que d'autoriser une scène à trace : mieux vaut revoir un décor que
+  // récolter une marque parce que le paquet est vide.
+  const fresh = eligible.filter((ev) => !game.seen[ev.id]);
+  const repli = sansTrace(eligible);
+  const secours = sansTrace(RACE_EVENTS.filter((ev) =>
+    momentOf(ev) === null && (!ev.race || ev.race.includes(game.race.id))));
+
+  const pool = fresh.length ? fresh : (repli.length ? repli : secours);
+  const ev = pool.length ? pool[randInt(pool.length)] : RACE_EVENTS[0];
+
+  used.push(ev.id);
+  rememberMoment(ev, game.race);
+  setScene(ev);
+  return ev;
+}
+
+function raceEventById(id) {
+  return RACE_EVENTS.find((e) => e.id === id) || RACE_EVENTS[0];
+}
+
+/**
+ * LE SONDAGE D'UNE CAMPAGNE ORDINAIRE.
+ *
+ * Ce n'est pas un second système : c'est la marge du dépouillement, mise en
+ * pourcentages. Ce que le joueur lit est donc exactement ce qui va se passer,
+ * au dé près, et le sondage ne peut pas mentir sans que le résultat mente
+ * aussi.
+ *
+ * Les adversaires n'ont pas de nom : dans une législative, on affronte le
+ * candidat d'un parti, et c'est précisément ce que le scrutin a de brutal.
+ * Le congrès, lui, n'a pas de sondage : on n'interroge pas le pays sur un
+ * vote de militants.
+ */
+function racePoll() {
+  const race = game.race;
+  return pollFor(race.id, race.stake, race.bonus);
+}
+
+function raceMood() {
+  return moodFor(game.race.id, game.race.stake, game.race.bonus);
+}
+
+/* ==========================================================================
+   OÙ L'ON SE PRÉSENTE
+   ==========================================================================
+   Trois terrains, trois paris : un bastion qu'on garde, une circonscription
+   ordinaire, ou l'imprenable qu'on prend pour se faire un nom.
+   ========================================================================== */
+
+/** La cote au parti à partir de laquelle on choisit son terrain. */
+const SEAT_CHOICE_STANDING = 55;
+
+const SEAT_KINDS = {
+  bastion:    { threshold: -9,  gain: 0.5, perte: 1 },
+  ordinaire:  { threshold: 0,   gain: 1,   perte: 1 },
+  imprenable: { threshold: 11,  gain: 1.8, perte: 0 },
+};
+
+/**
+ * Le choix n'est proposé que pour une conquête, sur un scrutin où l'on est
+ * réellement placé quelque part. On ne choisit pas où défendre son propre
+ * siège, et un congrès de parti n'a pas de circonscription.
+ */
+const SEAT_ELECTIONS = ["municipales", "legislatives", "europeennes"];
+
+function seatChoiceAvailable(electionId, stake) {
+  return Boolean(stake) && !stake.defense &&
+    SEAT_ELECTIONS.includes(electionId) &&
+    game.standing >= SEAT_CHOICE_STANDING;
+}
+
+/** Le dépouillement, une fois les temps de campagne joués. */
+function resolveRace() {
+  const stake = game.race.stake;
+  const sondage = racePoll();
+  const score = electionScore(game.race.id, stake) + game.race.bonus;
+  const before = snapshot(game);
+
+  const res = applyOutcome(stake, score - stake.threshold);
+  const won = res.won;
+  let texte = outcomeText(res);
+
+  // La note de la dissidence : l'appareil la présente une fois le résultat
+  // connu, et il la module selon le résultat.
+  if (game.race.rebel) {
+    bumpStanding(game, won ? REBEL_COST_WON : REBEL_COST_LOST);
+    bump(game, "energie", -1);
+    const suite = won
+      ? { fr: " Vous y êtes allé contre l'appareil et vous avez gagné. Il vous le fera payer moins cher que prévu, et pendant beaucoup plus longtemps.",
+          en: " You went against the machine and you won. It will charge you less than it intended, and for a great deal longer." }
+      : { fr: " Vous y êtes allé contre l'appareil et vous avez perdu. Il n'y a pas de mot pour cela au siège, seulement une liste, et vous y êtes.",
+          en: " You went against the machine and you lost. There is no word for that at headquarters, only a list, and you are on it." };
+    texte = { fr: texte.fr + suite.fr, en: texte.en + suite.en };
+  }
+
+  game.race.result = { won, text: texte, poll: sondage, changes: diffSince(before, game) };
+  addLog(texte);
+  return won;
+}
+
+/**
+ * Un temps de campagne, ou le résultat. L'état de la campagne est raconté,
+ * jamais chiffré : on dit « c'est serré », pas « il vous manque quatre points ».
+ */
+function renderRaceCard(host, card) {
+  const race = game.race;
+
+  if (race.result) {
+    const dernier = race.result.poll;
+    host.innerHTML =
+      '<div class="event-card event-card-election">' +
+        electionBanner(race.id, t("race_result")) +
+        '<p class="event-tag">' + cardHeader() + "</p>" +
+        (dernier ? pollHTML(dernier, "label_poll") : "") +
+        '<p class="event-text event-result">' + logText({ text: race.result.text }) + "</p>" +
+        changesHTML(race.result.changes) +
+        continueButton("data-race-done") +
+      "</div>";
+    return;
+  }
+
+  const ev = raceEventById(card.id);
+  // « Temps 1 sur 1 » ne veut rien dire : quand la campagne tient en une
+  // scène, on ne compte pas les scènes.
+  const temps = raceSteps(race.id);
+  const entete = temps > 1
+    ? t("step_of").replace("{n}", race.step + 1).replace("{total}", temps)
+    : "";
+
+  const sondage = racePoll();
+
+  host.innerHTML =
+    '<div class="event-card event-card-election">' +
+      electionBanner(race.id, entete) +
+      '<p class="event-tag">' + cardHeader() + "</p>" +
+      (sondage ? pollHTML(sondage, "label_poll") : "") +
+      '<p class="race-mood">' + t(raceMood()) + "</p>" +
+      '<p class="event-sub-tag">' + L(ev.tag) + "</p>" +
+      '<p class="event-text' + (card.resolved ? " event-result" : "") + '">' +
+        (card.resolved ? card.resultText : fillText(ev.text, game)) + "</p>" +
+      (card.resolved ? changesHTML(card.resultChanges) : "") +
+      (card.resolved
+        ? continueButton("data-race-next")
+        : '<div class="event-choices">' + choiceButtons(ev, game) + "</div>") +
+    "</div>";
+}
+
+/*
+ * LE CHOIX DU TERRAIN. Trois portes, et chacune dit ce qu'elle coûte : le
+ * jeu ne donne jamais une probabilité, il dit de quoi on joue.
+ */
+function renderSeatCard(host, card) {
+  const stake = playerStake(card.id);
+  const poste = stake ? t("pos_low_" + stake.target) || t("pos_" + stake.target).toLowerCase() : "";
+
+  host.innerHTML =
+    '<div class="event-card event-card-election">' +
+      electionBanner(card.id) +
+      '<p class="event-tag">' + t("seat_tag") + " · " + cardHeader() + "</p>" +
+      '<p class="event-text">' + fillMarks(t("seat_intro").replace("{pos}", poste)) + "</p>" +
+      '<div class="event-choices">' +
+        ["bastion", "ordinaire", "imprenable"].map((kind) =>
+          '<button type="button" class="event-choice" data-seat="' + kind + '">' +
+            '<span class="choice-label">' + t("seat_" + kind) + "</span>" +
+            '<span class="choice-notes"><span class="choice-why">' +
+              t("seat_" + kind + "_note") + "</span></span>" +
+          "</button>"
+        ).join("") +
+      "</div>" +
+    "</div>";
+}
+
+/* Un temps de campagne ordinaire : le choix déplace l'avantage. */
+function raceChoice(target) {
+  const ev = raceEventById(game.card.id);
+  const choice = ev.choices[Number(target.getAttribute("data-choice"))];
+  const outcome = resolveChoice(choice, game);
+  markSeen(ev, game);
+
+  game.card.resolved = true;
+  game.card.resultText = outcome.text;
+  game.card.resultChanges = outcome.changes;
+  saveGame();
+  renderAll();
+}
+
+function raceNext() {
+  game.race.step++;
+  if (game.race.step >= raceSteps(game.race.id)) resolveRace();
+  else game.card = { kind: "race", id: drawRaceEvent().id, resolved: false };
+  saveGame();
+  renderAll();
+}
+
+function raceDone() {
+  game.race = null;
+  game.card = null;
+  if (!game.ended) advanceTurn();
+  else game.card = { kind: "end" };
+  saveGame();
+  renderAll();
+}
+
+/* Le terrain choisi : on l'inscrit dans l'enjeu et la campagne commence. */
+function seatChoice(target) {
+  const choix = target.getAttribute("data-seat");
+  const id = game.card.id;
+  const stake = playerStake(id);
+  if (!stake) return;
+
+  const terrain = SEAT_KINDS[choix] || SEAT_KINDS.ordinaire;
+  startRace(id, { ...stake, seat: choix, threshold: stake.threshold + terrain.threshold });
+  addLog({
+    fr: fillMarks("Vous obtenez d'être placé " + t("seat_log_" + choix) + " pour {elec_low:" + id + "}."),
+    en: fillMarks("You get yourself placed " + t("seat_log_" + choix) + " for {elec_low:" + id + "}."),
+  });
+  saveGame();
+  renderAll();
+}
+
+MODES.race = {
+  // Sans game.race, la carte n'a ni sondage ni compteur de temps.
+  ready: () => Boolean(game.race),
+  render: renderRaceCard,
+  clicks: {
+    "data-choice": raceChoice,
+    "data-race-next": raceNext,
+    "data-race-done": raceDone,
+  },
+};
+
+/* Le choix du terrain précède la course : même mode, autre carte. */
+MODES.seat = {
+  render: renderSeatCard,
+  clicks: { "data-seat": seatChoice },
+};

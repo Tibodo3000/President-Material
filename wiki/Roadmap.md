@@ -308,6 +308,160 @@ au pouvoir, un boom récompense celui qui gouverne. Cette couche donne une **mé
 
 ---
 
+## 9. Éclater `game.js` : le moteur d'un côté, les temps forts de l'autre
+
+> ✅ **Étape 1 livrée.** Les sept temps forts sont sortis dans `js/game/modes/`,
+> derrière un **registre** (`js/game/registry.js`) que le moteur interroge au lieu
+> d'énumérer les modes. **`game.js` : 5 825 → 4 014 lignes** (−31 %) ; `renderCard()`
+> passe de 284 à 73 lignes et `handleClick()` de **385 à 51**. Refactor purement
+> mécanique, vérifié par **égalité de trace sur 200 carrières entières** (53 446
+> étapes, octet pour octet), inventaire des fonctions identique (0 perdue, 0
+> dupliquée), et une carrière complète jouée dans le navigateur, rechargement de
+> sauvegarde compris. **L'étape 2 (sortir le rendu) reste ouverte.**
+>
+> Trois écarts assumés par rapport au plan ci-dessous :
+> - **Le premier et le second tour tiennent dans un seul fichier**
+>   (`presidentielle.js`). Ils partagent leur état (`game.campaign`, dont le second
+>   tour n'est qu'une phase), leur tireur de scènes et leur carte : séparés, on
+>   obtenait deux fichiers dont aucun ne se comprend seul.
+> - **La chronologie des scènes reste au moteur.** `momentOf` / `momentFits` /
+>   `rememberMoment` servent la course et la présidentielle des autres autant que la
+>   campagne : ce n'est pas du code de campagne, c'est du vocabulaire partagé. Même
+>   raison pour `pollHTML`, `standDown` et ce que vaut un résultat
+>   (`ELECTION_OUTCOMES`, `applyOutcome`, `outcomeText`) — `resolveElectionRun()`
+>   résout une élection sans campagne et s'en sert.
+> - **La carte d'ouverture d'un scrutin et le choix du terrain** sont devenus des
+>   modes à part entière, ce que le plan n'avait pas vu : neuf types de carte pour
+>   sept fichiers.
+>
+> Ce qui reste dans le moteur et n'aurait pas dû : `enterElection()` appelle
+> `startRace()` / `startSupport()` / `startAside()` pour OUVRIR un mode. Quelque
+> chose doit décider quel temps fort une échéance devient, et cette décision lit
+> l'enjeu du joueur, qui est affaire de moteur. Le registre lui retire la
+> connaissance de la façon dont un mode se dessine et se comporte, pas celle du
+> moment où il commence.
+>
+> Détail du contrat et tableau des fichiers : *The set pieces* dans
+> [architecture.md](architecture.md).
+
+**L'idée.** Sortir de l'unique [`js/game.js`](../js/game.js) (5 825 lignes) les
+**huit « temps forts »** — la campagne présidentielle, l'entre-deux-tours,
+la primaire, la campagne d'une élection ordinaire, l'investiture refusée, la
+présidentielle qu'on ne dispute pas, la carte d'ouverture d'un scrutin, le scrutin
+qui se joue sans vous — pour leur
+donner **un fichier chacun**, dans un dossier `js/game/` sur le modèle de
+`js/events/`. Ce qui reste dans `game.js` est le **moteur** : l'état, le pays, la
+carrière, le tour de jeu, le rendu.
+
+**Pourquoi.** Le fichier est aujourd'hui rangé **par couche technique** — tout le
+tirage ensemble, tout le rendu ensemble, tous les clics ensemble — alors que
+l'unité naturelle du code est **le mode**. Un temps fort est une petite machine à
+états complète, et ses six morceaux sont dispersés sur toute la longueur du
+fichier. Pour la présidentielle :
+
+| Morceau | Où il se trouve aujourd'hui |
+|---|---|
+| son état (`game.campaign`) et son ouverture | `startCampaign()`, l. 1823 |
+| la chronologie de ses scènes | `momentFits()` / `rememberMoment()`, l. 1383-1441 |
+| son tirage | `pickCampaignScene()` / `drawCampaignEvent()`, l. 1884-1941 |
+| sa résolution | `resolveFirstRound()`, l. 1962 ; `resolveRunoff()`, l. 2049 |
+| son rendu | `renderCampaignCard()`, l. 4940 |
+| ses clics | cinq branches de `handleClick()`, l. 5250-5318 |
+
+Six endroits, plus de trois mille lignes d'écart entre le premier et le dernier. La même
+dispersion vaut pour la course ordinaire, la primaire et l'investiture. Ajouter un
+temps fort — ce que demandent explicitement les idées n°1 (une phase « programme »
+en tête de `startCampaign()`) et n°7 (une fenêtre de pré-campagne avant l'échéance)
+— oblige aujourd'hui à toucher six zones sans rapport les unes avec les autres.
+
+**Le vrai levier : deux aiguillages qui deviennent des registres.** Le découpage
+seul ne suffit pas. Tant que `renderCard()` (l. 4550) et `handleClick()` (l. 5238,
+**385 lignes de branches `data-*` à plat**) énumèrent les modes en dur, sortir le
+code ne fait que le déplacer. Chaque mode doit donc **se déclarer** :
+
+```js
+// js/game/modes/race.js
+MODES.race = {
+  start:  startRace,          // ouvre le mode, pose game.race
+  render: renderRaceCard,     // dessine la carte
+  clicks: {                   // ce que le mode sait faire
+    "data-race-next": …,
+    "data-race-done": …,
+  },
+};
+```
+
+`renderCard()` se réduit alors à chercher `MODES[card.kind]` et à lui passer la
+main ; `handleClick()` interroge d'abord la table du mode actif, puis retombe sur
+les branches génériques (`data-choice`, `data-continue`, `data-restart`). Le
+moteur cesse de connaître la liste des temps forts : **un nouveau mode = un
+fichier + une ligne de registre.** C'est exactement ce dont les idées n°1 et n°7
+ont besoin.
+
+**Découpage proposé.** Un fichier par mode, contenant son cycle de vie **entier** —
+ouverture, tirage, résolution, rendu, clics :
+
+| Fichier | Contenu | ≈ lignes |
+|---|---|---|
+| `js/game/modes/race.js` | `startRace`, `drawRaceEvent`, `racePoll`, `pollFor`, `moodFor`, `ELECTION_OUTCOMES`, `applyOutcome`, `resolveRace`, `renderRaceCard` | ~480 |
+| `js/game/modes/presidentielle.js` | `presidentialField`, `startCampaign`, `pickCampaignScene`, `drawCampaignEvent`, les helpers de `moment`, `resolveFirstRound`, `renderCampaignCard` | ~415 |
+| `js/game/modes/investiture.js` | `drawNomination`, `nominationBlocked`, `inTheRunning`, `lobbyGain`, `standDown`, la dissidence (`REBEL_*`), `blockedPitch` | ~345 |
+| `js/game/modes/primaire.js` | `PRIMARY_*`, `primaryField`, `primaryDue`, `designateNominee`, `resolvePrimary` | ~245 |
+| `js/game/modes/entre-deux-tours.js` | `startDuel`, `drawRunoffEvent`, `duelField`, `resolveRunoff`, `concedeElection` | ~155 |
+| `js/game/modes/soutien.js` | `supportField`, `startSupport`, `supportPoll`, `supportMood`, `drawSupport`, `resolveSupport` — la présidentielle des autres | ~220 |
+| `js/game/modes/scrutin.js` | `electionBanner`, `forcesHTML`, `sortanteHTML`, `scrutinStake`, `renderScrutinCard` — la carte d'ouverture | ~120 |
+| `js/game/modes/aside.js` | `startAside`, `drawAside`, `backgroundElectionText` | ~90 |
+
+Soit **≈ 2 070 lignes sorties**, et un `game.js` ramené autour de 3 750. Ce qui
+reste y est cohérent : l'état et `newGame()`, le pays (paysage, cote, Assemblée,
+coalition, défections, vie des figures), la carrière (calendrier, `playerStake`,
+`setOffice`, scores d'élection), le tour de jeu (`advanceTurn` — **l'aiguillage
+central, qui reste au moteur**), le tirage d'événement ordinaire, et tout le rendu.
+
+**Étape 2, si besoin.** Si 3 750 lignes restent trop, le rendu part à son tour
+(`render/fiche.js`, `render/pouvoir.js`, `render/effets.js`, `render/budget.js`,
+`render/fin.js` — ~900 lignes), et `game.js` devient le seul moteur. À ne faire
+qu'après l'étape 1, qui porte tout le bénéfice.
+
+**Notes de mise en œuvre.**
+- **Même contrainte que l'idée n°5, même solution** : `file://` interdit les
+  modules ES, donc des `<script>` dans [game.html](../game.html), chargés dans
+  l'ordre, au prix d'une liste à tenir à jour. Aucun build.
+- **L'ordre de chargement n'est presque jamais un problème** : les `function` sont
+  hissées dans leur fichier et tous les appels ont lieu au *runtime*, une fois
+  tout chargé. Deux exceptions à connaître :
+  - `let game` (l. 18) est la variable globale que tout le monde lit : **son
+    fichier se charge en premier**. Attention, `let`/`const` de premier niveau ne
+    sont pas posés sur `window` — ils restent visibles des scripts suivants, mais
+    pas des précédents.
+  - une **constante dérivée d'un autre fichier** est évaluée au chargement. Il y
+    en a exactement une aujourd'hui : `COALITION_DISTANCE = NEIGHBOUR_DISTANCE / 2`
+    (l. 427, lit `game-data.js`). Règle : une constante reste dans le fichier qui
+    la lit, et tout dérivé se charge après sa source.
+- **Le format de sauvegarde ne bouge pas.** `pm-game` contient l'état entier ; le
+  découpage ne doit toucher ni la forme de l'état ni les migrations de `init()`.
+  Une partie en cours doit survivre au refactor — c'est le premier test.
+- **Refactor purement mécanique, aucun changement de comportement.** Le projet n'a
+  pas de tests : la vérification se fait comme pour l'idée n°5, par contrôle
+  d'équivalence.
+  - la liste triée des noms de fonctions avant/après doit être **identique**
+    (aucune perdue, aucune dupliquée) ;
+  - le `git diff` ne doit montrer que des déplacements, plus l'aiguillage
+    transformé en registre ;
+  - une partie jouée de bout en bout doit traverser **chacun** des huit modes :
+    course municipale, investiture refusée, dissidence, primaire, présidentielle
+    gagnée et perdue au premier tour, entre-deux-tours, présidentielle des autres.
+- **Ordre de travail conseillé**, du plus isolé au plus intriqué, en vérifiant à
+  chaque étape : `aside` → `scrutin` → `soutien` → `primaire` → `entre-deux-tours` →
+  `race` → `investiture` → `presidentielle`. Les deux registres se posent **avant** la
+  première extraction : c'est eux qui rendent les suivantes mécaniques.
+- **Mettre à jour la doc du même coup** : le tableau des couches et la liste
+  d'ordre de chargement de [architecture.md](architecture.md), et la section
+  « The three special modes » de [game-loop.md](game-loop.md), qui décrit déjà ce
+  découpage — le code se contentera de rattraper la documentation.
+
+---
+
 ## Vue d'ensemble
 
 | # | Piste | Portée | Effort estimé | Touche la logique de jeu ? |
@@ -320,11 +474,15 @@ au pouvoir, un boom récompense celui qui gouverne. Cette couche donne une **mé
 | 6 | Éditeur d'événements ✅ | Outillage | Moyen | Non |
 | 7 | Calendrier électoral dynamique | Gameplay + modèle de données | Moyen | Oui (échéancier mutable) |
 | 8 | Conjoncture nationale (events majeurs) | Gameplay | Élevé | Oui (couche de modificateurs) |
+| 9 | Éclater `game.js` (moteur / temps forts) · étape 1 ✅ | Organisation du code | Moyen | Non (refactor pur) |
 
-Les deux pistes qui débloquent les autres : **n°5** (des fichiers d'événements
-maniables) et **n°2** (un pipeline qui valide et déploie). Les plus riches en jeu
-forment un ensemble cohérent : **n°1** (le programme), **n°3** (le paysage
-institutionnel), **n°7** (le calendrier dynamique) et **n°8** (la conjoncture) se
-nourrissent mutuellement — un climat déplace les assemblées, un calendrier
-bousculé par une dissolution rebat les cartes, et le programme se juge à l'aune de
-ce que le pays attend au moment où il vote.
+Les trois pistes qui débloquent les autres : **n°5** (des fichiers d'événements
+maniables), **n°9** (un moteur qui accepte un temps fort de plus sans qu'on
+touche à six endroits) et **n°2** (un pipeline qui valide et déploie). Les plus
+riches en jeu forment un ensemble cohérent : **n°1** (le programme), **n°3** (le
+paysage institutionnel), **n°7** (le calendrier dynamique) et **n°8** (la
+conjoncture) se nourrissent mutuellement — un climat déplace les assemblées, un
+calendrier bousculé par une dissolution rebat les cartes, et le programme se juge
+à l'aune de ce que le pays attend au moment où il vote. Les deux premières
+passent d'ailleurs par le registre de modes de la n°9 : une phase « programme »
+et une pré-campagne sont des temps forts, pas des rustines dans `startCampaign()`.
