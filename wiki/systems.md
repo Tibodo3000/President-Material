@@ -236,10 +236,37 @@ and file member of a party you chair.
 `state.landscape` maps each party to a % vote share that lives and breathes the whole
 game (`driftLandscape` in [game.js](../js/game.js)). Four forces move it: **incumbency
 erosion**, **popular figures** pulling their party up, **the player** (more so at exposed
-offices), and **random drift**. A `naturalShare()` floor pulls each party back toward
-what it's "worth" (`24 − difficulty×3`) so 40 turns of noise don't make the six parties
-interchangeable. Events move it too, via the `landscape` effect. `landscapeBefore` snapshots
-last turn so the UI can show ▲/▼ trends.
+offices), and **random drift**. Events move it too, via the `landscape` effect.
+`landscapeBefore` snapshots last turn so the UI can show ▲/▼ trends.
+
+### The baseline is the state of the country, not a property of the party
+
+`naturalShare()` used to return `28 − difficulty × 5` — a number carved into the party for
+all eternity. Two consequences, both bad. **Every game started the same**: opening shares
+were that floor plus 0–8 points of noise, so the centrists led in every single game and the
+rupture camps trailed in every single game. **And nothing could ever realign**: the pull
+dragged each party back to its number forever, so a camp carried to 20% for ten years fell
+back to 8% the moment you stopped pushing. Measured over 120 full careers, a rupture camp's
+amplitude across an entire political life was 5 points, and such camps won 0% of
+presidential elections.
+
+The baseline is now drawn at `newGame` (`initialBaseline`, stored in `state.baseline`) and
+**lives from there**. Difficulty still tilts it — a rupture camp opens low most of the time
+— but no longer decides: now and then the country is somewhere else. Then two slow springs
+answer each other: the share is pulled toward the baseline (`LANDSCAPE_PULL` 0.022), and the
+baseline slowly follows what the party actually does (`BASELINE_FOLLOW` 0.012, plus
+`BASELINE_NOISE`). A spike falls back; ten years at the top re-anchor. That is what a
+realignment is, and it did not exist.
+
+Measured over 120–150 careers after the change: opening landscapes differ from game to game
+(conservatives, socdem or centrists lead depending on the draw), the country's largest party
+**changes during 46% of careers**, a rupture camp is the largest party at some point in
+**17%** of games and passes 20% in one game in five, and amplitudes peak between 15 and
+24 points depending on the party.
+
+Rupture camps still win only ~1% of presidential elections. That is a different mechanism
+and a deliberate one: `rejectionRate` in the runoff is what stops them, which is the
+*front républicain* doing its job.
 
 The landscape decides the strength of presidential rivals and gives the player a readout of
 the game: who they're fighting and whether their camp is rising or collapsing.

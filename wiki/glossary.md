@@ -78,6 +78,8 @@ country, the career, the maths of an election, the turn, and the boot.
 | **Rivals & landscape** | |
 | `makeFigure`, `figurePopularity`, `spawnFigure`, `FIGURE_RANKS` | The named figures |
 | `initialLandscape`, `naturalShare`, `driftLandscape`, `normalizeLandscape` | Vote-share model |
+| `initialBaseline`, `driftBaseline`, `BASELINE_FOLLOW`, `BASELINE_NOISE` | The country's baseline: drawn at game start, then alive |
+| `COATTAIL`, `turnsSinceElection` | The wave a legislative gives the camp that just won the Élysée |
 | `moveShare`, `shiftLandscape`, `landscapeTarget` | Landscape mutation + effect targeting |
 | `figuresOf`, `leaderOf`, `figureOf`, `sortedLandscape` | Landscape queries |
 | **The Assembly** | |

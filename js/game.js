@@ -167,6 +167,7 @@ function newGame(character) {
     popularity: 0,
     standing: 0,
     rivals,               // une figure par parti
+    baseline: {},         // ce autour de quoi chaque parti se situe, et qui vit
     landscape: {},        // rapport de force entre les partis, en pourcentage
     landscapeBefore: {},  // le même, au tour précédent : sert aux tendances
     alliance: null,       // { party, turn } : le pacte en cours, s'il y en a un
@@ -189,6 +190,8 @@ function newGame(character) {
   const sortant = rivals.find((r) => r.party === "centrists" && r.position === "chef");
   state.president = { name: sortant.name, party: "centrists" };
   state.presidentTerms = 1;
+  // Le pays dans lequel on entre n'est pas le même d'une partie à l'autre.
+  state.baseline = initialBaseline();
   state.landscape = initialLandscape(state);
 
   // Le caractère est un trait, mais ses points sont déjà dans computeStats :
@@ -239,8 +242,69 @@ const LANDSCAPE_FLOOR = 1.5;
  * rappel, quarante tours de hasard finissaient par rendre les six partis
  * interchangeables, et le choix du parti ne voulait plus rien dire.
  */
+/* ==========================================================================
+   LE SOCLE N'EST PAS UNE PROPRIÉTÉ DU PARTI, C'EST L'ÉTAT DU PAYS
+   ==========================================================================
+   Il valait « 28 moins cinq fois la difficulté », c'est-à-dire un nombre
+   gravé dans le parti pour l'éternité. Deux conséquences, toutes les deux
+   mauvaises.
+
+   TOUTES LES PARTIES COMMENÇAIENT PAREIL. Les parts de départ étaient ce
+   socle plus zéro à huit points de hasard : les centristes ouvraient en tête
+   dans chaque partie, les camps de rupture fermaient la marche dans chaque
+   partie, et l'on entrait toujours dans le même pays.
+
+   ET RIEN NE POUVAIT SE RECOMPOSER. Le rappel ramenait éternellement chacun
+   à son chiffre : un camp porté à vingt pour cent pendant dix ans
+   redescendait à huit dès qu'on cessait de pousser. Mesurée sur cent vingt
+   carrières entières, l'amplitude d'un camp de rupture sur toute une vie
+   politique était de cinq points, et ces camps remportaient zéro pour cent
+   des présidentielles.
+
+   Le socle est donc tiré au début de partie et VIT ENSUITE. La difficulté
+   penche toujours — un camp de rupture part bas la plupart du temps — mais
+   elle ne décide plus : de temps en temps, le pays est ailleurs. Puis deux
+   ressorts lents se répondent : la part est rappelée vers le socle
+   (LANDSCAPE_PULL), et le socle suit lentement ce que le parti fait vraiment
+   (BASELINE_FOLLOW). Un pic retombe ; dix ans au sommet réancrent. C'est ce
+   qui manquait pour qu'une recomposition existe.
+   ========================================================================== */
+
+/** Ce autour de quoi un parti se situe quand une partie s'ouvre. */
+function initialBaseline() {
+  const base = {};
+  Object.keys(PARTIES).forEach((key) => {
+    const centre = 28 - PARTIES[key].difficulty * 5;
+    base[key] = Math.max(3, centre * (0.5 + Math.random() * 1.2) + (Math.random() - 0.35) * 7);
+  });
+  return base;
+}
+
+/** Le socle du moment. Les vieilles sauvegardes n'en ont pas : on le rend. */
 function naturalShare(key) {
-  return 28 - PARTIES[key].difficulty * 5;
+  if (!game || !game.baseline) return 28 - PARTIES[key].difficulty * 5;
+  return game.baseline[key];
+}
+
+/** Vitesse à laquelle le socle suit ce que le parti pèse réellement. */
+const BASELINE_FOLLOW = 0.012;
+
+/** Ce que l'air du temps déplace tout seul, par tour. */
+const BASELINE_NOISE = 0.10;
+
+/**
+ * LA VIE DU SOCLE. Beaucoup plus lent que la part elle-même : un parti ne se
+ * réancre pas sur un bon trimestre, il se réancre sur une décennie. C'est la
+ * différence entre une vague et une recomposition.
+ */
+function driftBaseline() {
+  Object.keys(game.baseline).forEach((key) => {
+    const part = game.landscape[key] || 0;
+    game.baseline[key] = Math.max(3,
+      game.baseline[key] +
+      (part - game.baseline[key]) * BASELINE_FOLLOW +
+      (Math.random() - 0.5) * BASELINE_NOISE);
+  });
 }
 
 /**
@@ -256,9 +320,10 @@ const LANDSCAPE_PULL = 0.022;
 
 /** Répartition de départ, adossée à la difficulté des partis. */
 function initialLandscape(state) {
+  const base = (state && state.baseline) || initialBaseline();
   const shares = {};
   Object.keys(PARTIES).forEach((key) => {
-    shares[key] = Math.max(4, naturalShare(key) + Math.random() * 8);
+    shares[key] = Math.max(3, base[key] * (0.8 + Math.random() * 0.5));
   });
   return normalizeLandscape(shares);
 }
@@ -688,6 +753,7 @@ function driftLandscape() {
   });
 
   normalizeLandscape(game.landscape);
+  driftBaseline();
   reportLandscape();
 }
 
@@ -3118,6 +3184,15 @@ const BUILD = "2026-08-21 11:45";
 
     // Le paysage politique et les figures nommées sont arrivés après : une
     // partie plus ancienne se les voit reconstruire au chargement.
+    // Une sauvegarde d'avant le socle vivant n'en a pas : on le pose sur ce
+    // que les partis valent aujourd'hui, pas sur ce qu'ils valaient en
+    // théorie. Le pays de cette partie-là est déjà ce qu'il est.
+    if (!game.baseline) {
+      game.baseline = {};
+      Object.keys(PARTIES).forEach((key) => {
+        game.baseline[key] = Math.max(3, (game.landscape && game.landscape[key]) || (28 - PARTIES[key].difficulty * 5));
+      });
+    }
     if (!game.landscape) game.landscape = initialLandscape(game);
     if (!game.landscapeBefore) game.landscapeBefore = { ...game.landscape };
     if (game.alliance === undefined) game.alliance = null;
