@@ -143,7 +143,6 @@ function newGame(character) {
     parties: [character.party],
     // Combien de fois le parti vous a présenté à la présidentielle.
     presidentialRuns: 0,
-    beatenRuns: 0,        // présidentielles perdues : le parti s'en souvient
     stats: computeStats(character),
     money: computeMoney(character),
     // Ce avec quoi on entre en politique. Sert de point zéro : la justice
@@ -1031,8 +1030,8 @@ function playerStake(electionId) {
     // ON SE PRÉSENTE AUTANT DE FOIS QUE LE PARTI VEUT BIEN VOUS PRÉSENTER.
     // Un plafond de deux candidatures par carrière fermait la porte sans rien
     // expliquer, alors qu'une carrière réelle en compte trois, quatre, cinq.
-    // Ce qui freine, c'est la primaire, et chaque défaite y pèse un peu plus
-    // lourd (voir PRIMARY_BEATEN).
+    // Ce qui freine est la cote au parti, que la défaite précédente a déjà
+    // déplacée selon ce qu'elle valait (voir concedeElection).
 
     // C'EST LA PRIMAIRE QUI DÉSIGNE, PAS LA FONCTION. Le jeu réservait la
     // présidentielle au chef du parti : un ministre brillant, très bien coté
@@ -3894,9 +3893,6 @@ const BUILD = "2026-08-21 11:45";
     // actuel : on part de là plutôt que de lui inventer un passé.
     if (!game.parties) game.parties = [game.party];
     if (game.presidentialRuns === undefined) game.presidentialRuns = 0;
-    // Le compteur de défaites était un drapeau : une sauvegarde qui le porte
-    // a perdu au moins une fois.
-    if (game.beatenRuns === undefined) game.beatenRuns = game.beatenNominee ? 1 : 0;
     // Une sauvegarde d'avant la dette de fatigue part sans dette : on ne
     // facture pas rétroactivement ce qui était gratuit quand ça a été joué.
     if (game.strain === undefined) game.strain = 0;

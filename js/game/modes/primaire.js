@@ -38,28 +38,25 @@ const PRIMARY_LEAD = 3;
  */
 const PRIMARY_FLOOR = 58;
 
-/**
- * CE QU'UN CANDIDAT MALHEUREUX TRAÎNE, ET IL LE TRAÎNE À CHAQUE FOIS.
+/*
+ * COMBIEN DE FOIS ON SE PRÉSENTE : AUTANT QUE LE PARTI VOUS PRÉSENTE.
  *
- * On ne redevient pas le champion naturel de son camp cinq ans après l'avoir
- * mené à la défaite : les mêmes qui vous ont porté rappellent qu'ils avaient
- * prévenu. Et deux défaites pèsent deux fois, ce qui n'était pas le cas :
- * la pénalité était un drapeau, la même après une défaite qu'après quatre.
+ * Il a existé ici un plafond de deux candidatures par carrière, puis une
+ * pénalité par défaite qui le remplaçait. Les deux étaient artificiels, et le
+ * second l'était autant que le premier : il punissait le NOMBRE de défaites
+ * sans jamais regarder ce qu'elles valaient. Un candidat de petit parti qui
+ * perd deux fois en progressant à chaque fois n'a rien à se faire pardonner.
  *
- * C'EST ELLE QUI REMPLACE LE PLAFOND DE CANDIDATURES. Il en existait un, à
- * deux par carrière, pour empêcher qu'une carrière bien menée reste au-dessus
- * du seuil pendant trente ans et se présente à chaque échéance jusqu'à finir
- * par gagner. Le remède était pire que le mal : une carrière réelle compte
- * trois, quatre, cinq candidatures, et le jeu répondait « non » sans jamais
- * dire pourquoi. C'est au parti de ne plus vouloir de vous, pas au moteur, et
- * un parti qui a perdu deux fois avec le même visage en cherche un autre.
+ * Il n'y a donc plus rien ici. Ce qui décide, c'est la cote au parti, et une
+ * présidentielle perdue la déplace déjà dans le bon sens : concedeElection()
+ * la juge sur l'écart entre ce que le camp valait et ce qu'il a fait. Celui
+ * qui coule son parti n'obtient plus l'investiture ; celui qui l'a fait
+ * grandir l'obtient encore. C'est le parti qui tranche, pas un compteur.
  *
  * La seule limite qui reste est celle qui existe vraiment : on ne fait pas
  * trois mandats de suite à l'Élysée. Elle vit dans MAX_TERMS et ne concerne
- * que les présidents en exercice, c'est-à-dire les figures — une victoire du
- * joueur arrête la partie.
+ * que les figures — une victoire du joueur arrête la partie.
  */
-const PRIMARY_BEATEN = 14;
 
 /**
  * Le poids d'un prétendant dans une primaire : ce que l'appareil pèse, ce que
@@ -82,7 +79,7 @@ function playerPrimaryWeight() {
     game.standing, game.popularity,
     statScore(game, "credibilite") * 1.7,
     rankOf(game)
-  ) - PRIMARY_BEATEN * (game.beatenRuns || 0);
+  );
 }
 
 function figurePrimaryWeight(f) {

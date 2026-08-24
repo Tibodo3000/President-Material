@@ -83,7 +83,13 @@ function startCampaign() {
   // aussi par le nombre de fois qu'on y est allé.
   game.presidentialRuns = (game.presidentialRuns || 0) + 1;
 
-  game.campaign = { step: 0, field: presidentialField(), lastId: null, used: [], moment: null, phase: "campaign" };
+  game.campaign = {
+    step: 0, field: presidentialField(), lastId: null, used: [], moment: null, phase: "campaign",
+    // CE QUE VALAIT LE CAMP AVANT QUE VOUS NE LE PORTIEZ. Sans ce repère, une
+    // défaite ne peut se lire qu'en « gagné / perdu », et le parti reproche
+    // la même chose à celui qui a doublé son score et à celui qui l'a coulé.
+    baseShare: game.landscape[game.party],
+  };
   game.card = { kind: "campaign", id: drawCampaignEvent().id, resolved: false };
 }
 
@@ -327,27 +333,43 @@ function resolveRunoff() {
  * On ne retire par ailleurs la direction qu'à ceux qui l'avaient : le message
  * s'affichait pour des candidats qui n'avaient jamais dirigé le parti.
  */
+/**
+ * L'ÉCART ENTRE CE QU'ON VOUS A CONFIÉ ET CE QUE VOUS EN AVEZ FAIT, en points
+ * de premier tour. C'est la seule mesure qui ait un sens : un candidat de
+ * petit parti qui passe de huit à dix-huit pour cent a fait une très grande
+ * campagne, et il l'a perdue.
+ */
+function campaignGap() {
+  const c = game.campaign;
+  if (!c || !c.first) return 0;
+  const base = c.baseShare === undefined ? game.landscape[game.party] : c.baseShare;
+  return c.first.myShare - base;
+}
+
 function concedeElection(winner, share) {
   setPresident({ name: winner.name, party: winner.party });
   bump(game, "notoriete", +1);
   bumpPop(game, +6);
-  shiftLandscape(game.party, -4);
 
-  // Le second tour compte double : y être allé installe, y avoir frôlé la
-  // victoire installe pour longtemps.
-  // Avoir mené son camp à la défaite se paie à la primaire suivante, et une
-  // deuxième défaite se paie deux fois : c'est ce compteur qui a remplacé le
-  // plafond de candidatures. Voir PRIMARY_BEATEN.
-  game.beatenRuns = (game.beatenRuns || 0) + 1;
+  /* CE QU'ON REPROCHE À UN CANDIDAT, C'EST L'ÉCART, PAS LA DÉFAITE.
+     Le moteur comptait un forfait : quatorze points de cote en moins pour
+     qui sortait au premier tour, quatre points de paysage en moins pour tout
+     le monde, sans jamais regarder le score. Le candidat d'un petit parti qui
+     doublait sa part était donc puni exactement comme celui qui avait dilapidé
+     un camp en tête des sondages, et un parti reprochait à quelqu'un de lui
+     avoir fait gagner dix points.
+     Un parti sait très bien faire cette différence : il compare ce qu'il
+     valait et ce qu'il vaut le lendemain. */
+  const ecart = campaignGap();
+  bumpStanding(game, Math.max(-14, Math.min(12, Math.round(ecart * 1.6))));
+  shiftLandscape(game.party, Math.max(-4, Math.min(4, ecart * 0.4)));
 
-  const finaliste = share !== undefined;
-  if (finaliste) {
+  // Le second tour compte en plus : y être allé installe, l'avoir frôlé
+  // installe pour longtemps. Cela s'ajoute à l'écart, cela ne le remplace pas.
+  if (share !== undefined) {
     const marge = 50 - share;
-    if (marge <= 2) { bumpStanding(game, 10); bump(game, "credibilite", 2); }
-    else if (marge <= 8) { bumpStanding(game, 4); bump(game, "credibilite", 1); }
-    else bumpStanding(game, -6);
-  } else {
-    bumpStanding(game, -14);
+    bump(game, "credibilite", marge <= 2 ? 3 : marge <= 8 ? 2 : 1);
+    bumpStanding(game, marge <= 2 ? 8 : marge <= 8 ? 4 : 0);
   }
 
   const etaitChef = leadsParty(game);

@@ -337,16 +337,35 @@ above the bar for thirty years and running at every election until it eventually
 cure was worse than the disease: a real career counts three, four, five candidacies —
 Mitterrand ran four times — and the engine answered "no" without ever saying why.
 
-What brakes it now is the primary itself: `PRIMARY_BEATEN` (14 points of primary weight) is
-charged **per defeat** rather than as a flag, so `game.beatenRuns` compounds. A strong
-profile sits around 81 points; one defeat drops it to 67, two to 53, three to 39, against
-rivals in the 70–90 band. The party stops picking a serial loser on its own, and an
-exceptional candidate can still get a third nomination — which is exactly what happens.
+Nothing replaces it, and that is the point. A per-defeat penalty was tried and thrown out
+for the same reason: it charged for the *number* of defeats without ever looking at what
+they were worth. The candidate of a small party who loses twice while growing it each time
+has nothing to apologise for.
 
-Measured over 700 careers each way, the cap changed nothing it was meant to protect: the
-Élysée falls in **17% of careers with or without it**. What changes is the ceiling — the
-most candidacies in one career goes from 2 to 4 — and the distribution stays realistic:
-71% of careers never run, 21% run once, 7% twice, and 1% three or four times.
+What decides is standing, and a lost presidential already moves it in the right direction —
+see below. Somebody who sinks their party stops getting the nomination; somebody who grew
+it keeps getting it. The party decides, not a counter.
+
+### What a lost presidential is worth
+
+`concedeElection()` ([presidentielle.js](../js/game/modes/presidentielle.js)) used to charge
+a flat fee: −14 standing for going out in the first round, −4 landscape for everybody, with
+no look at the score. So the small-party candidate who doubled their share was punished
+exactly like the one who squandered a camp leading the polls, and a party held it against
+somebody for winning it ten points.
+
+It now reads **the gap** (`campaignGap()`): your first-round score minus what the camp was
+worth nationally when the campaign opened (`campaign.baseShare`, taken in `startCampaign`).
+Standing moves by `gap × 1.6` (clamped −14…+12), the camp's national weight by `gap × 0.4`
+(clamped ±4). Reaching the runoff adds credibility and standing on top, by the final margin
+— it does not replace the gap.
+
+| Starting share → first round | Standing | Landscape |
+|---|---|---|
+| 8% → 18% | +12 | +4.0 |
+| 8% → 9% | +2 | +0.8 |
+| 26% → 20% | −10 | −4.6 |
+| 26% → 31% | +8 | −1.4 (the winner's camp surges past you) |
 
 **The one real limit is the constitutional one.** `MAX_TERMS = 2`: nobody serves three
 consecutive terms. It only applies to figures, since a player victory ends the game — the
