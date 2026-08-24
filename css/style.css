@@ -1870,6 +1870,112 @@ body {
     var(--party, var(--blue)));
 }
 
+/* LES CONSÉQUENCES RANGÉES PAR NATURE. Trois blocs qui répondent à trois
+   questions : ce que je deviens, ce qu'on pense de moi, ce qui a bougé dans
+   le pays. L'intertitre est volontairement discret : c'est un repère pour
+   l'œil, pas un titre de section. */
+.fx-group {
+  display: grid;
+  grid-template-columns: 6.2rem 1fr;
+  align-items: baseline;
+  gap: 0.55rem;
+  margin-bottom: 0.35rem;
+}
+
+.fx-group:last-child { margin-bottom: 0; }
+
+.fx-group-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--faint);
+  text-align: right;
+  padding-top: 0.22rem;
+}
+
+@media (max-width: 620px) {
+  .fx-group { grid-template-columns: 1fr; gap: 0.15rem; }
+  .fx-group-label { text-align: left; }
+}
+
+
+/* LA POPULARITÉ GÉNÉRALE, et les six électorats derrière elle.
+
+   La fiche porte déjà huit statistiques, deux jauges, les traits et le
+   budget : le détail par électorat ne doit pas coûter une ligne de plus à
+   quelqu'un qui ne le cherche pas. Une valeur unique, et le détail au
+   survol. */
+.gauge-fill-general {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--muted) 40%, transparent),
+    var(--muted));
+}
+
+.gauge-general { position: relative; }
+
+.electorates {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  z-index: 5;
+  display: grid;
+  gap: 0.3rem;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--bg-2, var(--bg));
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-3px);
+  transition: opacity 0.14s ease, transform 0.14s ease, visibility 0.14s;
+}
+
+.gauge-general:hover .electorates,
+.gauge-general:focus-within .electorates {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.electorate {
+  display: grid;
+  grid-template-columns: 1fr 3.4rem 1.6rem;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.electorate-name {
+  font-size: 0.62rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.electorate-track {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--line-2);
+  overflow: hidden;
+}
+
+.electorate-fill {
+  display: block;
+  height: 100%;
+  background: var(--tint);
+}
+
+.electorate-value {
+  font-size: 0.64rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  color: var(--ink);
+}
+
+
 /* ---------- Carte d'événement ---------- */
 
 .event-card {

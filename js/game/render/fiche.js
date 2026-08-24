@@ -49,6 +49,33 @@ function renderGauge(key, value, labelKey, target) {
   if (ligne) ligne.setAttribute("title", t("gauge_target_title"));
 }
 
+/**
+ * LE DÉTAIL DERRIÈRE LA GÉNÉRALE. Une valeur unique sur la fiche, et les six
+ * électorats au survol : la colonne porte déjà huit statistiques, deux
+ * jauges, les traits et le budget, et l'information fine ne doit pas coûter
+ * une ligne de plus à quelqu'un qui ne la cherche pas.
+ */
+function renderElectorates() {
+  const host = document.getElementById("electorates");
+  if (!host || !game.appeal) return;
+
+  const autres = Object.keys(PARTIES)
+    .filter((key) => key !== game.party)
+    .sort((a, b) => game.appeal[b] - game.appeal[a]);
+
+  host.innerHTML = autres.map((key) =>
+    '<div class="electorate" style="--tint:var(--p-' + key + ')">' +
+      '<span class="electorate-name">' + t("party_" + key) + "</span>" +
+      '<span class="electorate-track"><span class="electorate-fill" style="width:' +
+        Math.round(clamp100(game.appeal[key])) + '%"></span></span>' +
+      '<span class="electorate-value">' + Math.round(game.appeal[key]) + "</span>" +
+    "</div>"
+  ).join("");
+
+  const socle = document.getElementById("gauge-general");
+  if (socle) socle.setAttribute("title", t("general_title"));
+}
+
 function renderStatus() {
   document.getElementById("sheet-name").textContent =
     game.character.name || t("sheet_name_empty");
@@ -69,8 +96,17 @@ function renderStatus() {
     t("pos_" + game.position) + (leadsParty(game) ? " · " + t("pos_chef") : "");
 
   // Les deux jauges de carrière, en tête de fiche.
-  renderGauge("pop", game.popularity, "label_popularity", popularityTarget(game));
+  /* TROIS LECTURES, PAS UNE.
+     La fiche montrait « Popularité », un nombre qui mélangeait ce que pense
+     votre camp et ce que pense le reste du pays. Elle montre maintenant ce
+     que votre base vous accorde, ce que le parti vous accorde, et ce que les
+     AUTRES électorats vous accordent. C'est l'écart entre la première et la
+     troisième qui raconte une carrière : on gagne un congrès avec la base et
+     un second tour avec les autres. */
+  renderGauge("pop", Math.round(basePopularity(game)), "label_base", popularityTarget(game));
   renderGauge("standing", game.standing, "label_standing", standingTarget(game));
+  renderGauge("general", Math.round(generalPopularity(game)), "label_general");
+  renderElectorates();
 
   document.querySelectorAll(".stat-row").forEach((row) => {
     const stat = row.getAttribute("data-stat");

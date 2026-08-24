@@ -63,7 +63,11 @@ const translations = {
 
     label_popularity: "Popularité",
     label_base: "Votre base",
+    fx_family_self: "Ce que vous devenez",
+    fx_family_opinion: "Ce qu'on pense de vous",
+    fx_family_country: "Le pays",
     label_general: "Popularité générale",
+    general_title: "Ce que pensent de vous les électorats qui ne votent pas pour votre camp. Survolez pour le détail.",
     label_standing: "Cote au parti",
     label_next: "Prochaine échéance",
 
@@ -482,7 +486,11 @@ const translations = {
 
     label_popularity: "Popularity",
     label_base: "Your base",
+    fx_family_self: "What you become",
+    fx_family_opinion: "What people think of you",
+    fx_family_country: "The country",
     label_general: "General popularity",
+    general_title: "What the electorates that do not vote for your camp think of you. Hover for the detail.",
     label_standing: "Party standing",
     label_next: "Next milestone",
 

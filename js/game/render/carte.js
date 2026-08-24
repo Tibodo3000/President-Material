@@ -76,7 +76,9 @@ function fxLabel(fx) {
   // L'opinion d'un électorat. Le regroupement en blocs titrés est la phase
   // suivante ; ici on garantit seulement qu'une pastille se lit.
   if (fx.kind === "appeal") {
-    return (fx.base ? t("label_base") : t("party_" + fx.key)) + " " + signed(fx.delta);
+    const quoi = fx.general ? t("label_general")
+      : fx.base ? t("label_base") : t("party_" + fx.key);
+    return quoi + " " + signed(fx.delta);
   }
   if (fx.kind === "office") return t("pos_" + fx.key);
   if (fx.kind === "lead") return (fx.on ? "" : "✕ ") + t("pos_chef");
@@ -202,9 +204,53 @@ function traitRowsHTML(list) {
 }
 
 /** Une ligne de pastilles. */
+/* --------------------------------------------------------------------------
+   LES CONSÉQUENCES, RANGÉES PAR NATURE.
+   --------------------------------------------------------------------------
+   Elles sortaient en une seule ligne de pastilles, dans l'ordre où le moteur
+   les avait produites : une statistique, un morceau de paysage, un trait, la
+   cote au parti, un siège. L'œil devait trier lui-même, et depuis que
+   l'opinion se lit sur six électorats la ligne pouvait compter dix pastilles
+   sans qu'aucune ne se rattache visiblement à une autre.
+
+   Trois blocs, et ils répondent à trois questions différentes : ce que je
+   suis devenu, ce qu'on pense de moi, ce qui a bougé dans le pays. Les
+   titres n'apparaissent que lorsqu'il y a plus d'un bloc — un événement qui
+   ne touche qu'une statistique n'a pas besoin d'un intertitre.
+   -------------------------------------------------------------------------- */
+
+const FX_FAMILIES = [
+  { key: "self",    label: "fx_family_self",    kinds: ["stat", "money", "trait", "strike", "flag"] },
+  { key: "opinion", label: "fx_family_opinion", kinds: ["appeal", "gauge", "office", "lead", "party"] },
+  { key: "country", label: "fx_family_country", kinds: ["landscape", "approval", "dissolve", "poll", "alliance"] },
+];
+
+function fxFamily(fx) {
+  const famille = FX_FAMILIES.find((f) => f.kinds.includes(fx.kind));
+  return famille ? famille.key : "self";
+}
+
 function effectsHTML(list) {
   if (!list || !list.length) return "";
-  return '<span class="fx-line">' + list.map(fxChip).join("") + "</span>";
+
+  const blocs = FX_FAMILIES
+    .map((famille) => ({ famille, fx: list.filter((f) => fxFamily(f) === famille.key) }))
+    .filter((b) => b.fx.length);
+
+  // La fin de partie ne se range nulle part : elle vient après tout le reste.
+  const fin = list.filter((f) => f.kind === "end");
+
+  if (blocs.length <= 1 && !fin.length) {
+    return '<span class="fx-line">' + list.map(fxChip).join("") + "</span>";
+  }
+
+  return blocs.map((b) =>
+    '<div class="fx-group">' +
+      '<span class="fx-group-label">' + t(b.famille.label) + "</span>" +
+      '<span class="fx-line">' + b.fx.map(fxChip).join("") + "</span>" +
+    "</div>"
+  ).join("") +
+  (fin.length ? '<span class="fx-line">' + fin.map(fxChip).join("") + "</span>" : "");
 }
 
 /** Ce qui a bougé après coup, sous le texte de résultat. */
@@ -219,7 +265,13 @@ function diffSince(before, s) {
     const delta = s.stats[key] - before.stats[key];
     if (delta) changes.push({ kind: "stat", key, delta });
   });
-  if (s.popularity !== before.popularity) {
+  // L'OPINION SE RAPPORTE PAR ÉLECTORAT, PAS EN MOYENNE. Une campagne qui
+  // chauffe la base et refroidit le reste ne déplace presque pas la moyenne :
+  // elle ne rapportait donc rien, alors que c'est le mouvement le plus
+  // important qu'elle produise.
+  if (before.appeal && s.appeal) {
+    appealChanges(before.appeal, s).forEach((c) => changes.push(c));
+  } else if (s.popularity !== before.popularity) {
     changes.push({ kind: "gauge", key: "popularity", delta: s.popularity - before.popularity });
   }
   if (s.standing !== before.standing) {

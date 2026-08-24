@@ -899,7 +899,15 @@ function bumpAppeal(s, key, delta) {
  * choix clivant rapporte donc moins en agrégat qu'un choix consensuel de même
  * ampleur, et c'est exactement l'arbitrage qu'on cherche à créer.
  */
-const AXIS_NEUTRAL = 0.42;
+/*
+ * Où passe la ligne entre ceux que le geste rapproche et ceux qu'il éloigne.
+ * Elle était à 0,42, c'est-à-dire en dessous de toutes les affinités que
+ * produisent les six partis du jeu : une position très à gauche faisait
+ * gagner un point à l'électorat identitaire, ce qui est le contraire de ce
+ * qu'on voulait écrire. Les distances réelles entre camps vont de 0,10 à
+ * 0,55, donc les affinités de 0,45 à 0,90 : la ligne passe au milieu.
+ */
+const AXIS_NEUTRAL = 0.68;
 
 function axisAffinity(position, partyKey) {
   const axes = partyAxes(partyKey);
@@ -918,10 +926,10 @@ function axisAffinity(position, partyKey) {
 function applyPositionedPopularity(s, amount, position) {
   const bouge = {};
   Object.keys(PARTIES).forEach((key) => {
-    const ecart = axisAffinity(position, key) - AXIS_NEUTRAL;
-    // Le facteur deux ramène l'écart, qui vaut au plus un demi, sur une pleine
-    // amplitude : l'électorat le plus proche prend le montant annoncé.
-    const delta = amount * ecart * 2;
+    // Ramené sur une pleine amplitude : l'électorat le plus proche prend le
+    // montant annoncé, le plus lointain le perd, et le milieu ne bouge pas.
+    const ecart = (axisAffinity(position, key) - AXIS_NEUTRAL) / (1 - AXIS_NEUTRAL);
+    const delta = amount * ecart;
     if (Math.abs(delta) < 0.05) return;
     const reel = bumpAppeal(s, key, delta);
     if (Math.abs(reel) >= 0.5) bouge[key] = reel;
@@ -1854,15 +1862,39 @@ function pushAppealChanges(changes, avant, s, popAvant) {
     }
     return;
   }
+  appealChanges(avant, s).forEach((c) => changes.push(c));
+}
+
+/**
+ * CE QU'UN MOUVEMENT D'OPINION A DÉPLACÉ, DIT LE PLUS BRIÈVEMENT POSSIBLE.
+ *
+ * Un effet qui ne clive pas touche les six électorats du même montant : les
+ * détailler produisait six pastilles disant six fois la même chose. Quand
+ * les autres électorats bougent ensemble, on n'écrit donc qu'une ligne,
+ * « popularité générale ». Le détail n'apparaît que lorsqu'il apprend
+ * quelque chose, c'est-à-dire quand le choix a divisé le pays.
+ */
+function appealChanges(avant, s) {
+  const out = [];
 
   const base = Math.round(s.appeal[s.party] - avant[s.party]);
-  if (base) changes.push({ kind: "appeal", key: s.party, delta: base, base: true });
+  if (base) out.push({ kind: "appeal", key: s.party, delta: base, base: true });
 
-  Object.keys(PARTIES).forEach((key) => {
-    if (key === s.party) return;
-    const delta = Math.round(s.appeal[key] - avant[key]);
-    if (delta) changes.push({ kind: "appeal", key, delta });
-  });
+  const autres = Object.keys(PARTIES)
+    .filter((key) => key !== s.party)
+    .map((key) => ({ kind: "appeal", key, delta: Math.round(s.appeal[key] - avant[key]) }))
+    .filter((c) => c.delta);
+
+  if (!autres.length) return out;
+
+  const min = Math.min(...autres.map((c) => c.delta));
+  const max = Math.max(...autres.map((c) => c.delta));
+  const ensemble = autres.length === Object.keys(PARTIES).length - 1 && max - min <= 1;
+
+  if (ensemble) out.push({ kind: "appeal", general: true, delta: Math.round((min + max) / 2) });
+  else autres.forEach((c) => out.push(c));
+
+  return out;
 }
 
 /* ---------- Choix disponibles ---------- */

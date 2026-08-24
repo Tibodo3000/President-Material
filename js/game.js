@@ -2959,7 +2959,9 @@ function leadershipText(res) {
  */
 function snapshot(s) {
   return { popularity: s.popularity, standing: s.standing, money: s.money,
-           partyLead: Boolean(s.partyLead), stats: { ...s.stats } };
+           partyLead: Boolean(s.partyLead),
+           appeal: s.appeal ? { ...s.appeal } : null,
+           stats: { ...s.stats } };
 }
 
 /* ---------- Pourquoi une option est ouverte, et ce qu'elle risque ---------- */
