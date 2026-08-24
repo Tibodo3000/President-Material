@@ -67,6 +67,9 @@ lives. Filenames link to the file — search the function name inside to land on
 | `resolveEnding` | Pick the narrated ending from final state |
 
 ## The engine — [game.js](../js/game.js)
+
+What is left once the set pieces and the drawing have moved out: the state, the
+country, the career, the maths of an election, the turn, and the boot.
 | Symbol | What it does |
 |--------|--------------|
 | `newGame(character)` | Build the whole `state` |
@@ -109,16 +112,28 @@ lives. Filenames link to the file — search the function name inside to land on
 | `leadershipText` | How a congress night is narrated (it is not an election) |
 | `standDown` | Handing back a mandate you will not defend |
 | `addLog`, `logText` | The journal |
-| **Rendering** | |
-| `renderAll` | Repaint everything (sets `data-party`) |
-| `renderStatus`, `renderGauge`, `renderLandscape`, `renderJournal`, `renderBudget` | The left sheet & panels |
+| **Rendering & input** | |
+| `renderAll` | Repaint everything, in order (sets `data-party`) |
 | `renderCard` | The right card — looks `card.kind` up in `MODES`, draws the ordinary event itself |
-| `renderEnd` | The end-of-game recap |
-| `choiceButton`, `choiceButtons`, `unlockReasons` | Choice buttons + why-unlocked notes |
-| `fxChip`, `fxLabel`, `fxDirection`, `effectsHTML`, `changesHTML` | The consequence chips |
-| `traitRowsHTML`, `traitRowHTML`, `traitEffectText` | Traits on the sheet |
-| `pollHTML`, `snapshot`, `diffSince` | Poll bars; before/after diffing for elections |
-| `handleClick`, `handleBudgetClick`, `retire` | Input handlers |
+| `snapshot`, `diffSince` | Photograph the state before an election, compare after — elections move the gauges themselves, they do not go through `applyEffects` |
+| `handleClick`, `retire` | Input handlers (the rest of the drawing lives in `js/game/render/`) |
+
+## The rendering — [js/game/render/](../js/game/render/)
+
+Everything that produces HTML. It reads the state and never changes it.
+
+| Symbol | Where | What it draws |
+|--------|-------|---------------|
+| `renderStatus`, `renderGauge`, `renderCalendar`, `fmtAge`, `seasonLabel` | [fiche.js](../js/game/render/fiche.js) | The left sheet and the calendar strip above the card |
+| `renderAssembly`, `renderExecutive`, `hemicycleHTML`, `hemicycleSeats`, `HEMICYCLE_ORDER` | [panneaux.js](../js/game/render/panneaux.js) | The power panel: who governs, and the 577 seats as a drawn hemicycle |
+| `renderLandscape`, `trendHTML`, `renderJournal` | [panneaux.js](../js/game/render/panneaux.js) | The opinion panel, its ▲/▼ trends, and the journal |
+| `cardHeader`, `electionBanner` | [carte.js](../js/game/render/carte.js) | The date line, and the band that says an election is on |
+| `choiceButton`, `choiceButtons`, `unlockReasons`, `RISKY_CHANCE` | [carte.js](../js/game/render/carte.js) | Choice buttons, and why one is open |
+| `fxChip`, `fxLabel`, `fxDirection`, `effectsHTML`, `changesHTML` | [carte.js](../js/game/render/carte.js) | The consequence chips |
+| `traitRowsHTML`, `traitRowHTML`, `traitEffectText` | [carte.js](../js/game/render/carte.js) | Traits, on the sheet and on a card |
+| `pollHTML`, `sortedField`, `fieldName`, `winnerName`, `continueButton` | [carte.js](../js/game/render/carte.js) | The poll table — the same widget for a contest's balance of power, both rounds, and the presidential election you are not in |
+| `renderBudget`, `investPostHTML`, `investEffectText`, `budgetLine`, `handleBudgetClick` | [budget.js](../js/game/render/budget.js) | The budget block, and the only controls outside a card |
+| `renderEnd` | [fin.js](../js/game/render/fin.js) | The ending and the career recap |
 
 ## The set pieces — [js/game/modes/](../js/game/modes/)
 

@@ -7,28 +7,41 @@ shape of the state that flows through it all.
 
 ## The layering
 
-The codebase is built in five layers, from inert data up to the DOM. Each layer only
+The codebase is built in six layers, from inert data up to the DOM. Each layer only
 depends on the ones below it.
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│  MODES            js/game/modes/*.js  (one per set piece)     │  ← own their card
-├───────────────────────────────────────────────────────────────┤
-│  CONTROLLERS      create.js · party.js · tirage.js · game.js  │  ← touch the DOM
-├───────────────────────────────────────────────────────────────┤
-│  RULES / CALC     data.js · game-data.js                      │  ← pure functions
-├───────────────────────────────────────────────────────────────┤
-│  CONTENT (DATA)   *.data.js                                   │  ← strict JSON shape
-├───────────────────────────────────────────────────────────────┤
-│  I18N             script.js  (translations, t(), L())         │  ← loaded first
-└───────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│  MODES            js/game/modes/*.js  (one per set piece)      │  ← own their card
+├────────────────────────────────────────────────────────────────┤
+│  RENDER           js/game/render/*.js  (sheet, panels, card…)  │  ← draw the HTML
+├────────────────────────────────────────────────────────────────┤
+│  CONTROLLERS      create.js · party.js · tirage.js · game.js   │  ← touch the DOM
+├────────────────────────────────────────────────────────────────┤
+│  RULES / CALC     data.js · game-data.js                       │  ← pure functions
+├────────────────────────────────────────────────────────────────┤
+│  CONTENT (DATA)   *.data.js                                    │  ← strict JSON shape
+├────────────────────────────────────────────────────────────────┤
+│  I18N             script.js  (translations, t(), L())          │  ← loaded first
+└────────────────────────────────────────────────────────────────┘
 ```
 
-**The modes layer is the odd one out**: it sits *above* the controller and depends on
-it, not the reverse. A mode owns one card kind end to end — its state, its draw, its
-resolution, its rendering and its buttons — and registers itself in `MODES`
-([js/game/registry.js](../js/game/registry.js)). `game.js` never names a mode: it
-looks the card up in the registry and hands over.
+**The top two layers are the odd ones out**: they sit *above* the controller and
+depend on it, not the reverse.
+
+- **RENDER** holds every function that produces HTML — the left sheet, the three
+  panels, the furniture a card is made of, the budget, the end screen. It reads the
+  game state; it never changes it. `game.js` keeps only `renderCard()` (which picks
+  who draws) and `renderAll()` (which repaints in order).
+- **MODES** owns one card kind end to end — state, draw, resolution, rendering and
+  buttons — and registers itself in `MODES`
+  ([js/game/registry.js](../js/game/registry.js)). `game.js` never names a mode: it
+  looks the card up in the registry and hands over.
+
+What is left in `game.js` is the engine proper: the `state`, the country (landscape,
+approval, the Assembly, the figures' background life), the career (calendar, stakes,
+offices), the maths of an election, the turn pipeline, the ordinary event card, the
+two dispatchers, and the boot.
 
 **Why `.data.js` and not `.json`?** A real `.json` file fetched by the page would
 require a web server (CORS blocks `file://` fetches). By making the data a `.js` file
@@ -59,6 +72,7 @@ endings.data.js    → ENDING_DATA
 events/*.data.js   → EV_*, then _assemble.data.js → EVENT_DATA
 game-data.js       → the loop's rules + event interpreter
 game/registry.js   → MODES = {} — must precede every mode file
+game/render/*.js   → the HTML producers (order-free)
 game/modes/*.js    → each one writes its entry into MODES on load
 game.js            → the engine (IIFE that boots on load)
 ```
@@ -81,6 +95,34 @@ with a different final controller.
 
 > If you add a data file, wire it into the `<script>` list of every page that needs it,
 > **before** the code that reads it.
+
+---
+
+## The rendering (`js/game/render/`)
+
+Every function that produces HTML lives here. They read the game state and return (or
+set) markup; none of them changes the state. Load order among them does not matter.
+
+| File | Draws |
+|---|---|
+| [fiche.js](../js/game/render/fiche.js) | the left sheet: identity, the two career gauges, the stat bars, and the election calendar above the card |
+| [panneaux.js](../js/game/render/panneaux.js) | the three panels under the card: *the power* (executive, hemicycle, majority), *the opinion* (vote shares, trends, figures), and the journal |
+| [carte.js](../js/game/render/carte.js) | what a card is *made of*: the election band, the date line, the choice buttons, the consequence chips, the poll table, the continue button |
+| [budget.js](../js/game/render/budget.js) | the budget block and its plus/minus controls — the only place the player acts outside a card |
+| [fin.js](../js/game/render/fin.js) | the end screen: the narrated ending plus the career recap |
+
+Two rendering functions deliberately stay in [game.js](../js/game.js), because neither
+draws anything:
+
+- **`renderCard()`** picks *who* draws — it looks the card kind up in `MODES` and hands
+  over, drawing only the ordinary event card itself.
+- **`renderAll()`** repaints everything in order, and is the single entry point the
+  click handlers call after they change the state.
+
+**`carte.js` is the shared furniture, and that is the point.** The engine and all seven
+set pieces build their cards out of the same pieces — same band, same buttons, same
+chips, same poll bars. It is what makes a presidential-campaign card and an ordinary
+event feel like one game rather than two.
 
 ---
 

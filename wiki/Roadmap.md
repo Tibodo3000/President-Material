@@ -310,14 +310,31 @@ au pouvoir, un boom récompense celui qui gouverne. Cette couche donne une **mé
 
 ## 9. Éclater `game.js` : le moteur d'un côté, les temps forts de l'autre
 
-> ✅ **Étape 1 livrée.** Les sept temps forts sont sortis dans `js/game/modes/`,
+> ✅ **Livrée, les deux étapes.** Les sept temps forts sont sortis dans `js/game/modes/`,
 > derrière un **registre** (`js/game/registry.js`) que le moteur interroge au lieu
 > d'énumérer les modes. **`game.js` : 5 825 → 4 014 lignes** (−31 %) ; `renderCard()`
 > passe de 284 à 73 lignes et `handleClick()` de **385 à 51**. Refactor purement
 > mécanique, vérifié par **égalité de trace sur 200 carrières entières** (53 446
 > étapes, octet pour octet), inventaire des fonctions identique (0 perdue, 0
 > dupliquée), et une carrière complète jouée dans le navigateur, rechargement de
-> sauvegarde compris. **L'étape 2 (sortir le rendu) reste ouverte.**
+>
+> **Étape 2 livrée aussi.** Le rendu est sorti dans `js/game/render/` : `fiche.js`
+> (la fiche de gauche), `panneaux.js` (les trois panneaux), `carte.js` (de quoi une
+> carte est faite : bandeau, boutons, puces, sondage), `budget.js`, `fin.js`.
+> **`game.js` : 4 060 → 3 101 lignes**, soit **5 825 → 3 101 depuis le début**
+> (−47 %). Il ne garde du rendu que `renderCard()`, qui ne dessine pas mais choisit
+> qui dessine, et `renderAll()`, qui repeint dans l'ordre. Même vérification : 200
+> carrières, trace identique octet pour octet, inventaire de 141 fonctions
+> inchangé, dix carrières jouées dans le navigateur couvrant les dix types de
+> carte, sans une erreur en console. La référence a été reprise sur `main` : le
+> refactor a été rebasé sur trois commits de gameplay arrivés entre-temps, et
+> c'est leur comportement qu'il reproduit à l'octet.
+>
+> Le découpage réel s'écarte un peu du plan : `pouvoir.js` et `effets.js` sont
+> devenus `panneaux.js` (les trois panneaux vont ensemble, journal compris) et
+> `carte.js` (les puces de conséquence ne se séparent ni des boutons de choix ni
+> du bandeau : c'est le même meuble, et c'est ce qui fait qu'une carte de campagne
+> et un événement ordinaire se ressemblent).
 >
 > Trois écarts assumés par rapport au plan ci-dessous :
 > - **Le premier et le second tour tiennent dans un seul fichier**
@@ -418,10 +435,9 @@ coalition, défections, vie des figures), la carrière (calendrier, `playerStake
 `setOffice`, scores d'élection), le tour de jeu (`advanceTurn` — **l'aiguillage
 central, qui reste au moteur**), le tirage d'événement ordinaire, et tout le rendu.
 
-**Étape 2, si besoin.** Si 3 750 lignes restent trop, le rendu part à son tour
-(`render/fiche.js`, `render/pouvoir.js`, `render/effets.js`, `render/budget.js`,
-`render/fin.js` — ~900 lignes), et `game.js` devient le seul moteur. À ne faire
-qu'après l'étape 1, qui porte tout le bénéfice.
+**Étape 2.** Le rendu part à son tour dans `js/game/render/` (957 lignes), et
+`game.js` devient le seul moteur. À ne faire qu'après l'étape 1, qui porte tout le
+bénéfice — et c'est bien dans cet ordre que ça s'est fait.
 
 **Notes de mise en œuvre.**
 - **Même contrainte que l'idée n°5, même solution** : `file://` interdit les
@@ -474,7 +490,7 @@ qu'après l'étape 1, qui porte tout le bénéfice.
 | 6 | Éditeur d'événements ✅ | Outillage | Moyen | Non |
 | 7 | Calendrier électoral dynamique | Gameplay + modèle de données | Moyen | Oui (échéancier mutable) |
 | 8 | Conjoncture nationale (events majeurs) | Gameplay | Élevé | Oui (couche de modificateurs) |
-| 9 | Éclater `game.js` (moteur / temps forts) · étape 1 ✅ | Organisation du code | Moyen | Non (refactor pur) |
+| 9 | Éclater `game.js` (moteur / temps forts / rendu) ✅ | Organisation du code | Moyen | Non (refactor pur) |
 
 Les trois pistes qui débloquent les autres : **n°5** (des fichiers d'événements
 maniables), **n°9** (un moteur qui accepte un temps fort de plus sans qu'on

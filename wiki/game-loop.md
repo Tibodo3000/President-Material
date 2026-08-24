@@ -81,6 +81,9 @@ Every interactive card follows the same two-phase shape:
 
 `renderCard()` ([game.js](../js/game.js)) looks `card.kind` up in the **mode registry**
 and hands over; only the ordinary event card is drawn by the engine itself.
+The HTML itself is produced in [js/game/render/](../js/game/render/) — the card's band,
+buttons, chips and poll bars are the same pieces for every mode, which is what makes a
+campaign card and an ordinary event feel like one game.
 `handleClick()` is the single delegated click handler on `#event-area`: it reads the
 `data-*` attribute of the clicked button, asks the **displayed card's mode** first, and
 falls through to the engine's generic branches (`data-choice`, `data-continue`,

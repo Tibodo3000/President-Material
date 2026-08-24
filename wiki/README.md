@@ -19,9 +19,10 @@ what the rules are, and how to add content without touching engine code.
   design decision (e.g. why data files are `.js` and not `.json`).
 - **Data is separated from logic.** Content lives in `*.data.js` files as strict
   JSON-shaped objects. The rules that *read* that content live in a few calculation
-  files. The DOM-driving engine is isolated in `game.js`, and each **set piece** of the
-  game — a presidential campaign, an ordinary race, a primary, a refused nomination —
-  owns a file in `js/game/modes/` that registers itself with the engine.
+  files. The engine is isolated in `game.js`; everything that produces HTML lives in
+  `js/game/render/`; and each **set piece** of the game — a presidential campaign, an
+  ordinary race, a primary, a refused nomination — owns a file in `js/game/modes/`
+  that registers itself with the engine.
 - **Adding content requires no code.** New events, traits, parties, endings, names,
   and budget tiers are all data entries. The engine interprets them — and a form-based
   **event editor** (`tools/event-editor.html`, double-click) makes writing events
@@ -72,7 +73,8 @@ State is handed between pages through `localStorage`, not a router or framework.
 ### Engine & controllers
 | File | Contains |
 |------|----------|
-| [js/game.js](../js/game.js) | The game loop engine: state, turn cycle, rivals, landscape, the Assembly, election maths, the ordinary event card, and all the rendering that is not a set piece |
+| [js/game.js](../js/game.js) | The engine: state, turn cycle, rivals, landscape, the Assembly, election maths, the ordinary event card, the two dispatchers and the boot |
+| [js/game/render/](../js/game/render/) | Everything that produces HTML, and nothing that changes the state: the left sheet, the three panels, what a card is made of, the budget, the end screen |
 | [js/game/registry.js](../js/game/registry.js) | `MODES` — the set-piece registry the engine consults instead of naming each mode |
 | [js/game/modes/](../js/game/modes/) | One file per set piece, each owning its state, draw, resolution, card and buttons: `presidentielle`, `investiture`, `race`, `soutien`, `primaire`, `scrutin`, `aside` |
 | [js/script.js](../js/script.js) | The i18n dictionary (`translations`) + language switch + `t()` / `L()` |
