@@ -648,29 +648,31 @@ const EV_assemblee = [
 {
   "id": "depute_niche_parlementaire",
   "weight": 3,
-  "when": { "position": ["depute"], "minTurn": 6 },
-  "tag": { "fr": "La niche parlementaire", "en": "The private member's day" },
+  "when": { "position": ["depute"], "ruling": false, "minTurn": 6 },
+  "tag": { "fr": "Votre journée", "en": "Your one day" },
   "text": {
-    "fr": "Votre groupe a une journée par an où il décide de l'ordre du jour, et l'on vous propose d'y inscrire un texte. Une seule journée : ce qui n'est pas voté avant minuit tombe, et l'obstruction d'en face le sait aussi bien que vous.",
-    "en": "Your group gets one day a year when it sets the agenda, and you are offered a slot. One day only: whatever is not voted by midnight falls, and the obstruction opposite knows that as well as you do."
+    "fr": "C'est le gouvernement qui décide de ce que l'Assemblée examine, tous les jours de l'année sauf un : une fois par an, votre groupe choisit lui-même les textes de la journée. Vous avez cette journée-là pour en faire voter un, et ce qui n'est pas voté à minuit est mort. En face, on sait compter les heures aussi bien que vous.",
+    "en": "The government decides what the Assembly looks at every day of the year except one: once a year, your group picks the day's business itself. You have that day to get one bill through, and whatever has not been voted by midnight is dead. The people opposite can count the hours as well as you can."
   },
   "choices": [
-    { "label": { "fr": "Un texte symbolique, sûr d'être voté", "en": "A symbolic bill, certain to pass" },
+    { "label": { "fr": "Un texte que personne ne peut refuser", "en": "A bill nobody can vote against" },
       "effects": { "popularity": 5, "notoriete": 1, "credibilite": -1, "standing": 2 },
-      "result": { "fr": "La loi est votée à l'unanimité et ne change rien à rien, ce qui est la raison pour laquelle elle a été votée à l'unanimité. Vous aurez une photo et une date.",
-                  "en": "The bill passes unanimously and changes nothing whatever, which is why it passed unanimously. You get a photograph and a date." } },
-    { "label": { "fr": "Un texte qui gêne vraiment le gouvernement", "en": "A bill that genuinely embarrasses the government" },
+      "result": { "fr": "Voté à l'unanimité avant le déjeuner. Il ne change rien à rien, ce qui est exactement pourquoi personne n'a voté contre, et vous en gardez une photo et une date.",
+                  "en": "Passed unanimously before lunch. It changes nothing whatever, which is exactly why nobody voted against, and you keep a photograph and a date out of it." } },
+
+    { "label": { "fr": "Un texte que la majorité devra refuser en public", "en": "A bill the majority will have to reject in public" },
       "roll": { "base": 15, "stat": "eloquence", "plus": { "reseau": 0.4, "credibilite": 0.3 }, "dice": 16 },
       "success": { "effects": { "popularity": 9, "credibilite": 2, "notoriete": 2, "approval": -6, "standing": 4 },
-        "result": { "fr": "Onze députés de la majorité votent avec vous et le gouvernement passe la soirée à expliquer pourquoi il est contre. La loi ne survivra pas au Sénat ; la soirée, si.",
-                    "en": "Eleven government members vote with you and the government spends the evening explaining why it is against. The bill will not survive the Senate; the evening will." } },
+        "result": { "fr": "Onze députés de la majorité votent avec vous et le gouvernement passe la soirée à expliquer pourquoi il est contre. Le Sénat enterrera la loi dans six mois ; la soirée, elle, ne s'enterre pas.",
+                    "en": "Eleven government members vote with you and the government spends the evening explaining why it is against. The Senate will bury the bill in six months; the evening cannot be buried." } },
       "failure": { "effects": { "popularity": -4, "standing": -4, "energie": -2, "approval": 3 },
-        "result": { "fr": "Six cents amendements d'obstruction et minuit arrive avant le vote. Vous avez consommé votre journée annuelle pour un débat que personne n'a suivi.",
-                    "en": "Six hundred wrecking amendments and midnight arrives before the vote. You have spent your one day of the year on a debate nobody followed." } } },
-    { "label": { "fr": "Céder votre place à un collègue en difficulté", "en": "Give your slot to a colleague in trouble" },
+        "result": { "fr": "Ils déposent six cents amendements sur les trois premiers articles et parlent jusqu'à minuit. Le vote n'a jamais lieu, votre journée est passée, et la prochaine est dans un an.",
+                    "en": "They table six hundred amendments on the first three articles and talk until midnight. The vote never happens, your day is gone, and the next one is in a year." } } },
+
+    { "label": { "fr": "Donner votre journée à un collègue menacé chez lui", "en": "Give your day to a colleague in trouble at home" },
       "effects": { "reseau": 3, "standing": 5, "reputation": 1, "popularity": -2 },
-      "result": { "fr": "Vous donnez votre journée à quelqu'un qui sera battu si rien ne se passe chez lui. Il le sait, tout le groupe le sait, et cela vaut plus qu'une loi.",
-                  "en": "You give your day to somebody who will be beaten unless something happens in their patch. They know it, the whole group knows it, and it is worth more than a law." } }
+      "result": { "fr": "Il fera voter son texte, il aura sa photo, et il sera peut-être réélu grâce à elle. Il le sait, le groupe entier le sait, et cela vaut plus longtemps qu'une loi.",
+                  "en": "He will get his bill through, he will get his photograph, and it may be what gets him re-elected. He knows it, the whole group knows it, and it lasts longer than a law." } }
   ]
 },
 
@@ -859,6 +861,176 @@ const EV_assemblee = [
       "effects": { "energie": 3, "sangfroid": 1, "notoriete": -1, "standing": -2 },
       "result": { "fr": "Vous éteignez à vingt et une heures. Vous serez le seul du pays politique à être reposé lundi matin, et cela vaut plus que les onze minutes d'antenne.",
                   "en": "You switch off at nine. You will be the only person in politics who is rested on Monday morning, and that is worth more than eleven minutes of airtime." } }
+  ]
+}
+,
+
+/* ==========================================================================
+   5. LE BANC, SELON CE QUE VAUT LA MAJORITÉ
+   --------------------------------------------------------------------------
+   Le chef de parti avait sa matrice complète ; le simple député n'avait rien.
+   Or ce n'est pas le même métier selon le nombre : dans une majorité absolue
+   on est un chiffre, dans une majorité relative on est une voix qu'on vient
+   acheter, et dans une opposition écrasée on est quelqu'un qui perd tous les
+   votes pendant cinq ans. Ces cinq scènes remplissent les cases vides.
+   ========================================================================== */
+
+{
+  "id": "depute_majorite_absolue",
+  "weight": 4,
+  "when": { "position": ["depute"], "ruling": true, "majority": "absolue", "minTurn": 6 },
+  "tag": { "fr": "Un chiffre", "en": "A number" },
+  "text": {
+    "fr": "Votre amendement est retiré de la discussion avant même d'être défendu. On ne vous dit pas qu'il est mauvais : on vous dit que le texte a été négocié pendant huit mois et qu'on ne le rouvre pas. Avec la majorité qu'a le gouvernement, votre voix n'a jamais manqué à personne.",
+    "en": "Your amendment is pulled from the debate before you even get to defend it. Nobody tells you it is bad: they tell you the text took eight months to negotiate and is not being reopened. With the majority the government has, nobody has ever needed your vote."
+  },
+  "choices": [
+    { "label": { "fr": "Le retirer et voter le texte", "en": "Withdraw it and vote for the text" },
+      "effects": { "standing": 6, "reseau": 1, "popularity": -3, "credibilite": -1 },
+      "result": { "fr": "Vous levez la main avec les autres et le texte passe de cent soixante voix. Personne ne saura jamais qu'il y avait un amendement, ce qui est très exactement le service rendu.",
+                  "en": "You raise your hand with the rest and the bill passes by a hundred and sixty votes. Nobody will ever know there was an amendment, which is precisely the service rendered." } },
+
+    { "label": { "fr": "Le maintenir et le défendre quand même", "en": "Keep it and defend it anyway" },
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "credibilite": 0.4 }, "dice": 16 },
+      "success": { "effects": { "popularity": 7, "credibilite": 2, "notoriete": 1, "standing": -6 },
+        "result": { "fr": "Vous le défendez sept minutes devant un hémicycle qui n'écoutait pas et qui écoute à la troisième. Il est rejeté, et deux journalistes vous demandent votre nom en sortant.",
+                    "en": "You defend it for seven minutes to a chamber that was not listening and starts listening by the third. It is rejected, and two reporters ask your name on the way out." } },
+      "failure": { "effects": { "standing": -9, "popularity": -2, "energie": -1 },
+        "result": { "fr": "Vous parlez quatre minutes, on vous répond en une, et le vote a lieu dans l'indifférence. Il reste de la soirée que vous avez fait perdre vingt minutes à trois cents personnes.",
+                    "en": "You speak for four minutes, they answer in one, and the vote happens in complete indifference. What remains of the evening is that you cost three hundred people twenty minutes." } } },
+
+    { "label": { "fr": "Aller voir le ministre directement, hors séance", "en": "Go and see the minister directly, off the floor" },
+      "roll": { "base": 14, "stat": "reseau", "plus": { "sangfroid": 0.35 }, "dice": 16 },
+      "success": { "effects": { "reseau": 2, "standing": 4, "credibilite": 1, "energie": -1 },
+        "result": { "fr": "Il vous reçoit onze minutes et reprend l'idée six mois plus tard dans un décret, sans votre nom dessus. C'est ainsi qu'on obtient quelque chose quand on ne pèse rien : sans que cela se voie.",
+                    "en": "He gives you eleven minutes and takes up the idea six months later in a decree, without your name on it. That is how you get something when you weigh nothing: invisibly." } },
+      "failure": { "effects": { "standing": -3, "energie": -1, "popularity": -1 },
+        "result": { "fr": "On vous fait attendre quarante minutes dans un couloir, puis son directeur de cabinet vous explique la position du ministère. Vous connaissiez la position du ministère.",
+                    "en": "You are kept waiting forty minutes in a corridor, then his chief of staff explains the department's position to you. You knew the department's position." } } }
+  ]
+},
+
+{
+  "id": "depute_opposition_ecrasee",
+  "weight": 4,
+  "when": { "position": ["depute"], "ruling": false, "majority": "absolue", "minTurn": 8 },
+  "tag": { "fr": "Perdre tous les votes", "en": "Losing every vote" },
+  "text": {
+    "fr": "Le gouvernement a la majorité absolue et vous ne la lui prendrez pas avant le prochain scrutin, c'est-à-dire dans des années. Tout ce que vous déposerez sera rejeté, tout ce qu'il déposera sera adopté, et vous savez déjà par combien de voix.",
+    "en": "The government has an absolute majority and you will not take it away before the next election, which is years off. Everything you table will be rejected, everything it tables will pass, and you already know by how many votes."
+  },
+  "choices": [
+    { "label": { "fr": "Devenir celui qui connaît les textes mieux qu'eux", "en": "Become the one who knows the bills better than they do" },
+      "effects": { "credibilite": 3, "reputation": 2, "eloquence": 1, "energie": -3, "popularity": -2, "standing": 2 },
+      "result": { "fr": "Vous passez deux ans en commission à corriger des erreurs de rédaction que le gouvernement finit par reprendre parce qu'elles sont vraies. On ne gagne pas un vote comme ça, on gagne une réputation, et elle dure plus longtemps qu'une majorité.",
+                  "en": "You spend two years in committee correcting drafting errors the government ends up accepting because they are real. That does not win you a vote; it wins you a reputation, and reputations outlast majorities." } },
+
+    { "label": { "fr": "Faire du bruit, puisque le vote est perdu d'avance", "en": "Make noise, since the vote is lost anyway" },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "notoriete": 0.35 }, "dice": 16 },
+      "success": { "effects": { "notoriete": 3, "popularity": 8, "credibilite": -2, "standing": -3, "approval": -4 },
+        "result": { "fr": "Une pancarte, un rappel au règlement de trop, une suspension de séance. Vous perdez le vote comme prévu et vous êtes le seul dont le pays ait retenu le nom ce soir-là.",
+                    "en": "A placard, one point of order too many, a suspension of the sitting. You lose the vote as expected and you are the only one whose name the country remembers that evening." } },
+      "failure": { "effects": { "popularity": -6, "credibilite": -2, "reputation": -1, "standing": -4 },
+        "result": { "fr": "Le président de séance vous coupe le micro et la séquence tourne, mais pas dans le bon sens. On ne retient pas ce que vous défendiez, on retient que vous criiez.",
+                    "en": "The chair cuts your microphone and the clip travels, but not the right way. Nobody remembers what you were defending, only that you were shouting." } } },
+
+    { "label": { "fr": "Rentrer chez vous et y passer cinq ans", "en": "Go home and spend five years there" },
+      "effects": { "popularity": 6, "reseau": 2, "energie": 2, "standing": -6, "notoriete": -1 },
+      "result": { "fr": "Vous ratez trois votes sur quatre et vous êtes dans chaque salle des fêtes du département. Les votes étaient perdus de toute façon ; la circonscription, elle, se gagne une permanence à la fois.",
+                  "en": "You miss three votes out of four and you are in every village hall in the department. The votes were lost anyway; a constituency is won one surgery at a time." } }
+  ]
+},
+
+{
+  "id": "depute_texte_impose",
+  "weight": 4,
+  "when": { "position": ["depute"], "ruling": true, "majority": ["relative", "aucune"], "minTurn": 8 },
+  "tag": { "fr": "Sans vote", "en": "Without a vote" },
+  "text": {
+    "fr": "Vous aviez négocié un article pendant trois semaines et vous vous apprêtiez à voter le texte. À dix-sept heures, le gouvernement annonce qu'il l'adopte sans vote, par la procédure qui l'y autorise. Votre article est dedans, votre vote n'existe plus, et vous l'apprenez à la radio comme tout le monde.",
+    "en": "You had spent three weeks negotiating one article and you were about to vote for the bill. At five in the afternoon the government announces it is adopting it without a vote, using the procedure that allows this. Your article is in it, your vote no longer exists, and you learn this on the radio like everybody else."
+  },
+  "choices": [
+    { "label": { "fr": "Défendre la procédure sur les plateaux", "en": "Defend the procedure on television" },
+      "effects": { "standing": 8, "approval": 4, "popularity": -7, "credibilite": -1, "reputation": -1 },
+      "result": { "fr": "Vous expliquez que c'est constitutionnel, ce qui est vrai, et que c'est normal, ce qui ne l'est pas. Le gouvernement vous en saura gré exactement le temps qu'il durera.",
+                  "en": "You explain that it is constitutional, which is true, and that it is normal, which is not. The government will be grateful for exactly as long as it lasts." } },
+
+    { "label": { "fr": "Dire que votre article méritait un vote", "en": "Say your article deserved a vote" },
+      "effects": { "credibilite": 2, "reputation": 2, "popularity": 5, "standing": -6, "approval": -3 },
+      "result": { "fr": "Vous ne critiquez pas le texte, vous critiquez la façon. C'est la seule position tenable et c'est celle qu'on retient contre vous, parce qu'elle est la plus difficile à caricaturer.",
+                  "en": "You do not attack the bill, you attack the method. It is the only tenable position and the one held against you, because it is the hardest to caricature." } },
+
+    { "label": { "fr": "Signer la motion de censure contre votre propre camp", "en": "Sign the censure motion against your own side" },
+      "roll": { "base": 18, "stat": "sangfroid", "plus": { "popularity": 0.06 }, "dice": 16 },
+      "success": { "effects": { "popularity": 11, "notoriete": 3, "credibilite": 2, "standing": -14, "approval": -8, "reputation": 1 },
+        "result": { "fr": "Sept députés de la majorité signent, et vous êtes le premier des sept. La motion tombe à douze voix, le gouvernement survit, et plus personne ne vous demandera jamais de faire de la figuration.",
+                    "en": "Seven government members sign, and you are the first of the seven. The motion falls twelve votes short, the government survives, and nobody will ever again ask you to make up the numbers." } },
+      "failure": { "effects": { "standing": -18, "popularity": -4, "trait": "traitre", "approval": 3 },
+        "result": { "fr": "Vous signez seul. On ne parle pas de courage, on parle de trahison, et le mot est prononcé par des gens qui pensaient exactement comme vous la veille.",
+                    "en": "You sign alone. Nobody calls it courage, they call it betrayal, and the word is used by people who thought exactly as you did the day before." } } }
+  ]
+},
+
+{
+  "id": "depute_budget_circo",
+  "weight": 4,
+  "when": { "position": ["depute"], "ruling": true, "majority": ["relative", "aucune"], "minTurn": 10 },
+  "tag": { "fr": "Le prix d'une voix", "en": "The price of a vote" },
+  "text": {
+    "fr": "Le budget se joue à quelques voix et le gouvernement compte les siennes tous les matins. Un conseiller vous appelle : il y a une ligne pour la rocade de votre chef-lieu, elle n'est pas encore signée, et personne ne prononce le mot échange.",
+    "en": "The budget will be decided by a handful of votes and the government counts its own every morning. An adviser calls: there is a line in it for the bypass in your county town, it is not signed yet, and nobody says the word trade."
+  },
+  "choices": [
+    { "label": { "fr": "Prendre la rocade et voter le budget", "en": "Take the bypass and vote for the budget" },
+      "effects": { "popularity": 8, "reseau": 2, "standing": 4, "credibilite": -2, "reputation": -1 },
+      "result": { "fr": "Quatre kilomètres de deux fois deux voies et une inauguration dans trois ans avec votre nom sur le carton. C'est ce que les électeurs appellent un bon député, et ils ont un argument.",
+                  "en": "Four kilometres of dual carriageway and a ribbon-cutting in three years with your name on the invitation. That is what voters call a good MP, and they have a point." } },
+
+    { "label": { "fr": "Voter le budget sans rien demander", "en": "Vote for the budget and ask for nothing" },
+      "effects": { "reputation": 3, "credibilite": 2, "standing": 2, "popularity": -3 },
+      "result": { "fr": "Vous votez parce que vous approuvez, et vous le dites. Le conseiller retire la ligne trois jours plus tard, ce qui vous apprend ce que valait votre approbation à ses yeux.",
+                  "en": "You vote because you agree, and you say so. The adviser drops the line three days later, which teaches you what your agreement was worth to him." } },
+
+    { "label": { "fr": "Prendre la rocade et voter contre", "en": "Take the bypass and vote against" },
+      "roll": { "base": 18, "stat": "sangfroid", "plus": { "reseau": 0.35 }, "dice": 16 },
+      "success": { "effects": { "popularity": 6, "standing": -6, "reseau": 1, "reputation": -2 },
+        "result": { "fr": "La ligne est signée le lundi, le vote a lieu le jeudi, et l'on ne défait pas un budget voté pour punir un député. Cela ne se fait qu'une fois, et vous venez de l'utiliser.",
+                    "en": "The line is signed on Monday, the vote is on Thursday, and nobody unpicks a passed budget to punish one member. It works once, and you have just used it." } },
+      "failure": { "effects": { "standing": -13, "popularity": -5, "reputation": -3, "strike": "traitre" },
+        "result": { "fr": "Ils avaient prévu de ne signer qu'après le vote. Vous n'avez ni la rocade ni la confiance, et le conseiller raconte l'histoire à qui veut l'entendre.",
+                    "en": "They had planned to sign only after the vote. You have neither the bypass nor their trust, and the adviser tells the story to anyone who will listen." } } }
+  ]
+},
+
+{
+  "id": "depute_premier_groupe_banc",
+  "weight": 4,
+  "when": { "position": ["depute"], "ruling": false, "firstGroup": true, "minTurn": 8 },
+  "tag": { "fr": "Le plus gros groupe", "en": "The largest group" },
+  "text": {
+    "fr": "Votre groupe est le plus nombreux de l'Assemblée et ne gouverne pas. Depuis un mois, des gens qui ne vous avaient jamais appelé vous appellent : deux fédérations professionnelles, un cabinet de conseil et un ministre qui aimerait « échanger, à titre personnel ».",
+    "en": "Your group is the largest in the Assembly and does not govern. For a month, people who had never called you have been calling: two trade federations, a consultancy, and a minister who would like to \"talk, in a personal capacity\"."
+  },
+  "choices": [
+    { "label": { "fr": "Recevoir tout le monde et n'engager rien", "en": "See everybody and commit to nothing" },
+      "effects": { "reseau": 3, "credibilite": 2, "standing": 4, "energie": -2 },
+      "result": { "fr": "Vingt-deux rendez-vous en six semaines et pas une promesse. Vous apprenez en un mois ce que le gouvernement s'apprête à faire, et personne ne peut dire que vous avez pris parti.",
+                  "en": "Twenty-two meetings in six weeks and not one promise. You learn in a month what the government is about to do, and nobody can say you took a side." } },
+
+    { "label": { "fr": "Voir le ministre, et seulement lui", "en": "See the minister, and only him" },
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "reseau": 0.4, "credibilite": 0.3 }, "dice": 16 },
+      "success": { "effects": { "reseau": 2, "standing": 7, "credibilite": 2, "popularity": -3 },
+        "result": { "fr": "Un dîner, deux heures, aucun témoin. Vous ne lui promettez rien et vous repartez avec ce qu'il compte céder avant même que son propre camp le sache.",
+                    "en": "One dinner, two hours, no witnesses. You promise him nothing and you leave with what he intends to concede before his own side even knows it." } },
+      "failure": { "effects": { "standing": -7, "popularity": -4, "reputation": -2 },
+        "result": { "fr": "Le dîner fuite en quarante-huit heures avec la photo du restaurant. Dans votre groupe, on ne parle pas de dialogue, on parle d'un député qui dîne avec le gouvernement.",
+                    "en": "The dinner leaks within forty-eight hours, with a photograph of the restaurant. In your group nobody calls it dialogue; they call it an MP having dinner with the government." } } },
+
+    { "label": { "fr": "Tout refuser et le faire savoir au groupe", "en": "Refuse everything and tell the group so" },
+      "effects": { "standing": 8, "reputation": 2, "reseau": -1, "credibilite": -1, "popularity": 1 },
+      "result": { "fr": "Vous transmettez chaque demande au président du groupe sans y répondre vous-même. C'est irréprochable, cela vous prive de tout ce qu'on apprend dans ces rendez-vous, et votre groupe vous fait confiance pour longtemps.",
+                  "en": "You pass every request to the group chair without answering any of them yourself. It is beyond reproach, it deprives you of everything those meetings teach, and your group will trust you for a long time." } }
   ]
 }
 ];

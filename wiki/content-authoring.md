@@ -24,7 +24,7 @@ deck) and reassembled into `EVENT_DATA` by `_assemble.data.js`. You can author t
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
-| `events` | Ordinary turns (237 events) | the full schema below |
+| `events` | Ordinary turns (250 events) | the full schema below |
 | `campaign` | The 6 steps before the first round, when the player runs (20) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
 | `runoff` | The 3 steps between the two rounds (8) | `poll` moves the head-to-head; `cast: "eliminated"` |
 | `support` | The 3 steps of a presidential campaign the player is not in (8) | effects use `score`, which moves your camp's line in a poll the player watches for three scenes |
