@@ -33,6 +33,28 @@
  * joueur pendant toute la partie : rien n'est caché, la campagne commence là
  * où le pays en est.
  */
+/**
+ * L'ADHÉSION N'EST PAS UN BULLETIN. On ne convertit jamais en voix tout ce
+ * qu'un électorat pense de bien de vous : il a son propre candidat, ses
+ * habitudes et son abstention. Le coefficient ramène la somme des adhésions
+ * sur l'échelle d'un premier tour, où l'on gagne à vingt-cinq pour cent.
+ */
+const PRESIDENTIAL_CONVERSION = 0.45;
+
+/**
+ * Ce que le joueur convertit, électorat par électorat, pondéré par le poids de
+ * chacun dans le pays. C'est une part de voix, lisible telle quelle.
+ */
+function playerFirstRound() {
+  if (!game.appeal) return game.landscape[game.party] * playerPull();
+
+  let voix = 0;
+  Object.keys(PARTIES).forEach((key) => {
+    voix += (game.appeal[key] / 100) * (game.landscape[key] || 0);
+  });
+  return voix * PRESIDENTIAL_CONVERSION;
+}
+
 function presidentialField() {
   const ally = allyParty();
 
@@ -41,10 +63,17 @@ function presidentialField() {
       name: game.character.name || null,
       nameKey: game.character.name ? null : "sheet_name_empty",
       party: game.party,
-      // On ne se présente jamais seul : ce qu'on pèse au premier tour, c'est
-      // d'abord ce que pèse son camp.
+      // CE QU'ON PÈSE AU PREMIER TOUR SE CALCULE ÉLECTORAT PAR ÉLECTORAT.
+      //
+      // C'était la part nationale du camp multipliée par un tirage global :
+      // le score ne dépendait donc que de la taille du parti et d'une
+      // popularité moyenne, et il ne servait à rien d'être adoré des siens si
+      // la moyenne ne bougeait pas. On additionne désormais ce qu'on convertit
+      // dans CHAQUE électorat, pondéré par ce qu'il pèse dans le pays : un
+      // camp à trente pour cent avec quatre-vingts d'adhésion vaut vingt-quatre
+      // points avant même d'avoir parlé à quelqu'un d'autre.
       pop: game.popularity,
-      share: Math.max(1, game.landscape[game.party] * playerPull() * (ally ? 1.12 : 1)),
+      share: Math.max(1, playerFirstRound() * (ally ? 1.12 : 1)),
       isPlayer: true,
     },
   ];

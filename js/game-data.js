@@ -2388,8 +2388,16 @@ function runoff(field, s) {
     const allied = Boolean(ally) && out.party === ally;
 
     const weights = finalists.map((f) => {
-      const proximity = 1 - ideologicalDistance(out.party, f.party);
-      const base = (0.38 + Math.pow(Math.max(0.05, proximity), 2)) * (1 - rejectionRate(f, s));
+      /* POUR LE JOUEUR, ON SAIT EXACTEMENT CE QUE CET ÉLECTORAT PENSE DE LUI.
+         Le report passait par rejectionRate, un forfait de quatorze pour cent
+         corrigé par les traits : la proximité idéologique décidait tout, et
+         ce qu'on avait fait devant ces électeurs pendant vingt ans ne comptait
+         pour rien. C'est pourtant là, et seulement là, que se paie le choix
+         d'avoir chauffé sa base ou d'avoir parlé à tout le monde. */
+      const base = (f.isPlayer || f.mine) && s.appeal
+        ? 0.30 + (s.appeal[out.party] / 100) * 0.95
+        : (0.38 + Math.pow(Math.max(0.05, 1 - ideologicalDistance(out.party, f.party)), 2)) *
+          (1 - rejectionRate(f, s));
       // Le pacte vaut pour votre camp, que vous soyez le candidat ou non :
       // c'est un accord entre partis, pas entre personnes.
       return allied && (f.isPlayer || f.mine) ? base * 2.6 : base;

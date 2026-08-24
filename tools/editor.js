@@ -96,8 +96,8 @@ EFFECT_SPEC.chain = {t:"idlist"}; EFFECT_SPEC.flags = {t:"flagmap"};
 EFFECT_SPEC.landscape = {t:"nummap",v:LANDSCAPE_TARGETS};
 EFFECT_SPEC.office = {t:"select",v:OFFICE_LIST}; EFFECT_SPEC.join = {t:"select",v:LANDSCAPE_TARGETS};
 EFFECT_SPEC.alliance = {t:"select",v:ALLIANCE_TARGETS}; EFFECT_SPEC.end = {t:"select",v:END_TYPES};
-EFFECT_SPEC.axis = {t:"nummap",v:["social","world","economy","power"]};
-EFFECT_SPEC.appeal = {t:"nummap",v:PARTY_KEYS};
+EFFECT_SPEC.axis = {t:"axis"};
+EFFECT_SPEC.appeal = {t:"nummap",v:["self","others",...PARTY_KEYS]};
 
 const HELP = {
   id:"Identifiant unique (lettres, chiffres, _). Clé pour les chaînes et le suivi « déjà vu ».",
@@ -340,6 +340,59 @@ function nummap(owner, key, vocab) {
   if (avail.length) box.appendChild(addDrop("+ clé…", avail, (v) => struct(() => { (owner[key] || (owner[key] = {}))[v] = 0; })()));
   return box;
 }
+/* OÙ SE SITUE UN CHOIX.
+   "axis" prend deux formes : une position chiffrée sur tout ou partie des
+   quatre axes, ou le mot "self" / "ally", qui veut dire « là où est mon camp »
+   sans qu'on ait à écrire de chiffres. Le widget bascule entre les deux, et
+   les curseurs vont de −100 à +100 pour qu'on voie tout de suite de quel côté
+   on penche. */
+const AXIS_KEYS = ["social", "world", "economy", "power"];
+const AXIS_HELP = {
+  social: "−100 progressiste · +100 conservateur",
+  world: "−100 internationaliste · +100 souverainiste",
+  economy: "−100 socialiste · +100 libéral",
+  power: "−100 étatiste · +100 laisser-faire",
+};
+
+function axisw(owner, key) {
+  const box = h("div", { class: "sub" });
+  const val = owner[key];
+  const mode = typeof val === "string" ? val : "chiffres";
+
+  const sel = h("select", { class: "fadd" },
+    opt("chiffres", "position chiffrée"), opt("self", "self — là où est mon camp"),
+    opt("ally", "ally — là où est mon allié"));
+  sel.value = mode;
+  sel.onchange = struct(() => {
+    owner[key] = sel.value === "chiffres" ? {} : sel.value;
+  });
+  box.appendChild(h("div", { class: "krow" }, h("span", { class: "kname" }, "forme"), sel));
+
+  if (mode !== "chiffres") return box;
+
+  const obj = owner[key] || (owner[key] = {});
+  AXIS_KEYS.forEach((ax) => {
+    const actif = obj[ax] !== undefined;
+    const on = h("input", { type: "checkbox" });
+    on.checked = actif;
+    on.onchange = struct(() => { if (on.checked) obj[ax] = 0; else delete obj[ax]; });
+
+    const row = [h("span", { class: "kname", title: AXIS_HELP[ax] }, ax), on];
+    if (actif) {
+      const rng = h("input", { type: "range", min: "-100", max: "100", step: "5" });
+      rng.value = obj[ax];
+      const num = h("input", { type: "number", class: "num", min: "-100", max: "100" });
+      num.value = obj[ax];
+      rng.oninput = () => { obj[ax] = Number(rng.value); num.value = rng.value; sync(); };
+      num.oninput = () => { obj[ax] = Number(num.value); rng.value = num.value; sync(); };
+      rng.onchange = num.onchange = pushHistory;
+      row.push(rng, num, h("span", { class: "khint" }, AXIS_HELP[ax]));
+    }
+    box.appendChild(h("div", { class: "krow" }, ...row));
+  });
+  return box;
+}
+
 function flagmap(owner, key) {
   const obj = owner[key] || {}; const box = h("div", { class: "sub" });
   Object.keys(obj).forEach((k) => box.appendChild(h("div", { class: "krow" },
@@ -398,6 +451,7 @@ function effectsEditor(owner, key) {
     else if (spec.t === "idlist") widget = idlistw(fx, ek);
     else if (spec.t === "flagmap") widget = flagmap(fx, ek);
     else if (spec.t === "nummap") widget = nummap(fx, ek, spec.v);
+    else if (spec.t === "axis") widget = axisw(fx, ek);
     box.appendChild(h("div", { class: "krow" }, h("span", { class: "kname", title: FX_HELP[ek] || "" }, ek), widget,
       h("button", { class: "mini rm", onclick: struct(() => { delete fx[ek]; if (!Object.keys(fx).length) delete owner[key]; }) }, "×")));
   });
@@ -405,7 +459,7 @@ function effectsEditor(owner, key) {
   box.appendChild(addDrop("+ effet…", avail, (k) => struct(() => { (owner[key] || (owner[key] = {}))[k] = defEffect(k); })()));
   return box;
 }
-const defEffect = (k) => { const t = (EFFECT_SPEC[k] || {}).t; if (t === "trait") return TRAIT_LIST[0]; if (t === "select") return EFFECT_SPEC[k].v[0]; if (t === "idlist") return ""; if (t === "flagmap" || t === "nummap") return {}; return 0; };
+const defEffect = (k) => { const t = (EFFECT_SPEC[k] || {}).t; if (t === "trait") return TRAIT_LIST[0]; if (t === "select") return EFFECT_SPEC[k].v[0]; if (t === "idlist") return ""; if (t === "flagmap" || t === "nummap" || t === "axis") return {}; return 0; };
 
 function bonusEditor(roll, key, label) {
   const box = h("div", { class: "sub" });

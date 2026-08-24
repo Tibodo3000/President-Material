@@ -87,6 +87,10 @@ legend{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--d
 .sub{border-left:2px solid var(--line);margin:4px 0 4px 4px;padding:4px 0 4px 10px;}
 .krow{display:flex;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap;}
 .krow > .kname{color:var(--dim);font-size:12px;min-width:96px;}
+/* Le rappel de ce que veut dire un axe, a cote de son curseur : sans lui on ne
+   sait pas de quel cote penche un moins cent. */
+.krow > .khint{color:var(--dim);font-size:11px;opacity:.75;white-space:nowrap;}
+.krow input[type=range]{flex:1;min-width:120px;accent-color:var(--gold-soft);}
 .krow select,.krow input{padding:3px 6px;}
 .fadd{color:var(--gold-soft);border-style:dashed;}
 .card{border:1px solid var(--line);border-radius:8px;margin:0 0 10px;padding:10px;background:var(--panel-2);}
