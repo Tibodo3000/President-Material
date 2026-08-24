@@ -22,7 +22,7 @@ const EV_nomination = [
   "choices": [
     { "label": { "fr": "S'inviter à leur dîner mensuel", "en": "Invite yourself to their monthly dinner" },
       "roll": { "base": 14, "stat": "charisme", "plus": { "reseau": 0.5 }, "dice": 16 },
-      "success": { "effects": { "popularity": -3, "standing": 4, "reseau": 1, "energie": -1 },
+      "success": { "effects": { "appeal": { "self": -3 }, "standing": 4, "reseau": 1, "energie": -1 },
         "result": { "fr": "Trois heures à écouter des histoires de 1997 et à rire au bon moment. En repartant, l'un d'eux vous appelle par votre prénom.",
                     "en": "Three hours listening to stories from 1997 and laughing in the right places. On the way out, one of them uses your first name." } },
       "failure": { "effects": { "standing": -3, "energie": -1, "reputation": -1 },
@@ -30,17 +30,17 @@ const EV_nomination = [
                     "en": "You are seated at the end of the table, they talk across you as if you were not there, and the bill is split five ways." } } },
     { "label": { "fr": "Financer la fédération sur vos deniers", "en": "Fund the federation out of your own pocket" },
       "when": { "minMoney": 60000 },
-      "effects": { "money": -40000, "popularity": -3, "standing": 5, "reputation": -1 },
+      "effects": { "money": -40000, "appeal": { "self": -3 }, "standing": 5, "reputation": -1 },
       "result": { "fr": "Un local repeint, deux permanents payés six mois, un car pour le congrès. Personne ne dira jamais que la place s'achète, et tout le monde saura ce qu'elle a coûté.",
                   "en": "A repainted office, two staffers paid for six months, a coach to the party conference. Nobody will ever say the seat was bought, and everyone will know what it cost." } },
     { "label": { "fr": "Faire le travail que personne ne veut faire", "en": "Do the work nobody wants to do" },
-      "effects": { "strike": "appareil", "standing": 3, "energie": -3, "reseau": 1, "popularity": -1 },
+      "effects": { "strike": "appareil", "standing": 3, "energie": -3, "reseau": 1, "appeal": { "self": -1 } },
       "result": { "fr": "Six mois de commissions statutaires, de comptes rendus et de conflits de fédération. C'est long, c'est gris, et ça marche toujours.",
                   "en": "Six months of rules committees, minutes and branch disputes. It is long, it is grey, and it always works." } },
     { "label": { "fr": "Les menacer de partir", "en": "Threaten to leave" },
       "when": { "minPopularity": 55 },
       "roll": { "base": 17, "stat": "sangfroid", "plus": { "popularity": 0.07 }, "dice": 16 },
-      "success": { "effects": { "popularity": -3, "standing": 6, "notoriete": 1, "reputation": -1 },
+      "success": { "effects": { "appeal": { "self": -3 }, "standing": 6, "notoriete": 1, "reputation": -1 },
         "result": { "fr": "Vous laissez entendre qu'ailleurs on vous attend. Ils vérifient, c'est vrai, et la commission se réunit de nouveau la semaine suivante.",
                     "en": "You let it be understood that others are waiting for you. They check, it is true, and the committee meets again the following week." } },
       "failure": { "effects": { "standing": -10, "strike": "traitre" },
@@ -60,19 +60,19 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "{Le} soutenir bruyamment", "en": "Back {him} loudly" },
-      "effects": { "standing": 4, "reputation": 1, "popularity": -3 },
+      "effects": { "standing": 4, "reputation": 1, "appeal": { "self": -3 } },
       "result": { "fr": "Vous faites campagne pour {lui}, vous tenez trois réunions à sa place et vous êtes sur toutes les photos. La prochaine fois, ce sera difficile de vous refuser.",
                   "en": "You campaign for {him}, you hold three meetings in {his} place and you are in every photograph. Next time it will be hard to refuse you." } },
     { "label": { "fr": "Faire savoir ce qu'{il} vaut vraiment", "en": "Let people know what {he} is really worth" },
       "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.4 }, "dice": 16 },
-      "success": { "effects": { "popularity": -3, "standing": 3, "reputation": -2, "landscape": { "self": -0.5 } },
+      "success": { "effects": { "appeal": { "self": -3 }, "standing": 3, "reputation": -2, "landscape": { "self": -0.5 } },
         "result": { "fr": "Deux ou trois conversations dans les bons bureaux, jamais un mot par écrit. Sa candidature s'effrite toute seule et personne ne sait pourquoi.",
                     "en": "Two or three conversations in the right offices, never a word in writing. {His} candidacy crumbles on its own and nobody knows why." } },
       "failure": { "effects": { "standing": -12, "reputation": -2, "strike": "traitre" },
         "result": { "fr": "L'une de vos conversations lui revient mot pour mot. {Il} ne dit rien, {il} attend, et {il} aura toute une carrière pour s'en souvenir.",
                     "en": "One of your conversations gets back to {him} word for word. {He} says nothing, {he} waits, and {he} will have a whole career to remember it." } } },
     { "label": { "fr": "Aller voir ailleurs pendant qu'{il} fait campagne", "en": "Look elsewhere while {he} campaigns" },
-      "effects": { "standing": 2, "reseau": 2, "energie": -1, "popularity": 2 },
+      "effects": { "standing": 2, "reseau": 2, "energie": -1, "appeal": { "self": 2 } },
       "result": { "fr": "Vous passez la campagne dans deux autres fédérations, où l'on ne vous doit rien et où l'on vous découvre. {Il} gagne, et vous aussi, ailleurs.",
                   "en": "You spend the campaign in two other federations, where nobody owes you anything and where people discover you. {He} wins, and so do you, elsewhere." } }
   ]
@@ -88,19 +88,19 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "Faire le tour des sections, une par une", "en": "Tour the branches, one by one" },
-      "effects": { "strike": "appareil", "standing": 4, "energie": -3, "reseau": 2, "popularity": -2 },
+      "effects": { "strike": "appareil", "standing": 4, "energie": -3, "reseau": 2, "appeal": { "self": -2 } },
       "result": { "fr": "Quarante et une sections en cinq mois, des salles de quinze personnes et beaucoup de café tiède. Vous connaissez le parti mieux que ceux qui le dirigent.",
                   "en": "Forty-one branches in five months, rooms of fifteen people and a great deal of lukewarm coffee. You know the party better than the people running it." } },
     { "label": { "fr": "Monter une plateforme et récolter des signatures", "en": "Set up a platform and collect signatures" },
       "roll": { "base": 15, "stat": "eloquence", "plus": { "reseau": 0.4, "energie": 0.3 }, "dice": 16 },
-      "success": { "effects": { "popularity": -3, "standing": 5, "notoriete": 1, "reputation": 1 },
+      "success": { "effects": { "appeal": { "self": -3 }, "standing": 5, "notoriete": 1, "reputation": 1 },
         "result": { "fr": "Un texte de deux pages, six cents signatures en trois semaines et un titre dans la presse militante. La direction découvre qu'elle a un problème interne.",
                     "en": "A two-page text, six hundred signatures in three weeks and a headline in the party press. The leadership discovers it has an internal problem." } },
       "failure": { "effects": { "standing": -6, "energie": -2 },
         "result": { "fr": "Cent quatre signatures, dont onze de gens qui ne sont plus à jour de cotisation. Le texte ne sort jamais du site.",
                     "en": "One hundred and four signatures, eleven of them from people who have not paid their dues. The text never leaves the website." } } },
     { "label": { "fr": "Attendre le prochain congrès", "en": "Wait for the next conference" },
-      "effects": { "energie": 2, "popularity": -3, "standing": 2, "sangfroid": 1, "strike": "lache" },
+      "effects": { "energie": 2, "appeal": { "self": -3 }, "standing": 2, "sangfroid": 1, "strike": "lache" },
       "result": { "fr": "Vous ne faites rien du tout et vous vous en tirez avec une année de repos. Personne ne vous en veut, ce qui est bien le problème.",
                   "en": "You do nothing at all and come away with a year of rest. Nobody holds it against you, which is precisely the problem." } }
   ]
@@ -117,7 +117,7 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "Accepter la dette", "en": "Take on the debt" },
-      "effects": { "popularity": -3, "standing": 6, "reseau": 1, "reputation": -1, "chain": "mentor_dette" },
+      "effects": { "appeal": { "self": -3 }, "standing": 6, "reseau": 1, "reputation": -1, "chain": "mentor_dette" },
       "result": { "fr": "La commission se réunit de nouveau et votre nom passe sans discussion. Vous ne savez pas encore ce que vous venez de vendre.",
                   "en": "The committee meets again and your name goes through without discussion. You do not yet know what you have just sold." } },
     { "label": { "fr": "Refuser, et le dire en face", "en": "Refuse, and say so to {his} face" },
@@ -126,7 +126,7 @@ const EV_nomination = [
                   "en": "You tell {him} you would rather lose. {He} shrugs and respects you slightly more, which is worth no nomination at all." } },
     { "label": { "fr": "Accepter, et enregistrer la conversation", "en": "Accept, and record the conversation" },
       "when": { "personality": ["calculating"] },
-      "effects": { "popularity": -3, "standing": 5, "reseau": 1, "reputation": -2, "sangfroid": 1 },
+      "effects": { "appeal": { "self": -3 }, "standing": 5, "reseau": 1, "reputation": -2, "sangfroid": 1 },
       "result": { "fr": "Vous acceptez, et vous gardez trois minutes de son offre dans un téléphone que vous ne changerez jamais. La dette existe des deux côtés maintenant.",
                   "en": "You accept, and you keep three minutes of {his} offer on a phone you will never replace. The debt runs both ways now." } }
   ]
@@ -145,7 +145,7 @@ const EV_nomination = [
   "choices": [
     { "label": { "fr": "Organiser la fronde des militants locaux", "en": "Organise the local revolt" },
       "roll": { "base": 15, "stat": "charisme", "plus": { "reseau": 0.4 }, "dice": 16 },
-      "success": { "effects": { "standing": 6, "notoriete": 1, "popularity": 3, "energie": -2 },
+      "success": { "effects": { "standing": 6, "notoriete": 1, "appeal": { "self": 3 }, "energie": -2 },
         "result": { "fr": "Deux cents signatures en dix jours et un article dans le quotidien régional. Le siège retire discrètement sa candidature et ne vous en reparlera jamais.",
                     "en": "Two hundred signatures in ten days and a piece in the regional paper. Headquarters quietly withdraws the candidacy and never mentions it again." } },
       "failure": { "effects": { "standing": -8, "reputation": -1, "energie": -2 },
@@ -176,16 +176,16 @@ const EV_nomination = [
       "success": { "effects": { "standing": 5, "reputation": 1, "sangfroid": 1 },
         "result": { "fr": "L'étude porte sur trois cent douze personnes et ne vous mentionne pas une fois. On vous promet de « réexaminer le dossier », ce qui, dans cette maison, est un aveu.",
                     "en": "The study covers three hundred and twelve people and never mentions you once. They promise to “revisit the file”, which in this house is a confession." } },
-      "failure": { "effects": { "standing": -6, "popularity": -2, "reputation": -1 },
+      "failure": { "effects": { "standing": -6, "appeal": { "self": -2 }, "reputation": -1 },
         "result": { "fr": "On vous lit trois lignes au téléphone et on raccroche. Vous passez pour quelqu'un qui conteste les chiffres, ce qui est pire que d'être mauvais dedans.",
                     "en": "They read you three lines over the phone and hang up. You now look like someone who disputes numbers, which is worse than polling badly in them." } } },
     { "label": { "fr": "Payer votre propre sondage", "en": "Pay for your own poll" },
       "when": { "minMoney": 45000 },
-      "effects": { "money": -35000, "standing": 4, "notoriete": 1, "popularity": 2 },
+      "effects": { "money": -35000, "standing": 4, "notoriete": 1, "appeal": { "self": 2 } },
       "result": { "fr": "Vos chiffres sont meilleurs que les leurs, ce qui n'étonne personne puisque c'est vous qui avez écrit les questions. Ils circulent quand même.",
                   "en": "Your numbers are better than theirs, which surprises nobody since you wrote the questions. They circulate all the same." } },
     { "label": { "fr": "Accepter le verdict et travailler la notoriété", "en": "Accept the verdict and work on your name" },
-      "effects": { "notoriete": 1, "popularity": 3, "standing": -1, "energie": -1 },
+      "effects": { "notoriete": 1, "appeal": { "self": 3 }, "standing": -1, "energie": -1 },
       "result": { "fr": "Six mois de radios locales et de fêtes de village. Au sondage suivant, on ne pourra plus écrire que personne ne vous connaît.",
                   "en": "Six months of local radio and village fairs. At the next poll, nobody will be able to write that nobody knows you." } }
   ]
@@ -202,15 +202,15 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "Accepter la circonscription perdue d'avance", "en": "Take the unwinnable seat" },
-      "effects": { "standing": 4, "notoriete": 1, "popularity": 2, "energie": -2, "reputation": 1 },
+      "effects": { "standing": 4, "notoriete": 1, "appeal": { "self": 2 }, "energie": -2, "reputation": 1 },
       "result": { "fr": "Vous perdez de vingt points, ce qui était prévu, et vous en reprenez six, ce qui ne l'était pas. On s'en souviendra la prochaine fois.",
                   "en": "You lose by twenty points, which was expected, and claw back six, which was not. That will be remembered next time." } },
     { "label": { "fr": "Refuser et le faire savoir", "en": "Refuse it, and let it be known" },
       "roll": { "base": 15, "stat": "eloquence", "plus": { "standing": 0.05 }, "dice": 16 },
-      "success": { "effects": { "standing": 3, "notoriete": 2, "popularity": 4, "reputation": 1 },
+      "success": { "effects": { "standing": 3, "notoriete": 2, "appeal": { "self": 4 }, "reputation": 1 },
         "result": { "fr": "Votre refus fait une demi-page. La direction découvre que vous écarter coûte plus cher que vous investir.",
                     "en": "Your refusal fills half a page. The leadership discovers that setting you aside costs more than nominating you." } },
-      "failure": { "effects": { "standing": -9, "popularity": -3, "reputation": -1 },
+      "failure": { "effects": { "standing": -9, "appeal": { "self": -3 }, "reputation": -1 },
         "result": { "fr": "Personne ne reprend l'information et la place est pourvue le lendemain. Vous avez refusé la seule chose qu'on vous proposait.",
                     "en": "Nobody picks the story up and the slot is filled the next day. You turned down the only thing on offer." } } },
     { "label": { "fr": "Négocier autre chose contre votre retrait", "en": "Trade your withdrawal for something else" },
@@ -231,7 +231,7 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "Rejoindre le courant le mieux placé", "en": "Join the strongest faction" },
-      "effects": { "standing": 6, "reseau": 1, "reputation": -2, "popularity": -2 },
+      "effects": { "standing": 6, "reseau": 1, "reputation": -2, "appeal": { "self": -2 } },
       "result": { "fr": "Vous signez leur texte sans en avoir relu le troisième paragraphe. Vous êtes désormais de quelque part, ce qui vaut mieux que d'avoir raison.",
                   "en": "You sign their motion without rereading the third paragraph. You are from somewhere now, which is worth more than being right." } },
     { "label": { "fr": "Monter votre propre courant", "en": "Start a faction of your own" },
@@ -267,11 +267,11 @@ const EV_nomination = [
       "success": { "effects": { "standing": 7, "sangfroid": 1, "reputation": 1 },
         "result": { "fr": "Vous dites que c'est la dernière fois que vous le demandez. Le silence dans la pièce vous apprend que quelqu'un vous a enfin pris au sérieux.",
                     "en": "You say this is the last time you will ask. The silence in the room tells you somebody has finally taken you seriously." } },
-      "failure": { "effects": { "standing": -10, "reputation": -1, "popularity": -2 },
+      "failure": { "effects": { "standing": -10, "reputation": -1, "appeal": { "self": -2 } },
         "result": { "fr": "On vous répond « comme vous voudrez » et l'on passe au point suivant de l'ordre du jour. C'était votre dernière carte et elle ne valait rien.",
                     "en": "They answer “as you wish” and move to the next item on the agenda. That was your last card and it was worth nothing." } } },
     { "label": { "fr": "Se faire élire à un poste interne sans intérêt", "en": "Get yourself elected to a dull internal post" },
-      "effects": { "standing": 3, "reseau": 1, "energie": -1, "popularity": -1 },
+      "effects": { "standing": 3, "reseau": 1, "energie": -1, "appeal": { "self": -1 } },
       "result": { "fr": "Secrétaire à la vie fédérale. Le titre fait sourire et donne accès à la liste complète des adhérents, avec les numéros de téléphone.",
                   "en": "Secretary for federation affairs. The title raises smiles and gives you the full membership list, phone numbers included." } }
   ]
@@ -289,11 +289,11 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "Reprendre les réunions de section", "en": "Go back to the branch meetings" },
-      "effects": { "standing": 5, "popularity": -2, "energie": -1 },
+      "effects": { "standing": 5, "appeal": { "self": -2 }, "energie": -1 },
       "result": { "fr": "Des mardis soir dans des salles trop grandes, à écouter des motions sur le règlement intérieur. C'est ainsi qu'on se fait un nom là où il compte.",
                   "en": "Tuesday evenings in rooms that are too big, listening to motions about standing orders. That is how you make a name where it counts." } },
     { "label": { "fr": "Rendre service à ceux qui décident", "en": "Do favours for the people who decide" },
-      "effects": { "standing": 6, "popularity": -3, "reseau": 1, "reputation": -1 },
+      "effects": { "standing": 6, "appeal": { "self": -3 }, "reseau": 1, "reputation": -1 },
       "result": { "fr": "Un rapport rédigé pour quelqu'un d'autre, une intervention annulée pour lui laisser la place, un vote qui ne vous coûtait rien. On note.",
                   "en": "A report written for somebody else, a speech cancelled to leave him the floor, a vote that cost you nothing. It gets noticed." } },
     { "label": { "fr": "Soigner le terrain plutôt que l'appareil", "en": "Work the ground instead of the machine" },
@@ -330,7 +330,7 @@ const EV_nomination = [
   "choices": [
     { "label": { "fr": "Aller les chercher une par une, en province", "en": "Go and get them one by one, in the provinces" },
       "roll": { "base": 15, "stat": "reseau", "plus": { "energie": 0.4, "charisme": 0.3 }, "dice": 16 },
-      "success": { "effects": { "standing": 7, "reseau": 2, "energie": -3, "popularity": -2 },
+      "success": { "effects": { "standing": 7, "reseau": 2, "energie": -3, "appeal": { "self": -2 } },
         "result": { "fr": "Onze départements en trois semaines, et la motion est déposée avec quatre signatures d'avance. Aucune ne vous a été donnée : elles ont toutes été cherchées, et cela se saura.",
                     "en": "Eleven departments in three weeks, and the motion is tabled with four signatures to spare. Not one was given: every one was fetched, and that will get around." } },
       "failure": { "effects": { "standing": -6, "energie": -3, "credibilite": -1 },
@@ -338,7 +338,7 @@ const EV_nomination = [
                     "en": "Two dodge you on the phone, a third signs the rival motion while you are driving to see him. You come home with a dead motion and a toll receipt." } } },
 
     { "label": { "fr": "Échanger vos signatures contre une place dans la future direction", "en": "Trade your signatures for a seat in the next leadership" },
-      "effects": { "standing": 5, "reseau": 2, "credibilite": -1, "popularity": -2, "reputation": -1 },
+      "effects": { "standing": 5, "reseau": 2, "credibilite": -1, "appeal": { "self": -2 }, "reputation": -1 },
       "result": { "fr": "Vous retirez votre motion et vous entrez au bureau national. C'est exactement ce qu'on attendait de vous, et c'est exactement pour cela que personne ne vous craindra au congrès suivant.",
                   "en": "You withdraw your motion and join the national executive. It is exactly what was expected of you, and exactly why nobody will fear you at the next congress." } },
 
@@ -361,7 +361,7 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "Se rallier le premier, et le plus visiblement possible", "en": "Fall in first, and as visibly as possible" },
-      "effects": { "standing": 8, "reseau": 1, "popularity": -4, "credibilite": -1 },
+      "effects": { "standing": 8, "reseau": 1, "appeal": { "self": -4 }, "credibilite": -1 },
       "result": { "fr": "Vous montez sur scène quatre minutes après l'annonce et vous parlez de rassemblement. {Il} sait ce que cela vaut, vous savez ce que cela coûte, et vous serez le premier appelé la prochaine fois.",
                   "en": "You are on stage four minutes after the announcement, talking about unity. {He} knows what that is worth, you know what it costs, and you will be the first one called next time." } },
 
@@ -370,7 +370,7 @@ const EV_nomination = [
       "success": { "effects": { "popularity": 9, "standing": -4, "notoriete": 2, "reputation": 2, "credibilite": 1 },
         "result": { "fr": "Le vote a lieu. Vous le perdez de dix-huit points, et vous sortez du congrès comme le seul qui ait demandé aux adhérents leur avis. C'est une défaite qui se dépose à la banque.",
                     "en": "The ballot is held. You lose it by eighteen points, and you leave the congress as the only person who asked the members what they thought. That is a defeat you can bank." } },
-      "failure": { "effects": { "standing": -9, "popularity": -3, "reputation": -1 },
+      "failure": { "effects": { "standing": -9, "appeal": { "self": -3 }, "reputation": -1 },
         "result": { "fr": "On vous répond statuts en main que la procédure ne le permet pas, et l'on a raison. Vous passez pour quelqu'un qui n'a pas lu les statuts de son propre parti.",
                     "en": "They answer, rulebook in hand, that the procedure does not allow it, and they are right. You come across as somebody who has not read his own party's rules." } } },
 
@@ -393,7 +393,7 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "Y être, au deuxième rang, et sourire", "en": "Be there, in the second row, smiling" },
-      "effects": { "standing": 7, "reseau": 1, "popularity": -3, "credibilite": -1 },
+      "effects": { "standing": 7, "reseau": 1, "appeal": { "self": -3 }, "credibilite": -1 },
       "result": { "fr": "La photo fait le tour des rédactions et vous y êtes, un peu flou, derrière l'épaule droite. Dans cinq ans on la ressortira pour dire que vous étiez là depuis le début.",
                   "en": "The photograph goes round every newsroom and there you are, slightly out of focus, behind the right shoulder. In five years it will be dug out to prove you were there from the start." } },
 
@@ -407,7 +407,7 @@ const EV_nomination = [
                     "en": "Six months from the vote, a line like that is called a split. It will be quoted back at you after every setback of the campaign, and there will be setbacks." } } },
 
     { "label": { "fr": "Ne pas venir, sans prévenir", "en": "Not turn up, without warning" },
-      "effects": { "standing": -9, "reputation": 1, "sangfroid": 1, "notoriete": 1, "popularity": 2 },
+      "effects": { "standing": -9, "reputation": 1, "sangfroid": 1, "notoriete": 1, "appeal": { "self": 2 } },
       "result": { "fr": "Votre absence au deuxième rang se voit plus que votre présence ne se serait vue. On ne vous demandera rien, on ne vous proposera rien non plus, et pendant six mois vous serez libre.",
                   "en": "Your absence from the second row is more visible than your presence would have been. Nobody will ask you for anything, nobody will offer you anything either, and for six months you will be free." } }
   ]
@@ -425,7 +425,7 @@ const EV_nomination = [
   },
   "choices": [
     { "label": { "fr": "Accepter, et faire campagne à fond", "en": "Accept, and campaign flat out" },
-      "effects": { "standing": 10, "reseau": 2, "energie": -3, "popularity": -2, "credibilite": 1 },
+      "effects": { "standing": 10, "reseau": 2, "energie": -3, "appeal": { "self": -2 }, "credibilite": 1 },
       "result": { "fr": "Vous faites quarante meetings pour quelqu'un d'autre. Si {il} gagne, la promesse vaudra ce que valent les promesses d'avant le premier tour ; si {il} perd, vous serez le seul à en sortir grandi.",
                   "en": "You do forty rallies for somebody else. If {he} wins, the promise will be worth what promises made before a first round are worth; if {he} loses, you will be the only one who comes out of it bigger." } },
 
@@ -434,12 +434,12 @@ const EV_nomination = [
       "success": { "effects": { "standing": 12, "credibilite": 2, "reseau": 1, "reputation": -1 },
         "result": { "fr": "Une feuille, deux signatures, et un témoin qui n'a rien dit de la soirée. Cela n'a aucune valeur juridique et cela en a une autre, qui est de rendre le reniement coûteux.",
                     "en": "One sheet, two signatures, and a witness who said nothing all evening. It has no legal force whatever and it has another kind, which is to make going back on it expensive." } },
-      "failure": { "effects": { "standing": -8, "reputation": -2, "popularity": -2 },
+      "failure": { "effects": { "standing": -8, "reputation": -2, "appeal": { "self": -2 } },
         "result": { "fr": "{Il} se lève, dit qu'entre gens de parole on ne signe pas, et la soirée s'arrête là. Le lendemain, la promesse est faite à quelqu'un d'autre, oralement.",
                     "en": "{He} stands up, says that people of their word do not sign things, and the evening ends there. The next day the promise is made to somebody else, orally." } } },
 
     { "label": { "fr": "Refuser : on ne se vend pas avant le premier tour", "en": "Refuse: you do not sell yourself before the first round" },
-      "effects": { "reputation": 3, "credibilite": 2, "sangfroid": 1, "standing": -7, "popularity": 3 },
+      "effects": { "reputation": 3, "credibilite": 2, "sangfroid": 1, "standing": -7, "appeal": { "self": 3 } },
       "result": { "fr": "Vous répondez que vous verrez le soir du premier tour, ce qui est la seule réponse honnête et la seule qu'on ne pardonne pas. {Il} n'a plus besoin de vous, et vous n'avez plus rien à lui devoir.",
                   "en": "You answer that you will see on the evening of the first round, which is the only honest answer and the one that is never forgiven. {He} no longer needs you, and you no longer owe him anything." } }
   ]

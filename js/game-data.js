@@ -1696,7 +1696,18 @@ function applyEffects(effects, s, soften) {
       if (!s.appeal) return;
       const before = s.popularity;
       const avant = { ...s.appeal };
-      Object.entries(value).forEach(([party, delta]) => bumpAppeal(s, party, delta));
+      // "self" vise votre propre électorat sans qu'on ait à nommer le camp :
+      // c'est ce qu'il faut pour une scène d'appareil, que le pays ne regarde
+      // pas. "others" vise tous les autres d'un coup.
+      Object.entries(value).forEach(([cible, delta]) => {
+        if (cible === "self") return bumpAppeal(s, s.party, delta);
+        if (cible === "others") {
+          return Object.keys(PARTIES).forEach((k) => {
+            if (k !== s.party) bumpAppeal(s, k, delta);
+          });
+        }
+        bumpAppeal(s, cible, delta);
+      });
       syncPopularity(s);
       pushAppealChanges(changes, avant, s, before);
       return;
