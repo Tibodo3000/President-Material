@@ -2523,11 +2523,25 @@ function pollFor(electionId, stake, bonus) {
   if (electionId === "congres") return null;
 
   const marge = electionBase(electionId, stake) + (bonus || 0) + LUCK_MEAN - stake.threshold;
-  const moi = Math.max(5, Math.min(58, 31 + marge * 0.85));
 
   // Les concurrents sérieux : les partis les mieux placés, sans le vôtre.
   const rivaux = sortedLandscape().filter((key) => key !== game.party).slice(0, 3);
   const poids = rivaux.reduce((sum, key) => sum + game.landscape[key], 0) || 1;
+
+  /* UNE COURSE À ÉGALITÉ DOIT S'AFFICHER À ÉGALITÉ.
+     La part du joueur était une fonction absolue de la marge — 31 % pour une
+     marge nulle — pendant que les trois rivaux se partageaient le reste. Un
+     scrutin joué à pile ou face s'affichait donc 31 contre 28, et une marge
+     qui perd une fois sur six s'affichait 36 contre 26 : le joueur lisait une
+     avance confortable et perdait sans comprendre, ce qui ressemble à un bug
+     parce que c'en était un.
+     On fixe donc la part du joueur pour que son AVANCE SUR LE MIEUX PLACÉ
+     vaille exactement la marge : à marge nulle, les deux barres sont à la
+     même hauteur, et onze points d'avance affichés sont onze points de marge,
+     c'est-à-dire une défaite à un peu plus d'un pour cent. Le dé du
+     dépouillement n'est pas touché : c'est l'affichage qui mentait. */
+  const tete = (game.landscape[rivaux[0]] || 0) / poids;
+  const moi = Math.max(5, Math.min(62, (marge * 0.85 + 100 * tete) / (1 + tete)));
 
   // UNE LISTE, PAS UN CANDIDAT. Sur un scrutin où l'on n'est pas tête de
   // liste, c'est le parti qui figure sur le bulletin : afficher son propre
@@ -2558,9 +2572,13 @@ function pollFor(electionId, stake, bonus) {
  * campagne.
  */
 function moodFor(electionId, stake, bonus) {
+  // Les seuils suivent le sondage corrigé : « donné gagnant » vaut pour une
+  // défaite à deux pour cent, « en avance » pour une sur cinq. Ils étaient
+  // calés sur l'ancien affichage, où « en avance » se disait encore pour un
+  // scrutin perdu deux fois sur cinq.
   const marge = electionBase(electionId, stake) + (bonus || 0) + LUCK_MEAN - stake.threshold;
-  if (marge >= 10) return "race_mood_won";
-  if (marge >= 2) return "race_mood_ahead";
+  if (marge >= 12) return "race_mood_won";
+  if (marge >= 5) return "race_mood_ahead";
   if (marge >= -6) return "race_mood_close";
   return "race_mood_lost";
 }

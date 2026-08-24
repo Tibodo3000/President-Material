@@ -154,7 +154,18 @@ picks an outcome tier, and narrates it. The player sees a poll and a mood phrase
 ("it's close"), never a number.
 
 - Poll math: `racePoll()` / `pollFor()` — the poll *is* the margin turned into percentages,
-  so it can't lie without the result also lying.
+  so it can't lie without the result also lying. **The lead over the best rival is the
+  margin**, and that took a fix: the player's share used to be an absolute function of the
+  margin (31% for a margin of zero) while three rivals split the rest, so a coin-flip race
+  displayed as 31 against 28, and a margin that loses one time in six displayed as 36
+  against 26. The player read a comfortable lead and lost without understanding, which
+  looks like a bug because it was one. A margin of zero now shows two bars at the same
+  height, and an eleven-point lead on screen is an eleven-point margin — a defeat a little
+  above one percent. The count's dice were not touched; the display was what lied.
+- When the poll and the count disagree by two points or more, `resolveRace()` **says so**:
+  losing from ahead is the salt of an election night, but nothing linked the Sunday-morning
+  lead to the Sunday-evening defeat, and a consequence you cannot trace to its cause does
+  not read as bad luck, it reads as a bug.
 - Outcome tiers: `ELECTION_OUTCOMES` in [game.js](../js/game.js) map a margin to text +
   effects (`large`, `win`, `narrow`, `honorable`, `loss`, `rout`). A losing *defense*
   costs extra — you lose a seat, not just a try. These stay in the engine on purpose:

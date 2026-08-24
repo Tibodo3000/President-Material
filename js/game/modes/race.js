@@ -134,6 +134,11 @@ function seatChoiceAvailable(electionId, stake) {
 }
 
 /** Le dépouillement, une fois les temps de campagne joués. */
+/** Ajoute une phrase à un texte bilingue sans le dupliquer des deux côtés. */
+function ajouter(texte, suite) {
+  return { fr: texte.fr + suite.fr, en: texte.en + suite.en };
+}
+
 function resolveRace() {
   const stake = game.race.stake;
   const sondage = racePoll();
@@ -143,6 +148,29 @@ function resolveRace() {
   const res = applyOutcome(stake, score - stake.threshold);
   const won = res.won;
   let texte = outcomeText(res);
+
+  /* QUAND LE SONDAGE S'EST TROMPÉ, ON LE DIT.
+     Perdre en étant donné devant arrive, et doit arriver : c'est le sel d'une
+     soirée électorale. Mais le jeu n'en disait rien, et le joueur lisait une
+     avance le dimanche matin puis une défaite le dimanche soir sans qu'une
+     seule phrase fasse le lien. Une conséquence qu'on ne relie pas à sa cause
+     ne se lit pas comme un coup du sort, elle se lit comme un bug. */
+  const ecart = sondage && sondage.length > 1
+    ? sondage[0].share - sondage[1].share : 0;
+  const donneDevant = Boolean(sondage) && sondage[0].isPlayer && ecart >= 2;
+  const donneDerriere = Boolean(sondage) && !sondage[0].isPlayer && ecart >= 2;
+
+  if (donneDevant && !won) {
+    texte = ajouter(texte, {
+      fr: " Tous les sondages vous donnaient devant, et ils avaient tort. On expliquera la participation, le report du second tour, le temps qu'il faisait ; personne ne saura jamais lequel des trois.",
+      en: " Every poll had you ahead, and every poll was wrong. They will blame turnout, the second-round transfers, the weather; nobody will ever know which of the three.",
+    });
+  } else if (donneDerriere && won) {
+    texte = ajouter(texte, {
+      fr: " Aucun sondage ne vous donnait gagnant. Vous passez la soirée à expliquer que vous n'aviez jamais douté, ce qui est faux et ce que personne ne vous demande de prouver.",
+      en: " No poll had you winning. You spend the evening explaining that you never doubted it, which is untrue and which nobody asks you to prove.",
+    });
+  }
 
   // La note de la dissidence : l'appareil la présente une fois le résultat
   // connu, et il la module selon le résultat.
@@ -154,7 +182,7 @@ function resolveRace() {
           en: " You went against the machine and you won. It will charge you less than it intended, and for a great deal longer." }
       : { fr: " Vous y êtes allé contre l'appareil et vous avez perdu. Il n'y a pas de mot pour cela au siège, seulement une liste, et vous y êtes.",
           en: " You went against the machine and you lost. There is no word for that at headquarters, only a list, and you are on it." };
-    texte = { fr: texte.fr + suite.fr, en: texte.en + suite.en };
+    texte = ajouter(texte, suite);
   }
 
   game.race.result = { won, text: texte, poll: sondage, changes: diffSince(before, game) };
