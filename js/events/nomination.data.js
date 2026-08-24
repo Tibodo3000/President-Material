@@ -12,6 +12,7 @@ const EV_nomination = [
 
 {
   "id": "investiture_barons",
+  "election": ["municipales", "legislatives", "europeennes"],
   "weight": 4,
   "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
   "text": {
@@ -134,6 +135,7 @@ const EV_nomination = [
 
 {
   "id": "investiture_parachute",
+  "election": ["municipales", "legislatives", "europeennes"],
   "weight": 4,
   "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
   "text": {
@@ -191,6 +193,7 @@ const EV_nomination = [
 
 {
   "id": "investiture_quota",
+  "election": ["municipales", "legislatives", "europeennes"],
   "weight": 3,
   "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
   "text": {
@@ -276,6 +279,7 @@ const EV_nomination = [
 
 {
   "id": "investiture_routine",
+  "election": ["municipales", "legislatives", "europeennes"],
   "weight": 3,
   "repeatable": true,
   "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },

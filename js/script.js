@@ -215,7 +215,7 @@ const translations = {
 
     /* Les deux portes d'une investiture refusée. */
     rebel_run: "Se présenter sans l'investiture",
-    rebel_run_note: "Le scrutin a lieu, sans le parti derrière vous",
+    rebel_run_note: "Le pays vous suit, le parti non. Le scrutin a lieu sans lui derrière vous",
     rebel_leave: "Claquer la porte et rejoindre {party}",
     rebel_leave_note: "Définitif. On ne revient pas dans un parti qu'on a quitté",
     fx_end: "Fin de carrière",
@@ -629,7 +629,7 @@ const translations = {
 
     /* The two doors out of a refused nomination. */
     rebel_run: "Run without the endorsement",
-    rebel_run_note: "The election still happens, with no party behind you",
+    rebel_run_note: "The country is with you, the party is not. The election happens without it behind you",
     rebel_leave: "Walk out and join {party}",
     rebel_leave_note: "Final. Nobody returns to a party they have left",
     fx_end: "Career over",

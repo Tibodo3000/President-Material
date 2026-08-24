@@ -2083,7 +2083,7 @@ function enterElection(electionId) {
     return;
   }
 
-  const refus = stake && nominationBlocked(stake) ? drawNomination() : null;
+  const refus = stake && nominationBlocked(stake) ? drawNomination(election.id) : null;
   // Une investiture refusée à un sortant lui coûte son mandat : on ne
   // figure pas sur un bulletin sans investiture. La carte s'en souvient
   // pour ne le dire qu'une fois la scène jouée.

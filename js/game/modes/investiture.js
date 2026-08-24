@@ -23,13 +23,27 @@
  * revoir une scène déjà jouée si tout a été vu : une carrière bloquée l'est
  * souvent plusieurs fois, et toujours par les mêmes gens.
  */
-function drawNomination() {
-  const eligible = NOMINATION_EVENTS.filter((ev) => eventMatches({ ...ev, id: null }, game));
+/*
+ * UNE INVESTITURE REFUSÉE N'EST PAS LA MÊME PARTOUT.
+ *
+ * Le paquet était tiré sans regarder le scrutin : on voyait donc, pour la
+ * direction du parti, une investiture « donnée à quelqu'un que personne n'a
+ * jamais vu ici, envoyé par le siège » et une fédération furieuse. On ne
+ * parachute pas un chef de parti, et il n'y a pas de liste à équilibrer dans
+ * un congrès. Les scènes qui parlent de listes et de circonscriptions portent
+ * donc un champ "election", sur le modèle du champ "race" du paquet des
+ * campagnes ; celles qui parlent de l'appareil valent partout.
+ */
+function drawNomination(electionId) {
+  const eligible = NOMINATION_EVENTS.filter((ev) =>
+    (!ev.election || ev.election.includes(electionId)) &&
+    eventMatches({ ...ev, id: null }, game));
   if (!eligible.length) return null;
 
   const fresh = eligible.filter((ev) => !game.seen[ev.id]);
   const repli = sansTrace(eligible);
-  const secours = sansTrace(NOMINATION_EVENTS);
+  const secours = sansTrace(NOMINATION_EVENTS.filter((ev) =>
+    !ev.election || ev.election.includes(electionId)));
 
   let pool = fresh.length ? fresh : (repli.length ? repli : secours);
   if (!pool.length) return null;
@@ -136,6 +150,20 @@ const REBEL_REACH = 12;
  */
 const REBEL_HANDICAP = -4;
 
+/*
+ * ON NE PART PAS EN DISSIDENCE PARCE QU'ON EST VEXÉ.
+ *
+ * La porte n'était gardée que par l'écart de cote au parti : n'importe quel
+ * élu à peu près bien noté pouvait affronter sa propre machine, ce qui est le
+ * geste le plus rare et le plus coûteux de la vie politique. On ne le tente
+ * que dans un cas : quand le pays est avec vous et que le parti ne l'est pas.
+ *
+ * Le seuil est haut à dessein. Mesurée sur deux mille six cents tours, la
+ * popularité médiane d'une carrière est de quarante-deux, et soixante-deux
+ * n'est dépassé que dans les sept pour cent de tours les plus favorables.
+ */
+const REBEL_POPULARITY = 62;
+
 const REBEL_COST_WON = -6;
 
 const REBEL_COST_LOST = -16;
@@ -152,7 +180,7 @@ function rebellionButtons(card) {
   const gap = rebelGap(card);
   let html = "";
 
-  if (gap !== null && gap <= REBEL_REACH) {
+  if (gap !== null && gap <= REBEL_REACH && game.popularity >= REBEL_POPULARITY) {
     html += '<button type="button" class="event-choice is-unlocked" data-rebel="run">' +
       '<span class="choice-key" aria-hidden="true">◆</span>' +
       '<span class="choice-label">' + t("rebel_run") + "</span>" +

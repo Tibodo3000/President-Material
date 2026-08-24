@@ -29,7 +29,7 @@ deck) and reassembled into `EVENT_DATA` by `_assemble.data.js`. You can author t
 | `runoff` | The 3 steps between the two rounds (8) | `poll` moves the head-to-head; `cast: "eliminated"` |
 | `support` | The 3 steps of a presidential campaign the player is not in (8) | effects use `score`, which moves your camp's line in a poll the player watches for three scenes |
 | `aside` | An ordinary election that happens without the player (6) | ordinary effects, no `score`. Split in two halves by `partyLead`: an election you merely watch is a different evening when you are the one who signed every nomination — **keep both halves populated**, `drawAside()` falls back to the whole deck when nothing matches |
-| `nomination` | When the party refuses to nominate you (10) | rewards `standing` different ways |
+| `nomination` | When the party refuses to nominate you (10) | rewards `standing` different ways. `"election": ["municipales","legislatives","europeennes"]` restricts a scene to the contests it makes sense in — the same idea as `race` in the `races` deck. Anything about lists, constituencies or a candidate parachuted in by head office needs it: nobody parachutes a party leader, and a congress has no list to balance. Scenes about the machine itself carry no `election` and play everywhere (6 of the 10 do) |
 | `races` | Steps of an ordinary election campaign (16) | effects use `score`; `race: [...]`, `moment` |
 
 ### Event shape
