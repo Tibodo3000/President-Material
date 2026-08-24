@@ -94,6 +94,7 @@ lives. Filenames link to the file — search the function name inside to land on
 | `pollFor`, `moodFor` | The poll behind a contest, and its narrated mood — read by the race *and* by the card that offers it |
 | `shiftSupport`, `driftSupport` | What a `score` effect and the rivals do to that poll |
 | `setPresident`, `presidentName`, `isPresident`, `incumbentTermLimited`, `MAX_TERMS` | The presidency |
+| `presidentialCandidate(party)` | Who a party fields — never a president who has served their two terms |
 | `playerPull`, `figurePull` | A candidacy's weight |
 | `backgroundElectionText`, `weightedParty` | Elections without the player |
 | **Turn & cards** | |

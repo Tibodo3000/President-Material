@@ -327,5 +327,32 @@ consequence to the decision.
   Round two: eliminated votes transfer by ideological proximity, damped by each
   finalist's `rejectionRate` (radicalism, scandals, being a woman `femme` trait, an ally
   the country refuses, low stature). An alliance is paid here — an eliminated ally's voters
-  follow you almost entirely. Term-limited incumbents (`MAX_TERMS = 2`) can't run again,
-  and the bar collapses for everyone.
+  follow you almost entirely.
+
+### How many times you get to run
+
+**As many as your party will put you up, and no more.** There used to be a hard cap of two
+candidacies per career (`PRIMARY_MAX_RUNS`), added to stop a well-run career from staying
+above the bar for thirty years and running at every election until it eventually won. The
+cure was worse than the disease: a real career counts three, four, five candidacies —
+Mitterrand ran four times — and the engine answered "no" without ever saying why.
+
+What brakes it now is the primary itself: `PRIMARY_BEATEN` (14 points of primary weight) is
+charged **per defeat** rather than as a flag, so `game.beatenRuns` compounds. A strong
+profile sits around 81 points; one defeat drops it to 67, two to 53, three to 39, against
+rivals in the 70–90 band. The party stops picking a serial loser on its own, and an
+exceptional candidate can still get a third nomination — which is exactly what happens.
+
+Measured over 700 careers each way, the cap changed nothing it was meant to protect: the
+Élysée falls in **17% of careers with or without it**. What changes is the ceiling — the
+most candidacies in one career goes from 2 to 4 — and the distribution stays realistic:
+71% of careers never run, 21% run once, 7% twice, and 1% three or four times.
+
+**The one real limit is the constitutional one.** `MAX_TERMS = 2`: nobody serves three
+consecutive terms. It only applies to figures, since a player victory ends the game — the
+player never defends a term. `presidentialCandidate(party)` ([game.js](../js/game.js)) is
+what enforces it: a party fields its leading figure *unless* that figure is the sitting
+president and has served their two terms, in which case somebody else goes, and a camp with
+nobody else spawns an heir. The engine used to only strip the incumbency bonus and let them
+run anyway, so a president could start a third term while being announced "re-elected for a
+second".

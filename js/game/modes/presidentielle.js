@@ -34,7 +34,6 @@
  * où le pays en est.
  */
 function presidentialField() {
-  const limited = incumbentTermLimited();
   const ally = allyParty();
 
   const field = [
@@ -53,8 +52,10 @@ function presidentialField() {
   Object.keys(PARTIES).forEach((key) => {
     if (key === game.party) return;
 
-    const figure = figureOf(key);
-    const sortant = figure && isPresident(figure) && !limited;
+    // presidentialCandidate écarte le sortant qui a fait ses deux mandats :
+    // s'il est encore là, c'est qu'il peut se représenter.
+    const figure = presidentialCandidate(key);
+    const sortant = Boolean(figure) && isPresident(figure);
 
     // Un allié présente quand même son candidat, mais une partie de son
     // électorat a déjà fait le voyage.
@@ -76,10 +77,10 @@ function presidentialField() {
 }
 
 function startCampaign() {
-  // C'est le seul endroit par lequel une candidature présidentielle du joueur
-  // passe réellement : le compteur va donc ici, et pas dans la primaire. Il y
-  // était, et la limite ne servait à rien pour un chef de parti, qui est
-  // candidat de droit à chaque échéance.
+  // Le compteur de candidatures. Il a servi de plafond — deux par carrière —
+  // et ne sert plus à rien fermer : ce qui freine désormais est la primaire,
+  // où chaque défaite pèse. On le tient parce qu'une carrière se raconte
+  // aussi par le nombre de fois qu'on y est allé.
   game.presidentialRuns = (game.presidentialRuns || 0) + 1;
 
   game.campaign = { step: 0, field: presidentialField(), lastId: null, used: [], moment: null, phase: "campaign" };
@@ -334,8 +335,10 @@ function concedeElection(winner, share) {
 
   // Le second tour compte double : y être allé installe, y avoir frôlé la
   // victoire installe pour longtemps.
-  // Avoir mené son camp à la défaite se paie à la primaire suivante.
-  game.beatenNominee = true;
+  // Avoir mené son camp à la défaite se paie à la primaire suivante, et une
+  // deuxième défaite se paie deux fois : c'est ce compteur qui a remplacé le
+  // plafond de candidatures. Voir PRIMARY_BEATEN.
+  game.beatenRuns = (game.beatenRuns || 0) + 1;
 
   const finaliste = share !== undefined;
   if (finaliste) {

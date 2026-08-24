@@ -49,7 +49,6 @@ const SUPPORT_WEIGHT = 0.55;
  * c'est cette ligne-là qu'il regarde monter ou descendre.
  */
 function supportField() {
-  const limited = incumbentTermLimited();
   const ally = allyParty();
   const investi = game.support && game.support.nominee;
 
@@ -58,8 +57,8 @@ function supportField() {
     // a eu lieu ; sinon celui qui dirige le parti.
     const figure = (key === game.party && investi
       ? game.rivals.find((r) => r.name === investi)
-      : null) || figureOf(key);
-    const sortant = figure && isPresident(figure) && !limited;
+      : null) || presidentialCandidate(key);
+    const sortant = Boolean(figure) && isPresident(figure);
     const pull = (figure ? figurePull(figure, sortant) : 0.8) * (key === ally ? 0.82 : 1);
 
     return {

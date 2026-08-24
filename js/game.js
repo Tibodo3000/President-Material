@@ -143,6 +143,7 @@ function newGame(character) {
     parties: [character.party],
     // Combien de fois le parti vous a présenté à la présidentielle.
     presidentialRuns: 0,
+    beatenRuns: 0,        // présidentielles perdues : le parti s'en souvient
     stats: computeStats(character),
     money: computeMoney(character),
     // Ce avec quoi on entre en politique. Sert de point zéro : la justice
@@ -774,6 +775,30 @@ function leaderOf(partyKey) {
 }
 
 /** La figure la plus en vue d'un parti, chef compris. */
+/**
+ * QUI UN PARTI PRÉSENTE À L'ÉLYSÉE.
+ *
+ * Sa figure la plus en vue, sauf si c'est le président sortant et qu'il a
+ * fait ses deux mandats : celui-là ne se représente pas, et c'est la seule
+ * limite de candidature qui existe pour de bon.
+ *
+ * Le moteur ne lui retirait que la prime au bilan et le laissait concourir :
+ * on voyait donc un président entamer un troisième mandat, annoncé « réélu
+ * pour un second ». Un camp qui n'a personne d'autre fait monter quelqu'un,
+ * ce qui est exactement ce qui se passe, et ce qui surprend toujours.
+ */
+function presidentialCandidate(partyKey) {
+  const figures = figuresOf(partyKey);
+  if (!incumbentTermLimited()) return figures[0] || null;
+
+  const autre = figures.find((f) => !isPresident(f));
+  if (autre) return autre;
+
+  const heir = spawnFigure(partyKey, "cadre");
+  game.rivals.push(heir);
+  return heir;
+}
+
 function figureOf(partyKey) {
   return leaderOf(partyKey);
 }
@@ -1003,9 +1028,11 @@ function playerStake(electionId) {
     return null;
   }
   if (electionId === "presidentielle") {
-    // Deux candidatures par carrière, quel que soit le chemin. Au-delà, le
-    // parti cherche un visage neuf, et c'est ce qu'il fait dans la vraie vie.
-    if ((game.presidentialRuns || 0) >= PRIMARY_MAX_RUNS) return null;
+    // ON SE PRÉSENTE AUTANT DE FOIS QUE LE PARTI VEUT BIEN VOUS PRÉSENTER.
+    // Un plafond de deux candidatures par carrière fermait la porte sans rien
+    // expliquer, alors qu'une carrière réelle en compte trois, quatre, cinq.
+    // Ce qui freine, c'est la primaire, et chaque défaite y pèse un peu plus
+    // lourd (voir PRIMARY_BEATEN).
 
     // C'EST LA PRIMAIRE QUI DÉSIGNE, PAS LA FONCTION. Le jeu réservait la
     // présidentielle au chef du parti : un ministre brillant, très bien coté
@@ -2426,7 +2453,9 @@ function backgroundElectionText(electionId) {
   const limited = incumbentTermLimited();
   const winnerParty = weightedParty(limited ? 0 : 30);
   ensureLeaders();
-  const winner = figureOf(winnerParty);
+  // Le camp du sortant peut gagner sans le sortant : s'il a fait ses deux
+  // mandats, c'est quelqu'un d'autre qui prend l'Élysée pour lui.
+  const winner = presidentialCandidate(winnerParty);
   if (!winner) return { fr: "", en: "" };
   const reelected = isPresident(winner);
 
@@ -3865,6 +3894,9 @@ const BUILD = "2026-08-21 11:45";
     // actuel : on part de là plutôt que de lui inventer un passé.
     if (!game.parties) game.parties = [game.party];
     if (game.presidentialRuns === undefined) game.presidentialRuns = 0;
+    // Le compteur de défaites était un drapeau : une sauvegarde qui le porte
+    // a perdu au moins une fois.
+    if (game.beatenRuns === undefined) game.beatenRuns = game.beatenNominee ? 1 : 0;
     // Une sauvegarde d'avant la dette de fatigue part sans dette : on ne
     // facture pas rétroactivement ce qui était gratuit quand ça a été joué.
     if (game.strain === undefined) game.strain = 0;

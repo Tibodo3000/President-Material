@@ -39,24 +39,27 @@ const PRIMARY_LEAD = 3;
 const PRIMARY_FLOOR = 58;
 
 /**
- * Ce qu'un candidat malheureux traîne à la primaire suivante. On ne redevient
- * pas le champion naturel de son camp cinq ans après l'avoir mené à la
- * défaite : les mêmes qui vous ont porté rappellent qu'ils avaient prévenu.
+ * CE QU'UN CANDIDAT MALHEUREUX TRAÎNE, ET IL LE TRAÎNE À CHAQUE FOIS.
+ *
+ * On ne redevient pas le champion naturel de son camp cinq ans après l'avoir
+ * mené à la défaite : les mêmes qui vous ont porté rappellent qu'ils avaient
+ * prévenu. Et deux défaites pèsent deux fois, ce qui n'était pas le cas :
+ * la pénalité était un drapeau, la même après une défaite qu'après quatre.
+ *
+ * C'EST ELLE QUI REMPLACE LE PLAFOND DE CANDIDATURES. Il en existait un, à
+ * deux par carrière, pour empêcher qu'une carrière bien menée reste au-dessus
+ * du seuil pendant trente ans et se présente à chaque échéance jusqu'à finir
+ * par gagner. Le remède était pire que le mal : une carrière réelle compte
+ * trois, quatre, cinq candidatures, et le jeu répondait « non » sans jamais
+ * dire pourquoi. C'est au parti de ne plus vouloir de vous, pas au moteur, et
+ * un parti qui a perdu deux fois avec le même visage en cherche un autre.
+ *
+ * La seule limite qui reste est celle qui existe vraiment : on ne fait pas
+ * trois mandats de suite à l'Élysée. Elle vit dans MAX_TERMS et ne concerne
+ * que les présidents en exercice, c'est-à-dire les figures — une victoire du
+ * joueur arrête la partie.
  */
 const PRIMARY_BEATEN = 14;
-
-/**
- * COMBIEN DE FOIS UN PARTI VOUS PRÉSENTE.
- *
- * Deux, et c'est déjà généreux. Sans cette limite, une carrière bien menée
- * restait au-dessus du seuil pendant trente ans et se présentait à chaque
- * échéance : trois à quatre finales par partie, dont on finit forcément par
- * en gagner une. L'Élysée devenait une question de patience.
- *
- * Deux candidatures, c'est le maximum qu'on voit dans une vraie carrière, et
- * la seconde se dispute avec l'étiquette de celui qui a déjà perdu.
- */
-const PRIMARY_MAX_RUNS = 2;
 
 /**
  * Le poids d'un prétendant dans une primaire : ce que l'appareil pèse, ce que
@@ -79,7 +82,7 @@ function playerPrimaryWeight() {
     game.standing, game.popularity,
     statScore(game, "credibilite") * 1.7,
     rankOf(game)
-  ) - (game.beatenNominee ? PRIMARY_BEATEN : 0);
+  ) - PRIMARY_BEATEN * (game.beatenRuns || 0);
 }
 
 function figurePrimaryWeight(f) {
@@ -130,7 +133,6 @@ function turnsToPresidential() {
 
 function primaryDue() {
   if (game.nominee) return false;
-  if ((game.presidentialRuns || 0) >= PRIMARY_MAX_RUNS) return false;
   if (turnsToPresidential() !== PRIMARY_LEAD) return false;
 
   // Un président de votre camp qui peut se représenter EST le candidat :
