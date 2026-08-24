@@ -772,7 +772,23 @@ function bumpPop(state, delta) {
  */
 const APPEAL_SPREAD = 26;
 
-function initialAppeal(s) {
+/**
+ * LE NIVEAU NATUREL DE CHAQUE ÉLECTORAT.
+ *
+ * Il n'y en avait qu'un, commun aux six, et c'était une faute : la dérive
+ * tirait donc tout le monde vers la même valeur, l'écart de départ s'effaçait
+ * en quelques années, et l'on finissait avec cinq électorats rigoureusement
+ * identiques — et une base PLUS BASSE que les autres, parce qu'elle partait
+ * plus haut et descendait pendant que les autres montaient. Un candidat de la
+ * gauche radicale moins aimé de la gauche radicale que des identitaires.
+ *
+ * Chaque électorat a donc sa propre cible, calée sur la distance idéologique.
+ * L'ensemble est décalé pour que la moyenne pondérée retombe exactement sur
+ * popularityTarget() : le profil vaut toujours la même chose au total, il est
+ * simplement réparti. Les positionnements écartent de ces cibles, la dérive y
+ * ramène, et l'écart structurel ne se perd jamais.
+ */
+function appealTargets(s) {
   const brut = {};
   Object.keys(PARTIES).forEach((key) => {
     brut[key] = APPEAL_SPREAD * (0.5 - ideologicalDistance(key, s.party));
@@ -784,11 +800,15 @@ function initialAppeal(s) {
   moyenne = total ? moyenne / total : 0;
 
   const cible = popularityTarget(s);
-  const appeal = {};
+  const cibles = {};
   Object.keys(PARTIES).forEach((key) => {
-    appeal[key] = clamp100(cible + brut[key] - moyenne);
+    cibles[key] = clamp100(cible + brut[key] - moyenne);
   });
-  return appeal;
+  return cibles;
+}
+
+function initialAppeal(s) {
+  return appealTargets(s);
 }
 
 /* ==========================================================================

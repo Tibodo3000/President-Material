@@ -943,16 +943,20 @@ function driftToward(current, target, hold) {
  * disparaître au tour suivant.
  */
 function driftGauges() {
-  const cible = popularityTarget(game);
   const frein = investHold(game, "popularity");
 
   if (game.appeal) {
+    // CHACUN VERS SA PROPRE CIBLE. Une cible commune aplatissait tout : en
+    // quelques années les six électorats se rejoignaient, et la base passait
+    // sous les autres parce qu'elle partait plus haut et descendait pendant
+    // qu'ils montaient.
+    const cibles = appealTargets(game);
     Object.keys(PARTIES).forEach((key) => {
-      game.appeal[key] = driftToward(game.appeal[key], cible, frein);
+      game.appeal[key] = driftToward(game.appeal[key], cibles[key], frein);
     });
     syncPopularity(game);
   } else {
-    game.popularity = driftToward(game.popularity, cible, frein);
+    game.popularity = driftToward(game.popularity, popularityTarget(game), frein);
   }
 
   game.standing = driftToward(game.standing, standingTarget(game), investHold(game, "standing"));

@@ -66,7 +66,7 @@ function renderElectorates() {
 
   const ligne = (key, mine) =>
     '<div class="electorate' + (mine ? " is-mine" : "") + '" style="--tint:var(--p-' + key + ')">' +
-      '<span class="electorate-name">' + (mine ? t("label_base") : "") + t("party_" + key) + "</span>" +
+      '<span class="electorate-name">' + t("party_" + key) + "</span>" +
       '<span class="electorate-track"><span class="electorate-fill" style="width:' +
         Math.round(clamp100(game.appeal[key])) + '%"></span></span>' +
       '<span class="electorate-value">' + Math.round(game.appeal[key]) + "</span>" +
@@ -77,6 +77,7 @@ function renderElectorates() {
     .sort((a, b) => game.appeal[b] - game.appeal[a]);
 
   host.innerHTML =
+    '<p class="electorates-title">' + t("electorates_base") + "</p>" +
     ligne(game.party, true) +
     '<p class="electorates-title electorates-others">' + t("electorates_others") + "</p>" +
     autres.map((key) => ligne(key, false)).join("");

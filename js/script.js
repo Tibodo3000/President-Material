@@ -62,8 +62,9 @@ const translations = {
     elec_presidentielle: "Présidentielle",
 
     label_popularity: "Popularité",
-    label_base: "Votre base · ",
-    electorates_others: "Les autres électorats",
+    label_base: "Popularité auprès de votre base",
+    electorates_base: "Popularité auprès de votre base",
+    electorates_others: "Auprès des autres électorats",
     fx_family_self: "Vous",
     fx_family_opinion: "Opinion",
     fx_family_country: "Le pays",
@@ -486,8 +487,9 @@ const translations = {
     elec_presidentielle: "Presidential election",
 
     label_popularity: "Popularity",
-    label_base: "Your base · ",
-    electorates_others: "The other electorates",
+    label_base: "Popularity with your base",
+    electorates_base: "Popularity with your base",
+    electorates_others: "With the other electorates",
     fx_family_self: "You",
     fx_family_opinion: "Opinion",
     fx_family_country: "The country",
