@@ -164,6 +164,10 @@ function newGame(character) {
     investments: {},   // niveaux des postes de dépense choisis par le joueur
     seen: {},          // événements déjà joués : ils ne reviendront pas
     pending: [],       // suites programmées, avec le tour où elles tombent
+    // La vérité de l'opinion vit dans appeal, six électorats ; popularity en
+    // est la moyenne pondérée, recalculée par syncPopularity(). Voir
+    // « LA POPULARITÉ N'EST PAS UN NOMBRE, C'EST SIX » dans js/game-data.js.
+    appeal: null,
     popularity: 0,
     standing: 0,
     rivals,               // une figure par parti
@@ -207,7 +211,8 @@ function newGame(character) {
 
   // On démarre pile sur la cible : le personnage arrive avec le crédit que
   // son profil lui vaut, ni plus ni moins.
-  state.popularity = popularityTarget(state);
+  state.appeal = initialAppeal(state);
+  syncPopularity(state);
   state.standing = standingTarget(state);
   return state;
 }
@@ -928,8 +933,28 @@ function driftToward(current, target, hold) {
   return clamp100(current + (target - current) * rate);
 }
 
+/**
+ * LA DÉRIVE PORTE SUR LES SIX ÉLECTORATS, PAS SUR LA MOYENNE.
+ *
+ * popularity est désormais dérivée : l'écrire directement serait effacé au
+ * prochain syncPopularity(). Chaque électorat glisse donc vers la cible du
+ * profil, en gardant l'écart que les positionnements ont creusé — c'est ce
+ * qui fait qu'une réputation de clivage s'use lentement au lieu de
+ * disparaître au tour suivant.
+ */
 function driftGauges() {
-  game.popularity = driftToward(game.popularity, popularityTarget(game), investHold(game, "popularity"));
+  const cible = popularityTarget(game);
+  const frein = investHold(game, "popularity");
+
+  if (game.appeal) {
+    Object.keys(PARTIES).forEach((key) => {
+      game.appeal[key] = driftToward(game.appeal[key], cible, frein);
+    });
+    syncPopularity(game);
+  } else {
+    game.popularity = driftToward(game.popularity, cible, frein);
+  }
+
   game.standing = driftToward(game.standing, standingTarget(game), investHold(game, "standing"));
 }
 
@@ -3128,6 +3153,13 @@ const BUILD = "2026-08-21 11:45";
     if (game.presidentialRuns === undefined) game.presidentialRuns = 0;
     // Une sauvegarde d'avant la dette de fatigue part sans dette : on ne
     // facture pas rétroactivement ce qui était gratuit quand ça a été joué.
+    // Une sauvegarde d'avant les six électorats n'a qu'un nombre : on le
+    // répartit tel quel, uniformément. On ne lui invente pas un passé de
+    // clivages qu'elle n'a pas vécus.
+    if (!game.appeal) {
+      game.appeal = {};
+      Object.keys(PARTIES).forEach((key) => { game.appeal[key] = game.popularity; });
+    }
     if (game.strain === undefined) game.strain = 0;
     if (game.strainStruck === undefined) game.strainStruck = 0;
 

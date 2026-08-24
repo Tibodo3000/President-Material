@@ -73,6 +73,11 @@ function fxLabel(fx) {
   if (fx.kind === "landscape") {
     return t("party_" + fx.key) + " " + signed(fx.delta) + " " + t("label_points");
   }
+  // L'opinion d'un électorat. Le regroupement en blocs titrés est la phase
+  // suivante ; ici on garantit seulement qu'une pastille se lit.
+  if (fx.kind === "appeal") {
+    return (fx.base ? t("label_base") : t("party_" + fx.key)) + " " + signed(fx.delta);
+  }
   if (fx.kind === "office") return t("pos_" + fx.key);
   if (fx.kind === "lead") return (fx.on ? "" : "✕ ") + t("pos_chef");
   if (fx.kind === "party") return t("fx_join") + " " + t("party_" + fx.key);
@@ -111,6 +116,7 @@ function fxDirection(fx) {
     const mine = fx.key === game.party || fx.key === allyParty();
     return mine === (fx.delta > 0) ? "up" : "down";
   }
+  if (fx.kind === "appeal") return fx.delta > 0 ? "up" : "down";
   if (fx.kind === "office") return fx.up ? "up" : "down";
   if (fx.kind === "lead") return fx.on ? "up" : "down";
   if (fx.kind === "party") return "up";

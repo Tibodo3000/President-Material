@@ -61,7 +61,7 @@ const OFFICE_LIST = [...POSITIONS.filter((p) => p !== "chef"), "none"];
 const ALLIANCE_TARGETS = ["self", "scene", "ruling", "ally", ...PARTY_KEYS, "null"];
 const EFFECT_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "money", "poll", "score",
   "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "join", "alliance",
-  "approval", "dissolve", "end"]);
+  "approval", "dissolve", "end", "axis", "appeal"]);
 const WHEN_KEYS = new Set(["party","position","origin","background","personality","minAge","maxAge","minTurn","maxTurn",
   "minPopularity","maxPopularity","minStanding","maxStanding","minMoney","maxMoney","stat","flag","trait","anyTrait",
   "notTrait","ruling","allied","minShare","rulingClose","legal","comms",
@@ -96,6 +96,8 @@ EFFECT_SPEC.chain = {t:"idlist"}; EFFECT_SPEC.flags = {t:"flagmap"};
 EFFECT_SPEC.landscape = {t:"nummap",v:LANDSCAPE_TARGETS};
 EFFECT_SPEC.office = {t:"select",v:OFFICE_LIST}; EFFECT_SPEC.join = {t:"select",v:LANDSCAPE_TARGETS};
 EFFECT_SPEC.alliance = {t:"select",v:ALLIANCE_TARGETS}; EFFECT_SPEC.end = {t:"select",v:END_TYPES};
+EFFECT_SPEC.axis = {t:"nummap",v:["social","world","economy","power"]};
+EFFECT_SPEC.appeal = {t:"nummap",v:PARTY_KEYS};
 
 const HELP = {
   id:"Identifiant unique (lettres, chiffres, _). Clé pour les chaînes et le suivi « déjà vu ».",
@@ -150,6 +152,8 @@ const FX_HELP = {
   join:"Change le joueur de parti.", alliance:"Signe (cible) ou rompt (null) un pacte.", end:"Termine la partie.",
   popularity:"Jauge de popularité (0-100).", standing:"Cote au parti (0-100).", money:"Argent (€).",
   poll:"Sondage présidentiel.", score:"Avantage de campagne locale.",
+  axis:"Où se situe le choix (−100 à +100). Avec « popularity », le moteur répartit la réaction entre les six électorats.",
+  appeal:"Réaction écrite à la main, électorat par électorat.",
   approval:"Cote du gouvernement (0-100).", dissolve:"Le président dissout : législatives au tour suivant.",
   lead:"Donne (true) ou retire (false) la direction du parti. Le mandat ne bouge pas.",
 };

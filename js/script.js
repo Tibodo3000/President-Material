@@ -62,6 +62,8 @@ const translations = {
     elec_presidentielle: "Présidentielle",
 
     label_popularity: "Popularité",
+    label_base: "Votre base",
+    label_general: "Popularité générale",
     label_standing: "Cote au parti",
     label_next: "Prochaine échéance",
 
@@ -479,6 +481,8 @@ const translations = {
     elec_presidentielle: "Presidential election",
 
     label_popularity: "Popularity",
+    label_base: "Your base",
+    label_general: "General popularity",
     label_standing: "Party standing",
     label_next: "Next milestone",
 
