@@ -1238,6 +1238,14 @@ function eventMatches(ev, s) {
   if (w.minSeats !== undefined && partySeats(s) < w.minSeats) return false;
   if (w.maxSeats !== undefined && partySeats(s) > w.maxSeats) return false;
 
+  // VOUS ÊTES PLUS AIMÉ QUE VOTRE PROPRE PRÉSIDENT. La situation la plus
+  // instable d'un camp au pouvoir, et le jeu ne la connaissait pas : on
+  // pouvait dépasser de vingt points celui qui occupe l'Élysée sans qu'une
+  // seule scène ne s'en aperçoive.
+  if (w.outshinePresident !== undefined) {
+    if (outshinesPresident(s) !== w.outshinePresident) return false;
+  }
+
   // Le poids de votre camp dans le pays, en points d'intentions de vote.
   if (w.minShare !== undefined && (s.landscape[s.party] || 0) < w.minShare) return false;
 

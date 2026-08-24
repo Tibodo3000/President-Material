@@ -133,8 +133,11 @@ function primaryDue() {
   if (turnsToPresidential() !== PRIMARY_LEAD) return false;
 
   // Un président de votre camp qui peut se représenter EST le candidat :
-  // aucun parti n'organise une primaire contre son propre président.
+  // aucun parti n'organise une primaire contre son propre président. Sauf
+  // s'il a renoncé, et l'on sait très bien comment on fait renoncer un
+  // président : voir la fronde, dans js/events/partis.data.js.
   if (rulingParty() === game.party && !incumbentTermLimited() &&
+      !game.flags.presidentRenonce &&
       game.president && !game.president.isPlayer) {
     return false;
   }

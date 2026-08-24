@@ -329,4 +329,114 @@ const EV_partis = [
                     "en": "He refuses and describes your visit. You look like a manipulator." } } }
   ]
 }
+,
+
+/* ==========================================================================
+   PLUS POPULAIRE QUE SON PROPRE PRÉSIDENT
+   --------------------------------------------------------------------------
+   La situation la plus instable d'un camp au pouvoir, et le jeu ne la
+   connaissait pas : on pouvait dépasser de vingt points celui qui occupe
+   l'Élysée, dans son propre parti, sans qu'une seule scène s'en aperçoive.
+
+   Trois temps, qui ne se commandent pas : le sondage qui l'installe, la
+   convocation qu'il provoque, et la fronde qu'on décide ou non de mener. La
+   fronde réussie ne vous fait pas président — on ne remplace pas un président
+   en exercice — elle le fait renoncer, ce qui ouvre la primaire suivante.
+   ========================================================================== */
+
+{
+  "id": "plus_populaire_que_lui",
+  "weight": 5,
+  "when": { "outshinePresident": true, "minTurn": 10, "minPopularity": 52 },
+  "tag": { "fr": "Le sondage de trop", "en": "One poll too many" },
+  "text": {
+    "fr": "Un institut publie la cote des personnalités du camp au pouvoir. Vous êtes premier, le président est quatrième, et c'est la troisième fois d'affilée. À midi, trois rédactions vous demandent si vous êtes candidat à quelque chose.",
+    "en": "A polling institute publishes the standing of the governing camp's figures. You are first, the president is fourth, and it is the third time running. By noon, three newsrooms are asking whether you are a candidate for anything."
+  },
+  "choices": [
+    { "label": { "fr": "Démentir, chaleureusement et sans ambiguïté", "en": "Deny it, warmly and without ambiguity" },
+      "effects": { "standing": 8, "reputation": 2, "popularity": -5, "credibilite": 1 },
+      "result": { "fr": "Vous dites que le président a votre soutien entier et que ces classements ne veulent rien dire. Les deux moitiés de la phrase sont fausses, et tout le monde préfère la première.",
+                  "en": "You say the president has your full backing and that these rankings mean nothing. Both halves of the sentence are untrue, and everybody prefers the first." } },
+
+    { "label": { "fr": "Ne rien dire du tout et laisser courir", "en": "Say nothing at all and let it run" },
+      "effects": { "popularity": 6, "notoriete": 2, "standing": -6, "sangfroid": 1 },
+      "result": { "fr": "Un silence de quarante-huit heures vaut une déclaration, et celle-là est entendue de l'Élysée avant midi. Vous n'avez rien dit, ce qui est précisément ce qu'on vous reprochera.",
+                  "en": "Forty-eight hours of silence is a statement, and this one is heard at the palace before noon. You said nothing, which is precisely what will be held against you." } },
+
+    { "label": { "fr": "Répondre que le pays choisira le moment venu", "en": "Answer that the country will choose when the time comes" },
+      "roll": { "base": 16, "stat": "eloquence", "plus": { "sangfroid": 0.4, "popularity": 0.05 }, "dice": 16 },
+      "success": { "effects": { "popularity": 9, "credibilite": 2, "notoriete": 2, "standing": -8 },
+        "result": { "fr": "Une phrase qui ne dit ni oui ni non et que personne ne peut vous faire retirer. Elle sera citée pendant deux ans, et elle vient de vous coûter le camp sans vous coûter le pays.",
+                    "en": "A sentence that says neither yes nor no and that nobody can make you withdraw. It will be quoted for two years, and it has just cost you the camp without costing you the country." } },
+      "failure": { "effects": { "popularity": -4, "standing": -11, "reputation": -2, "strike": "traitre" },
+        "result": { "fr": "Vous cherchez la formule et vous trouvez l'ambiguïté. Reprise sans ses virgules, elle devient une candidature contre le président de votre propre camp.",
+                    "en": "You reach for a formula and find an ambiguity. Quoted without its commas, it becomes a candidacy against the president of your own camp." } } }
+  ]
+},
+
+{
+  "id": "president_convoque",
+  "weight": 3,
+  "when": { "outshinePresident": true },
+  "tag": { "fr": "Convoqué", "en": "Summoned" },
+  "text": {
+    "fr": "Le président vous reçoit seul, sans conseiller et sans note. Il a lu les mêmes sondages que vous, il ne les cite pas une seule fois, et il vous parle pendant quarante minutes de la cohésion du camp comme d'une chose fragile.",
+    "en": "The president sees you alone, with no adviser and no notes. He has read the same polls you have, does not mention them once, and talks to you for forty minutes about the cohesion of the camp as a fragile thing."
+  },
+  "choices": [
+    { "label": { "fr": "Le rassurer, et le penser à moitié", "en": "Reassure him, and half mean it" },
+      "effects": { "standing": 7, "reseau": 2, "popularity": -3, "credibilite": 1 },
+      "result": { "fr": "Vous sortez avec une poignée de main devant les caméras et l'assurance qu'on ne vous oubliera pas. Les deux ont exactement la même valeur.",
+                  "en": "You leave with a handshake in front of the cameras and an assurance that you will not be forgotten. Both are worth exactly the same." } },
+
+    { "label": { "fr": "Demander un ministère régalien, tout de suite", "en": "Ask for a great office of state, right now" },
+      "when": { "position": ["depute", "maire", "euro"] },
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "popularity": 0.06, "credibilite": 0.3 }, "dice": 16 },
+      "success": { "effects": { "office": "ministre", "standing": 6, "credibilite": 2, "popularity": -3 },
+        "result": { "fr": "Il vous nomme dans les dix jours. On appelle cela une promotion ; dans son entourage, on appelle cela mettre quelqu'un là où il devra rendre des comptes.",
+                    "en": "He appoints you within ten days. It is called a promotion; in his circle it is called putting somebody where they will have to answer for things." } },
+      "failure": { "effects": { "standing": -8, "popularity": -2, "reputation": -1 },
+        "result": { "fr": "Il vous écoute jusqu'au bout, vous remercie de votre franchise, et ne rappelle pas. Vous avez montré votre prix sans obtenir l'achat.",
+                    "en": "He hears you out, thanks you for your frankness, and does not call back. You showed your price without making the sale." } } },
+
+    { "label": { "fr": "Lui dire la vérité : vous serez candidat", "en": "Tell him the truth: you will run" },
+      "effects": { "popularity": 5, "credibilite": 2, "reputation": 2, "standing": -12, "notoriete": 1 },
+      "result": { "fr": "Vous le lui dites en face, ce que personne ne fait jamais, et il vous en remercie sincèrement avant de vous couper de tout pendant trois ans. Aucun des deux ne l'oubliera.",
+                  "en": "You say it to his face, which nobody ever does, and he thanks you sincerely before cutting you off from everything for three years. Neither of you will forget it." } }
+  ]
+},
+
+{
+  "id": "fronde_president",
+  "weight": 4,
+  "cast": "camp_senior",
+  "when": { "outshinePresident": true, "minTurn": 14, "minStanding": 45, "maxApproval": 44 },
+  "tag": { "fr": "La fronde", "en": "The revolt" },
+  "text": {
+    "fr": "{rival} vient vous voir avec une idée qui n'est pas de {lui} : le camp ne repartira pas avec le président sortant, et il faut qu'on le lui dise avant qu'il annonce. Ils sont onze à le penser et zéro à vouloir le dire.",
+    "en": "{rival} comes to see you with an idea that is not {his} own: the camp will not go again with the sitting president, and somebody has to tell him before he announces. Eleven of them think so and none of them wants to say it."
+  },
+  "choices": [
+    { "label": { "fr": "Mener la fronde, et signer de votre nom", "en": "Lead the revolt, and sign your name to it" },
+      "roll": { "base": 17, "stat": "reseau", "plus": { "popularity": 0.06, "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "flags": { "presidentRenonce": true }, "standing": 9, "credibilite": 2,
+                                "notoriete": 2, "popularity": 4, "reputation": -2, "approval": -6 },
+        "result": { "fr": "Il annonce trois semaines plus tard qu'il ne sollicitera pas un nouveau mandat, pour des raisons personnelles que personne ne croit. L'investiture est libre, et tout le monde sait à qui l'on doit ça.",
+                    "en": "Three weeks later he announces he will not seek another term, for personal reasons nobody believes. The nomination is open, and everybody knows who to thank." } },
+      "failure": { "effects": { "standing": -15, "popularity": -3, "trait": "traitre", "approval": 4 },
+        "result": { "fr": "Sur les onze, quatre se souviennent soudain qu'ils n'avaient rien dit. Le président tient, la liste des signataires existe, et vous êtes le premier nom dessus.",
+                    "en": "Of the eleven, four suddenly remember they had said nothing. The president holds on, the list of signatories exists, and yours is the first name on it." } } },
+
+    { "label": { "fr": "Les laisser la mener et rester en dehors", "en": "Let them lead it and stay out of it" },
+      "effects": { "sangfroid": 2, "credibilite": 1, "standing": -3, "popularity": 1 },
+      "result": { "fr": "Vous écoutez, vous ne promettez rien, et vous ne signez pas. Si elle réussit vous serez là ; si elle échoue vous n'y étiez pas. C'est lâche, c'est efficace, et cela s'apprend tard.",
+                  "en": "You listen, promise nothing and sign nothing. If it succeeds you will be there; if it fails you were not. It is cowardly, it is effective, and it takes years to learn." } },
+
+    { "label": { "fr": "Prévenir le président", "en": "Warn the president" },
+      "effects": { "standing": 11, "reseau": 2, "reputation": -2, "popularity": -6, "approval": 3, "strike": "traitre" },
+      "result": { "fr": "Vous lui donnez les onze noms un dimanche soir. Il vous devra quelque chose et ne vous fera plus jamais confiance, ce qui est le tarif habituel de ce genre de service.",
+                  "en": "You give him the eleven names on a Sunday evening. He will owe you something and will never trust you again, which is the going rate for that kind of favour." } }
+  ]
+}
 ];

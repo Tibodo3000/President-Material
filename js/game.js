@@ -1304,6 +1304,10 @@ function setPresident(who) {
     Boolean(game.president.isPlayer) === Boolean(who.isPlayer) &&
     game.president.name === who.name;
 
+  // Un président neuf n'a renoncé à rien : le drapeau que pose une fronde
+  // réussie ne vaut que pour celui qu'elle visait.
+  if (!same) delete game.flags.presidentRenonce;
+
   game.presidentTerms = same ? game.presidentTerms + 1 : 1;
   game.president = who;
 
@@ -1492,6 +1496,64 @@ const RETIRE_POPULARITY = 15;
  * redeviennent des cadres de leur parti.
  */
 const GOVERNMENT_SIZE = 3;
+
+/* --------------------------------------------------------------------------
+   LE GOUVERNEMENT NE VOUS VOYAIT PAS.
+   --------------------------------------------------------------------------
+   ensureGovernment() compose le gouvernement dans la liste des figures, et
+   le joueur n'y figure pas : on pouvait donc être député du camp au pouvoir,
+   le plus populaire du parti, bien coté, et regarder six personnes moins
+   connues que soi entrer au gouvernement sans qu'on vous appelle jamais.
+
+   Une seule scène du jeu propose un ministère, et elle était tirée au hasard
+   parmi cent vingt autres. Mesuré sur cent cinquante carrières : elle était
+   jouable trois cent un tours et n'est sortie que douze fois, et neuf pour
+   cent des carrières seulement passaient par un ministère. Ce n'était pas un
+   arbitrage de carrière, c'était un ticket de loterie.
+
+   On ne donne pas le poste pour autant : on décroche le téléphone. La scène
+   existante est programmée comme une suite, elle arrive donc à coup sûr et
+   dans les deux tours, et le joueur garde le droit de refuser.
+   -------------------------------------------------------------------------- */
+
+/** La cote minimale en dessous de laquelle l'Élysée ne pense pas à vous. */
+const GOVERNMENT_CALL_STANDING = 50;
+
+/**
+ * Le joueur est-il plus populaire que le président de son propre camp ?
+ * Il faut que ce soit son camp : dépasser le président d'en face n'a rien
+ * d'instable, c'est le métier.
+ */
+function outshinesPresident(s) {
+  const state = s || game;
+  if (!game.president || game.president.isPlayer) return false;
+  if (game.president.party !== state.party) return false;
+
+  const figure = game.rivals.find((r) => r.name === game.president.name);
+  return Boolean(figure) && state.popularity > figure.popularity;
+}
+
+function maybeGovernmentCall() {
+  if (rulingParty() !== game.party) return;
+  if (!MANDATES.includes(game.position)) return;
+  if (game.standing < GOVERNMENT_CALL_STANDING) return;
+
+  // L'offre ne se refait pas : on la refuse une fois pour toutes.
+  if (game.seen.entree_gouvernement) return;
+  if (pendingChains(game).some((c) => c.id === "entree_gouvernement")) return;
+
+  // ON N'ENTRE PAS AU GOUVERNEMENT PARCE QU'ON EST BON, mais parce qu'on pèse
+  // plus que celui qu'on remplacerait. Tant qu'un seul ministre du camp est
+  // plus populaire que vous, l'Élysée a de meilleures raisons de ne pas vous
+  // appeler ; le jour où vous les dépassez tous, ne pas vous appeler devient
+  // la nouvelle qui se commente.
+  const gouvernement = game.rivals.filter((r) => r.party === game.party &&
+    (r.position === "ministre" || r.position === "premier"));
+  if (!gouvernement.length) return;
+  if (game.popularity <= Math.min(...gouvernement.map((r) => r.popularity))) return;
+
+  scheduleChain(game, "entree_gouvernement");
+}
 
 function ensureGovernment() {
   const ruling = rulingParty();
@@ -1988,6 +2050,7 @@ function advanceTurn() {
   driftApproval();
   maybeCensure();
   ensureGovernment();
+  maybeGovernmentCall();
   maybeDefection();
   applyTraitTurn(game);
 
