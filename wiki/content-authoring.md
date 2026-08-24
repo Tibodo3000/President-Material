@@ -176,6 +176,9 @@ calculator, ruins someone with an integrity reputation).
 ```jsonc
 "charisme" / "eloquence" / … / "credibilite"   // stat deltas, clamped 0..20
 "popularity" / "standing"                       // gauge deltas, clamped 0..100
+"axis": { "social": -70, "economy": -40 }       // WHERE the choice stands (see below)
+"axis": "self"                                  // …or simply: where your own camp stands
+"appeal": { "socdem": 6, "conservatives": -4 }  // one electorate at a time, by hand
 "money": 80000                                  // euros
 "poll": 5           // presidential campaign only — moves voting intentions
 "score": 4          // ordinary race only — moves the hidden campaign advantage
@@ -197,6 +200,35 @@ calculator, ruins someone with an integrity reputation).
 "alliance": "scene"   or   null                 // sign / break a pact
 "end": "conviction"                             // end the game with this type
 ```
+
+### Positioning — `axis`, and the sign trap
+
+`popularity` alone means **everybody, uniformly**: that is what it has always meant and
+most scenes want nothing else. A scene is never obliged to take a side.
+
+Add `axis` and the engine splits the reaction across the six electorates, from the distance
+between the position you declare and each party's own axes, **on the declared axes only** —
+a gesture about the economy is not judged on foreign policy. `"axis": "self"` means "where
+my own camp stands", which is how you write *"give the base what it wants"* without knowing
+who the player is.
+
+> **The sign flips meaning.** Without `axis`, `"popularity": -7` means *the country dislikes
+> this*. **With `axis`, the number is what those who AGREE with you gain** — so it is almost
+> always positive, and the national cost comes out of the model on its own. Writing
+> `"popularity": -7` next to a left-wing position tells the engine that the left hates it.
+> When you add a position to an existing effect, flip the sign and re-read the magnitude.
+
+Measured on the same starting point of 48 everywhere:
+
+| scene | radical | socdem | centre | liberal | conserv. | identit. |
+|---|---|---|---|---|---|---|
+| joining the picket line | **51** | 50 | 47 | 45 | 42 | 44 |
+| owning the deregulation | 33 | 42 | 49 | **54** | 51 | 44 |
+| calling to block the far right | 53 | **54** | 53 | 54 | 44 | **35** |
+| a plague on both houses | 52 | 48 | 47 | **42** | 50 | 52 |
+
+A polarising choice yields less in aggregate than a consensual one of the same size. That is
+the arbitration the split exists to create.
 
 ### Text placeholders
 `{rival}` = staged figure's name (first mention adds party+office), `{rival_party}` =

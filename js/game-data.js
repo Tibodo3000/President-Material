@@ -909,6 +909,21 @@ function bumpAppeal(s, key, delta) {
  */
 const AXIS_NEUTRAL = 0.68;
 
+/**
+ * « DONNER À LA BASE CE QU'ELLE ATTEND » N'A PAS DE COORDONNÉES FIXES.
+ *
+ * Certaines scènes proposent de se caler sur son propre camp, et la position
+ * dépend alors de qui l'on est : la même phrase n'est pas au même endroit
+ * selon qu'on la prononce à la gauche radicale ou chez les identitaires.
+ * "axis": "self" prend donc les axes du parti du joueur, et "ally" ceux de
+ * son allié — deux façons d'écrire « là où je suis » sans écrire de chiffres.
+ */
+function resolveAxis(position, s) {
+  if (position === "self") return partyAxes(s.party);
+  if (position === "ally") return partyAxes(allyParty ? allyParty() : null);
+  return position;
+}
+
 function axisAffinity(position, partyKey) {
   const axes = partyAxes(partyKey);
   const declares = AXES.filter((ax) => position[ax] !== undefined);
@@ -923,7 +938,8 @@ function axisAffinity(position, partyKey) {
  * Applique une popularité positionnée : une seule ligne écrite, six réactions.
  * Renvoie ce qui a bougé, électorat par électorat.
  */
-function applyPositionedPopularity(s, amount, position) {
+function applyPositionedPopularity(s, amount, brut) {
+  const position = resolveAxis(brut, s);
   const bouge = {};
   Object.keys(PARTIES).forEach((key) => {
     // Ramené sur une pleine amplitude : l'électorat le plus proche prend le
