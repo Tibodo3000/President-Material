@@ -450,7 +450,7 @@ const EV_campaign = [
         "result": { "fr": "Personne ne la lit en entier. Les caricaturistes, si.",
                     "en": "Nobody reads it to the end. The cartoonists do." } } },
     { "label": { "fr": "Vous au milieu d'une foule, sans slogan", "en": "You in a crowd, no slogan" },
-      "effects": { "poll": 1, "popularity": 5, "credibilite": -2 },
+      "effects": { "poll": 1, "appeal": { "self": 6 }, "credibilite": -2 },
       "result": { "fr": "Une image chaleureuse et parfaitement vide. Vos électeurs la trouvent belle, vos adversaires la trouvent commode.",
                   "en": "A warm and perfectly empty image. Your voters find it beautiful; your opponents find it convenient." } },
     { "label": { "fr": "Laisser l'agence choisir la photo qui vous flatte le plus", "en": "Let the agency pick the photo that flatters you most" },
@@ -530,7 +530,7 @@ const EV_campaign = [
                     "en": "The policy is taken apart live by a union man who knows the subject better than you. The exchange lasts six minutes and plays on a loop." } } },
     { "label": { "fr": "Parler de vos grands-parents, et le penser vraiment", "en": "Talk about your grandparents, and mean it" },
       "when": { "origin": ["modest"] },
-      "effects": { "poll": 2, "popularity": 7, "reputation": 1, "energie": -1 },
+      "effects": { "axis": {"economy": -50}, "poll": 2, "popularity": 7, "reputation": 1, "energie": -1 },
       "result": { "fr": "Vous racontez une ferme de dix-huit hectares et ce qu'elle est devenue. Ce n'est pas une séquence de campagne, et c'est pour ça qu'elle marche.",
                   "en": "You describe an eighteen-hectare farm and what became of it. It is not a campaign moment, which is exactly why it works." } }
   ]

@@ -214,7 +214,7 @@ const EV_grandes_decisions = [
                   "en": "Effective and exhausting. Your camp loves it; everyone else switches over." } },
     { "label": { "fr": "Raconter votre milieu d'origine", "en": "Talk about where you come from" },
       "when": { "origin": ["modest"] },
-      "effects": { "reputation": 2, "popularity": 14, "standing": -6 },
+      "effects": { "axis": {"economy": -50}, "reputation": 2, "popularity": 10, "standing": -6 },
       "result": { "fr": "Vous parlez des fins de mois sans pathos. Le pays entend quelque chose de vrai.",
                   "en": "You talk about tight months without self-pity. The country hears something true." } }
   ]

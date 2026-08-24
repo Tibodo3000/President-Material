@@ -376,7 +376,7 @@ const EV_institutions = [
   },
   "choices": [
     { "label": { "fr": "Suivre la ligne nationale", "en": "Follow the national line" },
-      "effects": { "standing": 6, "reputation": -1, "popularity": -3 },
+      "effects": { "standing": 6, "reputation": -1, "appeal": { "self": 5 } },
       "result": { "fr": "Vous votez contre votre groupe et vous perdez la vice-présidence d'une commission dont vos électeurs ignorent l'existence. La direction du parti, elle, a compté votre vote.",
                   "en": "You vote against your group and lose the vice-chair of a committee your voters have never heard of. The party leadership, on the other hand, counted your vote." } },
     { "label": { "fr": "Suivre le groupe européen", "en": "Follow the European group" },

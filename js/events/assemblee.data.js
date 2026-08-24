@@ -363,7 +363,7 @@ const EV_assemblee = [
   },
   "choices": [
     { "label": { "fr": "La circonscription. On ne dirige rien quand on n'est plus élu", "en": "The constituency. You run nothing once you stop being elected" },
-      "effects": { "popularity": 6, "reseau": 2, "energie": -2, "standing": -5 },
+      "effects": { "appeal": { "self": 8 }, "reseau": 2, "energie": -2, "standing": -5 },
       "result": { "fr": "Trois semaines de marchés, de comices et de salles des fêtes. Votre base tient, et au siège on note que le patron a passé trois semaines ailleurs.",
                   "en": "Three weeks of markets, county shows and village halls. Your base holds, and at headquarters they note that the boss spent three weeks elsewhere." } },
     { "label": { "fr": "Le parti. La circonscription attendra, comme d'habitude", "en": "The party. The seat can wait, as usual" },

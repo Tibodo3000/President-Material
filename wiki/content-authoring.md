@@ -230,6 +230,31 @@ Measured on the same starting point of 48 everywhere:
 A polarising choice yields less in aggregate than a consensual one of the same size. That is
 the arbitration the split exists to create.
 
+### Aiming at an electorate rather than a position
+
+`"appeal"` names electorates directly, and takes two keywords so you never have to hardcode
+the player's camp: **`self`** is their own electorate, **`others`** every one but theirs.
+
+```jsonc
+"appeal": { "self": 7, "others": -2 }   // mobilise your base, and nobody else
+"appeal": { "self": -11 }               // only your own voters punish you for this
+```
+
+Use it for the two cases the axes cannot express. **Corridor scenes** — a federation dinner,
+a signature traded, a committee — which the country never hears about: those belong to `self`
+alone, and a national popularity move there is simply wrong. And **scenes whose own text
+names the camp**: if the label says *"mobilise your base and nobody else"*, the effect had
+better do exactly that.
+
+### Rolls: the branches may disagree, and usually should
+
+A roll keeps its `success` and `failure` branches, and they do not have to carry the same
+shape. The usual pattern: **a success is positioned** (it lands with the people who agree),
+**a failure is uniform** (everybody thinks less of you for botching it). A left-wing gesture
+that flops does not warm the far right — it just costs you everywhere, which is what a plain
+negative `popularity` already says. Only give the failure a position when the botch itself
+reads as a statement.
+
 ### Text placeholders
 `{rival}` = staged figure's name (first mention adds party+office), `{rival_party}` =
 their party, `{party}` = yours. **Gender agreement marks** for the staged figure (resolved

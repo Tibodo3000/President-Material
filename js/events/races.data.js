@@ -323,7 +323,7 @@ const EV_races = [
         "result": { "fr": "Personne ne veut parler du collège. Toutes les questions portent sur une phrase prononcée à quatre cents kilomètres d'ici.",
                     "en": "Nobody wants to talk about the school. Every question is about a sentence said four hundred kilometres away." } } },
     { "label": { "fr": "Prendre publiquement vos distances avec la direction", "en": "Publicly distance yourself from the leadership" },
-      "effects": { "score": 5, "standing": -11, "popularity": 4, "strike": "intrepide" },
+      "effects": { "score": 5, "standing": -11, "appeal": { "self": -4,  "others": 5 }, "strike": "intrepide" },
       "result": { "fr": "Vous dites tout haut ce que vos électeurs pensent de votre propre camp. Ils vous réélisent, et la direction vous fait payer pendant cinq ans.",
                   "en": "You say out loud what your voters think of your own side. They re-elect you, and the leadership makes you pay for five years." } }
   ]
@@ -367,7 +367,7 @@ const EV_races = [
   },
   "choices": [
     { "label": { "fr": "Mobiliser votre base et elle seule", "en": "Mobilise your base and nobody else" },
-      "effects": { "score": 7, "popularity": -4, "strike": "radical" },
+      "effects": { "score": 7, "appeal": { "self": 7,  "others": -2 }, "strike": "radical" },
       "result": { "fr": "Vous parlez cinq semaines à ceux qui votent déjà pour vous, avec les mots qu'ils attendent. C'est efficace et c'est exactement pour ça que ce scrutin est ce qu'il est.",
                   "en": "You spend five weeks talking to people who already vote for you, in the words they expect. It works, and it is exactly why this election is what it is." } },
     { "label": { "fr": "Faire campagne pour la participation elle-même", "en": "Campaign for turnout itself" },

@@ -492,7 +492,7 @@ const EV_divers = [
   "choices": [
     { "label": { "fr": "Écrire un texte clivant", "en": "Write something divisive" },
       "roll": { "stat": "eloquence", "base": 14, "dice": 16 },
-      "success": { "effects": { "landscape": { "self": -0.8 }, "notoriete": 2, "reseau": -1, "popularity": 10, "standing": -8 },
+      "success": { "effects": { "axis": "self", "landscape": { "self": -0.8 }, "notoriete": 2, "reseau": -1, "popularity": 10, "standing": -8 },
         "result": { "fr": "Le texte fait réagir jusque dans votre camp. On vous lit, c'est déjà ça.",
                     "en": "The piece angers people, including on your side. At least they read it." } },
       "failure": { "effects": { "notoriete": -1, "popularity": -4, "standing": -4 },
@@ -526,7 +526,7 @@ const EV_divers = [
   },
   "choices": [
     { "label": { "fr": "Voter avec le groupe", "en": "Vote with the group" },
-      "effects": { "reseau": 1, "reputation": -1, "popularity": -12, "standing": 15 },
+      "effects": { "reseau": 1, "reputation": -1, "appeal": { "self": -11 }, "standing": 15 },
       "result": { "fr": "L'appareil s'en souviendra. Vos électeurs aussi.",
                   "en": "The machine will remember. So will your voters." } },
     { "label": { "fr": "Voter contre, en conscience", "en": "Vote your conscience" },

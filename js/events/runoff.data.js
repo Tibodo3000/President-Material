@@ -250,7 +250,7 @@ const EV_runoff = [
       "result": { "fr": "Quarante minutes à parler à des gens qui ne sont pas dans la salle. Ceux qui y sont applaudissent moins fort, et ce sont les autres qui votent dimanche.",
                   "en": "Forty minutes addressing people who are not in the room. The ones who are clap less loudly, and it is the others who vote on Sunday." } },
     { "label": { "fr": "Un discours pour les vôtres, qui en ont besoin", "en": "A speech for your own, who need one" },
-      "effects": { "poll": 0, "standing": 7, "popularity": 2, "energie": -2 },
+      "effects": { "poll": 0, "standing": 7, "appeal": { "self": 7 }, "energie": -2 },
       "result": { "fr": "La salle est debout pendant les onze dernières minutes. Ils tiendront jusqu'à dimanche et ils iront chercher leurs voisins, ce qui n'est pas rien.",
                   "en": "The hall is on its feet for the last eleven minutes. They will hold out until Sunday and go and fetch their neighbours, which is not nothing." } },
     { "label": { "fr": "Un discours court, et sortir sous les applaudissements", "en": "A short speech, and leave on the applause" },
