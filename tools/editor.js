@@ -68,7 +68,7 @@ const WHEN_KEYS = new Set(["party","position","origin","background","personality
   // L'exécutif, l'Assemblée et la direction du parti. Elles existaient dans le
   // moteur et manquaient ici : l'éditeur signalait donc « condition inconnue »
   // sur des conditions parfaitement valides.
-  "partyLead","majority","inCoalition","firstGroup","pivot","minSeats","maxSeats","outshinePresident",
+  "partyLead","majority","inCoalition","firstGroup","pivot","minSeats","maxSeats","outshinePresident","foeIncumbent","foeParty","foeFar",
   "minApproval","maxApproval","dissolved","belowPeak"]);
 const ALL_IDS = {};
 for (const arr of Object.values(DECKS)) arr.forEach((e) => { ALL_IDS[e.id] = (ALL_IDS[e.id] || 0) + 1; });
@@ -83,6 +83,7 @@ const WHEN_SPEC = {
   comms:{t:"num"}, ruling:{t:"bool"},allied:{t:"bool"},rulingClose:{t:"bool"}, stat:{t:"statmap"}, flag:{t:"flagmap"},
   partyLead:{t:"bool"}, majority:{t:"multi",v:["absolue","relative","aucune"]},
   inCoalition:{t:"bool"}, firstGroup:{t:"bool"}, pivot:{t:"bool"}, outshinePresident:{t:"bool"},
+  foeIncumbent:{t:"bool"}, foeFar:{t:"bool"}, foeParty:{t:"multi",v:PARTY_KEYS},
   minSeats:{t:"num"}, maxSeats:{t:"num"}, minApproval:{t:"num"}, maxApproval:{t:"num"},
   dissolved:{t:"bool"}, belowPeak:{t:"bool"},
 };
@@ -134,6 +135,9 @@ const WHEN_HELP = {
   firstGroup:"Votre parti est le premier groupe de l'Assemblée.",
   pivot:"Le gouvernement n'a pas la majorité et l'aurait avec vous.",
   outshinePresident:"Vous êtes plus populaire que le président, et il est de votre camp.",
+  foeIncumbent:"Second tour : l'adversaire porte un bilan (Élysée ou Matignon).",
+  foeParty:"Second tour : le camp de l'adversaire.",
+  foeFar:"Second tour : son camp est loin du vôtre (au-delà du voisinage).",
   minSeats:"Sièges min. de votre parti (sur 577).", maxSeats:"Sièges max. de votre parti (sur 577).",
   minApproval:"Cote du gouvernement min.", maxApproval:"Cote du gouvernement max.",
   dissolved:"Législatives anticipées après dissolution.",

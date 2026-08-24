@@ -259,6 +259,27 @@ function runoffOpponent() {
 }
 
 /**
+ * L'adversaire du second tour, pour les conditions d'événement. Renvoie null
+ * hors de l'entre-deux-tours : ces conditions n'ont de sens que là.
+ */
+function runoffFoe() {
+  if (!game.campaign || !game.campaign.duel) return null;
+  return game.campaign.duel.field.find((c) => !c.isPlayer) || null;
+}
+
+/**
+ * PORTE-T-IL UN BILAN ? Seuls l'Élysée et Matignon en donnent un : on ne
+ * demande pas des comptes sur cinq ans à quelqu'un qui n'a rien gouverné.
+ */
+function foeHoldsOffice(foe) {
+  if (!foe || !foe.name) return false;
+  if (game.president && !game.president.isPlayer && game.president.name === foe.name) return true;
+
+  const figure = game.rivals.find((r) => r.name === foe.name);
+  return Boolean(figure) && figure.position === "premier";
+}
+
+/**
  * Le candidat qu'on va chercher entre les deux tours : le plus gros des
  * éliminés, parce que ce sont ses voix qui décident. Les scènes qui le
  * mettent en scène portent "cast": "eliminated".

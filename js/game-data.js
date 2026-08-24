@@ -1246,6 +1246,34 @@ function eventMatches(ev, s) {
     if (outshinesPresident(s) !== w.outshinePresident) return false;
   }
 
+  /* ------------------------------------------------------------------------
+     QUI EST EN FACE, AU SECOND TOUR.
+     ------------------------------------------------------------------------
+     Toutes les conditions du jeu décrivent le joueur. Aucune ne décrivait
+     l'adversaire, si bien qu'on pouvait proposer « attaquer son bilan » à
+     quelqu'un qui affrontait un candidat n'ayant jamais rien gouverné : il
+     n'y a pas de bilan à attaquer, et la scène disait le contraire.
+
+       foeIncumbent  l'adversaire porte un bilan : il est à l'Élysée ou à
+                     Matignon au moment du débat.
+       foeParty      son camp, en toutes lettres.
+       foeFar        son camp est loin du vôtre, au-delà du voisinage
+                     idéologique. C'est ce qui ouvre le registre du front
+                     républicain, et le ferme entre voisins.
+     Elles ne valent que pendant l'entre-deux-tours, où le champ est connu.
+     ---------------------------------------------------------------------- */
+  if (w.foeIncumbent !== undefined || w.foeParty || w.foeFar !== undefined) {
+    const foe = typeof runoffFoe === "function" ? runoffFoe() : null;
+    if (!foe) return false;
+
+    if (w.foeIncumbent !== undefined && foeHoldsOffice(foe) !== w.foeIncumbent) return false;
+    if (w.foeParty && !w.foeParty.includes(foe.party)) return false;
+    if (w.foeFar !== undefined) {
+      const loin = ideologicalDistance(foe.party, s.party) > NEIGHBOUR_DISTANCE;
+      if (loin !== w.foeFar) return false;
+    }
+  }
+
   // Le poids de votre camp dans le pays, en points d'intentions de vote.
   if (w.minShare !== undefined && (s.landscape[s.party] || 0) < w.minShare) return false;
 

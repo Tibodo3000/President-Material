@@ -121,6 +121,17 @@ no longer drawn, it is scripted.
 "pivot": true                          // the government has no majority, and would with you
 "minSeats": 60, "maxSeats": 32         // your party's seats, out of 577 (289 = a majority)
 "dissolved": true                      // a snap legislative election after a dissolution
+"outshinePresident": true              // you are more popular than the president, and
+                                       //   they are from your own camp
+
+// The runoff opponent — these only hold during the fortnight between the rounds,
+// where the field is known. Every other condition describes the player; without
+// these, a scene could offer to "attack the record" of somebody who has never
+// governed anything.
+"foeIncumbent": true                   // they carry a record: Élysée or Matignon
+"foeParty": ["identitarians"]          // their camp, spelled out
+"foeFar": true                         // their camp is beyond your ideological
+                                       //   neighbourhood — the front républicain register
 ```
 
 **A note on `"position"` and `"chef"`.** The party leadership is not an office any more
