@@ -302,4 +302,146 @@ const EV_nomination = [
                   "en": "You leave the committee to the people who enjoy it and spend six months outside. The leadership will not nominate you any sooner, and the voters will know you better." } }
   ]
 }
+,
+
+/* ==========================================================================
+   CE QU'ON REFUSE N'EST PAS TOUJOURS UNE CIRCONSCRIPTION
+   --------------------------------------------------------------------------
+   Les scènes ci-dessus parlent de listes, de commissions et de fédérations :
+   elles valent pour un siège. Se voir refuser la DIRECTION DU PARTI ou
+   L'INVESTITURE PRÉSIDENTIELLE n'a rien à voir, et le paquet ne le disait
+   nulle part. On ne parachute pas un chef de parti, il n'y a pas de quatrième
+   place sur une liste quand il n'y a qu'un poste, et à six mois d'une
+   présidentielle le mot qu'on emploie n'est pas « commission », c'est
+   « rassemblement ».
+
+   Ces quatre scènes portent donc leur scrutin en propre.
+   ========================================================================== */
+
+{
+  "id": "investiture_signatures",
+  "election": ["congres"],
+  "weight": 5,
+  "tag": { "fr": "Direction refusée", "en": "Leadership denied" },
+  "text": {
+    "fr": "Pour déposer une motion au congrès, il faut les signatures d'un dixième des secrétaires de fédération. Vous en avez les deux tiers, et les autres attendent de savoir qui va gagner avant de dire qui ils soutiennent.",
+    "en": "To table a motion at the congress you need the signatures of a tenth of the federation secretaries. You have two thirds of them, and the rest are waiting to know who will win before saying who they back."
+  },
+  "choices": [
+    { "label": { "fr": "Aller les chercher une par une, en province", "en": "Go and get them one by one, in the provinces" },
+      "roll": { "base": 15, "stat": "reseau", "plus": { "energie": 0.4, "charisme": 0.3 }, "dice": 16 },
+      "success": { "effects": { "standing": 7, "reseau": 2, "energie": -3, "popularity": -2 },
+        "result": { "fr": "Onze départements en trois semaines, et la motion est déposée avec quatre signatures d'avance. Aucune ne vous a été donnée : elles ont toutes été cherchées, et cela se saura.",
+                    "en": "Eleven departments in three weeks, and the motion is tabled with four signatures to spare. Not one was given: every one was fetched, and that will get around." } },
+      "failure": { "effects": { "standing": -6, "energie": -3, "credibilite": -1 },
+        "result": { "fr": "Deux se dérobent au téléphone, un troisième signe la motion d'en face pendant que vous roulez vers lui. Vous rentrez avec une motion morte et une note de péage.",
+                    "en": "Two dodge you on the phone, a third signs the rival motion while you are driving to see him. You come home with a dead motion and a toll receipt." } } },
+
+    { "label": { "fr": "Échanger vos signatures contre une place dans la future direction", "en": "Trade your signatures for a seat in the next leadership" },
+      "effects": { "standing": 5, "reseau": 2, "credibilite": -1, "popularity": -2, "reputation": -1 },
+      "result": { "fr": "Vous retirez votre motion et vous entrez au bureau national. C'est exactement ce qu'on attendait de vous, et c'est exactement pour cela que personne ne vous craindra au congrès suivant.",
+                  "en": "You withdraw your motion and join the national executive. It is exactly what was expected of you, and exactly why nobody will fear you at the next congress." } },
+
+    { "label": { "fr": "Déposer quand même, sans le compte", "en": "Table it anyway, short of the count" },
+      "effects": { "popularity": 5, "notoriete": 1, "standing": -7, "sangfroid": 1 },
+      "result": { "fr": "La motion est déclarée irrecevable en douze secondes par une commission des statuts qui n'a jamais autant travaillé. La presse en parle, ce qui était le seul objectif atteignable.",
+                  "en": "The motion is ruled out of order in twelve seconds by a rules committee that has never worked so hard. The press covers it, which was the only achievable objective." } }
+  ]
+},
+
+{
+  "id": "investiture_dauphin",
+  "election": ["congres"],
+  "weight": 5,
+  "cast": "camp_senior",
+  "tag": { "fr": "Direction refusée", "en": "Leadership denied" },
+  "text": {
+    "fr": "Le congrès n'aura pas lieu, ou plutôt il aura lieu et ne décidera rien : le sortant a désigné {rival}, et l'on vous fait comprendre qu'un vote serait « un luxe que le parti ne peut pas se payer cette année ».",
+    "en": "The congress will not happen, or rather it will happen and decide nothing: the outgoing leader has anointed {rival}, and you are given to understand that a vote would be \"a luxury the party cannot afford this year\"."
+  },
+  "choices": [
+    { "label": { "fr": "Se rallier le premier, et le plus visiblement possible", "en": "Fall in first, and as visibly as possible" },
+      "effects": { "standing": 8, "reseau": 1, "popularity": -4, "credibilite": -1 },
+      "result": { "fr": "Vous montez sur scène quatre minutes après l'annonce et vous parlez de rassemblement. {Il} sait ce que cela vaut, vous savez ce que cela coûte, et vous serez le premier appelé la prochaine fois.",
+                  "en": "You are on stage four minutes after the announcement, talking about unity. {He} knows what that is worth, you know what it costs, and you will be the first one called next time." } },
+
+    { "label": { "fr": "Exiger un vote des adhérents, publiquement", "en": "Demand a members' ballot, in public" },
+      "roll": { "base": 16, "stat": "eloquence", "plus": { "popularity": 0.05, "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "popularity": 9, "standing": -4, "notoriete": 2, "reputation": 2, "credibilite": 1 },
+        "result": { "fr": "Le vote a lieu. Vous le perdez de dix-huit points, et vous sortez du congrès comme le seul qui ait demandé aux adhérents leur avis. C'est une défaite qui se dépose à la banque.",
+                    "en": "The ballot is held. You lose it by eighteen points, and you leave the congress as the only person who asked the members what they thought. That is a defeat you can bank." } },
+      "failure": { "effects": { "standing": -9, "popularity": -3, "reputation": -1 },
+        "result": { "fr": "On vous répond statuts en main que la procédure ne le permet pas, et l'on a raison. Vous passez pour quelqu'un qui n'a pas lu les statuts de son propre parti.",
+                    "en": "They answer, rulebook in hand, that the procedure does not allow it, and they are right. You come across as somebody who has not read his own party's rules." } } },
+
+    { "label": { "fr": "Ne rien dire et préparer le congrès suivant", "en": "Say nothing and prepare the next congress" },
+      "effects": { "sangfroid": 2, "reseau": 2, "credibilite": 1, "standing": -2, "energie": -1 },
+      "result": { "fr": "Vous applaudissez au bon moment et vous passez l'année dans les fédérations. Un dauphin dure en moyenne un mandat ; les fédérations, elles, restent.",
+                  "en": "You applaud at the right moment and spend the year in the federations. An anointed successor lasts about one term; the federations stay." } }
+  ]
+},
+
+{
+  "id": "investiture_candidat_naturel",
+  "election": ["presidentielle"],
+  "weight": 5,
+  "cast": "camp_senior",
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "Il n'y aura pas de primaire. Le siège a tranché pour {rival}, au motif que le parti avait besoin d'« un candidat naturel ». La formule veut dire qu'aucun vote ne viendra vérifier que c'en est un. On vous demande d'être sur la photo du lancement, au deuxième rang.",
+    "en": "There will be no primary. Headquarters has settled on {rival}, on the grounds that the party needed \"a natural candidate\". The phrase means no vote will be held to check that this is one. You are asked to be in the launch photograph, in the second row."
+  },
+  "choices": [
+    { "label": { "fr": "Y être, au deuxième rang, et sourire", "en": "Be there, in the second row, smiling" },
+      "effects": { "standing": 7, "reseau": 1, "popularity": -3, "credibilite": -1 },
+      "result": { "fr": "La photo fait le tour des rédactions et vous y êtes, un peu flou, derrière l'épaule droite. Dans cinq ans on la ressortira pour dire que vous étiez là depuis le début.",
+                  "en": "The photograph goes round every newsroom and there you are, slightly out of focus, behind the right shoulder. In five years it will be dug out to prove you were there from the start." } },
+
+    { "label": { "fr": "Dire tout haut qu'un candidat naturel, ça n'existe pas", "en": "Say out loud that there is no such thing as a natural candidate" },
+      "roll": { "base": 16, "stat": "eloquence", "plus": { "popularity": 0.06, "sangfroid": 0.3 }, "dice": 16 },
+      "success": { "effects": { "popularity": 10, "notoriete": 2, "credibilite": 2, "standing": -8 },
+        "result": { "fr": "La phrase est reprise partout et personne dans le parti ne peut la démentir sans se ridiculiser. Vous ne serez pas candidat cette fois, et tout le monde a compris que vous le serez.",
+                    "en": "The line is quoted everywhere and nobody in the party can deny it without looking absurd. You will not be the candidate this time, and everybody has understood that you will be." } },
+      "failure": { "effects": { "popularity": -5, "standing": -11, "reputation": -2 },
+        "result": { "fr": "À six mois du scrutin, une phrase pareille s'appelle une division. On vous la ressortira à chaque revers de la campagne, et il y en aura.",
+                    "en": "Six months from the vote, a line like that is called a split. It will be quoted back at you after every setback of the campaign, and there will be setbacks." } } },
+
+    { "label": { "fr": "Ne pas venir, sans prévenir", "en": "Not turn up, without warning" },
+      "effects": { "standing": -9, "reputation": 1, "sangfroid": 1, "notoriete": 1, "popularity": 2 },
+      "result": { "fr": "Votre absence au deuxième rang se voit plus que votre présence ne se serait vue. On ne vous demandera rien, on ne vous proposera rien non plus, et pendant six mois vous serez libre.",
+                  "en": "Your absence from the second row is more visible than your presence would have been. Nobody will ask you for anything, nobody will offer you anything either, and for six months you will be free." } }
+  ]
+},
+
+{
+  "id": "investiture_matignon_promis",
+  "election": ["presidentielle"],
+  "weight": 4,
+  "cast": "camp_senior",
+  "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
+  "text": {
+    "fr": "{rival} a l'investiture et pas la campagne : il lui manque une partie du parti, et cette partie-là vous écoute. {Il} vous reçoit un dimanche soir et prononce le mot Matignon avant même de s'asseoir.",
+    "en": "{rival} has the nomination and not the campaign: part of the party is missing, and that part listens to you. {He} sees you on a Sunday evening and says the word Matignon before even sitting down."
+  },
+  "choices": [
+    { "label": { "fr": "Accepter, et faire campagne à fond", "en": "Accept, and campaign flat out" },
+      "effects": { "standing": 10, "reseau": 2, "energie": -3, "popularity": -2, "credibilite": 1 },
+      "result": { "fr": "Vous faites quarante meetings pour quelqu'un d'autre. Si {il} gagne, la promesse vaudra ce que valent les promesses d'avant le premier tour ; si {il} perd, vous serez le seul à en sortir grandi.",
+                  "en": "You do forty rallies for somebody else. If {he} wins, the promise will be worth what promises made before a first round are worth; if {he} loses, you will be the only one who comes out of it bigger." } },
+
+    { "label": { "fr": "Exiger que ce soit écrit et contresigné", "en": "Insist it be put in writing and countersigned" },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "reseau": 0.4, "credibilite": 0.3 }, "dice": 16 },
+      "success": { "effects": { "standing": 12, "credibilite": 2, "reseau": 1, "reputation": -1 },
+        "result": { "fr": "Une feuille, deux signatures, et un témoin qui n'a rien dit de la soirée. Cela n'a aucune valeur juridique et cela en a une autre, qui est de rendre le reniement coûteux.",
+                    "en": "One sheet, two signatures, and a witness who said nothing all evening. It has no legal force whatever and it has another kind, which is to make going back on it expensive." } },
+      "failure": { "effects": { "standing": -8, "reputation": -2, "popularity": -2 },
+        "result": { "fr": "{Il} se lève, dit qu'entre gens de parole on ne signe pas, et la soirée s'arrête là. Le lendemain, la promesse est faite à quelqu'un d'autre, oralement.",
+                    "en": "{He} stands up, says that people of their word do not sign things, and the evening ends there. The next day the promise is made to somebody else, orally." } } },
+
+    { "label": { "fr": "Refuser : on ne se vend pas avant le premier tour", "en": "Refuse: you do not sell yourself before the first round" },
+      "effects": { "reputation": 3, "credibilite": 2, "sangfroid": 1, "standing": -7, "popularity": 3 },
+      "result": { "fr": "Vous répondez que vous verrez le soir du premier tour, ce qui est la seule réponse honnête et la seule qu'on ne pardonne pas. {Il} n'a plus besoin de vous, et vous n'avez plus rien à lui devoir.",
+                  "en": "You answer that you will see on the evening of the first round, which is the only honest answer and the one that is never forgiven. {He} no longer needs you, and you no longer owe him anything." } }
+  ]
+}
 ];
