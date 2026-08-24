@@ -770,7 +770,34 @@ function bumpPop(state, delta) {
  * commence donc avec très précisément le crédit qu'il avait avant, réparti
  * au lieu d'être uniforme.
  */
-const APPEAL_SPREAD = 26;
+/*
+ * L'ECART STRUCTUREL entre votre camp et les autres, avant tout choix. A 26,
+ * les six electorats tenaient dans onze points et la base depassait a peine
+ * le camp voisin : apres une carriere entiere on lisait 62 / 59 / 56 / 56 /
+ * 54 / 51, c'est-a-dire six fois le meme chiffre. Un parti qui vous a investi
+ * vous accorde beaucoup plus que celui d'en face, et cela doit se voir.
+ */
+const APPEAL_SPREAD = 46;
+
+/*
+ * LA FORME S'EFFACE BEAUCOUP PLUS LENTEMENT QUE LE NIVEAU.
+ *
+ * La derive ramenait chaque electorat vers sa cible au rythme ordinaire des
+ * jauges (DRIFT, 0,28 par tour) : ce qu'un choix avait creuse etait comble en
+ * trois ou quatre tours, et le positionnement ne laissait aucune trace. Or
+ * c'est exactement l'inverse qu'on veut dire — un electorat tient un dossier
+ * sur vous, et il s'en souvient.
+ *
+ * On separe donc les deux mouvements. La MOYENNE suit la cible au rythme
+ * habituel, ce qui laisse la popularite d'ensemble se comporter exactement
+ * comme avant. Les ECARTS a cette moyenne, eux, ne se resorbent qu'a 0,06 par
+ * tour : une reputation de clivage met une quinzaine d'annees a s'effacer, et
+ * ne s'efface jamais tout a fait tant qu'on continue.
+ */
+const APPEAL_SHAPE_DRIFT = 0.06;
+
+/** Ce qui rappelle les AUTRES électorats vers leur cible. Volontairement bas. */
+const OTHERS_PULL = 0.08;
 
 /**
  * LE NIVEAU NATUREL DE CHAQUE ÉLECTORAT.

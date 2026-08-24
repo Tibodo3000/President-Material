@@ -946,13 +946,45 @@ function driftGauges() {
   const frein = investHold(game, "popularity");
 
   if (game.appeal) {
-    // CHACUN VERS SA PROPRE CIBLE. Une cible commune aplatissait tout : en
-    // quelques années les six électorats se rejoignaient, et la base passait
-    // sous les autres parce qu'elle partait plus haut et descendait pendant
-    // qu'ils montaient.
+    /* LE NIVEAU DÉRIVE VITE, LA FORME TRÈS LENTEMENT.
+       Chacun vers sa propre cible ne suffisait pas : au rythme ordinaire des
+       jauges, ce qu'un choix avait creusé entre deux électorats était comblé
+       en trois ou quatre tours, et positionner ne laissait aucune trace. On
+       fait donc glisser la MOYENNE au rythme habituel — la popularité
+       d'ensemble se comporte exactement comme avant — et les ÉCARTS à cette
+       moyenne beaucoup plus lentement. C'est le dossier que chaque électorat
+       tient sur vous, et il s'en souvient. */
     const cibles = appealTargets(game);
+    const { poids, total } = electorateWeights(game);
+    const moyenne = (map) => {
+      let somme = 0;
+      Object.keys(PARTIES).forEach((k) => { somme += map[k] * poids[k]; });
+      return total ? somme / total : 0;
+    };
+
+    /* SEULE VOTRE BASE DÉRIVE.
+       Votre camp vous connaît : il sait ce que vous valez, et son opinion
+       revient vers ce que votre dossier dit de vous. Les autres électorats ne
+       vous connaissent que par vos actes, et il n'y a aucune raison qu'ils
+       reviennent tout seuls vers quoi que ce soit — ce qu'ils pensent de vous
+       est la somme de ce que vous avez fait devant eux.
+
+       C'est ce qui rendait les six valeurs si proches : elles étaient toutes
+       ramenées vers une cible calculée depuis les statistiques, si bien que
+       les choix n'étaient que des perturbations autour d'un chiffre décidé à
+       la création du personnage. */
+    game.appeal[game.party] = driftToward(game.appeal[game.party], cibles[game.party], frein);
+
+    // Les autres ne reviennent pas vers leur cible, ils s'en approchent de
+    // très loin. Sans aucun rappel, ce qu'ils pensent de vous ne fait que
+    // descendre — le contenu du jeu a été écrit contre un rappel fort — et la
+    // popularité d'ensemble s'effondrait de quarante-trois à trente. Le
+    // coefficient est assez faible pour qu'un choix tienne des années, assez
+    // present pour qu'une carriere ne parte pas au fond.
     Object.keys(PARTIES).forEach((key) => {
-      game.appeal[key] = driftToward(game.appeal[key], cibles[key], frein);
+      if (key === game.party) return;
+      game.appeal[key] = clamp100(
+        game.appeal[key] + (cibles[key] - game.appeal[key]) * OTHERS_PULL);
     });
     syncPopularity(game);
   } else {
