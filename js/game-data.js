@@ -2409,8 +2409,16 @@ function runoff(field, s) {
          ce qu'on avait fait devant ces électeurs pendant vingt ans ne comptait
          pour rien. C'est pourtant là, et seulement là, que se paie le choix
          d'avoir chauffé sa base ou d'avoir parlé à tout le monde. */
+      /* CE QUE LES TRAITS COÛTENT AU SECOND TOUR N'A PAS DISPARU. En passant
+         par l'adhésion réelle, on avait cessé d'appeler rejectionRate pour le
+         joueur : la femme candidate, le procès en cours, la radicalité ne
+         changeaient plus rien au report, alors que c'est très exactement le
+         moment où ils se paient. On garde donc la part que les TRAITS
+         ajoutent au refus, au-dessus du forfait commun de quatorze pour cent
+         déjà contenu dans l'adhésion. */
       const base = (f.isPlayer || f.mine) && s.appeal
-        ? 0.30 + (s.appeal[out.party] / 100) * 0.95
+        ? (0.30 + (s.appeal[out.party] / 100) * 0.95) *
+          (1 - Math.max(0, rejectionRate(f, s) - 0.14))
         : (0.38 + Math.pow(Math.max(0.05, 1 - ideologicalDistance(out.party, f.party)), 2)) *
           (1 - rejectionRate(f, s));
       // Le pacte vaut pour votre camp, que vous soyez le candidat ou non :

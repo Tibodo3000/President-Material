@@ -1401,6 +1401,32 @@ function electionScore(electionId, stake) {
  * montrer un nombre : les jauges sont des abstractions, elles ne se récitent
  * pas.
  */
+/* CHAQUE SCRUTIN NE LIT PAS LE MÊME PAYS.
+   Les trois formules multipliaient game.popularity, c'est-à-dire la moyenne
+   des six électorats. Deux conséquences. On ne faisait aucune différence
+   entre une municipale, qui se gagne en mobilisant les siens dans une ville
+   qu'on connaît, et une européenne, où l'on vote pour une étiquette : le même
+   nombre servait aux deux. Et depuis que l'opinion des autres électorats
+   s'accumule au lieu d'être rappelée, cette moyenne a baissé de neuf points —
+   les scrutins ordinaires sont donc devenus plus durs sans que personne ne
+   l'ait décidé, de cinquante-deux à quarante et un pour cent de victoires.
+
+   On dose donc, scrutin par scrutin, la part de ce que pense votre camp et la
+   part de ce que pensent les autres. Plus le scrutin est local et incarné,
+   plus votre base pèse ; plus il est national et anonyme, plus ce sont les
+   autres qui décident. */
+const ELECTION_BASE_WEIGHT = {
+  municipales: 0.62,   // on y vote pour quelqu'un qu'on croise au marché
+  legislatives: 0.50,  // une étiquette, mais dans une circonscription
+  europeennes: 0.28,   // une étiquette, et rien d'autre
+};
+
+function electionAppeal(electionId) {
+  const w = ELECTION_BASE_WEIGHT[electionId];
+  if (w === undefined || !game.appeal) return game.popularity;
+  return basePopularity(game) * w + generalPopularity(game) * (1 - w);
+}
+
 function electionBase(electionId, stake) {
   const vent = partyWind() * (PARTY_WEIGHT[electionId] || 0);
   // Le sortant, plus ce que les traits font gagner ou perdre ICI : un ancrage
@@ -1412,7 +1438,7 @@ function electionBase(electionId, stake) {
     // UN SCRUTIN DE PERSONNES. On vote pour quelqu'un qu'on croise au marché,
     // et l'étiquette ne pèse presque rien : un maire sortant peut survivre à
     // l'effondrement national de son parti, et cela arrive tout le temps.
-    return game.popularity * 0.75 + statScore(game, "reseau") * 2.4 +
+    return electionAppeal(electionId) * 0.75 + statScore(game, "reseau") * 2.4 +
       statScore(game, "energie") + vent + dice;
   }
   if (electionId === "europeennes") {
@@ -1420,7 +1446,7 @@ function electionBase(electionId, stake) {
     // on vote pour une étiquette et pour sanctionner le gouvernement. La
     // personne du candidat ne fait presque rien, ce qui est bien le problème
     // des européennes.
-    return game.popularity * 0.35 + statScore(game, "notoriete") * 0.8 +
+    return electionAppeal(electionId) * 0.35 + statScore(game, "notoriete") * 0.8 +
       vent + dice;
   }
   if (electionId === "legislatives") {
@@ -1428,7 +1454,7 @@ function electionBase(electionId, stake) {
     // circonscription où l'on a un nom. Un parti qui s'effondre emporte ses
     // députés avec lui, y compris les bons.
     // On envoie à l'Assemblée quelqu'un dont on peut dire qu'il y a sa place.
-    return game.popularity * 0.6 + statScore(game, "eloquence") + statScore(game, "reseau") +
+    return electionAppeal(electionId) * 0.6 + statScore(game, "eloquence") + statScore(game, "reseau") +
       statScore(game, "credibilite") * 0.7 + vent + dice;
   }
   // LE CONGRÈS. Il ne se joue pas devant le pays mais entre militants : la
