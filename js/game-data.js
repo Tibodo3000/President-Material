@@ -743,12 +743,35 @@ function statScore(s, key) {
  *      rapportent. Les mauvaises, elles, coûtent toujours plein tarif.
  *   2. AMORTI. Certains traits (le téflon) encaissent une part des coups.
  */
+/*
+ * LE FILTRE PARTISAN.
+ *
+ * Un effet sans position touchait les six électorats du montant exact, si bien
+ * que la moindre bonne nouvelle affichait six fois le même chiffre dans la
+ * déclinaison. Ce n'est pas ainsi qu'une opinion se forme : les vôtres
+ * accueillent mieux ce que vous faites de bien et vous pardonnent davantage ce
+ * que vous faites de mal, et le camp d'en face fait l'inverse. C'est le
+ * mécanisme le mieux établi de l'opinion, et il ne demandait qu'à être écrit.
+ *
+ * Le penchant est volontairement léger : il ne remplace pas un positionnement,
+ * il évite seulement qu'une scène neutre produise six colonnes identiques. À
+ * 0,3, un effet de huit points vaut neuf chez vous et six chez celui qui est
+ * le plus loin.
+ */
+const APPEAL_TILT = 0.3;
+
 function bumpPop(state, delta) {
-  // UN EFFET SANS POSITION TOUCHE TOUT LE MONDE PAREIL. C'est le sens qu'a
-  // toujours eu "popularity", et c'est celui qu'il garde : une scène n'est
-  // pas obligée de cliver, et la plupart ne clivent pas.
   if (state.appeal) {
-    Object.keys(PARTIES).forEach((key) => bumpAppeal(state, key, delta));
+    Object.keys(PARTIES).forEach((key) => {
+      const proche = 1 - ideologicalDistance(key, state.party);
+      const penchant = (proche - 0.68) * APPEAL_TILT * 2;
+      // LE FILTRE JOUE DANS LES DEUX SENS, ET IL S'INVERSE. Les vôtres
+      // accueillent mieux la bonne nouvelle ET encaissent mieux la mauvaise ;
+      // ceux d'en face font l'exact contraire. Appliquer le même facteur aux
+      // deux ferait punir votre propre camp plus fort que les autres, ce qui
+      // est le contraire de ce qu'on veut dire.
+      bumpAppeal(state, key, delta * (delta >= 0 ? 1 + penchant : 1 - penchant));
+    });
     syncPopularity(state);
     return;
   }

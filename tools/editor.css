@@ -139,3 +139,14 @@ details.json pre{font-family:var(--mono);font-size:11.5px;background:var(--panel
 .fatal{padding:48px;max-width:680px;margin:0 auto;}
 .fatal h1{color:var(--gold);font-size:20px;}
 .fatal code{font-family:var(--mono);color:var(--gold-soft);}
+
+/* LA DECLINAISON PAR ELECTORAT, dans l'apercu. Six petites pastilles sous
+   chaque branche : on dose au chiffre pres au lieu de lancer une partie. */
+.elec-head{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:11px;color:var(--dim);}
+.elec-head .elec-note{opacity:.7;font-style:italic;}
+.elec{display:flex;flex-wrap:wrap;gap:3px;margin:2px 0 4px 12px;}
+.elec > .e{font-size:10px;padding:1px 5px;border-radius:9px;border:1px solid var(--line);
+  color:var(--dim);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.elec > .e.up{color:#7fd6a2;border-color:#2f5b45;}
+.elec > .e.down{color:#e08b8b;border-color:#5e3232;}
+.elec > .e.flat{opacity:.45;}

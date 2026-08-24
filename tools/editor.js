@@ -663,10 +663,89 @@ function fillMarks(text, lang) {
   });
 }
 const fxSummary = (fx) => fx ? Object.entries(fx).map(([k, v]) => k + "=" + (typeof v === "object" ? JSON.stringify(v) : v)).join("  ") : "";
+
+/* ===== 15 bis. CE QUE L'EFFET FAIT AUX SIX ÉLECTORATS ===================
+   On ne pouvait doser à l'aveugle : « popularity: 8 » ne dit pas si le
+   résultat sera six colonnes identiques ou un vrai clivage, et le seul moyen
+   de le savoir était de lancer une partie. L'aperçu rejoue donc ici la même
+   arithmétique que le moteur — le filtre partisan, le positionnement sur les
+   axes, les cibles self / others — et montre les six deltas.
+
+   Une seule différence avec le jeu, et elle est signalée : les rendements
+   décroissants dépendent de l'adhésion du moment, qu'un éditeur ne connaît
+   pas. Les chiffres sont donc ceux d'un effet « plein tarif ». */
+const AXES_L = ["social", "world", "economy", "power"];
+const NEUTRAL_AXES_L = { social: 5, world: -15, economy: 25, power: 5 };
+const AXIS_NEUTRAL_L = 0.68;
+const APPEAL_TILT_L = 0.3;
+
+const axesOfL = (k) => (PARTIES[k] ? PARTIES[k].axes : NEUTRAL_AXES_L);
+const distanceL = (a, b) => {
+  const A = axesOfL(a), B = axesOfL(b);
+  return AXES_L.reduce((s, x) => s + Math.abs(A[x] - B[x]), 0) / (AXES_L.length * 200);
+};
+function affinityL(pos, k) {
+  const ax = axesOfL(k);
+  const dec = AXES_L.filter((x) => pos[x] !== undefined);
+  if (!dec.length) return AXIS_NEUTRAL_L;
+  return 1 - dec.reduce((s, x) => s + Math.abs(pos[x] - ax[x]), 0) / (dec.length * 200);
+}
+
+function appealPreview(fx, moi) {
+  const out = {};
+  PARTY_KEYS.forEach((k) => { out[k] = 0; });
+  if (!fx) return out;
+
+  if (typeof fx.popularity === "number") {
+    if (fx.axis !== undefined) {
+      const pos = typeof fx.axis === "string" ? axesOfL(moi) : fx.axis;
+      PARTY_KEYS.forEach((k) => {
+        out[k] += fx.popularity * ((affinityL(pos, k) - AXIS_NEUTRAL_L) / (1 - AXIS_NEUTRAL_L));
+      });
+    } else {
+      PARTY_KEYS.forEach((k) => {
+        const pen = ((1 - distanceL(k, moi)) - AXIS_NEUTRAL_L) * APPEAL_TILT_L * 2;
+        out[k] += fx.popularity * (fx.popularity >= 0 ? 1 + pen : 1 - pen);
+      });
+    }
+  }
+  if (fx.appeal) Object.entries(fx.appeal).forEach(([cible, v]) => {
+    if (cible === "self") out[moi] += v;
+    else if (cible === "others") PARTY_KEYS.forEach((k) => { if (k !== moi) out[k] += v; });
+    else if (out[cible] !== undefined) out[cible] += v;
+  });
+  return out;
+}
+
+function appealRow(fx, moi) {
+  if (!fx || (fx.popularity === undefined && !fx.appeal)) return null;
+  const deltas = appealPreview(fx, moi);
+  const row = h("div", { class: "elec" });
+  PARTY_KEYS.forEach((k) => {
+    const d = Math.round(deltas[k] * 10) / 10;
+    const cls = "e" + (d > 0.05 ? " up" : d < -0.05 ? " down" : " flat");
+    row.appendChild(h("span", { class: cls, title: trFR["party_" + k] || k },
+      (trFR["party_" + k] || k).slice(0, 4) + " " + (d > 0 ? "+" : "") + d));
+  });
+  return row;
+}
 const el = (tag, cls, text) => { const e = h(tag, { class: cls }); e.textContent = text; return e; };
+/* Le camp depuis lequel on lit l'aperçu : « self », la distance idéologique et
+   le filtre partisan en dépendent tous, donc la même scène ne donne pas les
+   mêmes six chiffres selon qui la joue. */
+let previewParty = PARTY_KEYS[0];
+
 function renderPreview(obj) {
   const host = byId("preview"); host.innerHTML = "";
   if (!obj || !obj.text) return;
+
+  const sel = h("select", { class: "fadd" }, ...PARTY_KEYS.map((k) => opt(k, trFR["party_" + k] || k)));
+  sel.value = previewParty;
+  sel.onchange = () => { previewParty = sel.value; renderPreview(obj); };
+  host.appendChild(h("div", { class: "elec-head" },
+    h("span", {}, "Vu depuis le camp"), sel,
+    h("span", { class: "elec-note" }, "effet plein tarif, hors rendements décroissants")));
+
   ["fr", "en"].forEach((lang) => {
     const box = h("div", { class: "pv" }, el("div", "lang", lang), el("p", "txt", fillMarks((obj.text && obj.text[lang]) || "", lang)));
     (obj.choices || []).forEach((c) => {
@@ -674,6 +753,8 @@ function renderPreview(obj) {
       (c.roll ? [["✓", c.success], ["✗", c.failure]] : [["", c]]).forEach(([mk, b]) => {
         if (!b) return;
         const fx = fxSummary(b.effects); if (fx) ch.appendChild(el("div", "fx", mk + " " + fx));
+        // La déclinaison ne se lit qu'une fois : elle ne dépend pas de la langue.
+        if (lang === "fr") { const r = appealRow(b.effects, previewParty); if (r) ch.appendChild(r); }
         if (b.result) ch.appendChild(el("div", "res", mk + " " + fillMarks((b.result && b.result[lang]) || "", lang)));
       });
       box.appendChild(ch);
