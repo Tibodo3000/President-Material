@@ -252,7 +252,7 @@ function naturalShare(key) {
  * trace. Le paysage doit garder la mémoire de ce qu'on lui fait, sinon il
  * n'est qu'un décor qui tremble.
  */
-const LANDSCAPE_PULL = 0.03;
+const LANDSCAPE_PULL = 0.022;
 
 /** Répartition de départ, adossée à la difficulté des partis. */
 function initialLandscape(state) {
@@ -373,6 +373,40 @@ const ASSEMBLY_MAJORITY = Math.floor(ASSEMBLY_SEATS / 2) + 1;
  */
 const ASSEMBLY_POWER = 2.1;
 
+/**
+ * LA VAGUE.
+ *
+ * Une législative qui suit une présidentielle n'est pas une élection, c'est
+ * une confirmation : le pays vient de choisir quelqu'un et lui donne de quoi
+ * gouverner. Le moteur n'en savait rien. Le seul avantage du camp élu était
+ * sa cote de sortie d'élection, qui vaut sept pour cent de poids en plus :
+ * autant dire rien une fois les parts élevées à la puissance 2,1. Un camp
+ * qui gagnait l'Élysée avec dix-huit pour cent des voix se retrouvait donc
+ * avec quatre-vingts députés et gouvernait cinq ans sans jamais rien voter,
+ * ce qui n'est arrivé à personne.
+ *
+ * La vague ne vaut que dans la fenêtre où la confirmation a un sens. Passé
+ * dix-huit mois, une législative redevient une élection ordinaire, et c'est
+ * exactement ce qui distingue 2017 de 1997.
+ */
+/*
+ * Calibré en fabriquant deux cents législatives de confirmation par palier.
+ * À 1,35, un camp de rupture à douze pour cent passe de cent sept à cent
+ * trente-quatre sièges — un vrai groupe, pas une majorité ; à dix-huit, il
+ * obtient la majorité absolue une fois sur sept ; à vingt-quatre, il l'a,
+ * comme l'ont eue tous les présidents élus avec un camp large. Au-delà de
+ * 1,7 la majorité absolue devenait automatique pour tout le monde, ce qui
+ * n'est pas la Cinquième République, c'est un plébiscite.
+ */
+const COATTAIL = 1.35;
+const COATTAIL_WINDOW = 3;
+
+/** Depuis combien de tours le président en exercice est en place. */
+function turnsSinceElection() {
+  if (game.presidentSince === undefined) return Infinity;
+  return game.turn - game.presidentSince;
+}
+
 /** Répartit les sièges. Appelé le soir de chaque législative, et seulement là. */
 function computeAssembly() {
   const ruling = rulingParty();
@@ -382,7 +416,10 @@ function computeAssembly() {
     const part = Math.max(0.5, game.landscape[key] || 0);
     // La prime au camp du président, ou la note qu'il paie : un an après son
     // élection, on lui donne une majorité ou on la lui refuse.
-    const souffle = key === ruling ? 1 + (game.approval - 50) / 160 : 1;
+    // La prime au camp du président : sa cote du moment, et la vague quand le
+    // scrutin suit de près son élection.
+    const vague = turnsSinceElection() <= COATTAIL_WINDOW ? COATTAIL : 1;
+    const souffle = key === ruling ? (1 + (game.approval - 50) / 160) * vague : 1;
     // Chaque scrutin a ses accidents locaux.
     poids[key] = Math.pow(part, ASSEMBLY_POWER) * souffle * (0.9 + Math.random() * 0.2);
   });
@@ -614,9 +651,13 @@ function driftLandscape() {
   const floor = Object.keys(PARTIES).reduce((sum, key) => sum + naturalShare(key), 0) / 100;
 
   Object.keys(game.landscape).forEach((key) => {
-    // Moins de bruit qu'avant : quand tout tremble sans raison, le joueur ne
-    // peut pas voir ce que ses choix ont fait. Le mouvement doit être causé.
-    let move = (Math.random() - 0.5) * 0.9;
+    // L'AIR DU TEMPS. Il valait 0,9, et le tableau ne bougeait plus : mesurée
+    // sur cent vingt carrières entières, l'amplitude d'un parti sur toute une
+    // vie politique était de cinq points pour les camps de rupture. Un
+    // paysage qui ne se recompose jamais n'est pas un paysage, c'est un
+    // décor. Le bruit reste inférieur à ce que déplacent les événements : le
+    // mouvement doit rester causé, il ne doit pas être impossible.
+    let move = (Math.random() - 0.5) * 1.6;
 
     // Le rappel vers ce que le parti pèse naturellement dans le pays.
     move += (naturalShare(key) / floor - game.landscape[key]) * LANDSCAPE_PULL;
@@ -1307,6 +1348,10 @@ function setPresident(who) {
   // Un président neuf n'a renoncé à rien : le drapeau que pose une fronde
   // réussie ne vaut que pour celui qu'elle visait.
   if (!same) delete game.flags.presidentRenonce;
+
+  // Le tour de l'élection : c'est lui qui dit si la législative qui vient est
+  // une confirmation ou une élection ordinaire.
+  game.presidentSince = game.turn;
 
   game.presidentTerms = same ? game.presidentTerms + 1 : 1;
   game.president = who;
