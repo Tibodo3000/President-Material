@@ -28,7 +28,7 @@ const EV_divers = [
   },
   "choices": [
     { "label": { "fr": "Le suspendre immédiatement et le dire publiquement", "en": "Suspend him immediately, and say so publicly" },
-      "effects": { "reputation": 3, "popularity": 9, "standing": -12, "credibilite": 2, "notoriete": 1,
+      "effects": { "axis": {"social": -60}, "reputation": 3, "popularity": 9, "standing": -12, "credibilite": 2, "notoriete": 1,
                    "landscape": { "self": 0.6 } },
       "result": { "fr": "Il est écarté en quarante-huit heures. Trois cadres vous reprochent d'avoir « cédé à l'émotion », et l'un d'eux vous le redira à chaque commission d'investiture pendant dix ans.",
                   "en": "He is out within forty-eight hours. Three senior figures accuse you of “giving in to emotion”, and one of them will remind you of it at every nomination committee for ten years." } },
@@ -39,7 +39,7 @@ const EV_divers = [
                   "en": "The panel is announced on a Friday evening. It has four members, two of whom are on first-name terms with him, and no timetable is given." } },
 
     { "label": { "fr": "Rappeler qu'il faut laisser la justice faire son travail", "en": "Insist that the courts must be allowed to do their work" },
-      "effects": { "reputation": -2, "standing": 8, "popularity": -7, "credibilite": -1,
+      "effects": { "axis": {"social": 55}, "reputation": -2, "standing": 8, "popularity": 6, "credibilite": -1,
                    "strike": "lache", "chain": "vss_presse",
                    "landscape": { "self": -0.8 } },
       "result": { "fr": "La formule est irréprochable et tout le monde comprend ce qu'elle veut dire. Il garde ses fonctions, elle change de service, et c'est elle qui déménage.",

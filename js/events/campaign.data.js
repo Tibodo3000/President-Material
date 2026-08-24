@@ -62,7 +62,7 @@ const EV_campaign = [
   },
   "choices": [
     { "label": { "fr": "Un discours de rupture", "en": "A rupture speech" },
-      "effects": { "poll": 5, "notoriete": 1, "standing": -6, "popularity": 4 },
+      "effects": { "axis": "self", "poll": 5, "notoriete": 1, "standing": -6, "popularity": 7 },
       "result": { "fr": "La salle est debout. Votre état-major, lui, est assis, très pâle.",
                   "en": "The hall is on its feet. Your campaign team is seated, very pale." } },
     { "label": { "fr": "Un discours de rassemblement", "en": "A unity speech" },
@@ -218,7 +218,7 @@ const EV_campaign = [
   },
   "choices": [
     { "label": { "fr": "Assumer le coût", "en": "Own the cost" },
-      "effects": { "poll": 3, "popularity": 4, "standing": -3 },
+      "effects": { "axis": {"economy": -55}, "poll": 3, "popularity": 6, "standing": -3 },
       "result": { "fr": "« Ça coûte, et alors ? » La franchise plaît plus que la prudence.",
                   "en": "“It costs money, so what?” The bluntness plays better than caution." } },
     { "label": { "fr": "Revoir les promesses à la baisse", "en": "Scale the promises back" },
@@ -231,7 +231,7 @@ const EV_campaign = [
       "result": { "fr": "Quatre-vingt-douze pages que personne ne lira, et un tableau que tout le monde citera.",
                   "en": "Ninety-two pages nobody will read, and one table everybody will quote." } },
     { "label": { "fr": "Expliquer qu'on financera par la croissance", "en": "Explain that growth will pay for it" },
-      "effects": { "poll": 2, "popularity": 5, "reputation": -2, "standing": 2 },
+      "effects": { "axis": {"economy": 50}, "poll": 2, "popularity": 6, "reputation": -2, "standing": 2 },
       "result": { "fr": "L'argument a servi à tous vos prédécesseurs, dans les deux camps, et il fonctionne encore.",
                   "en": "The argument has served all your predecessors, on both sides, and it still works." } }
   ]
@@ -388,7 +388,7 @@ const EV_campaign = [
       "result": { "fr": "Le chèque est réel, la photo aussi. On vous reprochera surtout la photo.",
                   "en": "The cheque is real; so is the photo. What people will hold against you is mostly the photo." } },
     { "label": { "fr": "Accuser le gouvernement d'impréparation", "en": "Blame the government for being unprepared" },
-      "effects": { "poll": 2, "notoriete": 2, "popularity": -4, "reputation": -2, "standing": 4 },
+      "effects": { "axis": "self", "poll": 2, "notoriete": 2, "popularity": 6, "reputation": -2, "standing": 4 },
       "result": { "fr": "Vous parlez de responsabilité pendant que les secours travaillent. Une partie du pays trouve que c'est le moment, l'autre non.",
                   "en": "You talk about accountability while the rescue teams work. Half the country thinks it is the moment; the other half does not." } }
   ]
@@ -414,7 +414,7 @@ const EV_campaign = [
                   "en": "Headquarters finds them in eight days, because that is their job. You will be reminded for five years that you had nothing to do with it." } },
     { "label": { "fr": "Dénoncer publiquement le filtre des parrainages", "en": "Denounce the signature filter in public" },
       "roll": { "base": 14, "stat": "eloquence", "plus": { "notoriete": 0.3 }, "dice": 16 },
-      "success": { "effects": { "poll": 3, "popularity": 7, "notoriete": 2, "credibilite": -1 },
+      "success": { "effects": { "axis": {"power": -55}, "poll": 3, "popularity": 7, "notoriete": 2, "credibilite": -1 },
         "result": { "fr": "Vous transformez une formalité administrative en question démocratique. Les signatures arrivent quand même, apportées par des maires qui n'aiment pas qu'on les prenne pour un guichet.",
                     "en": "You turn an administrative formality into a democratic question. The signatures come anyway, from mayors who dislike being treated as a counter clerk." } },
       "failure": { "effects": { "poll": -4, "popularity": -3, "credibilite": -2 },
@@ -547,7 +547,7 @@ const EV_campaign = [
   "choices": [
     { "label": { "fr": "Y aller et monter sur le piquet", "en": "Go, and get up on the picket" },
       "roll": { "base": 14, "stat": "charisme", "plus": { "eloquence": 0.4 }, "dice": 16 },
-      "success": { "effects": { "poll": 4, "popularity": 8, "credibilite": -1, "energie": -2 },
+      "success": { "effects": { "axis": {"economy": -75}, "poll": 4, "popularity": 8, "credibilite": -1, "energie": -2 },
         "result": { "fr": "Quatre cents personnes, un mégaphone qui grésille, et douze minutes qui font le journal de vingt heures. Personne ne vous demande le financement.",
                     "en": "Four hundred people, a crackling megaphone, and twelve minutes that lead the evening news. Nobody asks you how it would be paid for." } },
       "failure": { "effects": { "poll": -3, "popularity": -5, "reputation": -1, "energie": -2 },
@@ -564,7 +564,7 @@ const EV_campaign = [
     { "label": { "fr": "Expliquer pourquoi l'usine ferme, vraiment", "en": "Explain why the factory is really closing" },
       "when": { "background": ["business"] },
       "roll": { "base": 15, "stat": "credibilite", "plus": { "sangfroid": 0.4 }, "dice": 16 },
-      "success": { "effects": { "poll": 2, "credibilite": 3, "reputation": 2, "popularity": -3 },
+      "success": { "effects": { "axis": {"economy": 60}, "poll": 2, "credibilite": 3, "reputation": 2, "popularity": 5 },
         "result": { "fr": "Vous dites la vérité sur un plateau et on ne vous coupe pas. Une partie du pays vous trouve dur, une autre note que vous ne mentez pas.",
                     "en": "You tell the truth on air and nobody cuts you off. Part of the country finds you hard; another part notes that you are not lying." } },
       "failure": { "effects": { "poll": -5, "popularity": -8, "credibilite": -1 },
