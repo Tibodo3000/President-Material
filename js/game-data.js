@@ -796,8 +796,23 @@ const APPEAL_SPREAD = 46;
  */
 const APPEAL_SHAPE_DRIFT = 0.06;
 
-/** Ce qui rappelle les AUTRES électorats vers leur cible. Volontairement bas. */
-const OTHERS_PULL = 0.08;
+/*
+ * CE QUI RAPPELLE LES AUTRES ÉLECTORATS VERS LEUR CIBLE. Volontairement bas :
+ * c'est lui qui décide si l'opinion des autres est un acquis de naissance ou
+ * une accumulation de vos actes. Balayé sur cent cinquante carrières :
+ *
+ *   rappel   étendue des six   popularité   victoires
+ *    0,08         25,5            37,7         27 %
+ *    0,04         28,6            34,2         17 %
+ *    0,02         30,4            31,9         11 %
+ *
+ * 0,04 donne trois points d'étendue de plus que 0,08 et ramène le taux de
+ * victoire présidentielle sur sa référence historique, dix-sept pour cent,
+ * sans qu'on ait à toucher au coefficient de conversion. La popularité
+ * d'ensemble baisse à trente-quatre : c'est sans importance depuis que les
+ * élections lisent les six électorats et non plus la moyenne.
+ */
+const OTHERS_PULL = 0.04;
 
 /**
  * LE NIVEAU NATUREL DE CHAQUE ÉLECTORAT.
