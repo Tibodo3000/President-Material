@@ -92,7 +92,7 @@ const EV_chaines = [
                            { "when": { "legal": 2 }, "value": 2.5 },
                            { "when": { "background": ["law"] }, "value": 2 },
                            { "when": { "minMoney": 1000000 }, "value": 1.5 },
-                           { "when": { "maxPopularity": 30 }, "value": -2 } ], "dice": 16 },
+                           { "when": { "maxPopularity": 41 }, "value": -2 } ], "dice": 16 },
       "success": { "effects": { "flags": { "onTrial": false, "dirtyMoney": false }, "reputation": -1, "notoriete": 1, "popularity": -10, "standing": -10, "strike": "casserole" },
         "result": { "fr": "Relaxe au bénéfice du doute. Vous ressortez libre et abîmé.",
                     "en": "Acquitted on the benefit of the doubt. You walk out free and damaged." } },

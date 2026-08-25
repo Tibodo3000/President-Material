@@ -19,7 +19,7 @@ const EV_rivaux = [
                 "plus": { "sangfroid": 0.35, "popularity": 0.03 },
                 "bonus": [ { "when": { "background": ["law", "academia"] }, "value": 2 },
                            { "when": { "background": ["celebrity"] }, "value": -1 },
-                           { "when": { "maxPopularity": 30 }, "value": -0.5 } ], "dice": 16 },
+                           { "when": { "maxPopularity": 41 }, "value": -0.5 } ], "dice": 16 },
       "success": { "effects": { "landscape": { "self": 1.2 }, "notoriete": 2, "reputation": 1, "popularity": 14, "standing": 2, "trait": "orateur" },
         "result": { "fr": "Vous dominez l'échange. Les extraits vous donnent le beau rôle.",
                     "en": "You dominate the exchange. The clips flatter you." } },

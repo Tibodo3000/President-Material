@@ -38,7 +38,7 @@ const EV_nomination = [
       "result": { "fr": "Six mois de commissions statutaires, de comptes rendus et de conflits de fédération. C'est long, c'est gris, et ça marche toujours.",
                   "en": "Six months of rules committees, minutes and branch disputes. It is long, it is grey, and it always works." } },
     { "label": { "fr": "Les menacer de partir", "en": "Threaten to leave" },
-      "when": { "minPopularity": 55 },
+      "when": { "minPopularity": 63 },
       "roll": { "base": 17, "stat": "sangfroid", "plus": { "popularity": 0.07 }, "dice": 16 },
       "success": { "effects": { "appeal": { "self": -3 }, "standing": 6, "notoriete": 1, "reputation": -1 },
         "result": { "fr": "Vous laissez entendre qu'ailleurs on vous attend. Ils vérifient, c'est vrai, et la commission se réunit de nouveau la semaine suivante.",

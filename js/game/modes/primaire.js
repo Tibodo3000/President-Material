@@ -76,7 +76,9 @@ function primaryWeight(standing, popularity, credibilite, rang) {
  */
 function playerPrimaryWeight() {
   return primaryWeight(
-    game.standing, game.popularity,
+    // Les rivaux n'ont qu'une popularité nationale : on se pèse sur la même
+    // balance qu'eux, sinon la primaire est gagnée d'avance.
+    game.standing, nationalPopularity(game),
     statScore(game, "credibilite") * 1.7,
     rankOf(game)
   );

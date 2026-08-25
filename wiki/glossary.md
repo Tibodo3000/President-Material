@@ -43,6 +43,7 @@ lives. Filenames link to the file — search the function name inside to land on
 | `deathProbability`, `withdrawalProbability` | End-of-career risk by age/health |
 | `STAT_SCALE`, `statScore` | The 0–20 → 0–10 conversion used by every formula |
 | `bump`, `bumpPop`, `bumpStanding`, `pay` | Bounded mutators (diminishing returns, soften) |
+| `overallPopularity`, `nationalPopularity`, `reachWeights`, `noteTarget` | The two readings of the six electorates: the note the player sees (own camp two-thirds, then by proximity) and the national average everything comparative uses |
 | `traitsOf`, `hasTrait`, `addTrait`, `removeTrait`, `applyTraitStats` | Trait bookkeeping |
 | `addStrike`, `strikesNeeded`, `traitAllowed`, `partyHistory` | The strikes system |
 | `traitTarget`, `traitSoften`, `traitSum` | What worn traits contribute |

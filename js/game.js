@@ -747,7 +747,9 @@ function driftLandscape() {
     // bas : être populaire aide son camp, cela ne le porte pas à bout de bras.
     // Ce sont les événements qui doivent faire le gros du travail.
     if (key === game.party) {
-      move += ((game.popularity - 50) / 95) * (0.4 + exposureOf(game) / 28);
+      // La lecture nationale, et pas la note : on ne tire pas les intentions
+      // de vote d'un pays avec l'affection des siens.
+      move += ((nationalPopularity(game) - 50) / 95) * (0.4 + exposureOf(game) / 28);
     }
 
     // Deux partis alliés finissent par ressembler à une offre de gouvernement,
@@ -1586,7 +1588,9 @@ function clampPull(value) {
 function playerPull() {
   return clampPull(
     1 +
-    (game.popularity - 50) / 55 +
+    // Une présidentielle se gagne dans le pays : c'est la lecture nationale
+    // qui pèse ici, jamais la note de proximité.
+    (nationalPopularity(game) - 50) / 55 +
     (game.standing - 50) / 320 +
     (statScore(game, "charisme") + statScore(game, "sangfroid") - 11.6) / 55 +
     (statScore(game, "credibilite") - 5.8) / 42 -
@@ -1733,8 +1737,10 @@ function outshinesPresident(s) {
   if (!game.president || game.president.isPlayer) return false;
   if (game.president.party !== state.party) return false;
 
+  // Une figure n'a qu'une popularité, nationale : on la compare à la nôtre
+  // lue de la même façon, sinon le joueur double tout le monde d'office.
   const figure = game.rivals.find((r) => r.name === game.president.name);
-  return Boolean(figure) && state.popularity > figure.popularity;
+  return Boolean(figure) && nationalPopularity(state) > figure.popularity;
 }
 
 function maybeGovernmentCall() {
@@ -1754,7 +1760,7 @@ function maybeGovernmentCall() {
   const gouvernement = game.rivals.filter((r) => r.party === game.party &&
     (r.position === "ministre" || r.position === "premier"));
   if (!gouvernement.length) return;
-  if (game.popularity <= Math.min(...gouvernement.map((r) => r.popularity))) return;
+  if (nationalPopularity(game) <= Math.min(...gouvernement.map((r) => r.popularity))) return;
 
   scheduleChain(game, "entree_gouvernement");
 }

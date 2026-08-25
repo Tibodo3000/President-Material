@@ -893,8 +893,11 @@ function initialAppeal(s) {
    CHAQUE électorat pense de vous. Tout le reste en dérive.
 
      popularité de base      appeal[votre parti]
-     popularité générale     la moyenne des AUTRES, pondérée par leur poids
-     game.popularity         la moyenne de TOUS, pondérée de même
+     popularité générale     la moyenne des AUTRES, pondérée par leur taille
+     popularité nationale    la moyenne des SIX, pondérée par leur taille
+     game.popularity         la note : les six, pondérés par ce qu'ils vous
+                             rapportent — deux tiers pour les vôtres, le reste
+                             par taille et par proximité (voir reachWeights)
 
    `game.popularity` reste un champ, recalculé après chaque changement par
    syncPopularity(). Les vingt-quatre lectures du moteur continuent donc de
@@ -937,14 +940,91 @@ function generalPopularity(s) {
   return total ? somme / total : s.popularity;
 }
 
-/** La moyenne de tous les électorats : c'est elle que le moteur lit encore. */
+/**
+ * TOUS LES ÉLECTORATS NE COMPTENT PAS PAREIL POUR VOUS.
+ *
+ * La note affichée était la moyenne des six, pondérée par la TAILLE de chaque
+ * électorat et rien d'autre. C'est la bonne façon de mesurer ce que le pays
+ * pense de vous ; c'est la mauvaise façon de mesurer ce que vous valez. Un
+ * député de la droite identitaire adoré des siens à soixante-dix-sept et
+ * refusé des libéraux à vingt-cinq lisait quarante-trois, un nombre dans
+ * lequel il ne se reconnaissait pas et qui était surtout composé de gens qui
+ * ne voteront jamais pour lui, quoi qu'il fasse.
+ *
+ * La note pèse donc ce qui vous concerne : LES VÔTRES D'ABORD, et pour les
+ * deux tiers — c'est d'eux que viennent les militants, les investitures, les
+ * primaires et le socle des voix. Les autres ensuite, à proportion de ce
+ * qu'ils pèsent dans le pays ET de ce qui les sépare de vous : le camp voisin
+ * est celui qu'on peut convaincre, celui d'en face est un décor.
+ *
+ * ATTENTION : cette pondération ne sert QU'À LA NOTE. Les élections ne
+ * l'utilisent pas — un bulletin ne pèse pas plus parce qu'il vient d'un camp
+ * ami, et electionAppeal() continue de doser base et général à la taille (voir
+ * nationalPopularity, qui garde l'ancienne lecture pour tout ce qui se compare
+ * au pays ou aux rivaux).
+ */
+const POPULARITY_FOCUS = 0.66;
+
+/* De combien l'attention retombe avec la distance idéologique. À 3, le camp
+   voisin pèse environ huit fois celui d'en face, à taille égale. */
+const REACH_FALLOFF = 3;
+
+function reachWeights(s) {
+  const poids = {};
+  let autres = 0;
+  Object.keys(PARTIES).forEach((key) => {
+    if (key === s.party) return;
+    const taille = Math.max(1, (s.landscape && s.landscape[key]) || 1);
+    poids[key] = taille * Math.pow(1 - ideologicalDistance(key, s.party), REACH_FALLOFF);
+    autres += poids[key];
+  });
+  Object.keys(poids).forEach((key) => {
+    poids[key] = autres ? (poids[key] / autres) * (1 - POPULARITY_FOCUS) : 0;
+  });
+  poids[s.party] = autres ? POPULARITY_FOCUS : 1;
+  return { poids, total: 1 };
+}
+
+/** La note : ce que pensent de vous les gens que vous pouvez atteindre. */
 function overallPopularity(s) {
+  if (!s.appeal) return s.popularity;
+
+  const { poids } = reachWeights(s);
+  let somme = 0;
+  Object.keys(PARTIES).forEach((key) => { somme += s.appeal[key] * poids[key]; });
+  return somme;
+}
+
+/**
+ * CE QUE LE PAYS PENSE DE VOUS, sans égard pour ce qu'il vous rapporte : la
+ * moyenne des six pondérée par leur seule taille. C'est l'ancienne note, et
+ * elle reste la bonne partout où l'on se compare au pays ou à quelqu'un
+ * d'autre — une figure du jeu n'a qu'un nombre, national, et comparer sa
+ * cote nationale à votre note de proximité reviendrait à vous offrir dix
+ * points d'avance sur tous vos rivaux à chaque comparaison.
+ */
+function nationalPopularity(s) {
   if (!s.appeal) return s.popularity;
 
   const { poids, total } = electorateWeights(s);
   let somme = 0;
   Object.keys(PARTIES).forEach((key) => { somme += s.appeal[key] * poids[key]; });
   return total ? somme / total : s.popularity;
+}
+
+/**
+ * OÙ LA NOTE VA, LUE SUR L'ÉCHELLE DE LA NOTE. popularityTarget() est le
+ * niveau de la mer des six électorats, mesuré à la taille : depuis que la
+ * note les pèse à la proximité, ce n'est plus le même nombre, et le repère du
+ * curseur traînait une dizaine de points derrière la jauge en permanence.
+ */
+function noteTarget(s) {
+  if (!s.appeal) return popularityTarget(s);
+  const cibles = appealTargets(s);
+  const { poids } = reachWeights(s);
+  let somme = 0;
+  Object.keys(PARTIES).forEach((key) => { somme += cibles[key] * poids[key]; });
+  return somme;
 }
 
 /** À rappeler après tout changement d'appeal, et nulle part ailleurs. */
@@ -2103,7 +2183,9 @@ function rollBase(roll, s) {
 
   if (roll.plus) {
     Object.entries(roll.plus).forEach(([key, weight]) => {
-      if (key === "popularity") score += s.popularity * weight;
+      // Un jet que la popularité aide parle de ce que le PAYS pense : la note
+      // de proximité y ajouterait une dizaine de points à tous les coups.
+      if (key === "popularity") score += nationalPopularity(s) * weight;
       else if (key === "standing") score += s.standing * weight;
       else if (key === "money") score += (s.money / 100000) * weight;
       else if (STAT_KEYS.includes(key)) score += statScore(s, key) * weight;

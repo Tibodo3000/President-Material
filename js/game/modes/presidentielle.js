@@ -107,7 +107,9 @@ function presidentialField() {
       // dans CHAQUE électorat, pondéré par ce qu'il pèse dans le pays : un
       // camp à trente pour cent avec quatre-vingts d'adhésion vaut vingt-quatre
       // points avant même d'avoir parlé à quelqu'un d'autre.
-      pop: game.popularity,
+      // Le sondage aligne le joueur sur des figures qui n'ont qu'une
+      // popularité nationale : on se lit sur la même échelle qu'elles.
+      pop: nationalPopularity(game),
       share: Math.max(1, playerFirstRound() * (ally ? 1.12 : 1)),
       isPlayer: true,
     },

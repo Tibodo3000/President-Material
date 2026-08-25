@@ -71,7 +71,7 @@ const EV_caractere = [
 {
   "id": "retour_de_flamme",
   "weight": 5,
-  "when": { "trait": ["casserole"], "minPopularity": 45 },
+  "when": { "trait": ["casserole"], "minPopularity": 54 },
   "tag": { "fr": "Vieux dossier", "en": "Old file" },
   "text": {
     "fr": "Un magazine ressort l'affaire en couverture, au moment précis où les sondages vous étaient favorables. La photo choisie date de dix ans.",

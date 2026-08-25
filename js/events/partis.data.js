@@ -347,7 +347,7 @@ const EV_partis = [
 {
   "id": "plus_populaire_que_lui",
   "weight": 5,
-  "when": { "outshinePresident": true, "minTurn": 10, "minPopularity": 52 },
+  "when": { "outshinePresident": true, "minTurn": 10, "minPopularity": 60 },
   "tag": { "fr": "Le sondage de trop", "en": "One poll too many" },
   "text": {
     "fr": "Un institut publie la cote des personnalités du camp au pouvoir. Vous êtes premier, le président est quatrième, et c'est la troisième fois d'affilée. À midi, trois rédactions vous demandent si vous êtes candidat à quelque chose.",

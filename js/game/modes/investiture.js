@@ -158,11 +158,13 @@ const REBEL_HANDICAP = -4;
  * geste le plus rare et le plus coûteux de la vie politique. On ne le tente
  * que dans un cas : quand le pays est avec vous et que le parti ne l'est pas.
  *
- * Le seuil est haut à dessein. Mesurée sur deux mille six cents tours, la
- * popularité médiane d'une carrière est de quarante-deux, et soixante-deux
- * n'est dépassé que dans les sept pour cent de tours les plus favorables.
+ * Le seuil est haut à dessein. Mesurée sur huit mille tours, la note médiane
+ * d'une carrière est de quarante-trois, et soixante-huit n'est dépassé que
+ * dans les six pour cent de tours les plus favorables. (Le seuil valait
+ * soixante-deux sur l'ancienne lecture, nationale : c'est le même percentile,
+ * pas un durcissement — voir reachWeights.)
  */
-const REBEL_POPULARITY = 62;
+const REBEL_POPULARITY = 68;
 
 const REBEL_COST_WON = -6;
 

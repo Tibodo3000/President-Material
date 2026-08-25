@@ -102,7 +102,7 @@ const ENDING_DATA = [
   {
     "id": "eminence",
     "from": "retire",
-    "when": { "minStanding": 58, "maxPopularity": 38 },
+    "when": { "minStanding": 58, "maxPopularity": 48 },
     "title": { "fr": "Éminence grise", "en": "The grey eminence" },
     "text": {
       "fr": "Le pays n'a jamais vraiment su qui vous étiez, l'appareil ne s'est jamais posé la question. On vous consultera encore longtemps, dans des pièces sans caméra.",
@@ -162,7 +162,7 @@ const ENDING_DATA = [
   {
     "id": "en_pleine_gloire",
     "from": "death",
-    "when": { "minPopularity": 72 },
+    "when": { "minPopularity": 76 },
     "title": { "fr": "Mort en pleine gloire", "en": "Died at the summit" },
     "text": {
       "fr": "Vous partez au moment où le pays vous aimait le plus. Les hommages seront sincères, les biographies élogieuses, et personne ne saura jamais ce que vous auriez fait du pouvoir.",

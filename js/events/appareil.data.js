@@ -1813,7 +1813,7 @@ const EV_appareil = [
   "id": "couple_magazine",
   "once": true,
   "weight": 3,
-  "when": { "minPopularity": 45, "minTurn": 10, "notTrait": ["couple_people"] },
+  "when": { "minPopularity": 54, "minTurn": 10, "notTrait": ["couple_people"] },
   "tag": { "fr": "La double page", "en": "The spread" },
   "text": {
     "fr": "Votre compagne est connue pour autre chose que vous, et un magazine propose de vous photographier ensemble, chez vous, en huit pages. L'attaché de presse dit oui avant que vous ayez répondu.",

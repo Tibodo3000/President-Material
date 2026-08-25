@@ -115,7 +115,7 @@ const EV_grandes_decisions = [
       "roll": { "base": 20, "stat": "reseau",
                 "plus": { "eloquence": 0.4, "standing": 0.04 },
                 "bonus": [ { "when": { "position": ["chef"] }, "value": 2.5 },
-                           { "when": { "minPopularity": 60 }, "value": 2 } ], "dice": 16 },
+                           { "when": { "minPopularity": 67 }, "value": 2 } ], "dice": 16 },
       "success": { "effects": { "axis": {"power": -50}, "notoriete": 3, "reseau": 1, "popularity": 16, "standing": 5 },
         "result": { "fr": "La motion passe à quatre voix. Vous avez fait tomber un gouvernement.",
                     "en": "The motion passes by four votes. You have brought down a government." } },

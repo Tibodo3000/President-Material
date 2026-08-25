@@ -45,8 +45,34 @@ background), and the chosen personality is a *trait* whose stats are applied too
 ## The two career gauges (0–100)
 
 These exist only once the game starts and they drive everything:
-- **popularity** — what the *country* thinks; wins universal-suffrage elections.
+- **popularity** — what the people you can *reach* think; wins universal-suffrage elections.
 - **standing** (cote au parti) — what the *machine* thinks; without it, no nomination.
+
+### Popularity is six numbers, and two readings of them
+The truth lives in `game.appeal` — what each of the six electorates thinks of you.
+`game.popularity` is a **reading** of those six, kept in sync by `syncPopularity()`, and
+there are two ways to take it:
+
+| reading | weights | used by |
+|---|---|---|
+| `overallPopularity` → `game.popularity` | `reachWeights`: **your own camp gets `POPULARITY_FOCUS` = 0.66**, the other five split the rest by size × proximity (`REACH_FALLOFF = 3`, so the neighbouring camp counts about eight times the opposite one at equal size) | the gauge on the fiche, event `min/maxPopularity` gates, `REBEL_POPULARITY` |
+| `nationalPopularity` | `electorateWeights`: size only | anything that compares you to the country or to a rival figure — `landscapeDrift`, `playerPull`, `outshinesPresident`, `maybeGovernmentCall`, `primaryWeight`, `rollBase`, and the two panels that list you beside named figures |
+
+The headline used to be the size-weighted average, and it read wrong: an identitarian MP
+adored by his own at 77 and refused by liberals at 25 displayed **43** — a number he could
+not recognise, made mostly of people who will never vote for him whatever he does. The
+weights now follow what an electorate is actually worth to a career: your own side first,
+because that is where militants, nominations, primaries and the floor of your vote come
+from; then the camp next door, which can be convinced; then the far side, which is scenery.
+
+This is a *reading*, not a rebalancing. Elections never use it — a ballot does not weigh
+more for coming from a friendly camp, and `electionAppeal()` still doses base against
+general by size. Every threshold that reads the gauge was moved to the same percentile it
+occupied before (measured over 8 000 turns): `minPopularity` 45→54, 52→60, 55→63, 60→67,
+70→74; `maxPopularity` 30→41, 34→45; `REBEL_POPULARITY` 62→68. Over 200 careers, median
+standing and every peak-office count are unchanged; only the number on screen moved.
+`noteTarget()` gives the gauge's target marker on the same scale, since `popularityTarget`
+still anchors the six underlying electorates by size.
 
 Two forces move them:
 1. **Drift toward a target.** Each turn they slide toward a stat-derived target at rate

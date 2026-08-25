@@ -209,7 +209,8 @@ function renderLandscape() {
     if (mine) {
       people.push({ name: game.character.name || t("sheet_name_empty"), position: game.position,
                     lead: leadsParty(game),
-                    age: game.age, popularity: game.popularity, isPlayer: true });
+                    // On se compare aux figures du camp, qui n'ont qu'un chiffre national.
+                    age: game.age, popularity: nationalPopularity(game), isPlayer: true });
     }
     figuresOf(key).forEach((figure) => {
       people.push({ name: figure.name, position: figure.position,

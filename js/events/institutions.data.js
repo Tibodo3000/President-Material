@@ -58,7 +58,7 @@ const EV_institutions = [
   "once": true,
   "weight": 6,
   "when": { "ruling": false, "rulingClose": true, "position": ["depute", "ministre", "chef"],
-            "minPopularity": 55, "minShare": 15, "minTurn": 16 },
+            "minPopularity": 63, "minShare": 15, "minTurn": 16 },
   "tag": { "fr": "Matignon", "en": "The top job" },
   "text": {
     "fr": "Le président n'a pas de majorité et vient du camp d'à côté. Un émissaire vous propose Matignon en échange de vos voix à l'Assemblée. Votre parti n'est pas au courant."
@@ -579,7 +579,7 @@ const EV_institutions = [
 {
   "id": "demission_fracassante",
   "weight": 3,
-  "when": { "position": ["ministre"], "minTurn": 10, "minPopularity": 45 },
+  "when": { "position": ["ministre"], "minTurn": 10, "minPopularity": 54 },
   "tag": { "fr": "La porte", "en": "The door" },
   "text": {
     "fr": "Le gouvernement s'engage dans une réforme dont vous savez qu'elle finira mal. Vous pouvez la porter, ou vous en aller avec fracas et laisser les autres l'expliquer.",

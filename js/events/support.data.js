@@ -118,7 +118,7 @@ const EV_support = [
 
 {
   "id": "sup_debat_soutien",
-  "when": { "minPopularity": 52 },
+  "when": { "minPopularity": 60 },
   "tag": { "fr": "Campagne", "en": "The campaign" },
   "text": {
     "fr": "Vous êtes plus populaire que le candidat de votre propre camp, et tout le monde le sait, à commencer par lui. Les rédactions vous réclament pour parler à sa place."

@@ -113,7 +113,7 @@ function renderStatus() {
      AUTRES électorats vous accordent. C'est l'écart entre la première et la
      troisième qui raconte une carrière : on gagne un congrès avec la base et
      un second tour avec les autres. */
-  renderGauge("pop", game.popularity, "label_popularity", popularityTarget(game));
+  renderGauge("pop", game.popularity, "label_popularity", noteTarget(game));
   renderGauge("standing", game.standing, "label_standing", standingTarget(game));
   renderElectorates();
 

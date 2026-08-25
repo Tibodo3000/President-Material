@@ -221,7 +221,7 @@ const EV_divers = [
 {
   "id": "chute_libre",
   "weight": 3,
-  "when": { "maxPopularity": 34, "position": ["maire", "depute", "ministre", "chef"] },
+  "when": { "maxPopularity": 45, "position": ["maire", "depute", "ministre", "chef"] },
   "tag": { "fr": "Traversée du désert", "en": "In the wilderness" },
   "text": {
     "fr": "Les sondages sont catastrophiques. Vos propres amis évitent de se faire photographier avec vous.",
@@ -251,7 +251,7 @@ const EV_divers = [
 
 {
   "id": "favori",
-  "when": { "minPopularity": 70 },
+  "when": { "minPopularity": 74 },
   "tag": { "fr": "Favori", "en": "The favourite" },
   "text": {
     "fr": "Tous les sondages vous donnent gagnant. C'est le moment où l'on commence à vous détester.",
