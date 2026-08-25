@@ -138,9 +138,9 @@ const SEAT_CHOICE_STANDING = 55;
  * rapport de force avant de choisir.
  */
 const SEAT_KINDS = {
-  bastion:    { threshold: -30, wind: 0.3 },
+  bastion:    { threshold: -4, wind: 0.3 },
   ordinaire:  { threshold: 0,   wind: 1 },
-  imprenable: { threshold: 19,  wind: 1.6 },
+  imprenable: { threshold: 4,  wind: 1.6 },
 };
 
 /**
@@ -149,6 +149,42 @@ const SEAT_KINDS = {
  * siège, et un congrès de parti n'a pas de circonscription.
  */
 const SEAT_ELECTIONS = ["municipales", "legislatives", "europeennes"];
+
+/**
+ * IMPRENABLE VEUT DIRE IMPRENABLE.
+ *
+ * Le décalage de seuil déplaçait les probabilités, il ne garantissait rien :
+ * une imprenable mettait quand même le joueur en tête du premier sondage une
+ * fois sur dix — et une fois sur trois quand le camp était haut dans le pays.
+ * Un mot qui est vrai neuf fois sur dix n'est pas un mot, c'est une tendance.
+ *
+ * Or ON CHOISIT LA CIRCONSCRIPTION, PAS LE CANDIDAT. Le secrétaire général ne
+ * pose pas un handicap sur quelqu'un : il ouvre un dossier et il en sort une
+ * ville qui correspond à l'étiquette. Si le candidat est excellent et le camp
+ * haut, il prend simplement une ville plus dure — l'imprenable existe pour
+ * tout le monde, il suffit de la chercher un peu plus loin.
+ *
+ * Le terrain garantit donc une MARGE DE DÉPART, celle que le joueur lit sur le
+ * premier sondage : devant dans un bastion, derrière dans une imprenable,
+ * toujours. Le décalage de seuil reste par-dessous et continue de faire le
+ * gros du travail les mauvaises années ; la garantie ne fait que refuser les
+ * cas où l'étiquette aurait menti.
+ */
+const SEAT_EDGE = { bastion: 10, imprenable: -14 };
+
+function seatThreshold(electionId, stake, kind) {
+  const terrain = SEAT_KINDS[kind] || SEAT_KINDS.ordinaire;
+  const seuil = stake.threshold + (terrain.threshold || 0);
+
+  const edge = SEAT_EDGE[kind];
+  if (edge === undefined) return seuil;
+
+  // Le seuil qui place exactement le joueur là où l'étiquette le promet. On
+  // garde le plus dur des deux pour une imprenable, le plus doux pour un
+  // bastion : la garantie est un plancher, jamais un plafond.
+  const garanti = electionBase(electionId, { ...stake, seat: kind }) + LUCK_MEAN - edge;
+  return edge > 0 ? Math.min(seuil, garanti) : Math.max(seuil, garanti);
+}
 
 function seatChoiceAvailable(electionId, stake) {
   return Boolean(stake) && !stake.defense &&
@@ -342,8 +378,7 @@ function seatChoice(target) {
   const stake = playerStake(id);
   if (!stake) return;
 
-  const terrain = SEAT_KINDS[choix] || SEAT_KINDS.ordinaire;
-  startRace(id, { ...stake, seat: choix, threshold: stake.threshold + terrain.threshold });
+  startRace(id, { ...stake, seat: choix, threshold: seatThreshold(id, stake, choix) });
   addLog({
     fr: fillMarks("Vous obtenez d'être placé " + t("seat_log_" + choix) + " pour {elec_low:" + id + "}."),
     en: fillMarks("You get yourself placed " + t("seat_log_" + choix) + " for {elec_low:" + id + "}."),
