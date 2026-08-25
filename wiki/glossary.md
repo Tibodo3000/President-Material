@@ -95,7 +95,8 @@ country, the career, the maths of an election, the turn, and the boot.
 | `electionCalendar`, `horizonLabel`, `renderCalendar` | The strip above the card: where you are, then the four deadlines ahead |
 | `playerStake(electionId)` | What an election offers the player (target + threshold) |
 | `electionScore`, `electionBase`, `partyWind` | Ordinary-election scoring |
-| `applyOutcome`, `outcomeFor`, `outcomeText`, `ELECTION_OUTCOMES` | Result tiers → effects/text |
+| `outcomeFor`, `outcomeText`, `ELECTION_OUTCOMES` | Margin → one of six ways to tell the night |
+| `applyOutcome`, `interpolateCurve`, `expectationFactor`, `outcomeGap`, `bySeverity`, `spreadElectionImage` | What an election night leaves: two curves, the gap to the forecast, and who actually hears about it |
 | `pollFor`, `moodFor` | The poll behind a contest, and its narrated mood — read by the race *and* by the card that offers it |
 | `shiftSupport`, `driftSupport` | What a `score` effect and the rivals do to that poll |
 | `setPresident`, `presidentName`, `isPresident`, `incumbentTermLimited`, `MAX_TERMS` | The presidency |

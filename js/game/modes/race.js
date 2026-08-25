@@ -114,10 +114,13 @@ function raceMood() {
 /** La cote au parti à partir de laquelle on choisit son terrain. */
 const SEAT_CHOICE_STANDING = 55;
 
+/* Un seul nombre par terrain : de combien il déplace la barre. Ce qu'il vaut
+   ensuite se lit dans le pronostic — voir « LE TERRAIN NE MULTIPLIE PLUS
+   RIEN » dans game.js. */
 const SEAT_KINDS = {
-  bastion:    { threshold: -9,  gain: 0.5, perte: 1 },
-  ordinaire:  { threshold: 0,   gain: 1,   perte: 1 },
-  imprenable: { threshold: 11,  gain: 1.8, perte: 0 },
+  bastion:    { threshold: -9 },
+  ordinaire:  { threshold: 0 },
+  imprenable: { threshold: 11 },
 };
 
 /**
@@ -141,34 +144,53 @@ function ajouter(texte, suite) {
 
 function resolveRace() {
   const stake = game.race.stake;
-  const sondage = racePoll();
-  const score = electionScore(game.race.id, stake) + game.race.bonus;
+
+  /* CE QU'ON VOUS PROMETTAIT, ET CE QUI EST SORTI DES URNES.
+     Deux nombres, et le moteur n'en connaissait qu'un. Le sondage affiché
+     pendant la campagne — et, faute de mieux, sur la carte de résultat —
+     valait la marge SANS LE DÉ ; le verdict, lui, se tirait avec. On lisait
+     donc « vous êtes à six points » sous le mot « déroute », et les deux
+     étaient vrais dans leur monde respectif.
+     On garde les deux : l'attendu sert à savoir ce qu'on vous reprochera, le
+     réel sert à tout le reste, à commencer par le tableau qu'on affiche. */
+  const attendu = electionBase(game.race.id, stake) + game.race.bonus + LUCK_MEAN - stake.threshold;
+  const marge = electionBase(game.race.id, stake) + electionLuck() + game.race.bonus - stake.threshold;
+  const sondage = pollFor(game.race.id, stake, game.race.bonus, marge);
   const before = snapshot(game);
 
-  const res = applyOutcome(stake, score - stake.threshold);
+  const res = applyOutcome(game.race.id, stake, marge, attendu);
   const won = res.won;
   let texte = outcomeText(res);
 
-  /* QUAND LE SONDAGE S'EST TROMPÉ, ON LE DIT.
-     Perdre en étant donné devant arrive, et doit arriver : c'est le sel d'une
-     soirée électorale. Mais le jeu n'en disait rien, et le joueur lisait une
-     avance le dimanche matin puis une défaite le dimanche soir sans qu'une
-     seule phrase fasse le lien. Une conséquence qu'on ne relie pas à sa cause
-     ne se lit pas comme un coup du sort, elle se lit comme un bug. */
-  const ecart = sondage && sondage.length > 1
-    ? sondage[0].share - sondage[1].share : 0;
-  const donneDevant = Boolean(sondage) && sondage[0].isPlayer && ecart >= 2;
-  const donneDerriere = Boolean(sondage) && !sondage[0].isPlayer && ecart >= 2;
+  /* QUAND LE SONDAGE S'EST TROMPÉ, ON LE DIT — ET ON DIT AUSSI CE QUE ÇA
+     CHANGE. Perdre en étant donné devant arrive, et doit arriver : c'est le
+     sel d'une soirée électorale. Mais une conséquence qu'on ne relie pas à sa
+     cause ne se lit pas comme un coup du sort, elle se lit comme un bug —
+     et c'est vrai dans les deux sens. Le joueur qui prend trois points de
+     cote pour une déroute a autant besoin de savoir pourquoi que celui qui
+     en prend quinze pour une défaite d'un cheveu. */
+  const donneDevant = attendu >= 4;
+  const donneDerriere = attendu <= -4;
 
   if (donneDevant && !won) {
     texte = ajouter(texte, {
-      fr: " Tous les sondages vous donnaient devant, et ils avaient tort. On expliquera la participation, le report du second tour, le temps qu'il faisait ; personne ne saura jamais lequel des trois.",
-      en: " Every poll had you ahead, and every poll was wrong. They will blame turnout, the second-round transfers, the weather; nobody will ever know which of the three.",
+      fr: " Tous les sondages vous donnaient devant, et ils avaient tort. On expliquera la participation, le report du second tour, le temps qu'il faisait ; personne ne saura jamais lequel des trois, et au siège on ne retiendra que vous.",
+      en: " Every poll had you ahead, and every poll was wrong. They will blame turnout, the second-round transfers, the weather; nobody will ever know which of the three, and at headquarters the only name remembered will be yours.",
+    });
+  } else if (donneDerriere && !won) {
+    texte = ajouter(texte, {
+      fr: " Personne ne vous avait promis cette élection, et personne au siège ne fera semblant du contraire : on ne reproche pas à quelqu'un d'avoir perdu ce que le parti n'a jamais tenu.",
+      en: " Nobody had promised you this one, and nobody at headquarters will pretend otherwise: you are not blamed for losing what the party never held.",
     });
   } else if (donneDerriere && won) {
     texte = ajouter(texte, {
       fr: " Aucun sondage ne vous donnait gagnant. Vous passez la soirée à expliquer que vous n'aviez jamais douté, ce qui est faux et ce que personne ne vous demande de prouver.",
       en: " No poll had you winning. You spend the evening explaining that you never doubted it, which is untrue and which nobody asks you to prove.",
+    });
+  } else if (donneDevant && won) {
+    texte = ajouter(texte, {
+      fr: " On vous félicite comme on félicite quelqu'un qui a fait exactement ce qu'on attendait de lui, c'est-à-dire poliment et sans y revenir.",
+      en: " They congratulate you the way people congratulate somebody who did exactly what was expected, which is politely and only once.",
     });
   }
 

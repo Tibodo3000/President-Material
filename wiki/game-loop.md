@@ -165,15 +165,40 @@ picks an outcome tier, and narrates it. The player sees a poll and a mood phrase
   looks like a bug because it was one. A margin of zero now shows two bars at the same
   height, and an eleven-point lead on screen is an eleven-point margin — a defeat a little
   above one percent. The count's dice were not touched; the display was what lied.
-- When the poll and the count disagree by two points or more, `resolveRace()` **says so**:
-  losing from ahead is the salt of an election night, but nothing linked the Sunday-morning
-  lead to the Sunday-evening defeat, and a consequence you cannot trace to its cause does
-  not read as bad luck, it reads as a bug.
-- Outcome tiers: `ELECTION_OUTCOMES` in [game.js](../js/game.js) map a margin to text +
-  effects (`large`, `win`, `narrow`, `honorable`, `loss`, `rout`). A losing *defense*
-  costs extra — you lose a seat, not just a try. These stay in the engine on purpose:
-  an election can be resolved without any campaign, and `resolveElectionRun()` does
-  exactly that.
+- **The result card shows the result.** It used to show the *forecast*: `pollFor()` built
+  its percentages from the margin plus `LUCK_MEAN`, while the verdict was drawn with
+  `electionLuck()` — two different draws on one screen. You could read "25% against 31%"
+  directly underneath the word *rout*. `pollFor()` now takes the realised margin as a
+  fourth argument and `resolveRace()` passes it, so a rout displays as a rout.
+- When the forecast and the count disagree, `resolveRace()` **says so** — in all four
+  directions, not just one. Losing from ahead is the salt of an election night, but a
+  consequence you cannot trace to its cause does not read as bad luck, it reads as a bug,
+  and that is just as true of the player who takes three points of standing for a rout as
+  of the one who takes fifteen for losing by a hair.
+
+#### What an election night leaves
+`ELECTION_OUTCOMES` still maps a margin to one of six texts (`large`, `win`, `narrow`,
+`honorable`, `loss`, `rout`), but it no longer carries the numbers. Those come from
+`applyOutcome(electionId, stake, marge, attendu)` in [game.js](../js/game.js), which reads
+four things instead of one:
+
+| | what it is | why |
+|---|---|---|
+| `OUTCOME_WON` / `OUTCOME_LOST` | two interpolated curves, standing + image | one table of tiers made a single point of margin worth four points of standing, and one continuous table would have paid six standing for losing by a tenth of a point — the win/loss line is a cliff, not a slope |
+| `expectationFactor` + `outcomeGap` | the margin the poll showed the night before | nobody in politics is judged on their score; they are judged on the gap between their score and the one they were promised |
+| `OUTCOME_STAKE` | what the office weighs inside the machine | a council seat and the party leadership were billed at the same rate |
+| `ELECTION_WEIGHT` | how public the election was, and how far the news travels | the engine applied the result to all six electorates at the same amount, so a lost European seat cost eighteen points of opinion *with the radical left* |
+
+Two more things changed with them. A losing *defense* no longer pays a forfeit on top
+(`×1.4` then `−4` per gauge, which turned a nominal −1 of reputation into −5 and a rout
+into −21 standing): it costs the seat, plus 15% on the negatives, and it keeps half of the
+consolation the text promises. And `SEAT_KINDS` lost its `gain`/`perte` multipliers — the
+ground you choose moves the *threshold*, which moves the forecast, which moves the bill,
+so writing it twice only doubled it.
+
+These stay in the engine on purpose: an election can be resolved without any campaign, and
+`resolveElectionRun()` does exactly that — computing the same `attendu` from the poll the
+scrutin card already showed the player.
 
 ### 2. Presidential election → 6 steps, then a fortnight
 When the player leads their party at a presidential election, `startCampaign()` opens a
@@ -232,15 +257,27 @@ runoff 15%, is out in the first round 75%, and a sitting camp is returned 55% of
 Three scenes played well move their line by up to about seven points, which decides a close
 election and never a lost one.
 
-**The result is charged in proportion to what you were holding** (`supportShare()`). The
-night used to cost a flat 6 standing to everyone, from the party leader down to the
-activist who had put up posters two Sundays running — but standing measures what you are
-worth *to your own side*, i.e. by comparison with them, and a collective beating demotes
-nobody inside the house. The swing is therefore scaled by `rankOf()`, with anyone who
-leads the party at full weight: a militant moves 0, a minister −4, the leader −6. What the
-player actually did during the three scenes is already paid by the scenes themselves. A
-win keeps a flat floor the defeat has none of (`4 + 6 × share`), because a camp that wins
-has posts to hand out and having been there is worth something.
+**The night is judged on the gap, then charged in proportion to what you were holding.**
+It used to be a flat lookup on the winner's name: +10 standing if your camp won, −2 if it
+lost the runoff, −6 if it went out in the first round. So a camp given fourth and carried
+all the way to the final duel was *penalised* two points, and a camp handed to you in the
+lead and dragged down to third cost exactly the same. Two functions now:
+
+- `supportOutcome()` compares two numbers — what the camp was worth when the campaign
+  opened (`support.baseShare`, recorded by `startSupport()`, same idea as `campaign.baseShare`)
+  and what it polled on the Sunday. Where it finished still counts (govern +10, reach the
+  runoff +3, go out first +6 against), but the progression is worth up to ±8 on top, and
+  that is what separates a great losing campaign from a squandered one.
+- `supportShare()` decides whose bill it is. Standing measures what you are worth *to your
+  own side*, i.e. by comparison with them, and a collective beating demotes nobody inside
+  the house: the swing is scaled by `rankOf()`, with anyone who leads the party at full
+  weight. A militant answers for nothing — what they did in the three scenes is already
+  paid by the scenes themselves, which do move standing. Good news travels wider than bad,
+  though, so a positive result keeps a floor of 0.3: a camp that wins has posts to hand
+  out, and having been there is worth something.
+
+The result text says which way the camp moved, because a rising standing under the words
+"your side did not make the runoff" reads as a bug otherwise.
 
 ---
 

@@ -31,6 +31,11 @@
 
 const SUPPORT_STEPS = 3;
 
+/** Ajoute une phrase à un texte bilingue sans le dupliquer des deux côtés. */
+function ajouterSuite(texte, suite) {
+  return { fr: texte.fr + suite.fr, en: texte.en + suite.en };
+}
+
 /** Ce qu'un point de soutien vaut en points d'intentions de vote. */
 const SUPPORT_WEIGHT = 0.55;
 
@@ -97,6 +102,12 @@ function normalizeShares(field) {
 function startSupport(nominee) {
   game.support = { step: 0, used: [], moment: null, nominee: nominee || null, result: null };
   game.support.field = supportField();
+  // CE QUE LE CAMP VALAIT LE JOUR OÙ LA CAMPAGNE S'EST OUVERTE. Sans ce
+  // repère, la soirée ne peut se lire qu'en « gagné / perdu », et l'appareil
+  // reproche la même chose à celui qui a doublé le score du camp et à celui
+  // qui l'a coulé. C'est le baseShare de startCampaign, pour la même raison.
+  const mien = game.support.field.find((c) => c.mine);
+  game.support.baseShare = mien ? mien.share : game.landscape[game.party];
   return { kind: "support", id: drawSupport().id, resolved: false };
 }
 
@@ -140,6 +151,41 @@ function drawSupport() {
   rememberMoment(ev, game.support);
   setScene(ev);
   return ev;
+}
+
+/**
+ * CE QUE LA SOIRÉE VAUT, AVANT DE SAVOIR À QUI L'IMPUTER.
+ *
+ * Un nom de vainqueur ne suffit pas à juger une campagne. Le moteur ne
+ * regardait que lui : dix points de cote si c'était le vôtre, moins deux si
+ * votre camp avait perdu le second tour, moins six s'il était sorti au
+ * premier. Un camp donné quatrième qu'on portait jusqu'au duel final était
+ * donc SANCTIONNÉ de deux points, et un camp qu'on avait reçu en tête et
+ * ramené au troisième rang coûtait exactement la même chose.
+ *
+ * L'appareil compare deux nombres : ce que le camp valait à l'ouverture, ce
+ * qu'il vaut le dimanche soir. Le reste — le nom du président — décide du
+ * pays, pas de votre cote.
+ */
+function supportOutcome() {
+  const res = game.support.result;
+  const mien = res.won;
+  const finaliste = res.duel.some((c) => c.mine);
+
+  // Où le camp a fini, dans l'absolu : gouverner n'est pas être au duel, et
+  // être au duel n'est pas sortir le premier dimanche.
+  const fin = mien ? 10 : finaliste ? 3 : -6;
+
+  // Et ce qu'on en a fait, en points de premier tour. Un camp qui passe de
+  // huit à dix-huit a fait une très grande campagne, même perdue.
+  const moi = res.first.find((c) => c.mine);
+  const base = game.support.baseShare;
+  const progression = moi && base !== undefined ? moi.share - base : 0;
+
+  return {
+    brut: fin + Math.max(-8, Math.min(8, Math.round(progression * 1.3))),
+    progression,
+  };
 }
 
 /**
@@ -196,23 +242,42 @@ function resolveSupport() {
     won: mien,
   };
 
+  /* On ne demande des comptes qu'à ceux qui tenaient les clés — mais on
+     partage la bonne nouvelle plus large que la mauvaise. Un camp qui gagne a
+     des places à distribuer, et en avoir été suffit à en toucher quelque
+     chose ; un camp qui perd ne déclasse que ceux qui décidaient. D'où le
+     socle, qui ne joue que dans un sens. */
+  const bilan = supportOutcome();
+  const part = supportShare();
+  bumpStanding(game, Math.round(bilan.brut * (bilan.brut >= 0 ? Math.max(0.3, part) : part)));
+
+  /* CE QUE LA SOIRÉE A CHANGÉ AU CAMP, EN UNE PHRASE. Sans elle, le joueur
+     lit « votre camp n'a pas passé le premier tour » au-dessus d'une cote qui
+     monte, ou l'inverse, et une conséquence qu'on ne relie pas à sa cause se
+     lit comme un bug. */
+  const monte = bilan.progression >= 4;
+  const coule = bilan.progression <= -4;
+  const bouge = monte
+    ? { fr: " Le camp sort de cette campagne plus haut qu'il n'y était entré, et au siège personne ne fera semblant de l'ignorer.",
+        en: " The side comes out of this campaign higher than it went in, and nobody at headquarters will pretend otherwise." }
+    : coule
+      ? { fr: " Le camp sort de cette campagne plus bas qu'il n'y était entré, et c'est de cela qu'on parlera au bureau politique, pas du vainqueur.",
+          en: " The side comes out of this campaign lower than it went in, and that is what the executive will discuss, not the winner." }
+      : { fr: "", en: "" };
+  const dit = (texte) => ajouterSuite(texte, bouge);
+
   if (mien) {
-    // La victoire se partage plus large que la défaite : un camp qui gagne a
-    // des places à distribuer, et en avoir été suffit à en toucher quelque
-    // chose. D'où le socle, que la défaite n'a pas.
-    bumpStanding(game, Math.round(4 + 6 * supportShare()));
     bumpPop(game, 4);
-    return {
+    return dit({
       fr: nom + " est élu{e} président{e} de la République. Votre camp gouverne, et vous avez fait campagne pour lui.",
       en: nom + " is elected president. Your side is in power, and you campaigned for it.",
-    };
+    });
   }
 
-  // Être au second tour et le perdre n'est pas la même défaite que d'être
-  // sorti dès le premier dimanche : dans un cas le camp a existé, dans
-  // l'autre il a disparu, et l'appareil ne le juge pas pareil.
-  bumpStanding(game, Math.round((finaliste ? -2 : -6) * supportShare()));
-  return finaliste
+  // Un camp battu au second tour n'a pas disparu ; un camp sorti le premier
+  // dimanche, si. La différence est déjà dans supportOutcome() ; ici on ne
+  // fait plus que la raconter.
+  return dit(finaliste
     ? {
         fr: nom + " ({party:" + gagnant.party + "}) l'emporte au second tour. Votre camp y était, ce qui ne console personne le soir même et comptera dans cinq ans.",
         en: nom + " ({party:" + gagnant.party + "}) wins the runoff. Your side was in it, which consoles nobody on the night and will count in five years.",
@@ -220,7 +285,7 @@ function resolveSupport() {
     : {
         fr: nom + " ({party:" + gagnant.party + "}) remporte l'élection présidentielle. Votre camp n'a pas passé le premier tour, et repart pour cinq ans d'opposition.",
         en: nom + " ({party:" + gagnant.party + "}) wins the presidential election. Your side did not make the runoff, and faces five more years in opposition.",
-      };
+      });
 }
 
 function renderSupportCard(host, card) {

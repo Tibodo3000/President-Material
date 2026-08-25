@@ -1532,7 +1532,13 @@ function setPresident(who) {
     // avait démissionné pour l'obtenir. Il reste ce que le parti veut bien
     // vous garder, comme après n'importe quelle défaite.
     setOffice(game, officeAfterDefeat(game));
-    bumpStanding(game, -6);
+    /* ON NE PERD PAS SA COTE PARCE QUE SON CAMP A PERDU LE PAYS. Le moteur
+       retirait six points à un ministre dont le gouvernement tombe : il n'a
+       rien fait, il n'était même pas candidat, et il vient déjà de rendre son
+       ministère avec tout ce qui allait avec. La perte du poste EST la
+       sanction ; ce qui reste ne mesure que le fait d'avoir été du dernier
+       gouvernement, ce dont l'appareil se souvient un peu et pas plus. */
+    bumpStanding(game, -2);
     addLog(quitteMatignon
       ? {
           fr: "Le gouvernement démissionne. Vous quittez Matignon par la grande porte, ce qui est la seule façon d'en sortir, et vous n'avez plus rien.",
@@ -2616,7 +2622,11 @@ function resolveElectionRun(electionId) {
   // Une défense perdue ne renvoie nulle part : le mandat est perdu et rien ne
   // le remplace. Le reste — ce que la soirée coûte ou rapporte — dépend de la
   // marge, et applyOutcome s'en charge pour les deux chemins.
-  const res = applyOutcome(stake, electionScore(electionId, stake) - stake.threshold);
+  // Sans campagne, l'attente est celle du sondage de la carte de scrutin :
+  // le joueur l'a vue, elle l'engage comme si la campagne avait eu lieu.
+  const attendu = electionBase(electionId, stake) + LUCK_MEAN - stake.threshold;
+  const res = applyOutcome(electionId, stake,
+    electionScore(electionId, stake) - stake.threshold, attendu);
   return { won: res.won, outcome: res };
 }
 
@@ -2637,9 +2647,11 @@ function standDown(stake) {
   // ON NE SE REPRÉSENTE PAS AU CONGRÈS. Ce n'est pas un mandat qui s'achève
   // faute de candidat, c'est une maison qu'on rend à quelqu'un qui était dans
   // la pièce. Le mandat, lui, ne bouge pas : c'est tout l'objet du cumul.
+  const scrutin = TARGET_ELECTION[stake.target] || "legislatives";
+
   if (stake.target === "chef") {
     setPartyLead(game, false);
-    bumpPop(game, -3);
+    spreadElectionImage(scrutin, -3);
     bumpStanding(game, -10);
     const rendue = {
       fr: "Vous ne déposez pas de motion. La direction du parti passe à quelqu'un d'autre sans qu'un seul mandat ait été compté contre vous, ce qui est la façon la plus douce et la plus définitive de perdre une maison.",
@@ -2651,7 +2663,9 @@ function standDown(stake) {
 
   const partant = game.position;
   setOffice(game, officeAfterDefeat(game));
-  bumpPop(game, -6);
+  // Le pays ne suit pas un retrait : il constate un nom qui manque sur une
+  // affiche. Les siens, eux, le remarquent tout de suite.
+  spreadElectionImage(scrutin, -6);
   bumpStanding(game, -8);
 
   const texte = {
@@ -2744,10 +2758,17 @@ function weightedParty(incumbentBonus) {
  * Ce n'est pas une promesse : le dé du dépouillement n'est pas tiré. C'est un
  * sondage, avec ce que ça vaut.
  */
-function pollFor(electionId, stake, bonus) {
+/* `reel` : la marge effectivement sortie des urnes. Sans elle on affiche le
+   pronostic, ce qui est exactement ce qu'on veut AVANT le dépouillement et
+   exactement ce qu'il ne faut pas après — la carte de résultat montrait le
+   sondage de la veille à côté du verdict du soir, si bien qu'on lisait
+   « 25 contre 31 » sous le mot « déroute ». Deux tirages, un seul écran. */
+function pollFor(electionId, stake, bonus, reel) {
   if (electionId === "congres") return null;
 
-  const marge = electionBase(electionId, stake) + (bonus || 0) + LUCK_MEAN - stake.threshold;
+  const marge = reel === undefined
+    ? electionBase(electionId, stake) + (bonus || 0) + LUCK_MEAN - stake.threshold
+    : reel;
 
   // Les concurrents sérieux : les partis les mieux placés, sans le vôtre.
   const rivaux = sortedLandscape().filter((key) => key !== game.party).slice(0, 3);
@@ -2832,20 +2853,211 @@ function moodFor(electionId, stake, bonus) {
  * le fauteuil. La stature vient de la fonction qu'on tient et de ce qu'on y
  * fait — voir CREDIBILITY_BY_OFFICE — jamais d'une soirée électorale.
  */
+
+/**
+ * LES SIX FAÇONS DE RACONTER UNE SOIRÉE, ET RIEN D'AUTRE.
+ *
+ * Les paliers ne portent plus que le TEXTE. Ils portaient aussi les chiffres,
+ * et cela produisait des marches que rien ne justifiait : un point de marge
+ * de plus faisait passer la cote de moins deux à moins six, deux soirées que
+ * le joueur lisait à l'identique ne coûtaient pas la même chose, et le palier
+ * franchi d'un cheveu décidait de tout.
+ */
 const ELECTION_OUTCOMES = [
-  // marge minimale, clé de texte, effets
-  { min: 12,   key: "large",     effects: { notoriete: 2, popularity: 7, standing: 9 } },
-  { min: 0,    key: "win",       effects: { notoriete: 1, popularity: 5, standing: 7 } },
+  { min: 12,   key: "large" },
+  { min: 0,    key: "win" },
   // Perdu sur le fil : on devient le prochain, et tout le monde le sait.
-  { min: -3,   key: "narrow",    effects: { notoriete: 1, popularity: 4, standing: 2 } },
+  { min: -3,   key: "narrow" },
   // Battu, mais avec un score que personne n'attendait.
-  { min: -8,   key: "honorable", effects: { notoriete: 1, popularity: 1, standing: -2 } },
-  { min: -18,  key: "loss",      effects: { popularity: -4, standing: -6 } },
-  { min: -1e9, key: "rout",      effects: { reputation: -1, popularity: -10, standing: -12 } },
+  { min: -8,   key: "honorable" },
+  { min: -18,  key: "loss" },
+  { min: -1e9, key: "rout" },
 ];
 
 function outcomeFor(marge) {
   return ELECTION_OUTCOMES.find((o) => marge >= o.min);
+}
+
+/* ==========================================================================
+   CE QU'UNE SOIRÉE ÉLECTORALE LAISSE
+   ==========================================================================
+   Deux colonnes, et elles ne mesurent pas la même chose.
+
+   LA COTE — ce que l'appareil retient. Il compte des sièges et il compare au
+   nombre qu'il avait dans la tête. C'est la colonne raide : entre gagner de
+   peu et perdre de peu il y a un mandat, et le parti ne fait pas semblant de
+   l'ignorer.
+
+   L'IMAGE — ce que la soirée fait à l'opinion qu'on a de vous. Beaucoup plus
+   plate, parce qu'un scrutin ordinaire ne fabrique pas une opinion : il la
+   confirme.
+
+   Les points d'ancrage sont ceux de l'ancienne table de paliers, pour ne pas
+   refaire un équilibrage qui tenait. Ce qui change est qu'on interpole entre
+   eux, et qu'on le fait sur DEUX courbes et non une seule : la ligne qui
+   sépare la victoire de la défaite est une falaise, pas une pente. Une seule
+   table continue aurait rendu six points de cote à une défaite d'un dixième
+   de point.
+   ========================================================================== */
+const OUTCOME_WON = [
+  { marge: 30, standing: 10, image: 8 },
+  { marge: 12, standing:  9, image: 7 },
+  { marge:  0, standing:  7, image: 5 },
+];
+
+const OUTCOME_LOST = [
+  { marge:  -3, standing:   2, image:   4 },
+  { marge:  -8, standing:  -2, image:   1 },
+  { marge: -18, standing:  -6, image:  -4 },
+  { marge: -35, standing: -12, image: -10 },
+];
+
+function interpolateCurve(courbe, x) {
+  if (x >= courbe[0].marge) return courbe[0];
+  const bas = courbe[courbe.length - 1];
+  if (x <= bas.marge) return bas;
+  for (let i = 1; i < courbe.length; i++) {
+    if (x >= courbe[i].marge) {
+      const haut = courbe[i - 1];
+      const pied = courbe[i];
+      const t = (x - pied.marge) / (haut.marge - pied.marge);
+      return {
+        standing: pied.standing + (haut.standing - pied.standing) * t,
+        image: pied.image + (haut.image - pied.image) * t,
+      };
+    }
+  }
+  return bas;
+}
+
+/**
+ * CE QUE LE SCRUTIN PÈSE, ET QUI LE REGARDE.
+ *
+ *   image — combien la soirée déplace ce que le pays pense de vous. Un
+ *           congrès de parti ne déplace presque rien : personne ne le
+ *           regarde, et la direction qu'on y prend se voit toute seule.
+ *
+ *   echo  — jusqu'où la nouvelle sort de votre camp, et c'est la correction
+ *           la plus importante du lot. Le moteur appliquait le résultat aux
+ *           six électorats du même montant : un siège européen perdu coûtait
+ *           dix-huit points d'opinion À LA GAUCHE RADICALE, qui n'en a rien
+ *           su et qui, l'aurait-elle su, ne vous en aurait pas voulu. Une
+ *           soirée électorale se joue devant les siens ; les autres
+ *           l'apprennent au mieux par le titre du lendemain, et d'autant
+ *           moins qu'ils sont loin de vous.
+ */
+const ELECTION_WEIGHT = {
+  municipales:  { image: 1,   echo: 0.15 },  // une ville, et le pays n'en saura rien
+  legislatives: { image: 1,   echo: 0.4  },  // une circonscription, un soir national
+  europeennes:  { image: 0.8, echo: 0.3  },  // national, et personne ne regarde
+  congres:      { image: 0.3, echo: 0.1  },  // une affaire de famille
+};
+
+function electionWeight(electionId) {
+  return ELECTION_WEIGHT[electionId] || ELECTION_WEIGHT.legislatives;
+}
+
+/** Le scrutin d'où vient un poste, quand on n'a que le poste sous la main. */
+const TARGET_ELECTION = {
+  conseiller: "municipales", maire: "municipales", euro: "europeennes",
+  depute: "legislatives", chef: "congres",
+};
+
+/**
+ * CE QU'UN POSTE PÈSE, LE SOIR OÙ IL SE GAGNE OU SE PERD. Un siège de
+ * conseiller municipal se donne à qui le demande ; la direction du parti se
+ * compte au mandat près et se raconte pendant vingt ans. Le moteur facturait
+ * les deux au même tarif.
+ */
+const OUTCOME_STAKE = {
+  conseiller: 0.5, euro: 0.8, maire: 1, depute: 1.15, chef: 1.2,
+};
+
+/**
+ * UNE SOIRÉE NE FAIT PAS UNE CARRIÈRE. Trois facteurs qui se multiplient
+ * finissent par se rencontrer tous ensemble : un congrès pris à
+ * contre-pronostic valait dix-sept points de cote d'un coup, une déroute
+ * annoncée gagnante en coûtait vingt-deux. Le garde-fou est asymétrique
+ * parce que la politique l'est : on tombe plus vite qu'on ne monte.
+ */
+const OUTCOME_CAP = { gain: 13, perte: -15 };
+
+/**
+ * L'ÉCART ENTRE CE QU'ON VOUS PROMETTAIT ET CE QUE VOUS AVEZ FAIT.
+ *
+ * C'est la pièce qui manquait, et c'est elle qui rend le reste juste. Le
+ * moteur ne jugeait que le score, or personne en politique n'est jugé sur son
+ * score : on est jugé sur l'écart entre son score et celui qu'on vous avait
+ * annoncé.
+ *
+ * Perdre la circonscription qu'on vous donnait gagnante est une faute
+ * personnelle. Perdre celle que votre camp n'a jamais tenue, un soir où le
+ * parti s'effondre partout, n'est pas une faute : c'est une soirée. Le moteur
+ * facturait les deux au même tarif, et c'est ainsi qu'un joueur donné perdant
+ * dans un rapport de force mauvais sortait d'une défaite avec vingt et un
+ * points de cote en moins.
+ *
+ * ON N'A RIEN À RECALCULER pour cela : le vent du camp, la difficulté du
+ * terrain, le sortant d'en face et tout ce qu'on a fait pendant la campagne
+ * sont DÉJÀ dans l'attente, puisqu'elle est la marge que le sondage affichait
+ * la veille.
+ */
+function expectationFactor(attendu, won) {
+  const promesse = Math.max(-1, Math.min(1, (attendu || 0) / 14));
+  return won ? 1 - promesse * 0.25 : 1 + promesse * 0.35;
+}
+
+/**
+ * LE SCORE QU'ON VOUS COMPTE, À MI-CHEMIN ENTRE CELUI QUE VOUS AVEZ FAIT ET
+ * CELUI QU'IL FALLAIT FAIRE.
+ *
+ * Ni l'un ni l'autre seul ne convient. Le score brut punit celui qu'on a
+ * envoyé se battre dans un désert et récompense celui à qui l'on a donné une
+ * ville acquise. L'écart brut, lui, rend une déroute à quatre pour cent
+ * entièrement gratuite dès lors que personne n'y croyait, ce qui n'est pas
+ * vrai non plus : un chiffre pareil se cite pendant des années.
+ *
+ * On coupe la poire en deux, et le facteur d'attente fait le reste.
+ */
+const DECEPTION_MIX = 0.5;
+
+function outcomeGap(marge, attendu) {
+  return marge - (attendu === undefined ? 0 : attendu) * DECEPTION_MIX;
+}
+
+/**
+ * L'ATTENTE NE JOUE PAS DANS LE MÊME SENS SUR LES DEUX SIGNES. Une défaite
+ * qu'on ne vous pardonne pas doit coûter PLUS et consoler MOINS ; une défaite
+ * qu'on attendait doit coûter moins et consoler davantage — c'est le beau
+ * score dans le siège où l'on vous avait envoyé mourir. Multiplier
+ * bêtement aurait fait d'une défaite honorable en terrain gagné d'avance la
+ * meilleure soirée du jeu.
+ */
+function bySeverity(valeur, attente, won) {
+  if (won) return valeur * attente;
+  return valeur >= 0 ? valeur / attente : valeur * attente;
+}
+
+/**
+ * OÙ LA NOUVELLE SE PROPAGE. Les vôtres d'abord et beaucoup, les autres
+ * ensuite et d'autant moins qu'ils sont loin de vous.
+ */
+function spreadElectionImage(electionId, montant) {
+  const vu = electionWeight(electionId);
+  const total = montant * vu.image;
+  if (Math.abs(total) < 0.05) return;
+  if (!game.appeal) { bumpPop(game, total); return; }
+
+  Object.keys(PARTIES).forEach((key) => {
+    if (key === game.party) {
+      // Les vôtres fêtent mieux la bonne nouvelle et encaissent mieux la
+      // mauvaise : c'est le filtre partisan, et il joue ici comme ailleurs.
+      bumpAppeal(game, key, total * (total >= 0 ? 1.15 : 0.85));
+      return;
+    }
+    bumpAppeal(game, key, total * vu.echo * (1 - ideologicalDistance(key, game.party)));
+  });
+  syncPopularity(game);
 }
 
 /* ==========================================================================
@@ -2865,7 +3077,7 @@ function outcomeFor(marge) {
    TROIS TERRAINS, TROIS PARIS.
 
    Le bastion se gagne presque à coup sûr et ne prouve rien : on hérite d'un
-   siège, on n'en gagne pas un, et les gains sont réduits en conséquence.
+   siège, on n'en gagne pas un.
 
    Le siège ordinaire ne change rien : c'est le jeu tel qu'il était.
 
@@ -2873,43 +3085,75 @@ function outcomeFor(marge) {
    dix, mais on ne perd QUE l'élection : l'appareil ne fait pas payer une
    défaite là où il n'attendait rien, et personne ne vous reprochera d'avoir
    échoué où les autres refusaient d'aller. Et si elle tombe, elle rapporte
-   presque le double, parce qu'on ne gagne pas ce siège-là sans que le pays
-   entier l'apprenne.
+   gros, parce qu'on ne gagne pas ce siège-là sans que le pays l'apprenne.
+
+   LE TERRAIN NE MULTIPLIE PLUS RIEN, IL DÉPLACE LE SEUIL — et c'est tout ce
+   dont il a besoin. Il portait deux mécaniques : un décalage de seuil et une
+   paire de coefficients (gain, perte) appliqués au résultat. Depuis que la
+   soirée se facture à l'écart au pronostic, les deux disent la même chose
+   deux fois : un bastion abaisse le seuil, donc le sondage vous donne
+   gagnant, donc la victoire vaut moins — sans qu'on ait à l'écrire. Les
+   coefficients ne faisaient plus que doubler la mise, jusqu'à rendre une
+   victoire en bastion moins rentable que de ne pas se présenter.
    ========================================================================== */
 
 /**
  * Applique le résultat et renvoie de quoi le raconter. Le mandat perdu, lui,
  * est traité par l'appelant : c'est la seule chose qui diffère entre une
  * candidature et une défense.
+ *
+ * `attendu` est la marge que le sondage affichait la veille. Les deux chemins
+ * qui mènent ici la connaissent — avec campagne ou sans — et c'est elle qui
+ * décide de la sévérité. LE TEXTE, LUI, SUIT LE SCORE : on ne raconte pas une
+ * déroute comme une défaite honorable sous prétexte que personne n'y croyait,
+ * on la raconte comme une déroute et on ne la facture pas.
  */
-function applyOutcome(stake, marge) {
+function applyOutcome(electionId, stake, marge, attendu) {
   const out = outcomeFor(marge);
   const won = marge >= 0;
 
-  // Une défense perdue coûte plus cher à jauges égales : on ne perd pas un
-  // siège comme on perd une tentative. Le beau score n'y rapporte rien, il
-  // amortit seulement la chute.
+  const attente = expectationFactor(attendu, won);
+  const courbe = interpolateCurve(won ? OUTCOME_WON : OUTCOME_LOST,
+                                  outcomeGap(marge, attendu));
+
+  /* UNE DÉFENSE PERDUE COÛTE LE MANDAT, ET C'EST DÉJÀ L'ESSENTIEL.
+     Le moteur y ajoutait un forfait : chaque effet négatif multiplié par 1,4
+     PUIS diminué de quatre points, jauge par jauge. Une déroute en défense
+     valait donc moins vingt et un de cote, moins dix-huit d'opinion et moins
+     cinq de réputation — pour une réputation dont l'effet nominal était moins
+     un. Et les consolations d'une défaite honorable étaient mises à zéro : le
+     texte promettait au battu de trois cents voix qu'il partait favori du
+     prochain pendant que les chiffres ne lui laissaient rien.
+     L'appareil en veut un peu plus à qui perd ce qu'il avait ; il ne le
+     fusille pas, et il n'a pas besoin de le faire, puisque le siège est
+     perdu et que tout ce qui en découlait l'est avec. */
   const dur = !won && stake.defense;
+  const defense = (valeur) => valeur * (valeur >= 0 ? (dur ? 0.5 : 1) : (dur ? 1.15 : 1));
 
-  // Le terrain choisi module ce que la soirée rapporte ou coûte. Il ne
-  // touche jamais à la fonction obtenue : on est député de la même façon
-  // qu'on ait gagné un bastion ou une ville imprenable.
-  const terrain = SEAT_KINDS[stake.seat] || SEAT_KINDS.ordinaire;
-  // LE FACTEUR SUIT LE RÉSULTAT, PAS LE SIGNE DE L'EFFET. En l'appliquant
-  // au signe, une défaite honorable dans une imprenable voyait ses maigres
-  // gains multipliés par 1,8 pendant que ses pertes étaient annulées :
-  // perdre y rapportait plus que de ne pas se présenter. « Pas de perte »
-  // veut dire zéro, pas prime.
-  const facteur = won ? terrain.gain : terrain.perte;
+  const enjeu = OUTCOME_STAKE[stake.target] || 1;
+  const cote = defense(bySeverity(courbe.standing, attente, won)) * enjeu;
+  // L'enjeu pèse moins sur l'image que sur la cote : le pays ne distingue pas
+  // un siège de conseiller d'une tête de liste aussi bien que l'appareil.
+  const image = defense(bySeverity(courbe.image, attente, won)) * ((1 + enjeu) / 2);
 
-  Object.entries(out.effects).forEach(([key, value]) => {
-    const module = value * facteur;
-    const v = dur ? (value > 0 ? 0 : Math.round(value * 1.4) - 4) : Math.round(module);
-    if (!v) return;
-    if (key === "popularity") bumpPop(game, v);
-    else if (key === "standing") bumpStanding(game, v);
-    else bump(game, key, v);
-  });
+  const dCote = Math.round(Math.max(OUTCOME_CAP.perte, Math.min(OUTCOME_CAP.gain, cote)));
+  if (dCote) bumpStanding(game, dCote);
+  spreadElectionImage(electionId, image);
+
+  // LA NOTORIÉTÉ SE GAGNE À ÊTRE VU, PAS À GAGNER. Une belle défaite fait
+  // parler autant qu'une victoire courte, une déroute ne fait parler de rien,
+  // et un congrès ne fait connaître personne : la direction qu'on y prend
+  // s'en charge toute seule (LEAD_EXPOSURE).
+  const vu = electionWeight(electionId);
+  if (vu.image >= 0.5) {
+    const nom = marge >= 12 ? 2 : marge >= -8 ? 1 : 0;
+    if (nom) bump(game, "notoriete", nom);
+  }
+
+  // On ne perd pas sa réputation en perdant une élection. On la perd en
+  // faisant un score dont on se souviendra, et seulement là où le pays
+  // regardait.
+  if (out.key === "rout" && vu.image >= 0.8) bump(game, "reputation", -1);
 
   // LE CONGRÈS NE DONNE PAS UNE FONCTION, IL DONNE UNE MAISON. Gagner ne
   // prend pas votre siège, perdre ne vous en rend pas un : seul le titre
@@ -2918,7 +3162,8 @@ function applyOutcome(stake, marge) {
   else if (!won && stake.defense) setOffice(game, officeAfterDefeat(game));
   else if (won) setOffice(game, stake.target);
 
-  return { won, key: out.key, defense: Boolean(stake.defense), target: stake.target };
+  return { won, key: out.key, defense: Boolean(stake.defense), target: stake.target,
+           marge, attendu: attendu === undefined ? 0 : attendu };
 }
 
 /**
@@ -3276,6 +3521,13 @@ const BUILD = "2026-08-21 11:45";
       game.support.field = supportField();
       game.support.result = game.support.result || null;
       delete game.support.bonus;
+    }
+    // La part de départ du camp est arrivée avec le jugement à l'écart : une
+    // campagne sauvegardée avant elle repart de la part du jour, ce qui vaut
+    // progression nulle plutôt qu'un écart inventé.
+    if (game.support && game.support.baseShare === undefined) {
+      const sien = (game.support.field || []).find((c) => c.mine);
+      game.support.baseShare = sien ? sien.share : game.landscape[game.party];
     }
 
     // Le paysage politique et les figures nommées sont arrivés après : une
