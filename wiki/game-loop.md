@@ -232,6 +232,16 @@ runoff 15%, is out in the first round 75%, and a sitting camp is returned 55% of
 Three scenes played well move their line by up to about seven points, which decides a close
 election and never a lost one.
 
+**The result is charged in proportion to what you were holding** (`supportShare()`). The
+night used to cost a flat 6 standing to everyone, from the party leader down to the
+activist who had put up posters two Sundays running — but standing measures what you are
+worth *to your own side*, i.e. by comparison with them, and a collective beating demotes
+nobody inside the house. The swing is therefore scaled by `rankOf()`, with anyone who
+leads the party at full weight: a militant moves 0, a minister −4, the leader −6. What the
+player actually did during the three scenes is already paid by the scenes themselves. A
+win keeps a flat floor the defeat has none of (`4 + 6 × share`), because a camp that wins
+has posts to hand out and having been there is worth something.
+
 ---
 
 ## Ending the game

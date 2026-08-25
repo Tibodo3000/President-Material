@@ -143,6 +143,28 @@ function drawSupport() {
 }
 
 /**
+ * CE QU'ON VOUS IMPUTE DÉPEND DE CE QU'ON VOUS AVAIT CONFIÉ.
+ *
+ * Le soir du scrutin coûtait six points de cote à tout le monde, du chef de
+ * parti au militant qui avait collé des affiches deux dimanches. Or la cote
+ * mesure ce qu'on vaut AUX YEUX DES SIENS, donc par comparaison avec eux :
+ * une gifle collective ne déclasse personne à l'intérieur de la maison, et
+ * l'on n'a rien à se faire pardonner d'une campagne qu'on n'a pas dirigée.
+ * L'appareil ne demande des comptes qu'à ceux qui tenaient les clés.
+ *
+ * Ce que le joueur a fait pendant les trois temps se paie déjà dans les
+ * scènes elles-mêmes : le dépouillement n'ajoute que sa part de
+ * responsabilité, nulle pour un militant, entière pour qui dirige.
+ */
+function supportShare() {
+  // Diriger le parti, c'est tenir les clés quel que soit le mandat qu'on
+  // exerce par ailleurs : le chef répond de la campagne entière, y compris
+  // du candidat qu'il a laissé investir.
+  if (leadsParty(game)) return 1;
+  return Math.min(1, rankOf(game) / 8);
+}
+
+/**
  * LE DÉPOUILLEMENT SORT DU SONDAGE, ET DE RIEN D'AUTRE.
  *
  * Il sortait d'un tirage pondéré par le paysage, calculé à part du sondage
@@ -175,7 +197,10 @@ function resolveSupport() {
   };
 
   if (mien) {
-    bumpStanding(game, 10);
+    // La victoire se partage plus large que la défaite : un camp qui gagne a
+    // des places à distribuer, et en avoir été suffit à en toucher quelque
+    // chose. D'où le socle, que la défaite n'a pas.
+    bumpStanding(game, Math.round(4 + 6 * supportShare()));
     bumpPop(game, 4);
     return {
       fr: nom + " est élu{e} président{e} de la République. Votre camp gouverne, et vous avez fait campagne pour lui.",
@@ -186,7 +211,7 @@ function resolveSupport() {
   // Être au second tour et le perdre n'est pas la même défaite que d'être
   // sorti dès le premier dimanche : dans un cas le camp a existé, dans
   // l'autre il a disparu, et l'appareil ne le juge pas pareil.
-  bumpStanding(game, finaliste ? -2 : -6);
+  bumpStanding(game, Math.round((finaliste ? -2 : -6) * supportShare()));
   return finaliste
     ? {
         fr: nom + " ({party:" + gagnant.party + "}) l'emporte au second tour. Votre camp y était, ce qui ne console personne le soir même et comptera dans cinq ans.",
