@@ -114,13 +114,33 @@ function raceMood() {
 /** La cote au parti à partir de laquelle on choisit son terrain. */
 const SEAT_CHOICE_STANDING = 55;
 
-/* Un seul nombre par terrain : de combien il déplace la barre. Ce qu'il vaut
-   ensuite se lit dans le pronostic — voir « LE TERRAIN NE MULTIPLIE PLUS
-   RIEN » dans game.js. */
+/*
+ * DEUX NOMBRES PAR TERRAIN, ET LE SECOND EST LE PLUS IMPORTANT.
+ *
+ * `threshold` déplace la barre. `wind` dit CE QUE LE TERRAIN DOIT AU VENT
+ * NATIONAL, et c'est là que se jouait tout le problème : le terrain ne
+ * pesait que neuf ou onze points sur une marge que le rapport de force et le
+ * dé déplacent de trente. Mesuré sur cent cinquante carrières, un bastion se
+ * gagnait cinquante-quatre fois sur cent — un pile ou face — pendant que la
+ * carte promettait « gagné d'avance, on vous offre le siège ».
+ *
+ * Or un bastion n'est pas un siège un peu plus facile : c'est un siège où le
+ * rapport de force national ne s'applique pas. C'est même sa définition — il
+ * tient quand le camp s'effondre partout ailleurs, et le jeu l'écrit déjà à
+ * propos des maires sortants. Il est donc ABRITÉ du vent, et le prix de
+ * l'abri est de ne pas profiter des bonnes années non plus.
+ *
+ * L'imprenable fait l'inverse, et c'est ce qui en fait un pari plutôt qu'une
+ * punition : le vent y souffle PLUS FORT qu'ailleurs. Une circonscription
+ * qu'on ne gagne jamais est exactement celle qui bascule le jour où le pays
+ * bascule. On la perd huit fois sur dix ; les deux autres fois, c'est qu'il
+ * se passait quelque chose dans le pays, et le joueur pouvait le lire dans le
+ * rapport de force avant de choisir.
+ */
 const SEAT_KINDS = {
-  bastion:    { threshold: -9 },
-  ordinaire:  { threshold: 0 },
-  imprenable: { threshold: 11 },
+  bastion:    { threshold: -30, wind: 0.3 },
+  ordinaire:  { threshold: 0,   wind: 1 },
+  imprenable: { threshold: 19,  wind: 1.6 },
 };
 
 /**

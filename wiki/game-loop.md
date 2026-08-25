@@ -200,6 +200,35 @@ These stay in the engine on purpose: an election can be resolved without any cam
 `resolveElectionRun()` does exactly that — computing the same `attendu` from the poll the
 scrutin card already showed the player.
 
+#### Choosing your ground (`SEAT_KINDS`)
+Above `SEAT_CHOICE_STANDING` (55), a conquest on a municipal/European/legislative ballot
+opens a `seat` card first: safe seat, ordinary seat, or unwinnable constituency. Each entry
+carries **two** numbers, and the second one is the one that matters:
+
+- `threshold` shifts the bar (−30 / 0 / +19).
+- `wind` says what the constituency owes the **national** balance of power, applied to
+  `partyWind()` inside `electionBase()` via `seatShelter()` (0.3 / 1 / 1.6).
+
+`wind` was missing, and without it the choice barely existed: nine or eleven points of
+threshold on a margin that the landscape and the dice move by thirty is a nudge, not a bet.
+Measured over 150 careers, a **safe seat was won 54% of the time** while its card promised
+"won in advance — the seat is handed to you". A safe seat is not a slightly easier seat: it
+is a seat where the national balance of power does not apply. That is its definition — it
+holds when the party collapses everywhere else — and the price of the shelter is that it
+does not ride the good years either. The unwinnable seat does the opposite, which is what
+makes it a bet rather than a punishment: the wind blows *harder* there, so the seat nobody
+wins is exactly the one that flips the day the country flips.
+
+| | win rate | leads the poll | camp weak (wind < −3) | camp strong (wind > +3) |
+|---|---|---|---|---|
+| bastion | 89% | 88% | 89% | 90% |
+| ordinaire | 39% | 38% | 33% | 58% |
+| imprenable | 11% | 9% | **2%** | **32%** |
+
+The safe seat is flat across the landscape; the unwinnable one is entirely a read of it,
+and the player has the landscape panel in front of them before choosing. The three card
+notes say so, since the game states what you are playing for and never a probability.
+
 ### 2. Presidential election → 6 steps, then a fortnight
 When the player leads their party at a presidential election, `startCampaign()` opens a
 `CAMPAIGN_STEPS` (6) flow with a **visible poll** that moves on every decision

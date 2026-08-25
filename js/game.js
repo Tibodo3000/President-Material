@@ -1429,8 +1429,20 @@ function electionAppeal(electionId) {
   return basePopularity(game) * w + generalPopularity(game) * (1 - w);
 }
 
+/**
+ * CE QU'UN TERRAIN DOIT AU VENT NATIONAL. Un bastion tient quand le camp
+ * s'effondre — c'est sa définition, pas un bonus — et il ne profite pas
+ * davantage des bonnes années : c'est le prix de l'abri. Une imprenable, elle,
+ * prend le vent en pleine figure dans les deux sens, ce qui est précisément ce
+ * qui la rend jouable les années de vague.
+ */
+function seatShelter(stake) {
+  const terrain = stake && SEAT_KINDS[stake.seat];
+  return terrain && terrain.wind !== undefined ? terrain.wind : 1;
+}
+
 function electionBase(electionId, stake) {
-  const vent = partyWind() * (PARTY_WEIGHT[electionId] || 0);
+  const vent = partyWind() * (PARTY_WEIGHT[electionId] || 0) * seatShelter(stake);
   // Le sortant, plus ce que les traits font gagner ou perdre ICI : un ancrage
   // local vaut sept points dans sa ville et rien du tout à Strasbourg.
   const dice = (stake && stake.defense ? INCUMBENT_EDGE[electionId] || 0 : 0) +
@@ -3087,20 +3099,27 @@ function spreadElectionImage(electionId, montant) {
 
    Le siège ordinaire ne change rien : c'est le jeu tel qu'il était.
 
-   La circonscription imprenable est le pari du jeu. On la perd huit fois sur
+   La circonscription imprenable est le pari du jeu. On la perd neuf fois sur
    dix, mais on ne perd QUE l'élection : l'appareil ne fait pas payer une
    défaite là où il n'attendait rien, et personne ne vous reprochera d'avoir
    échoué où les autres refusaient d'aller. Et si elle tombe, elle rapporte
    gros, parce qu'on ne gagne pas ce siège-là sans que le pays l'apprenne.
 
-   LE TERRAIN NE MULTIPLIE PLUS RIEN, IL DÉPLACE LE SEUIL — et c'est tout ce
-   dont il a besoin. Il portait deux mécaniques : un décalage de seuil et une
-   paire de coefficients (gain, perte) appliqués au résultat. Depuis que la
-   soirée se facture à l'écart au pronostic, les deux disent la même chose
-   deux fois : un bastion abaisse le seuil, donc le sondage vous donne
-   gagnant, donc la victoire vaut moins — sans qu'on ait à l'écrire. Les
-   coefficients ne faisaient plus que doubler la mise, jusqu'à rendre une
-   victoire en bastion moins rentable que de ne pas se présenter.
+   LE TERRAIN NE MULTIPLIE RIEN : IL DÉPLACE LE SEUIL, ET IL DÉCIDE DE CE QUE
+   LA CIRCONSCRIPTION DOIT AU VENT NATIONAL (voir SEAT_KINDS). Le second
+   nombre est le plus important des deux, et il manquait : un terrain qui ne
+   pesait que neuf ou onze points sur une marge que le rapport de force et le
+   dé déplacent de trente ne changeait pas la nature du pari, il l'inclinait à
+   peine. Un bastion se gagnait cinquante-quatre fois sur cent quand la carte
+   promettait « gagné d'avance ».
+
+   Il n'a en revanche jamais eu besoin de coefficients sur le résultat. Il en
+   portait deux (gain, perte) : depuis que la soirée se facture à l'écart au
+   pronostic, ils disaient la même chose deux fois — un bastion abaisse le
+   seuil, donc le sondage vous donne gagnant, donc la victoire vaut moins,
+   sans qu'on ait à l'écrire — et ils ne faisaient plus que doubler la mise,
+   jusqu'à rendre une victoire en bastion moins rentable que de rester chez
+   soi.
    ========================================================================== */
 
 /**
