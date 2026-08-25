@@ -294,6 +294,52 @@ const NOMINATION_THRESHOLD = {
 const INCUMBENT_DISCOUNT = 12;
 
 /**
+ * LA PRIME AU SIÈGE QU'ON OCCUPE DÉJÀ.
+ *
+ * L'appareil n'écoute pas de la même façon celui qui demande à entrer et
+ * celui qui est déjà dans la pièce. Un conseiller municipal qui veut la tête
+ * de liste ne quémande pas une faveur : il siège, il a le fichier de la
+ * fédération, et le lui refuser oblige à expliquer pourquoi devant les mêmes
+ * militants qui l'ont élu six ans plus tôt.
+ *
+ * Le moteur ne connaissait que la prime au SORTANT, qui ne joue que pour son
+ * propre siège. Mesuré sur cent cinquante carrières, cela donnait ceci : un
+ * cadre du parti SANS AUCUN MANDAT obtenait la tête de liste municipale sans
+ * qu'un seul militant ait à se prononcer (cent cinq offres, zéro refus),
+ * pendant que le conseiller sortant de la même ville se la voyait refuser une
+ * fois sur deux — sa cote médiane au moment du scrutin valait très exactement
+ * le seuil, trente-six contre trente-six.
+ *
+ * Et une municipale revient tous les six ans. Un refus ne coûte pas un tour,
+ * il coûte un mandat entier : c'est le scrutin du jeu où le mur fait le plus
+ * mal, et c'était celui où il était le plus haut.
+ *
+ * La prime vaut moins que celle du sortant : défendre son siège reste plus
+ * facile que d'en prendre un, même celui d'à côté.
+ */
+const SEATED_CLAIM = {
+  maire: { from: "conseiller", discount: 9 },
+};
+
+/**
+ * Ce que l'appareil demande VRAIMENT, une fois retirées les deux primes. Tout
+ * ce qui parle d'investiture doit passer par ici : le refus, la distance au
+ * seuil qu'on raconte au joueur et l'écart qui rend une dissidence possible
+ * lisaient encore le tarif de base, si bien qu'un conseiller écarté de deux
+ * points s'entendait dire qu'on ne le voyait pas du tout.
+ */
+function nominationNeed(stake, s) {
+  const need = NOMINATION_THRESHOLD[stake.target];
+  if (need === undefined) return undefined;
+
+  if (stake.defense && MANDATES.includes(stake.target)) return need - INCUMBENT_DISCOUNT;
+
+  const claim = SEATED_CLAIM[stake.target];
+  if (claim && s.position === claim.from) return need - claim.discount;
+  return need;
+}
+
+/**
  * Mortalité : aucune avant 60 ans, puis une probabilité par tour qui
  * grimpe avec l'âge.
  */

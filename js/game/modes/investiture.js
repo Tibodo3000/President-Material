@@ -78,15 +78,14 @@ function inTheRunning(stake) {
   // soit-il : c'est le sien, et ne pas se représenter le lui coûte.
   if (stake.defense) return true;
 
-  const need = NOMINATION_THRESHOLD[stake.target];
+  const need = nominationNeed(stake, game);
   if (need === undefined) return true;
   return game.standing >= need - NOMINATION_REACH;
 }
 
 function nominationBlocked(stake) {
-  let need = NOMINATION_THRESHOLD[stake.target];
+  const need = nominationNeed(stake, game);
   if (need === undefined) return false;
-  if (stake.defense && MANDATES.includes(stake.target)) need -= INCUMBENT_DISCOUNT;
   return game.standing < need;
 }
 
@@ -171,7 +170,9 @@ const REBEL_COST_WON = -6;
 const REBEL_COST_LOST = -16;
 
 function rebelGap(card) {
-  const need = NOMINATION_THRESHOLD[card.target];
+  // La carte porte le poste visé et le mandat éventuellement défendu : de
+  // quoi retrouver le tarif réel, primes comprises.
+  const need = nominationNeed({ target: card.target, defense: Boolean(card.defends) }, game);
   if (need === undefined) return null;
   return need - game.standing;
 }
@@ -216,7 +217,7 @@ function rebelRefuge() {
  * but ou hors course.
  */
 function blockedPitch(stake) {
-  const gap = NOMINATION_THRESHOLD[stake.target] - game.standing;
+  const gap = nominationNeed(stake, game) - game.standing;
   const role = t("pos_" + stake.target).toLowerCase();
 
   if (gap > 16) {

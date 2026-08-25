@@ -39,7 +39,7 @@ lives. Filenames link to the file — search the function name inside to land on
 | `ELECTIONS` | The electoral calendar (cycle/offset in turns) |
 | `DRIFT`, `driftToward`* | Gauge convergence rate (*`driftToward` is in game.js) |
 | `popularityTarget`, `standingTarget` | Stat-derived gauge targets |
-| `NOMINATION_THRESHOLD`, `INCUMBENT_DISCOUNT` | Standing gates for candidacy |
+| `NOMINATION_THRESHOLD`, `INCUMBENT_DISCOUNT`, `SEATED_CLAIM`, `nominationNeed` | Standing gates for candidacy, and the two discounts that lower them |
 | `deathProbability`, `withdrawalProbability` | End-of-career risk by age/health |
 | `STAT_SCALE`, `statScore` | The 0–20 → 0–10 conversion used by every formula |
 | `bump`, `bumpPop`, `bumpStanding`, `pay` | Bounded mutators (diminishing returns, soften) |

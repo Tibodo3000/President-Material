@@ -211,9 +211,27 @@ Three offices aren't won at the ballot box: `cadre` (party apparatus, via standi
 `euro` and `ministre` (given — a ministry only exists while your camp governs and falls
 the day it loses), and `premier` (Matignon — appointed and revoked by the president).
 
-Nomination thresholds (`NOMINATION_THRESHOLD`) gate candidacy by standing; incumbents get
-`INCUMBENT_DISCOUNT` (12) on mandates. Two of these locks — party leadership and the
-presidential nomination — are the real bottlenecks of the game.
+Nomination thresholds (`NOMINATION_THRESHOLD`) gate candidacy by standing. Everything that
+talks about a nomination goes through `nominationNeed()`, which subtracts the two discounts:
+
+- `INCUMBENT_DISCOUNT` (12) — defending your own mandate. You have the file, the activists
+  and six years of photographs with them, and refusing you means admitting they were wrong
+  last time.
+- `SEATED_CLAIM` (9 for `conseiller` → `maire`) — asking to lead the body you already sit
+  in. That is not a favour, it is a succession, and it was missing: measured over 150
+  careers, a **party official with no mandate at all** got the municipal list handed to him
+  without a single member voting (105 offers, zero refusals), while the **sitting
+  councillor of the same town** was turned down one time in two — his median standing on
+  election day was 36 against a threshold of 36, a literal coin flip. And a municipal
+  election comes round every six years (`cycle: 12`, the rarest in the game), so a refusal
+  does not cost a turn, it costs a whole term. Refusals on that path now run at 24%, and
+  careers that ever hold a mairie went from 49% to 59% without moving anything else: median
+  standing, députation and ministry rates, and every ending count are unchanged over 200
+  careers. The claim is deliberately worth less than the incumbent's — holding your own
+  seat stays easier than taking the one next to it.
+
+Two of these locks — party leadership and the presidential nomination — are the real
+bottlenecks of the game, and they take no discount.
 
 ---
 
