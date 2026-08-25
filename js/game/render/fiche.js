@@ -49,6 +49,43 @@ function renderGauge(key, value, labelKey, target) {
   if (ligne) ligne.setAttribute("title", t("gauge_target_title"));
 }
 
+/**
+ * UNE SEULE JAUGE, ET SA DÉCLINAISON AU SURVOL.
+ *
+ * La fiche a porté un temps trois jauges — base, cote, générale — et
+ * « votre base » ne voulait rien dire pour qui découvrait la partie : le mot
+ * ne nommait pas le camp dont il parlait, et deux barres de popularité côte
+ * à côte demandaient au joueur de faire une soustraction. On revient donc à
+ * la popularité seule, et tout le détail vit dans une carte au survol : votre
+ * base d'abord, nommée, puis les autres électorats, du plus acquis au plus
+ * hostile. L'écart se lit alors d'un coup d'œil au lieu de se calculer.
+ */
+function renderElectorates() {
+  const host = document.getElementById("electorates");
+  if (!host || !game.appeal) return;
+
+  const ligne = (key, mine) =>
+    '<div class="electorate' + (mine ? " is-mine" : "") + '" style="--tint:var(--p-' + key + ')">' +
+      '<span class="electorate-name">' + t("party_" + key) + "</span>" +
+      '<span class="electorate-track"><span class="electorate-fill" style="width:' +
+        Math.round(clamp100(game.appeal[key])) + '%"></span></span>' +
+      '<span class="electorate-value">' + Math.round(game.appeal[key]) + "</span>" +
+    "</div>";
+
+  const autres = Object.keys(PARTIES)
+    .filter((key) => key !== game.party)
+    .sort((a, b) => game.appeal[b] - game.appeal[a]);
+
+  host.innerHTML =
+    '<p class="electorates-title">' + t("electorates_base") + "</p>" +
+    ligne(game.party, true) +
+    '<p class="electorates-title electorates-others">' + t("electorates_others") + "</p>" +
+    autres.map((key) => ligne(key, false)).join("");
+
+  const socle = document.getElementById("gauge-general");
+  if (socle) socle.setAttribute("title", t("general_title"));
+}
+
 function renderStatus() {
   document.getElementById("sheet-name").textContent =
     game.character.name || t("sheet_name_empty");
@@ -69,8 +106,16 @@ function renderStatus() {
     t("pos_" + game.position) + (leadsParty(game) ? " · " + t("pos_chef") : "");
 
   // Les deux jauges de carrière, en tête de fiche.
+  /* TROIS LECTURES, PAS UNE.
+     La fiche montrait « Popularité », un nombre qui mélangeait ce que pense
+     votre camp et ce que pense le reste du pays. Elle montre maintenant ce
+     que votre base vous accorde, ce que le parti vous accorde, et ce que les
+     AUTRES électorats vous accordent. C'est l'écart entre la première et la
+     troisième qui raconte une carrière : on gagne un congrès avec la base et
+     un second tour avec les autres. */
   renderGauge("pop", game.popularity, "label_popularity", popularityTarget(game));
   renderGauge("standing", game.standing, "label_standing", standingTarget(game));
+  renderElectorates();
 
   document.querySelectorAll(".stat-row").forEach((row) => {
     const stat = row.getAttribute("data-stat");

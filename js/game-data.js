@@ -743,12 +743,300 @@ function statScore(s, key) {
  *      rapportent. Les mauvaises, elles, coûtent toujours plein tarif.
  *   2. AMORTI. Certains traits (le téflon) encaissent une part des coups.
  */
+/*
+ * LE FILTRE PARTISAN.
+ *
+ * Un effet sans position touchait les six électorats du montant exact, si bien
+ * que la moindre bonne nouvelle affichait six fois le même chiffre dans la
+ * déclinaison. Ce n'est pas ainsi qu'une opinion se forme : les vôtres
+ * accueillent mieux ce que vous faites de bien et vous pardonnent davantage ce
+ * que vous faites de mal, et le camp d'en face fait l'inverse. C'est le
+ * mécanisme le mieux établi de l'opinion, et il ne demandait qu'à être écrit.
+ *
+ * Le penchant est volontairement léger : il ne remplace pas un positionnement,
+ * il évite seulement qu'une scène neutre produise six colonnes identiques. À
+ * 0,3, un effet de huit points vaut neuf chez vous et six chez celui qui est
+ * le plus loin.
+ */
+const APPEAL_TILT = 0.3;
+
 function bumpPop(state, delta) {
+  if (state.appeal) {
+    Object.keys(PARTIES).forEach((key) => {
+      const proche = 1 - ideologicalDistance(key, state.party);
+      const penchant = (proche - 0.68) * APPEAL_TILT * 2;
+      // LE FILTRE JOUE DANS LES DEUX SENS, ET IL S'INVERSE. Les vôtres
+      // accueillent mieux la bonne nouvelle ET encaissent mieux la mauvaise ;
+      // ceux d'en face font l'exact contraire. Appliquer le même facteur aux
+      // deux ferait punir votre propre camp plus fort que les autres, ce qui
+      // est le contraire de ce qu'on veut dire.
+      bumpAppeal(state, key, delta * (delta >= 0 ? 1 + penchant : 1 - penchant));
+    });
+    syncPopularity(state);
+    return;
+  }
+
   let d = delta;
   if (d > 0) d *= Math.max(0.25, 1 - state.popularity / 150);
   else d *= 1 - traitSoften(state);
 
   state.popularity = clamp100(state.popularity + d);
+}
+
+/**
+ * L'ÉTAT DE DÉPART DE CHAQUE ÉLECTORAT.
+ *
+ * On n'entre pas en politique avec le même capital partout : le camp qu'on a
+ * choisi vous accorde d'emblée ce que les autres vous refusent. L'écart est
+ * calé sur la distance idéologique, puis l'ensemble est décalé pour que la
+ * moyenne pondérée retombe exactement sur popularityTarget() — le personnage
+ * commence donc avec très précisément le crédit qu'il avait avant, réparti
+ * au lieu d'être uniforme.
+ */
+/*
+ * L'ECART STRUCTUREL entre votre camp et les autres, avant tout choix. A 26,
+ * les six electorats tenaient dans onze points et la base depassait a peine
+ * le camp voisin : apres une carriere entiere on lisait 62 / 59 / 56 / 56 /
+ * 54 / 51, c'est-a-dire six fois le meme chiffre. Un parti qui vous a investi
+ * vous accorde beaucoup plus que celui d'en face, et cela doit se voir.
+ */
+const APPEAL_SPREAD = 46;
+
+/*
+ * LA FORME S'EFFACE BEAUCOUP PLUS LENTEMENT QUE LE NIVEAU.
+ *
+ * La derive ramenait chaque electorat vers sa cible au rythme ordinaire des
+ * jauges (DRIFT, 0,28 par tour) : ce qu'un choix avait creuse etait comble en
+ * trois ou quatre tours, et le positionnement ne laissait aucune trace. Or
+ * c'est exactement l'inverse qu'on veut dire — un electorat tient un dossier
+ * sur vous, et il s'en souvient.
+ *
+ * On separe donc les deux mouvements. La MOYENNE suit la cible au rythme
+ * habituel, ce qui laisse la popularite d'ensemble se comporter exactement
+ * comme avant. Les ECARTS a cette moyenne, eux, ne se resorbent qu'a 0,06 par
+ * tour : une reputation de clivage met une quinzaine d'annees a s'effacer, et
+ * ne s'efface jamais tout a fait tant qu'on continue.
+ */
+const APPEAL_SHAPE_DRIFT = 0.06;
+
+/*
+ * CE QUI RAPPELLE LES AUTRES ÉLECTORATS VERS LEUR CIBLE. Volontairement bas :
+ * c'est lui qui décide si l'opinion des autres est un acquis de naissance ou
+ * une accumulation de vos actes. Balayé sur cent cinquante carrières :
+ *
+ *   rappel   étendue des six   popularité   victoires
+ *    0,08         25,5            37,7         27 %
+ *    0,04         28,6            34,2         17 %
+ *    0,02         30,4            31,9         11 %
+ *
+ * 0,04 donne trois points d'étendue de plus que 0,08 et ramène le taux de
+ * victoire présidentielle sur sa référence historique, dix-sept pour cent,
+ * sans qu'on ait à toucher au coefficient de conversion. La popularité
+ * d'ensemble baisse à trente-quatre : c'est sans importance depuis que les
+ * élections lisent les six électorats et non plus la moyenne.
+ */
+const OTHERS_PULL = 0.04;
+
+/**
+ * LE NIVEAU NATUREL DE CHAQUE ÉLECTORAT.
+ *
+ * Il n'y en avait qu'un, commun aux six, et c'était une faute : la dérive
+ * tirait donc tout le monde vers la même valeur, l'écart de départ s'effaçait
+ * en quelques années, et l'on finissait avec cinq électorats rigoureusement
+ * identiques — et une base PLUS BASSE que les autres, parce qu'elle partait
+ * plus haut et descendait pendant que les autres montaient. Un candidat de la
+ * gauche radicale moins aimé de la gauche radicale que des identitaires.
+ *
+ * Chaque électorat a donc sa propre cible, calée sur la distance idéologique.
+ * L'ensemble est décalé pour que la moyenne pondérée retombe exactement sur
+ * popularityTarget() : le profil vaut toujours la même chose au total, il est
+ * simplement réparti. Les positionnements écartent de ces cibles, la dérive y
+ * ramène, et l'écart structurel ne se perd jamais.
+ */
+function appealTargets(s) {
+  const brut = {};
+  Object.keys(PARTIES).forEach((key) => {
+    brut[key] = APPEAL_SPREAD * (0.5 - ideologicalDistance(key, s.party));
+  });
+
+  const { poids, total } = electorateWeights(s);
+  let moyenne = 0;
+  Object.keys(PARTIES).forEach((key) => { moyenne += brut[key] * poids[key]; });
+  moyenne = total ? moyenne / total : 0;
+
+  const cible = popularityTarget(s);
+  const cibles = {};
+  Object.keys(PARTIES).forEach((key) => {
+    cibles[key] = clamp100(cible + brut[key] - moyenne);
+  });
+  return cibles;
+}
+
+function initialAppeal(s) {
+  return appealTargets(s);
+}
+
+/* ==========================================================================
+   LA POPULARITÉ N'EST PAS UN NOMBRE, C'EST SIX
+   ==========================================================================
+   Il n'y en avait qu'un, `game.popularity`, « ce que le pays pense de vous »,
+   écrit par neuf cent quatre-vingt-quatorze effets sur trois cent cinq
+   événements. Un seul nombre ne peut pas dire ce que le jeu raconte :
+   réprimer une manifestation, lâcher une phrase sur l'immigration, défendre
+   une réforme économique, ce sont des gestes qui RENFORCENT UNE BASE ET
+   REFROIDISSENT LES AUTRES. Avec une seule jauge, ils produisaient un nombre
+   qui montait ou qui descendait, et le joueur ne pouvait pas jouer le seul
+   arbitrage qui compte vraiment : plaire aux siens, ou être élu par les
+   autres.
+
+   La vérité vit donc dans `game.appeal`, six valeurs de 0 à 100 : ce que
+   CHAQUE électorat pense de vous. Tout le reste en dérive.
+
+     popularité de base      appeal[votre parti]
+     popularité générale     la moyenne des AUTRES, pondérée par leur poids
+     game.popularity         la moyenne de TOUS, pondérée de même
+
+   `game.popularity` reste un champ, recalculé après chaque changement par
+   syncPopularity(). Les vingt-quatre lectures du moteur continuent donc de
+   fonctionner telles quelles, et les sauvegardes se chargent.
+   ========================================================================== */
+
+/** Le poids de chaque électorat, c'est-à-dire ce que son parti pèse. */
+function electorateWeights(s) {
+  const poids = {};
+  let total = 0;
+  Object.keys(PARTIES).forEach((key) => {
+    const p = Math.max(1, (s.landscape && s.landscape[key]) || 1);
+    poids[key] = p;
+    total += p;
+  });
+  return { poids, total };
+}
+
+/** Ce que votre propre camp pense de vous. */
+function basePopularity(s) {
+  return s.appeal ? s.appeal[s.party] : s.popularity;
+}
+
+/**
+ * Ce que pensent de vous les gens qui ne votent pas pour votre camp. C'est
+ * l'écart entre cette valeur et la base qui dit tout : un candidat adoré des
+ * siens et refusé partout ailleurs gagne un congrès et perd un second tour.
+ */
+function generalPopularity(s) {
+  if (!s.appeal) return s.popularity;
+
+  const { poids } = electorateWeights(s);
+  let somme = 0;
+  let total = 0;
+  Object.keys(PARTIES).forEach((key) => {
+    if (key === s.party) return;
+    somme += s.appeal[key] * poids[key];
+    total += poids[key];
+  });
+  return total ? somme / total : s.popularity;
+}
+
+/** La moyenne de tous les électorats : c'est elle que le moteur lit encore. */
+function overallPopularity(s) {
+  if (!s.appeal) return s.popularity;
+
+  const { poids, total } = electorateWeights(s);
+  let somme = 0;
+  Object.keys(PARTIES).forEach((key) => { somme += s.appeal[key] * poids[key]; });
+  return total ? somme / total : s.popularity;
+}
+
+/** À rappeler après tout changement d'appeal, et nulle part ailleurs. */
+function syncPopularity(s) {
+  if (!s.appeal) return;
+  s.popularity = clamp100(overallPopularity(s));
+}
+
+/**
+ * Coup sur un seul électorat, avec les mêmes rendements décroissants que la
+ * popularité d'ensemble : gagner dix points là où l'on plafonne déjà est
+ * presque impossible, les mauvaises nouvelles coûtent plein tarif.
+ */
+function bumpAppeal(s, key, delta) {
+  if (!s.appeal || s.appeal[key] === undefined) return 0;
+
+  const avant = s.appeal[key];
+  let d = delta;
+  if (d > 0) d *= Math.max(0.25, 1 - avant / 150);
+  else d *= 1 - traitSoften(s);
+
+  s.appeal[key] = clamp100(avant + d);
+  return s.appeal[key] - avant;
+}
+
+/**
+ * OÙ SE SITUE UN CHOIX, ET QUI Y RÉAGIT COMMENT.
+ *
+ * Un choix peut déclarer une position sur tout ou partie des quatre axes :
+ * "axis": { "social": -70 } veut dire « ce geste est très à gauche sur les
+ * questions de société ». Le moteur en tire la réaction des six électorats,
+ * depuis la distance entre cette position et la leur, SUR LES SEULS AXES
+ * DÉCLARÉS — un geste qui ne parle que d'économie ne doit pas être jugé sur
+ * la politique étrangère.
+ *
+ * Le point neutre est à mi-distance : au-delà on gagne, en deçà on perd. Un
+ * choix clivant rapporte donc moins en agrégat qu'un choix consensuel de même
+ * ampleur, et c'est exactement l'arbitrage qu'on cherche à créer.
+ */
+/*
+ * Où passe la ligne entre ceux que le geste rapproche et ceux qu'il éloigne.
+ * Elle était à 0,42, c'est-à-dire en dessous de toutes les affinités que
+ * produisent les six partis du jeu : une position très à gauche faisait
+ * gagner un point à l'électorat identitaire, ce qui est le contraire de ce
+ * qu'on voulait écrire. Les distances réelles entre camps vont de 0,10 à
+ * 0,55, donc les affinités de 0,45 à 0,90 : la ligne passe au milieu.
+ */
+const AXIS_NEUTRAL = 0.68;
+
+/**
+ * « DONNER À LA BASE CE QU'ELLE ATTEND » N'A PAS DE COORDONNÉES FIXES.
+ *
+ * Certaines scènes proposent de se caler sur son propre camp, et la position
+ * dépend alors de qui l'on est : la même phrase n'est pas au même endroit
+ * selon qu'on la prononce à la gauche radicale ou chez les identitaires.
+ * "axis": "self" prend donc les axes du parti du joueur, et "ally" ceux de
+ * son allié — deux façons d'écrire « là où je suis » sans écrire de chiffres.
+ */
+function resolveAxis(position, s) {
+  if (position === "self") return partyAxes(s.party);
+  if (position === "ally") return partyAxes(allyParty ? allyParty() : null);
+  return position;
+}
+
+function axisAffinity(position, partyKey) {
+  const axes = partyAxes(partyKey);
+  const declares = AXES.filter((ax) => position[ax] !== undefined);
+  if (!declares.length) return AXIS_NEUTRAL;
+
+  const distance = declares.reduce((sum, ax) =>
+    sum + Math.abs(position[ax] - axes[ax]), 0) / (declares.length * 200);
+  return 1 - distance;
+}
+
+/**
+ * Applique une popularité positionnée : une seule ligne écrite, six réactions.
+ * Renvoie ce qui a bougé, électorat par électorat.
+ */
+function applyPositionedPopularity(s, amount, brut) {
+  const position = resolveAxis(brut, s);
+  const bouge = {};
+  Object.keys(PARTIES).forEach((key) => {
+    // Ramené sur une pleine amplitude : l'électorat le plus proche prend le
+    // montant annoncé, le plus lointain le perd, et le milieu ne bouge pas.
+    const ecart = (axisAffinity(position, key) - AXIS_NEUTRAL) / (1 - AXIS_NEUTRAL);
+    const delta = amount * ecart;
+    if (Math.abs(delta) < 0.05) return;
+    const reel = bumpAppeal(s, key, delta);
+    if (Math.abs(reel) >= 0.5) bouge[key] = reel;
+  });
+  syncPopularity(s);
+  return bouge;
 }
 
 /** Coup immédiat sur la cote au sein du parti. */
@@ -1137,6 +1425,14 @@ function eventMatches(ev, s) {
   if (w.maxTurn !== undefined && s.turn > w.maxTurn) return false;
   if (w.minPopularity !== undefined && s.popularity < w.minPopularity) return false;
   if (w.maxPopularity !== undefined && s.popularity > w.maxPopularity) return false;
+
+  // Ce que pense votre camp, et ce que pensent les autres. Une scène peut
+  // exiger l'un sans l'autre, et c'est tout l'intérêt : on écrit enfin la
+  // situation du candidat adoré des siens que le pays refuse.
+  if (w.minBase !== undefined && basePopularity(s) < w.minBase) return false;
+  if (w.maxBase !== undefined && basePopularity(s) > w.maxBase) return false;
+  if (w.minGeneral !== undefined && generalPopularity(s) < w.minGeneral) return false;
+  if (w.maxGeneral !== undefined && generalPopularity(s) > w.maxGeneral) return false;
   if (w.minStanding !== undefined && s.standing < w.minStanding) return false;
   if (w.maxStanding !== undefined && s.standing > w.maxStanding) return false;
   if (w.minMoney !== undefined && s.money < w.minMoney) return false;
@@ -1467,8 +1763,38 @@ function applyEffects(effects, s, soften) {
     }
     if (key === "popularity") {
       const before = s.popularity;
-      bumpPop(s, value);
-      if (s.popularity !== before) changes.push({ kind: "gauge", key: "popularity", delta: s.popularity - before });
+      const avant = s.appeal ? { ...s.appeal } : null;
+
+      // Positionnée, elle se répartit ; nue, elle touche tout le monde pareil.
+      if (effects.axis && s.appeal) applyPositionedPopularity(s, value, effects.axis);
+      else bumpPop(s, value);
+
+      pushAppealChanges(changes, avant, s, before);
+      return;
+    }
+    // Le positionnement se lit avec "popularity" : seul, il ne fait rien.
+    if (key === "axis") return;
+    // ÉCRIT À LA MAIN. La formule des axes couvre l'immense majorité des cas ;
+    // il reste les scènes où une réaction n'a rien d'idéologique — un scandale
+    // qui ne fâche que les siens, un ralliement qui ne parle qu'à un camp.
+    if (key === "appeal") {
+      if (!s.appeal) return;
+      const before = s.popularity;
+      const avant = { ...s.appeal };
+      // "self" vise votre propre électorat sans qu'on ait à nommer le camp :
+      // c'est ce qu'il faut pour une scène d'appareil, que le pays ne regarde
+      // pas. "others" vise tous les autres d'un coup.
+      Object.entries(value).forEach(([cible, delta]) => {
+        if (cible === "self") return bumpAppeal(s, s.party, delta);
+        if (cible === "others") {
+          return Object.keys(PARTIES).forEach((k) => {
+            if (k !== s.party) bumpAppeal(s, k, delta);
+          });
+        }
+        bumpAppeal(s, cible, delta);
+      });
+      syncPopularity(s);
+      pushAppealChanges(changes, avant, s, before);
       return;
     }
     if (key === "standing") {
@@ -1634,6 +1960,53 @@ function applyEffects(effects, s, soften) {
   });
 
   return changes;
+}
+
+/**
+ * Ce qu'un mouvement d'opinion a réellement déplacé. On rapporte la base et
+ * la générale séparément, plus le détail par électorat quand il est parlant :
+ * c'est ce que la carte de résultat doit pouvoir montrer.
+ */
+function pushAppealChanges(changes, avant, s, popAvant) {
+  if (!avant) {
+    if (s.popularity !== popAvant) {
+      changes.push({ kind: "gauge", key: "popularity", delta: s.popularity - popAvant });
+    }
+    return;
+  }
+  appealChanges(avant, s).forEach((c) => changes.push(c));
+}
+
+/**
+ * CE QU'UN MOUVEMENT D'OPINION A DÉPLACÉ, DIT LE PLUS BRIÈVEMENT POSSIBLE.
+ *
+ * Un effet qui ne clive pas touche les six électorats du même montant : les
+ * détailler produisait six pastilles disant six fois la même chose. Quand
+ * les autres électorats bougent ensemble, on n'écrit donc qu'une ligne,
+ * « popularité générale ». Le détail n'apparaît que lorsqu'il apprend
+ * quelque chose, c'est-à-dire quand le choix a divisé le pays.
+ */
+function appealChanges(avant, s) {
+  const out = [];
+
+  const base = Math.round(s.appeal[s.party] - avant[s.party]);
+  if (base) out.push({ kind: "appeal", key: s.party, delta: base, base: true });
+
+  const autres = Object.keys(PARTIES)
+    .filter((key) => key !== s.party)
+    .map((key) => ({ kind: "appeal", key, delta: Math.round(s.appeal[key] - avant[key]) }))
+    .filter((c) => c.delta);
+
+  if (!autres.length) return out;
+
+  const min = Math.min(...autres.map((c) => c.delta));
+  const max = Math.max(...autres.map((c) => c.delta));
+  const ensemble = autres.length === Object.keys(PARTIES).length - 1 && max - min <= 1;
+
+  if (ensemble) out.push({ kind: "appeal", general: true, delta: Math.round((min + max) / 2) });
+  else autres.forEach((c) => out.push(c));
+
+  return out;
 }
 
 /* ---------- Choix disponibles ---------- */
@@ -2053,8 +2426,24 @@ function runoff(field, s) {
     const allied = Boolean(ally) && out.party === ally;
 
     const weights = finalists.map((f) => {
-      const proximity = 1 - ideologicalDistance(out.party, f.party);
-      const base = (0.38 + Math.pow(Math.max(0.05, proximity), 2)) * (1 - rejectionRate(f, s));
+      /* POUR LE JOUEUR, ON SAIT EXACTEMENT CE QUE CET ÉLECTORAT PENSE DE LUI.
+         Le report passait par rejectionRate, un forfait de quatorze pour cent
+         corrigé par les traits : la proximité idéologique décidait tout, et
+         ce qu'on avait fait devant ces électeurs pendant vingt ans ne comptait
+         pour rien. C'est pourtant là, et seulement là, que se paie le choix
+         d'avoir chauffé sa base ou d'avoir parlé à tout le monde. */
+      /* CE QUE LES TRAITS COÛTENT AU SECOND TOUR N'A PAS DISPARU. En passant
+         par l'adhésion réelle, on avait cessé d'appeler rejectionRate pour le
+         joueur : la femme candidate, le procès en cours, la radicalité ne
+         changeaient plus rien au report, alors que c'est très exactement le
+         moment où ils se paient. On garde donc la part que les TRAITS
+         ajoutent au refus, au-dessus du forfait commun de quatorze pour cent
+         déjà contenu dans l'adhésion. */
+      const base = (f.isPlayer || f.mine) && s.appeal
+        ? (0.30 + (s.appeal[out.party] / 100) * 0.95) *
+          (1 - Math.max(0, rejectionRate(f, s) - 0.14))
+        : (0.38 + Math.pow(Math.max(0.05, 1 - ideologicalDistance(out.party, f.party)), 2)) *
+          (1 - rejectionRate(f, s));
       // Le pacte vaut pour votre camp, que vous soyez le candidat ou non :
       // c'est un accord entre partis, pas entre personnes.
       return allied && (f.isPlayer || f.mine) ? base * 2.6 : base;

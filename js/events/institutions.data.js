@@ -290,7 +290,7 @@ const EV_institutions = [
                   "en": "Six months of committees and technical texts. You become one of the few people in the country who understands what is decided here, which interests absolutely nobody back home." } },
     { "label": { "fr": "Faire du Parlement une tribune nationale", "en": "Use the Parliament as a national platform" },
       "roll": { "base": 14, "stat": "notoriete", "plus": { "eloquence": 0.5 }, "dice": 16 },
-      "success": { "effects": { "notoriete": 2, "popularity": 7, "reputation": -1, "landscape": { "self": 0.8 } },
+      "success": { "effects": { "axis": {"world": 60}, "notoriete": 2, "popularity": 7, "reputation": -1, "landscape": { "self": 0.8 } },
         "result": { "fr": "Vos interventions sont filmées pour être vues à la maison, pas dans l'hémicycle. Une d'entre elles tourne pendant trois jours et vous rappelle à l'existence.",
                     "en": "Your speeches are filmed to be watched at home, not in the chamber. One of them runs for three days and reminds people you exist." } },
       "failure": { "effects": { "popularity": -3, "reputation": -1, "energie": -1 },
@@ -376,11 +376,11 @@ const EV_institutions = [
   },
   "choices": [
     { "label": { "fr": "Suivre la ligne nationale", "en": "Follow the national line" },
-      "effects": { "standing": 6, "reputation": -1, "popularity": -3 },
+      "effects": { "standing": 6, "reputation": -1, "appeal": { "self": 5 } },
       "result": { "fr": "Vous votez contre votre groupe et vous perdez la vice-présidence d'une commission dont vos électeurs ignorent l'existence. La direction du parti, elle, a compté votre vote.",
                   "en": "You vote against your group and lose the vice-chair of a committee your voters have never heard of. The party leadership, on the other hand, counted your vote." } },
     { "label": { "fr": "Suivre le groupe européen", "en": "Follow the European group" },
-      "effects": { "reseau": 2, "reputation": 3, "standing": -5, "eloquence": 1, "popularity": 3 },
+      "effects": { "axis": {"world": -70}, "reseau": 2, "reputation": 3, "standing": -5, "eloquence": 1, "popularity": 5 },
       "result": { "fr": "Vous votez avec vos collègues et vous expliquez pourquoi dans une tribune que trois personnes liront à Paris. Deux d'entre elles siègent au bureau politique.",
                   "en": "You vote with your colleagues and explain why in an op-ed three people will read at home. Two of them sit on the executive." } },
     { "label": { "fr": "Ne pas prendre part au vote et le faire savoir", "en": "Abstain, loudly" },
@@ -389,7 +389,7 @@ const EV_institutions = [
                   "en": "You put out four paragraphs to explain an abstention. Both sides read it as cowardice, and they are rarely wrong." } },
     { "label": { "fr": "Faire du vote une affaire nationale", "en": "Turn the vote into a national story" },
       "when": { "personality": ["provocative"] },
-      "effects": { "notoriete": 2, "popularity": 8, "standing": -10, "landscape": { "self": 1.2 } },
+      "effects": { "axis": {"world": 70}, "notoriete": 2, "popularity": 8, "standing": -10, "landscape": { "self": 1.2 } },
       "result": { "fr": "Vous quittez l'hémicycle en direct avec une pancarte. La séquence passe au journal de vingt heures chez vous, ce qui n'était jamais arrivé pour un vote européen.",
                   "en": "You walk out live, holding a placard. The clip runs on the evening news back home, which had never happened for a European vote." } }
   ]

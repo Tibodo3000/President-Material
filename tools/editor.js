@@ -61,7 +61,7 @@ const OFFICE_LIST = [...POSITIONS.filter((p) => p !== "chef"), "none"];
 const ALLIANCE_TARGETS = ["self", "scene", "ruling", "ally", ...PARTY_KEYS, "null"];
 const EFFECT_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "money", "poll", "score",
   "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "join", "alliance",
-  "approval", "dissolve", "end"]);
+  "approval", "dissolve", "end", "axis", "appeal"]);
 const WHEN_KEYS = new Set(["party","position","origin","background","personality","minAge","maxAge","minTurn","maxTurn",
   "minPopularity","maxPopularity","minStanding","maxStanding","minMoney","maxMoney","stat","flag","trait","anyTrait",
   "notTrait","ruling","allied","minShare","rulingClose","legal","comms",
@@ -96,6 +96,8 @@ EFFECT_SPEC.chain = {t:"idlist"}; EFFECT_SPEC.flags = {t:"flagmap"};
 EFFECT_SPEC.landscape = {t:"nummap",v:LANDSCAPE_TARGETS};
 EFFECT_SPEC.office = {t:"select",v:OFFICE_LIST}; EFFECT_SPEC.join = {t:"select",v:LANDSCAPE_TARGETS};
 EFFECT_SPEC.alliance = {t:"select",v:ALLIANCE_TARGETS}; EFFECT_SPEC.end = {t:"select",v:END_TYPES};
+EFFECT_SPEC.axis = {t:"axis"};
+EFFECT_SPEC.appeal = {t:"nummap",v:["self","others",...PARTY_KEYS]};
 
 const HELP = {
   id:"Identifiant unique (lettres, chiffres, _). Clé pour les chaînes et le suivi « déjà vu ».",
@@ -150,6 +152,8 @@ const FX_HELP = {
   join:"Change le joueur de parti.", alliance:"Signe (cible) ou rompt (null) un pacte.", end:"Termine la partie.",
   popularity:"Jauge de popularité (0-100).", standing:"Cote au parti (0-100).", money:"Argent (€).",
   poll:"Sondage présidentiel.", score:"Avantage de campagne locale.",
+  axis:"Où se situe le choix (−100 à +100). Avec « popularity », le moteur répartit la réaction entre les six électorats.",
+  appeal:"Réaction écrite à la main, électorat par électorat.",
   approval:"Cote du gouvernement (0-100).", dissolve:"Le président dissout : législatives au tour suivant.",
   lead:"Donne (true) ou retire (false) la direction du parti. Le mandat ne bouge pas.",
 };
@@ -336,6 +340,59 @@ function nummap(owner, key, vocab) {
   if (avail.length) box.appendChild(addDrop("+ clé…", avail, (v) => struct(() => { (owner[key] || (owner[key] = {}))[v] = 0; })()));
   return box;
 }
+/* OÙ SE SITUE UN CHOIX.
+   "axis" prend deux formes : une position chiffrée sur tout ou partie des
+   quatre axes, ou le mot "self" / "ally", qui veut dire « là où est mon camp »
+   sans qu'on ait à écrire de chiffres. Le widget bascule entre les deux, et
+   les curseurs vont de −100 à +100 pour qu'on voie tout de suite de quel côté
+   on penche. */
+const AXIS_KEYS = ["social", "world", "economy", "power"];
+const AXIS_HELP = {
+  social: "−100 progressiste · +100 conservateur",
+  world: "−100 internationaliste · +100 souverainiste",
+  economy: "−100 socialiste · +100 libéral",
+  power: "−100 étatiste · +100 laisser-faire",
+};
+
+function axisw(owner, key) {
+  const box = h("div", { class: "sub" });
+  const val = owner[key];
+  const mode = typeof val === "string" ? val : "chiffres";
+
+  const sel = h("select", { class: "fadd" },
+    opt("chiffres", "position chiffrée"), opt("self", "self — là où est mon camp"),
+    opt("ally", "ally — là où est mon allié"));
+  sel.value = mode;
+  sel.onchange = struct(() => {
+    owner[key] = sel.value === "chiffres" ? {} : sel.value;
+  });
+  box.appendChild(h("div", { class: "krow" }, h("span", { class: "kname" }, "forme"), sel));
+
+  if (mode !== "chiffres") return box;
+
+  const obj = owner[key] || (owner[key] = {});
+  AXIS_KEYS.forEach((ax) => {
+    const actif = obj[ax] !== undefined;
+    const on = h("input", { type: "checkbox" });
+    on.checked = actif;
+    on.onchange = struct(() => { if (on.checked) obj[ax] = 0; else delete obj[ax]; });
+
+    const row = [h("span", { class: "kname", title: AXIS_HELP[ax] }, ax), on];
+    if (actif) {
+      const rng = h("input", { type: "range", min: "-100", max: "100", step: "5" });
+      rng.value = obj[ax];
+      const num = h("input", { type: "number", class: "num", min: "-100", max: "100" });
+      num.value = obj[ax];
+      rng.oninput = () => { obj[ax] = Number(rng.value); num.value = rng.value; sync(); };
+      num.oninput = () => { obj[ax] = Number(num.value); rng.value = num.value; sync(); };
+      rng.onchange = num.onchange = pushHistory;
+      row.push(rng, num, h("span", { class: "khint" }, AXIS_HELP[ax]));
+    }
+    box.appendChild(h("div", { class: "krow" }, ...row));
+  });
+  return box;
+}
+
 function flagmap(owner, key) {
   const obj = owner[key] || {}; const box = h("div", { class: "sub" });
   Object.keys(obj).forEach((k) => box.appendChild(h("div", { class: "krow" },
@@ -394,6 +451,7 @@ function effectsEditor(owner, key) {
     else if (spec.t === "idlist") widget = idlistw(fx, ek);
     else if (spec.t === "flagmap") widget = flagmap(fx, ek);
     else if (spec.t === "nummap") widget = nummap(fx, ek, spec.v);
+    else if (spec.t === "axis") widget = axisw(fx, ek);
     box.appendChild(h("div", { class: "krow" }, h("span", { class: "kname", title: FX_HELP[ek] || "" }, ek), widget,
       h("button", { class: "mini rm", onclick: struct(() => { delete fx[ek]; if (!Object.keys(fx).length) delete owner[key]; }) }, "×")));
   });
@@ -401,7 +459,7 @@ function effectsEditor(owner, key) {
   box.appendChild(addDrop("+ effet…", avail, (k) => struct(() => { (owner[key] || (owner[key] = {}))[k] = defEffect(k); })()));
   return box;
 }
-const defEffect = (k) => { const t = (EFFECT_SPEC[k] || {}).t; if (t === "trait") return TRAIT_LIST[0]; if (t === "select") return EFFECT_SPEC[k].v[0]; if (t === "idlist") return ""; if (t === "flagmap" || t === "nummap") return {}; return 0; };
+const defEffect = (k) => { const t = (EFFECT_SPEC[k] || {}).t; if (t === "trait") return TRAIT_LIST[0]; if (t === "select") return EFFECT_SPEC[k].v[0]; if (t === "idlist") return ""; if (t === "flagmap" || t === "nummap" || t === "axis") return {}; return 0; };
 
 function bonusEditor(roll, key, label) {
   const box = h("div", { class: "sub" });
@@ -605,10 +663,89 @@ function fillMarks(text, lang) {
   });
 }
 const fxSummary = (fx) => fx ? Object.entries(fx).map(([k, v]) => k + "=" + (typeof v === "object" ? JSON.stringify(v) : v)).join("  ") : "";
+
+/* ===== 15 bis. CE QUE L'EFFET FAIT AUX SIX ÉLECTORATS ===================
+   On ne pouvait doser à l'aveugle : « popularity: 8 » ne dit pas si le
+   résultat sera six colonnes identiques ou un vrai clivage, et le seul moyen
+   de le savoir était de lancer une partie. L'aperçu rejoue donc ici la même
+   arithmétique que le moteur — le filtre partisan, le positionnement sur les
+   axes, les cibles self / others — et montre les six deltas.
+
+   Une seule différence avec le jeu, et elle est signalée : les rendements
+   décroissants dépendent de l'adhésion du moment, qu'un éditeur ne connaît
+   pas. Les chiffres sont donc ceux d'un effet « plein tarif ». */
+const AXES_L = ["social", "world", "economy", "power"];
+const NEUTRAL_AXES_L = { social: 5, world: -15, economy: 25, power: 5 };
+const AXIS_NEUTRAL_L = 0.68;
+const APPEAL_TILT_L = 0.3;
+
+const axesOfL = (k) => (PARTIES[k] ? PARTIES[k].axes : NEUTRAL_AXES_L);
+const distanceL = (a, b) => {
+  const A = axesOfL(a), B = axesOfL(b);
+  return AXES_L.reduce((s, x) => s + Math.abs(A[x] - B[x]), 0) / (AXES_L.length * 200);
+};
+function affinityL(pos, k) {
+  const ax = axesOfL(k);
+  const dec = AXES_L.filter((x) => pos[x] !== undefined);
+  if (!dec.length) return AXIS_NEUTRAL_L;
+  return 1 - dec.reduce((s, x) => s + Math.abs(pos[x] - ax[x]), 0) / (dec.length * 200);
+}
+
+function appealPreview(fx, moi) {
+  const out = {};
+  PARTY_KEYS.forEach((k) => { out[k] = 0; });
+  if (!fx) return out;
+
+  if (typeof fx.popularity === "number") {
+    if (fx.axis !== undefined) {
+      const pos = typeof fx.axis === "string" ? axesOfL(moi) : fx.axis;
+      PARTY_KEYS.forEach((k) => {
+        out[k] += fx.popularity * ((affinityL(pos, k) - AXIS_NEUTRAL_L) / (1 - AXIS_NEUTRAL_L));
+      });
+    } else {
+      PARTY_KEYS.forEach((k) => {
+        const pen = ((1 - distanceL(k, moi)) - AXIS_NEUTRAL_L) * APPEAL_TILT_L * 2;
+        out[k] += fx.popularity * (fx.popularity >= 0 ? 1 + pen : 1 - pen);
+      });
+    }
+  }
+  if (fx.appeal) Object.entries(fx.appeal).forEach(([cible, v]) => {
+    if (cible === "self") out[moi] += v;
+    else if (cible === "others") PARTY_KEYS.forEach((k) => { if (k !== moi) out[k] += v; });
+    else if (out[cible] !== undefined) out[cible] += v;
+  });
+  return out;
+}
+
+function appealRow(fx, moi) {
+  if (!fx || (fx.popularity === undefined && !fx.appeal)) return null;
+  const deltas = appealPreview(fx, moi);
+  const row = h("div", { class: "elec" });
+  PARTY_KEYS.forEach((k) => {
+    const d = Math.round(deltas[k] * 10) / 10;
+    const cls = "e" + (d > 0.05 ? " up" : d < -0.05 ? " down" : " flat");
+    row.appendChild(h("span", { class: cls, title: trFR["party_" + k] || k },
+      (trFR["party_" + k] || k).slice(0, 4) + " " + (d > 0 ? "+" : "") + d));
+  });
+  return row;
+}
 const el = (tag, cls, text) => { const e = h(tag, { class: cls }); e.textContent = text; return e; };
+/* Le camp depuis lequel on lit l'aperçu : « self », la distance idéologique et
+   le filtre partisan en dépendent tous, donc la même scène ne donne pas les
+   mêmes six chiffres selon qui la joue. */
+let previewParty = PARTY_KEYS[0];
+
 function renderPreview(obj) {
   const host = byId("preview"); host.innerHTML = "";
   if (!obj || !obj.text) return;
+
+  const sel = h("select", { class: "fadd" }, ...PARTY_KEYS.map((k) => opt(k, trFR["party_" + k] || k)));
+  sel.value = previewParty;
+  sel.onchange = () => { previewParty = sel.value; renderPreview(obj); };
+  host.appendChild(h("div", { class: "elec-head" },
+    h("span", {}, "Vu depuis le camp"), sel,
+    h("span", { class: "elec-note" }, "effet plein tarif, hors rendements décroissants")));
+
   ["fr", "en"].forEach((lang) => {
     const box = h("div", { class: "pv" }, el("div", "lang", lang), el("p", "txt", fillMarks((obj.text && obj.text[lang]) || "", lang)));
     (obj.choices || []).forEach((c) => {
@@ -616,6 +753,8 @@ function renderPreview(obj) {
       (c.roll ? [["✓", c.success], ["✗", c.failure]] : [["", c]]).forEach(([mk, b]) => {
         if (!b) return;
         const fx = fxSummary(b.effects); if (fx) ch.appendChild(el("div", "fx", mk + " " + fx));
+        // La déclinaison ne se lit qu'une fois : elle ne dépend pas de la langue.
+        if (lang === "fr") { const r = appealRow(b.effects, previewParty); if (r) ch.appendChild(r); }
         if (b.result) ch.appendChild(el("div", "res", mk + " " + fillMarks((b.result && b.result[lang]) || "", lang)));
       });
       box.appendChild(ch);

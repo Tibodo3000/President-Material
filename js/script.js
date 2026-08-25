@@ -62,6 +62,14 @@ const translations = {
     elec_presidentielle: "Présidentielle",
 
     label_popularity: "Popularité",
+    label_base: "Popularité auprès de votre base",
+    electorates_base: "Popularité auprès de votre base",
+    electorates_others: "Auprès des autres électorats",
+    fx_family_self: "Vous",
+    fx_family_opinion: "Opinion",
+    fx_family_country: "Le pays",
+    label_general: "Popularité générale",
+    general_title: "Votre popularité, électorat par électorat. Survolez pour la déclinaison.",
     label_standing: "Cote au parti",
     label_next: "Prochaine échéance",
 
@@ -479,6 +487,14 @@ const translations = {
     elec_presidentielle: "Presidential election",
 
     label_popularity: "Popularity",
+    label_base: "Popularity with your base",
+    electorates_base: "Popularity with your base",
+    electorates_others: "With the other electorates",
+    fx_family_self: "You",
+    fx_family_opinion: "Opinion",
+    fx_family_country: "The country",
+    label_general: "General popularity",
+    general_title: "Your popularity, electorate by electorate. Hover for the breakdown.",
     label_standing: "Party standing",
     label_next: "Next milestone",
 

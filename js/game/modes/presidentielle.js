@@ -33,6 +33,63 @@
  * joueur pendant toute la partie : rien n'est caché, la campagne commence là
  * où le pays en est.
  */
+/**
+ * L'ADHÉSION N'EST PAS UN BULLETIN. On ne convertit jamais en voix tout ce
+ * qu'un électorat pense de bien de vous : il a son propre candidat, ses
+ * habitudes et son abstention. Le coefficient ramène la somme des adhésions
+ * sur l'échelle d'un premier tour, où l'on gagne à vingt-cinq pour cent.
+ */
+const PRESIDENTIAL_CONVERSION = 0.45;
+
+/**
+ * CE QUE LE CANDIDAT AJOUTE À SON CAMP.
+ *
+ * En calculant le premier tour depuis la seule adhésion, on avait sorti les
+ * statistiques de la présidentielle : deux candidats également aimés valaient
+ * exactement pareil, que l'un ait vingt de crédibilité et l'autre quatre. Or
+ * c'est là, plus que partout ailleurs, qu'on se demande si l'on imagine
+ * quelqu'un dans le fauteuil.
+ *
+ * La STATURE pèse le plus lourd — c'est la question du scrutin. Le CHARISME
+ * suit, la RÉPUTATION ensuite : ce qu'on sait de propre sur vous compte quand
+ * il s'agit de vous confier le pays. La NOTORIÉTÉ ne pèse qu'un peu, et c'est
+ * volontaire : arrivé à ce stade d'une carrière, on est connu, et la faire
+ * peser davantage reviendrait à récompenser deux fois ce que l'adhésion
+ * mesure déjà. La cote au parti reste un appoint : une machine derrière soi
+ * se voit dans les urnes.
+ *
+ * Les bornes sont celles de playerPull, resserrées pour la même raison qu'à
+ * l'époque : un excellent candidat doit sur-performer nettement son étiquette
+ * sans effacer dix points d'écart dans le pays.
+ */
+function candidatePull() {
+  return clampPull(
+    1 +
+    (statScore(game, "credibilite") - 5.8) / 26 +
+    (statScore(game, "charisme") - 5.8) / 38 +
+    (statScore(game, "reputation") - 5.8) / 48 +
+    (statScore(game, "notoriete") - 5.8) / 90 +
+    (game.standing - 50) / 320 -
+    PARTIES[game.party].difficulty * 0.02 +
+    (Math.random() - 0.5) * 0.3
+  );
+}
+
+/**
+ * Ce que le joueur convertit, électorat par électorat, pondéré par le poids de
+ * chacun dans le pays, puis par ce que vaut le candidat. C'est une part de
+ * voix, lisible telle quelle.
+ */
+function playerFirstRound() {
+  if (!game.appeal) return game.landscape[game.party] * playerPull();
+
+  let voix = 0;
+  Object.keys(PARTIES).forEach((key) => {
+    voix += (game.appeal[key] / 100) * (game.landscape[key] || 0);
+  });
+  return voix * PRESIDENTIAL_CONVERSION * candidatePull();
+}
+
 function presidentialField() {
   const ally = allyParty();
 
@@ -41,10 +98,17 @@ function presidentialField() {
       name: game.character.name || null,
       nameKey: game.character.name ? null : "sheet_name_empty",
       party: game.party,
-      // On ne se présente jamais seul : ce qu'on pèse au premier tour, c'est
-      // d'abord ce que pèse son camp.
+      // CE QU'ON PÈSE AU PREMIER TOUR SE CALCULE ÉLECTORAT PAR ÉLECTORAT.
+      //
+      // C'était la part nationale du camp multipliée par un tirage global :
+      // le score ne dépendait donc que de la taille du parti et d'une
+      // popularité moyenne, et il ne servait à rien d'être adoré des siens si
+      // la moyenne ne bougeait pas. On additionne désormais ce qu'on convertit
+      // dans CHAQUE électorat, pondéré par ce qu'il pèse dans le pays : un
+      // camp à trente pour cent avec quatre-vingts d'adhésion vaut vingt-quatre
+      // points avant même d'avoir parlé à quelqu'un d'autre.
       pop: game.popularity,
-      share: Math.max(1, game.landscape[game.party] * playerPull() * (ally ? 1.12 : 1)),
+      share: Math.max(1, playerFirstRound() * (ally ? 1.12 : 1)),
       isPlayer: true,
     },
   ];

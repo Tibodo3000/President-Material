@@ -157,11 +157,11 @@ const EV_caractere = [
   },
   "choices": [
     { "label": { "fr": "Défendre la décision de vos anciens associés", "en": "Defend your former partners' decision" },
-      "effects": { "reseau": 2, "standing": 4, "popularity": -11, "reputation": -1 },
+      "effects": { "axis": {"economy": 65}, "reseau": 2, "standing": 4, "popularity": 7, "reputation": -1 },
       "result": { "fr": "Vous parlez de compétitivité avec des mots justes. Les images de l'usine tournent en boucle derrière vous.",
                   "en": "You talk about competitiveness in all the right words. Footage of the plant loops behind you." } },
     { "label": { "fr": "Aller devant l'usine avec les salariés", "en": "Stand outside the plant with the workers" },
-      "effects": { "popularity": 10, "energie": -2, "reseau": -3, "reputation": 1 },
+      "effects": { "axis": {"economy": -70}, "popularity": 10, "energie": -2, "reseau": -3, "reputation": 1 },
       "effectsIf": [
         { "when": { "party": ["liberals", "conservatives"] }, "effects": { "standing": -8 } },
         { "when": { "party": ["radical_left", "socdem"] }, "effects": { "standing": 5 } }
@@ -227,7 +227,7 @@ const EV_caractere = [
   "choices": [
     { "label": { "fr": "Aller vous expliquer à leur assemblée générale", "en": "Go and explain yourself at their meeting" },
       "roll": { "base": 16, "stat": "eloquence", "plus": { "reputation": 0.4 }, "dice": 16 },
-      "success": { "effects": { "reputation": 2, "popularity": 7, "energie": -2, "reseau": 1 },
+      "success": { "effects": { "axis": {"economy": -50, "social": -40}, "reputation": 2, "popularity": 7, "energie": -2, "reseau": 1 },
         "result": { "fr": "Trois heures de discussion debout. Vous ne les convainquez pas tous, mais vous êtes venu.",
                     "en": "Three hours of standing debate. You do not convince them all, but you came." } },
       "failure": { "effects": { "popularity": -7, "energie": -2, "reputation": -1 },
@@ -480,11 +480,11 @@ const EV_caractere = [
   },
   "choices": [
     { "label": { "fr": "Faire la séquence sérieuse", "en": "Do the serious stretch" },
-      "effects": { "reputation": 2, "standing": 6, "popularity": -6, "notoriete": -1 },
+      "effects": { "reputation": 2, "standing": 6, "appeal": { "self": -7 }, "notoriete": -1 },
       "result": { "fr": "Deux mois de visites d'usines et de discours mesurés. Votre base s'ennuie et vous le fait savoir.",
                   "en": "Two months of factory visits and measured speeches. Your base is bored and lets you know." } },
     { "label": { "fr": "En rajouter dès le lendemain", "en": "Go further the very next day" },
-      "effects": { "notoriete": 3, "popularity": 9, "reputation": -2, "standing": -8, "strike": "radical" },
+      "effects": { "axis": "self", "notoriete": 3, "popularity": 9, "reputation": -2, "standing": -8, "strike": "radical" },
       "result": { "fr": "La phrase suivante est pire que la précédente. Vous existez, et vous rétrécissez votre horizon.",
                   "en": "The next line is worse than the last. You exist, and your horizon narrows." } },
     { "label": { "fr": "Retourner l'accusation contre la presse", "en": "Turn the accusation back on the press" },
@@ -614,7 +614,7 @@ const EV_caractere = [
   },
   "choices": [
     { "label": { "fr": "Le devancer d'un jour", "en": "Beat them by a day" },
-      "effects": { "notoriete": 2, "popularity": 9, "reputation": 2, "energie": -1 },
+      "effects": { "axis": {"social": -60}, "notoriete": 2, "popularity": 9, "reputation": 2, "energie": -1 },
       "effectsIf": [
         { "when": { "party": ["identitarians", "conservatives"] }, "effects": { "standing": -10 } },
         { "when": { "party": ["radical_left", "socdem"] }, "effects": { "standing": 6 } }

@@ -61,12 +61,23 @@ function supportField() {
     const sortant = Boolean(figure) && isPresident(figure);
     const pull = (figure ? figurePull(figure, sortant) : 0.8) * (key === ally ? 0.82 : 1);
 
+    /* VOTRE CAMP PORTE CE QUE VOUS AVEZ FAIT, MÊME QUAND VOUS N'ÊTES PAS LE
+       CANDIDAT. La présidentielle qu'on dispute se calcule électorat par
+       électorat depuis l'adhésion ; celle qu'on regarde continuait de calculer
+       le camp du joueur comme n'importe quel autre parti, avec le seul tirage
+       de sa figure. Vingt ans de campagne ne comptaient donc pour rien dès
+       lors qu'un autre portait l'étiquette. */
+    const mien = key === game.party;
+    const part = mien && game.appeal
+      ? Math.max(1, playerFirstRound())
+      : Math.max(1, game.landscape[key] * pull);
+
     return {
       name: figure ? figure.name : null,
       nameKey: figure ? null : "party_" + key,
       party: key,
       pop: figure ? figure.popularity : 45,
-      share: Math.max(1, game.landscape[key] * pull),
+      share: part,
       // Ce n'est pas vous qui concourez : "isPlayer" reste faux partout, et
       // le second tour comme les taux de rejet s'en servent. "mine" ne sert
       // qu'à deux choses : surligner la ligne, et savoir laquelle déplacer.

@@ -17,7 +17,7 @@ const EV_debuts = [
   "choices": [
     { "label": { "fr": "Devenir ce visage", "en": "Become that face" },
       "when": { "stat": { "energie": { "min": 8 } } },
-      "effects": { "landscape": { "self": 0.7 }, "reseau": 1, "notoriete": 1, "energie": -2, "popularity": 12, "standing": 4 },
+      "effects": { "axis": {"economy": -55}, "landscape": { "self": 0.7 }, "reseau": 1, "notoriete": 1, "energie": -2, "popularity": 12, "standing": 4 },
       "result": { "fr": "Des mois de réunions. Des centaines de gens connaissent votre prénom.",
                   "en": "Months of meetings. Hundreds of people know your first name now." } },
     { "label": { "fr": "Soutenir de loin", "en": "Support from a distance" },
@@ -32,7 +32,7 @@ const EV_debuts = [
     { "label": { "fr": "Attaquer la fermeture en justice", "en": "Challenge the closure in court" },
       "when": { "background": ["law"] },
       "roll": { "base": 13, "stat": "eloquence", "plus": { "sangfroid": 0.4 }, "dice": 16 },
-      "success": { "effects": { "notoriete": 2, "reputation": 2, "popularity": 14 },
+      "success": { "effects": { "axis": {"economy": -55, "power": -35}, "notoriete": 2, "reputation": 2, "popularity": 14 },
         "result": { "fr": "Le tribunal suspend la fermeture. Votre nom est sur la décision.",
                     "en": "The court suspends the closure. Your name is on the ruling." } },
       "failure": { "effects": { "popularity": -3, "energie": -1 },
@@ -53,7 +53,7 @@ const EV_debuts = [
   "choices": [
     { "label": { "fr": "Prendre les quartiers que personne ne veut", "en": "Take the ones nobody wants" },
       "when": { "stat": { "energie": { "min": 8 } } },
-      "effects": { "landscape": { "self": 0.6 }, "energie": -2, "reputation": 1, "popularity": 8, "standing": 3, "trait": "bosseur" },
+      "effects": { "axis": {"economy": -40, "social": -30}, "landscape": { "self": 0.6 }, "energie": -2, "reputation": 1, "popularity": 8, "standing": 3, "trait": "bosseur" },
       "result": { "fr": "Trois cents portes, beaucoup fermées. Ceux qui ont ouvert se souviennent de vous.",
                   "en": "Three hundred doors, many shut. The ones that opened remember you." } },
     { "label": { "fr": "Rester au local à organiser", "en": "Stay at HQ and organise" },
@@ -479,7 +479,7 @@ const EV_debuts = [
   },
   "choices": [
     { "label": { "fr": "Y aller et prendre le mégaphone", "en": "Go, and take the megaphone" },
-      "effects": { "notoriete": 2, "popularity": 7, "energie": -1, "standing": -3 },
+      "effects": { "axis": {"economy": -70}, "notoriete": 2, "popularity": 7, "energie": -1, "standing": -3 },
       "effectsIf": [
         { "when": { "party": ["radical_left", "socdem"] }, "effects": { "standing": 7 } },
         { "when": { "party": ["liberals"] }, "effects": { "standing": -6, "reputation": -1 } }

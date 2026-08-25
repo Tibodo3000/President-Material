@@ -164,6 +164,10 @@ function newGame(character) {
     investments: {},   // niveaux des postes de dépense choisis par le joueur
     seen: {},          // événements déjà joués : ils ne reviendront pas
     pending: [],       // suites programmées, avec le tour où elles tombent
+    // La vérité de l'opinion vit dans appeal, six électorats ; popularity en
+    // est la moyenne pondérée, recalculée par syncPopularity(). Voir
+    // « LA POPULARITÉ N'EST PAS UN NOMBRE, C'EST SIX » dans js/game-data.js.
+    appeal: null,
     popularity: 0,
     standing: 0,
     rivals,               // une figure par parti
@@ -207,7 +211,8 @@ function newGame(character) {
 
   // On démarre pile sur la cible : le personnage arrive avec le crédit que
   // son profil lui vaut, ni plus ni moins.
-  state.popularity = popularityTarget(state);
+  state.appeal = initialAppeal(state);
+  syncPopularity(state);
   state.standing = standingTarget(state);
   return state;
 }
@@ -928,8 +933,64 @@ function driftToward(current, target, hold) {
   return clamp100(current + (target - current) * rate);
 }
 
+/**
+ * LA DÉRIVE PORTE SUR LES SIX ÉLECTORATS, PAS SUR LA MOYENNE.
+ *
+ * popularity est désormais dérivée : l'écrire directement serait effacé au
+ * prochain syncPopularity(). Chaque électorat glisse donc vers la cible du
+ * profil, en gardant l'écart que les positionnements ont creusé — c'est ce
+ * qui fait qu'une réputation de clivage s'use lentement au lieu de
+ * disparaître au tour suivant.
+ */
 function driftGauges() {
-  game.popularity = driftToward(game.popularity, popularityTarget(game), investHold(game, "popularity"));
+  const frein = investHold(game, "popularity");
+
+  if (game.appeal) {
+    /* LE NIVEAU DÉRIVE VITE, LA FORME TRÈS LENTEMENT.
+       Chacun vers sa propre cible ne suffisait pas : au rythme ordinaire des
+       jauges, ce qu'un choix avait creusé entre deux électorats était comblé
+       en trois ou quatre tours, et positionner ne laissait aucune trace. On
+       fait donc glisser la MOYENNE au rythme habituel — la popularité
+       d'ensemble se comporte exactement comme avant — et les ÉCARTS à cette
+       moyenne beaucoup plus lentement. C'est le dossier que chaque électorat
+       tient sur vous, et il s'en souvient. */
+    const cibles = appealTargets(game);
+    const { poids, total } = electorateWeights(game);
+    const moyenne = (map) => {
+      let somme = 0;
+      Object.keys(PARTIES).forEach((k) => { somme += map[k] * poids[k]; });
+      return total ? somme / total : 0;
+    };
+
+    /* SEULE VOTRE BASE DÉRIVE.
+       Votre camp vous connaît : il sait ce que vous valez, et son opinion
+       revient vers ce que votre dossier dit de vous. Les autres électorats ne
+       vous connaissent que par vos actes, et il n'y a aucune raison qu'ils
+       reviennent tout seuls vers quoi que ce soit — ce qu'ils pensent de vous
+       est la somme de ce que vous avez fait devant eux.
+
+       C'est ce qui rendait les six valeurs si proches : elles étaient toutes
+       ramenées vers une cible calculée depuis les statistiques, si bien que
+       les choix n'étaient que des perturbations autour d'un chiffre décidé à
+       la création du personnage. */
+    game.appeal[game.party] = driftToward(game.appeal[game.party], cibles[game.party], frein);
+
+    // Les autres ne reviennent pas vers leur cible, ils s'en approchent de
+    // très loin. Sans aucun rappel, ce qu'ils pensent de vous ne fait que
+    // descendre — le contenu du jeu a été écrit contre un rappel fort — et la
+    // popularité d'ensemble s'effondrait de quarante-trois à trente. Le
+    // coefficient est assez faible pour qu'un choix tienne des années, assez
+    // present pour qu'une carriere ne parte pas au fond.
+    Object.keys(PARTIES).forEach((key) => {
+      if (key === game.party) return;
+      game.appeal[key] = clamp100(
+        game.appeal[key] + (cibles[key] - game.appeal[key]) * OTHERS_PULL);
+    });
+    syncPopularity(game);
+  } else {
+    game.popularity = driftToward(game.popularity, popularityTarget(game), frein);
+  }
+
   game.standing = driftToward(game.standing, standingTarget(game), investHold(game, "standing"));
 }
 
@@ -1340,6 +1401,32 @@ function electionScore(electionId, stake) {
  * montrer un nombre : les jauges sont des abstractions, elles ne se récitent
  * pas.
  */
+/* CHAQUE SCRUTIN NE LIT PAS LE MÊME PAYS.
+   Les trois formules multipliaient game.popularity, c'est-à-dire la moyenne
+   des six électorats. Deux conséquences. On ne faisait aucune différence
+   entre une municipale, qui se gagne en mobilisant les siens dans une ville
+   qu'on connaît, et une européenne, où l'on vote pour une étiquette : le même
+   nombre servait aux deux. Et depuis que l'opinion des autres électorats
+   s'accumule au lieu d'être rappelée, cette moyenne a baissé de neuf points —
+   les scrutins ordinaires sont donc devenus plus durs sans que personne ne
+   l'ait décidé, de cinquante-deux à quarante et un pour cent de victoires.
+
+   On dose donc, scrutin par scrutin, la part de ce que pense votre camp et la
+   part de ce que pensent les autres. Plus le scrutin est local et incarné,
+   plus votre base pèse ; plus il est national et anonyme, plus ce sont les
+   autres qui décident. */
+const ELECTION_BASE_WEIGHT = {
+  municipales: 0.62,   // on y vote pour quelqu'un qu'on croise au marché
+  legislatives: 0.50,  // une étiquette, mais dans une circonscription
+  europeennes: 0.28,   // une étiquette, et rien d'autre
+};
+
+function electionAppeal(electionId) {
+  const w = ELECTION_BASE_WEIGHT[electionId];
+  if (w === undefined || !game.appeal) return game.popularity;
+  return basePopularity(game) * w + generalPopularity(game) * (1 - w);
+}
+
 function electionBase(electionId, stake) {
   const vent = partyWind() * (PARTY_WEIGHT[electionId] || 0);
   // Le sortant, plus ce que les traits font gagner ou perdre ICI : un ancrage
@@ -1351,7 +1438,7 @@ function electionBase(electionId, stake) {
     // UN SCRUTIN DE PERSONNES. On vote pour quelqu'un qu'on croise au marché,
     // et l'étiquette ne pèse presque rien : un maire sortant peut survivre à
     // l'effondrement national de son parti, et cela arrive tout le temps.
-    return game.popularity * 0.75 + statScore(game, "reseau") * 2.4 +
+    return electionAppeal(electionId) * 0.75 + statScore(game, "reseau") * 2.4 +
       statScore(game, "energie") + vent + dice;
   }
   if (electionId === "europeennes") {
@@ -1359,7 +1446,7 @@ function electionBase(electionId, stake) {
     // on vote pour une étiquette et pour sanctionner le gouvernement. La
     // personne du candidat ne fait presque rien, ce qui est bien le problème
     // des européennes.
-    return game.popularity * 0.35 + statScore(game, "notoriete") * 0.8 +
+    return electionAppeal(electionId) * 0.35 + statScore(game, "notoriete") * 0.8 +
       vent + dice;
   }
   if (electionId === "legislatives") {
@@ -1367,7 +1454,7 @@ function electionBase(electionId, stake) {
     // circonscription où l'on a un nom. Un parti qui s'effondre emporte ses
     // députés avec lui, y compris les bons.
     // On envoie à l'Assemblée quelqu'un dont on peut dire qu'il y a sa place.
-    return game.popularity * 0.6 + statScore(game, "eloquence") + statScore(game, "reseau") +
+    return electionAppeal(electionId) * 0.6 + statScore(game, "eloquence") + statScore(game, "reseau") +
       statScore(game, "credibilite") * 0.7 + vent + dice;
   }
   // LE CONGRÈS. Il ne se joue pas devant le pays mais entre militants : la
@@ -2934,7 +3021,9 @@ function leadershipText(res) {
  */
 function snapshot(s) {
   return { popularity: s.popularity, standing: s.standing, money: s.money,
-           partyLead: Boolean(s.partyLead), stats: { ...s.stats } };
+           partyLead: Boolean(s.partyLead),
+           appeal: s.appeal ? { ...s.appeal } : null,
+           stats: { ...s.stats } };
 }
 
 /* ---------- Pourquoi une option est ouverte, et ce qu'elle risque ---------- */
@@ -3128,6 +3217,13 @@ const BUILD = "2026-08-21 11:45";
     if (game.presidentialRuns === undefined) game.presidentialRuns = 0;
     // Une sauvegarde d'avant la dette de fatigue part sans dette : on ne
     // facture pas rétroactivement ce qui était gratuit quand ça a été joué.
+    // Une sauvegarde d'avant les six électorats n'a qu'un nombre : on le
+    // répartit tel quel, uniformément. On ne lui invente pas un passé de
+    // clivages qu'elle n'a pas vécus.
+    if (!game.appeal) {
+      game.appeal = {};
+      Object.keys(PARTIES).forEach((key) => { game.appeal[key] = game.popularity; });
+    }
     if (game.strain === undefined) game.strain = 0;
     if (game.strainStruck === undefined) game.strainStruck = 0;
 
