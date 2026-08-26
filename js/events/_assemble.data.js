@@ -98,7 +98,7 @@
  *   "minPopularity": 60,  "maxPopularity": 30
  *   "minStanding": 60,    "maxStanding": 30
  *   "minMoney": 200000,   "maxMoney": 5000
- *   "minTurn": 10,        "maxTurn": 40
+ *   "minTurn": 20,        "maxTurn": 80
  *   "stat": { "notoriete": { "min": 6 }, "energie": { "max": 4 } }
  *   "flag": { "dirtyMoney": true, "onTrial": false }
  *   "trait":       ["orateur", "teflon"]           TOUS ces traits

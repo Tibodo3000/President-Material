@@ -25,7 +25,13 @@
    soutenir, et l'un comme l'autre se paie.
    ========================================================================== */
 
-/** Combien de tours avant la présidentielle la primaire se joue. */
+/*
+ * Trois tours, soit neuf mois avant le scrutin : c'est l'ordre de grandeur
+ * réel (octobre 2011 pour avril 2012, novembre 2016 pour avril 2017), et
+ * c'est surtout le seul décalage qui ne tombe sur aucune autre échéance —
+ * voir la discipline d'offsets dans ELECTIONS. À deux tours, la primaire
+ * mangeait une municipale de temps en temps.
+ */
 const PRIMARY_LEAD = 3;
 
 /** La cote au parti en dessous de laquelle on ne concourt même pas. */
@@ -123,7 +129,7 @@ function primaryField() {
  * jamais celui-là — la primaire ne se déclenchait donc jamais.
  */
 function turnsToPresidential() {
-  for (let ahead = 1; ahead <= 24; ahead++) {
+  for (let ahead = 1; ahead <= 48; ahead++) {
     const e = electionAtTurn(game.turn + ahead);
     if (e && e.id === "presidentielle") return ahead;
   }

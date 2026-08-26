@@ -44,7 +44,7 @@ const EV_caractere = [
 {
   "id": "coup_de_fil_appareil",
   "weight": 5,
-  "when": { "trait": ["appareil"], "minTurn": 10 },
+  "when": { "trait": ["appareil"], "minTurn": 20 },
   "tag": { "fr": "Fédérations", "en": "The branches" },
   "text": {
     "fr": "Trois fédérations menacent de partir avec leur candidat. Vous connaissez les trois secrétaires par leur prénom, et vous savez ce que chacun veut.",
@@ -114,7 +114,7 @@ const EV_caractere = [
 {
   "id": "ancien_client",
   "weight": 5,
-  "when": { "background": ["law"], "minTurn": 8 },
+  "when": { "background": ["law"], "minTurn": 16 },
   "tag": { "fr": "Barreau", "en": "The bar" },
   "text": {
     "fr": "Un ancien client, que vous aviez fait relaxer, dirige aujourd'hui un groupe de BTP. Il aimerait « juste un rendez-vous » avec quelqu'un de votre majorité, et il rappelle en riant que vous connaissez bien son dossier.",
@@ -149,7 +149,7 @@ const EV_caractere = [
 {
   "id": "ancienne_boite",
   "weight": 5,
-  "when": { "background": ["business"], "minTurn": 10 },
+  "when": { "background": ["business"], "minTurn": 20 },
   "tag": { "fr": "Anciens associés", "en": "Former partners" },
   "text": {
     "fr": "L'entreprise que vous avez dirigée annonce trois cents suppressions de postes, sur un site que vous aviez ouvert vous-même en promettant qu'il durerait.",
@@ -183,7 +183,7 @@ const EV_caractere = [
 {
   "id": "anciens_confreres",
   "weight": 5,
-  "when": { "background": ["journalism"], "minTurn": 8 },
+  "when": { "background": ["journalism"], "minTurn": 16 },
   "tag": { "fr": "Rédaction", "en": "The newsroom" },
   "text": {
     "fr": "Votre ancienne rédaction prépare une enquête sur votre parti. Une consœur avec qui vous avez partagé un bureau pendant six ans vous demande un entretien, et elle a déjà les documents.",
@@ -218,7 +218,7 @@ const EV_caractere = [
 {
   "id": "camarades_origine",
   "weight": 5,
-  "when": { "background": ["activism"], "minTurn": 12 },
+  "when": { "background": ["activism"], "minTurn": 24 },
   "tag": { "fr": "Camarades", "en": "Comrades" },
   "text": {
     "fr": "Le collectif où vous avez commencé publie une tribune : « Nos anciens sont devenus ce qu'ils combattaient. » Votre nom est cité deux fois, avec une photo de vous en costume.",
@@ -310,7 +310,7 @@ const EV_caractere = [
 {
   "id": "archives_reseaux",
   "weight": 5,
-  "when": { "background": ["celebrity"], "minTurn": 6 },
+  "when": { "background": ["celebrity"], "minTurn": 12 },
   "tag": { "fr": "Archives", "en": "Archives" },
   "text": {
     "fr": "Une chaîne compile vos anciennes vidéos : les partenariats, les défis, la période où vous vendiez des compléments alimentaires. Le montage dure onze minutes et il est très bien fait.",
@@ -344,7 +344,7 @@ const EV_caractere = [
 {
   "id": "slogans_adversaire",
   "weight": 5,
-  "when": { "background": ["comms"], "minTurn": 10 },
+  "when": { "background": ["comms"], "minTurn": 20 },
   "tag": { "fr": "Agence", "en": "The agency" },
   "text": {
     "fr": "Un journaliste retrouve les campagnes que vous avez écrites du temps de l'agence. Vous avez signé, il y a douze ans, les affiches de celui que vous combattez aujourd'hui.",
@@ -443,7 +443,7 @@ const EV_caractere = [
 {
   "id": "mot_de_trop",
   "weight": 5,
-  "when": { "personality": ["clever"], "minTurn": 6 },
+  "when": { "personality": ["clever"], "minTurn": 12 },
   "tag": { "fr": "Bon mot", "en": "The clever line" },
   "text": {
     "fr": "Vous avez lâché en plateau une formule brillante sur un adversaire. Elle est drôle, elle est juste, et elle donne surtout l'impression que vous vous trouvez très intelligent.",
@@ -472,7 +472,7 @@ const EV_caractere = [
 {
   "id": "proces_outrance",
   "weight": 5,
-  "when": { "personality": ["provocative"], "minTurn": 14, "stat": { "notoriete": { "min": 10 } } },
+  "when": { "personality": ["provocative"], "minTurn": 28, "stat": { "notoriete": { "min": 10 } } },
   "tag": { "fr": "Outrance", "en": "Excess" },
   "text": {
     "fr": "Trois éditorialistes signent le même jour des textes intitulés à peu près « jusqu'où ira-t-il ». Votre entourage vous conseille une séquence de respectabilité.",
@@ -502,7 +502,7 @@ const EV_caractere = [
 {
   "id": "arrangement_propose",
   "weight": 5,
-  "when": { "personality": ["principled"], "minTurn": 10 },
+  "when": { "personality": ["principled"], "minTurn": 20 },
   "tag": { "fr": "Arrangement", "en": "The arrangement" },
   "text": {
     "fr": "On vous propose un accord très simple : vous retirez un amendement gênant, et une circonscription sûre vous attend aux prochaines élections. Tout le monde autour de la table trouve cela normal.",
@@ -535,7 +535,7 @@ const EV_caractere = [
 {
   "id": "coup_davance",
   "weight": 5,
-  "when": { "personality": ["calculating"], "minTurn": 12 },
+  "when": { "personality": ["calculating"], "minTurn": 24 },
   "tag": { "fr": "Manœuvre", "en": "The manoeuvre" },
   "text": {
     "fr": "Votre plan pour la prochaine investiture était bien construit. Un allié vient de comprendre qu'il en faisait partie sans le savoir, et il vous attend dans votre bureau.",
@@ -575,7 +575,7 @@ const EV_caractere = [
   "id": "consigne_discretion",
   "once": true,
   "weight": 5,
-  "when": { "trait": ["homosexuel"], "minTurn": 6, "position": ["conseiller", "maire", "euro", "depute"] },
+  "when": { "trait": ["homosexuel"], "minTurn": 12, "position": ["conseiller", "maire", "euro", "depute"] },
   "tag": { "fr": "Avant l'investiture", "en": "Before the nomination" },
   "text": {
     "fr": "Un cadre de la fédération vous prend à part avant la commission d'investiture. Il ne dit rien de désagréable, il parle de « circonscription rurale », de « moment mal choisi » et de « prudence ». Il conclut en disant que lui, personnellement, s'en moque.",
@@ -606,7 +606,7 @@ const EV_caractere = [
 {
   "id": "menace_outing",
   "weight": 4,
-  "when": { "trait": ["homosexuel"], "minTurn": 12, "position": ["depute", "ministre", "chef", "euro"] },
+  "when": { "trait": ["homosexuel"], "minTurn": 24, "position": ["depute", "ministre", "chef", "euro"] },
   "tag": { "fr": "Un hebdomadaire", "en": "A weekly" },
   "text": {
     "fr": "Un journal vous prévient qu'il publie jeudi. Ce n'est pas une enquête, il n'y a rien à enquêter : c'est un papier sur votre vie privée, écrit sur le ton de celui qui rend service en disant la vérité.",
@@ -641,7 +641,7 @@ const EV_caractere = [
   "id": "conjoint_officiel",
   "once": true,
   "weight": 4,
-  "when": { "trait": ["homosexuel"], "minTurn": 16, "position": ["ministre", "chef", "depute"] },
+  "when": { "trait": ["homosexuel"], "minTurn": 32, "position": ["ministre", "chef", "depute"] },
   "tag": { "fr": "Le protocole", "en": "Protocol" },
   "text": {
     "fr": "Un déplacement officiel à l'étranger, avec la photo de famille habituelle sur le perron. Le service du protocole demande, par écrit et très poliment, si votre conjoint « souhaite figurer », formule qu'on n'emploie pour personne d'autre.",
@@ -671,7 +671,7 @@ const EV_caractere = [
   "id": "orthophoniste",
   "once": true,
   "weight": 5,
-  "when": { "trait": ["zozote"], "minTurn": 6 },
+  "when": { "trait": ["zozote"], "minTurn": 12 },
   "tag": { "fr": "Travail de la voix", "en": "Voice coaching" },
   "text": {
     "fr": "Votre équipe a pris rendez-vous pour vous chez une orthophoniste, sans vous demander. Le devis est déjà signé et le premier créneau est mardi.",
@@ -701,7 +701,7 @@ const EV_caractere = [
 {
   "id": "imitateur",
   "weight": 4,
-  "when": { "anyTrait": ["zozote", "voix"], "minTurn": 14, "stat": { "notoriete": { "min": 9 } } },
+  "when": { "anyTrait": ["zozote", "voix"], "minTurn": 28, "stat": { "notoriete": { "min": 9 } } },
   "tag": { "fr": "L'imitateur", "en": "The impressionist" },
   "text": {
     "fr": "Un humoriste a construit un numéro entier sur votre façon de parler. Il passe en deuxième partie de soirée, il est très bon, et son sketch est désormais plus connu que vos propositions.",

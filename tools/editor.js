@@ -107,7 +107,7 @@ const HELP = {
   cast:"Qui est {rival} : opponent (autre parti), leader (chef adverse), ruling (chef du camp au pouvoir), neighbour (chef du camp le plus proche), camp / camp_senior (votre parti), minor / eliminated (présidentielle).",
   tag:"Étiquette de catégorie en tête de carte. FR et EN obligatoires.",
   text:"La situation présentée au joueur. Marques : {rival}, {rival_party}, {party}, accords {il}/{le}/{he}…",
-  delay:"Cible de chaîne : nombre de tours (min→max) avant que la suite ne tombe.",
+  delay:"Cible de chaîne : nombre de tours, soit de trimestres (min→max), avant que la suite ne tombe.",
   moment:"Decks de campagne : à quel point de la fin la scène peut apparaître (1 = dernier temps). Paire = bornée des deux côtés.",
   required:"Decks de campagne : scène qui a toujours lieu (le grand débat). Une ou deux au maximum.",
   race:"Deck races : limite la scène à certains scrutins.",
@@ -130,7 +130,7 @@ const WHEN_HELP = {
   legal:"Niveau min. de conseil juridique.", comms:"Niveau min. de communication.",
   minMoney:"Fortune min. (€).", maxMoney:"Fortune max. (€).", minAge:"Âge min.", maxAge:"Âge max.",
   minStanding:"Cote au parti min.", maxStanding:"Cote au parti max.", minPopularity:"Popularité min.", maxPopularity:"Popularité max.",
-  minTurn:"Tour min.", maxTurn:"Tour max.",
+  minTurn:"Tour min. (4 tours = 1 an).", maxTurn:"Tour max. (4 tours = 1 an).",
   partyLead:"Le joueur dirige son parti (cumulable avec un mandat).",
   majority:"État de l'Assemblée : absolue / relative / aucune.",
   inCoalition:"Votre camp vote les textes du gouvernement.",
@@ -563,7 +563,7 @@ function momentEditor(model) {
 function delayEditor(model) {
   const has = Array.isArray(model.delay); const wrap = h("span", { class: "krow" });
   const c = h("input", { type: "checkbox" }); c.checked = has;
-  c.onchange = struct(() => { if (c.checked) model.delay = [1, 2]; else delete model.delay; });
+  c.onchange = struct(() => { if (c.checked) model.delay = [2, 4]; else delete model.delay; });
   wrap.append(h("label", { class: "chk" }, c, "délai (chaîne)"));
   if (has) wrap.append(numArr(model.delay, 0), "→", numArr(model.delay, 1));
   return wrap;

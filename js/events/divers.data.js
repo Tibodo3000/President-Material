@@ -19,7 +19,7 @@ const EV_divers = [
   "id": "signalement_vss",
   "once": true,
   "weight": 5,
-  "when": { "position": ["maire", "euro", "depute", "ministre", "chef", "premier"], "minTurn": 12 },
+  "when": { "position": ["maire", "euro", "depute", "ministre", "chef", "premier"], "minTurn": 24 },
   "tag": { "fr": "Signalement", "en": "A complaint" },
   "text": {
     "fr": "Une collaboratrice du parti signale des faits graves visant un cadre de votre camp. Le dossier est solide, elle a des témoins, et l'homme visé est celui que tout le monde décrit comme irremplaçable sur les retraites. La direction attend votre position avant de prendre la sienne."
@@ -61,7 +61,7 @@ const EV_divers = [
 
 {
   "id": "vss_presse",
-  "delay": [4, 10],
+  "delay": [8, 20],
   "weight": 0,
   "tag": { "fr": "Signalement", "en": "A complaint" },
   "text": {
@@ -94,7 +94,7 @@ const EV_divers = [
   "id": "tiktok",
   "once": true,
   "weight": 5,
-  "when": { "minTurn": 6, "notTrait": ["declin"] },
+  "when": { "minTurn": 12, "notTrait": ["declin"] },
   "tag": { "fr": "Vidéo courte", "en": "Short video" },
   "text": {
     "fr": "Votre équipe veut ouvrir un compte sur l'application où se trouvent les électeurs que vous ne croisez jamais. La stagiaire qui gérerait ça a vingt-trois ans et vous explique, très gentiment, que personne ne regardera une vidéo de plus de quarante secondes."
@@ -138,7 +138,7 @@ const EV_divers = [
   "id": "deepfake",
   "once": true,
   "weight": 4,
-  "when": { "minTurn": 14, "stat": { "notoriete": { "min": 8 } } },
+  "when": { "minTurn": 28, "stat": { "notoriete": { "min": 8 } } },
   "tag": { "fr": "Vidéo truquée", "en": "A faked video" },
   "text": {
     "fr": "Une vidéo circule où vous tenez, avec votre voix et votre visage, des propos que vous n'avez jamais tenus. Elle est fabriquée, c'est démontrable, et elle a déjà été vue plus de fois que votre dernière intervention à l'Assemblée."
@@ -175,7 +175,7 @@ const EV_divers = [
   "id": "jet_prive",
   "once": true,
   "weight": 4,
-  "when": { "position": ["ministre", "chef", "premier", "depute", "euro"], "minTurn": 12 },
+  "when": { "position": ["ministre", "chef", "premier", "depute", "euro"], "minTurn": 24 },
   "tag": { "fr": "Déplacements", "en": "Travel" },
   "text": {
     "fr": "Un compte automatique publie les trajets des avions d'affaires. Le vôtre y figure quatre fois ce trimestre, dont un Paris-Lyon. Le trajet en train dure deux heures et vous le savez, parce qu'on vous l'a demandé en direct hier soir."
@@ -419,7 +419,7 @@ const EV_divers = [
 
 {
   "id": "usure_pouvoir",
-  "when": { "position": ["chef"], "minTurn": 24 },
+  "when": { "position": ["chef"], "minTurn": 48 },
   "tag": { "fr": "Usure", "en": "Wear and tear" },
   "text": {
     "fr": "Vous dirigez le parti depuis longtemps. Les mêmes réunions, les mêmes visages, les mêmes phrases.",

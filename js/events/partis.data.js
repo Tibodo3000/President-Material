@@ -347,7 +347,7 @@ const EV_partis = [
 {
   "id": "plus_populaire_que_lui",
   "weight": 5,
-  "when": { "outshinePresident": true, "minTurn": 10, "minPopularity": 60 },
+  "when": { "outshinePresident": true, "minTurn": 20, "minPopularity": 60 },
   "tag": { "fr": "Le sondage de trop", "en": "One poll too many" },
   "text": {
     "fr": "Un institut publie la cote des personnalités du camp au pouvoir. Vous êtes premier, le président est quatrième, et c'est la troisième fois d'affilée. À midi, trois rédactions vous demandent si vous êtes candidat à quelque chose.",
@@ -411,7 +411,7 @@ const EV_partis = [
   "id": "fronde_president",
   "weight": 4,
   "cast": "camp_senior",
-  "when": { "outshinePresident": true, "minTurn": 14, "minStanding": 45, "maxApproval": 44 },
+  "when": { "outshinePresident": true, "minTurn": 28, "minStanding": 45, "maxApproval": 44 },
   "tag": { "fr": "La fronde", "en": "The revolt" },
   "text": {
     "fr": "{rival} vient vous voir avec une idée qui n'est pas de {lui} : le camp ne repartira pas avec le président sortant, et il faut qu'on le lui dise avant qu'il annonce. Ils sont onze à le penser et zéro à vouloir le dire.",

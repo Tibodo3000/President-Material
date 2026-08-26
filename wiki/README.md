@@ -4,7 +4,7 @@
 
 > **One goal: the presidency.** You create a character at age 30, choose a party,
 > get dealt a starting hand of traits, then climb the ladder from local activist to
-> President of the Republic — one six-month turn at a time — through events,
+> President of the Republic — one season at a time — through events,
 > elections, money, alliances, betrayals, scandals and the slow erosion of age.
 
 This wiki is the map of the codebase: how it's structured, how the game loop works,

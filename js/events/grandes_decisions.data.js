@@ -104,7 +104,7 @@ const EV_grandes_decisions = [
 
 {
   "id": "motion_censure",
-  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 8 },
+  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 16 },
   "tag": { "fr": "Motion de censure", "en": "Vote of no confidence" },
   "text": {
     "fr": "Une motion de censure est déposée. Elle peut faire tomber le gouvernement, ou ridiculiser ses auteurs.",
@@ -223,7 +223,7 @@ const EV_grandes_decisions = [
 
 {
   "id": "trahison_proche",
-  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 14 },
+  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 28 },
   "tag": { "fr": "Trahison", "en": "Betrayal" },
   "text": {
     "fr": "Votre directeur de cabinet a transmis vos notes internes à un journal. Il attend votre décision.",

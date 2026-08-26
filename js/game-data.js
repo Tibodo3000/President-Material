@@ -14,8 +14,38 @@
    Constantes de carrière
    ========================================================================== */
 
-/** Tout le monde entre en politique à trente ans. Un tour = six mois. */
+/** Tout le monde entre en politique à trente ans. Un tour = une saison. */
 const START_AGE = 30;
+
+/* ==========================================================================
+   UN TOUR VAUT UNE SAISON
+   ==========================================================================
+   Il en valait deux : six mois, deux tours par an. Le calendrier électoral
+   français en tombe cinq par quinquennat, et cinq échéances réparties sur dix
+   tours mangeaient un tour sur deux. Mesuré sur soixante carrières entières,
+   52 % des tours étaient un scrutin — la moitié d'une vie politique passée à
+   voter — et une carrière ne jouait que quarante événements ordinaires sur
+   les deux cent cinquante que le jeu contient. Le reste n'était pas coupé, il
+   était noyé : on ne le voyait jamais parce qu'il n'y avait pas de place
+   entre deux campagnes.
+
+   Découper l'année en quatre ne change rien au calendrier — on vote toujours
+   autant de fois par décennie — mais cela double le nombre de tours qui
+   séparent deux scrutins. C'est la seule façon de faire exister ce qu'il y a
+   entre les élections, qui est le sujet du jeu.
+
+   TOUT CE QUI SE COMPTE EN TOURS PASSE PAR ICI. Ce qui se mesure par an —
+   une indemnité, une probabilité de mort, une dérive de jauge — est écrit
+   par an et divisé par TURNS_PER_YEAR au moment de l'appliquer. Ce qui se
+   compte en délais — un cycle électoral, la suite d'une affaire — est écrit
+   en tours, et vaut donc désormais des trimestres.
+   ========================================================================== */
+
+/** Quatre tours par an : printemps, été, automne, hiver. */
+const TURNS_PER_YEAR = 4;
+
+/** Ce qu'un tour vaut en années. Tout ce qui est écrit « par an » passe par là. */
+const YEARS_PER_TURN = 1 / TURNS_PER_YEAR;
 
 /**
  * L'échelle des fonctions, du bas vers le haut. La présidence est la fin.
@@ -120,32 +150,32 @@ function leadsParty(s) {
    js/budget.data.js. */
 
 /**
- * Calendrier électoral, en tours (2 tours = 1 an).
+ * Calendrier électoral, en tours (4 tours = 1 an).
  * Une élection a lieu quand (tour % cycle) === offset.
  */
 /*
- * LE CALENDRIER. Un tour vaut six mois, et le "offset" est le tour du cycle
- * où le scrutin tombe.
+ * LE CALENDRIER. Un tour vaut une saison, et le "offset" est le tour du cycle
+ * où le scrutin tombe. Les cycles disent donc des trimestres : 20 pour un
+ * quinquennat, 16 pour les quatre ans d'un congrès, 24 pour les six ans d'un
+ * mandat municipal.
  *
  * LES LÉGISLATIVES SUIVENT LA PRÉSIDENTIELLE. Elles tombaient trois ans
  * après, ce qui est le calendrier d'avant 2002. Depuis l'inversion, on vote
  * pour l'Assemblée cinq semaines après avoir élu le président, précisément
  * pour lui donner une majorité, et c'est ce qui fait qu'une présidentielle
- * gagnée vaut deux victoires et qu'une perdue en coûte deux.
+ * gagnée vaut deux victoires et qu'une perdue en coûte deux. Le découpage en
+ * saisons le rend enfin représentable : un tour d'écart, soit un trimestre,
+ * au lieu de l'année entière que le semestre imposait.
  *
  * Le moteur ne tient qu'un scrutin par tour, et cette contrainte-là est
  * voulue : elle interdit d'en télescoper deux. Elle impose en revanche une
- * discipline de parité qu'il faut connaître avant de toucher à ce tableau.
- * Deux scrutins de cycles 10 et 12 se rencontrent si et seulement si leurs
- * offsets ont la même parité ; ceux de cycles 10 et 8 aussi ; ceux de 12 et
- * 8 si leurs offsets sont égaux modulo 4. D'où la règle : les trois scrutins
- * nationaux tombent sur des tours PAIRS, c'est-à-dire au printemps comme en
- * France, et les municipales et le congrès sur des tours IMPAIRS.
- *
- * Présidentielle et législatives partagent donc forcément la même parité, et
- * l'écart le plus court que le moteur autorise entre elles est d'un an. Cinq
- * semaines n'est pas représentable ; un an l'est, et c'est trois fois plus
- * proche de la réalité que les trois ans d'avant.
+ * discipline d'offsets qu'il faut connaître avant de toucher à ce tableau.
+ * Deux scrutins de cycles c1 et c2 se rencontrent si et seulement si leurs
+ * offsets sont égaux modulo pgcd(c1, c2). Ici : 20 et 16 se croisent modulo
+ * 4, 20 et 24 aussi, 16 et 24 modulo 8. D'où la répartition ci-dessous, où
+ * chaque scrutin a sa saison et où aucune paire ne partage jamais un tour.
+ * La primaire, qui tombe PRIMARY_LEAD tours avant la présidentielle, est
+ * comptée dans cette vérification : elle mangeait un congrès sur quatre.
  *
  * Les européennes suivent la même logique : deux ans après la présidentielle,
  * comme 2022 et 2024, et non quatre. Le cycle est donc chargé au début et
@@ -153,13 +183,18 @@ function leadsParty(s) {
  * trois fois en deux ans puis presque plus pendant trois. On ne lisse pas un
  * calendrier pour faire joli : c'est cette respiration-là qui fait qu'une
  * carrière se joue par à-coups.
+ *
+ * LES SAISONS SONT CELLES DE FRANCE. On élit un président en avril, une
+ * Assemblée et un Parlement européen en juin ; les municipales et les congrès
+ * de parti se déplacent, ils tombent ici en automne et en hiver, ce qui laisse
+ * chaque saison porter au plus un scrutin.
  */
 const ELECTIONS = [
-  { id: "presidentielle", cycle: 10, offset: 0 },
-  { id: "legislatives", cycle: 10, offset: 2 },
-  { id: "congres", cycle: 8, offset: 3 },
-  { id: "municipales", cycle: 12, offset: 1 },
-  { id: "europeennes", cycle: 10, offset: 4 },
+  { id: "presidentielle", cycle: 20, offset: 0 },  // printemps
+  { id: "legislatives", cycle: 20, offset: 1 },    // été, un trimestre après
+  { id: "europeennes", cycle: 20, offset: 9 },     // été, deux ans après
+  { id: "congres", cycle: 16, offset: 7 },         // hiver
+  { id: "municipales", cycle: 24, offset: 2 },     // automne
 ];
 
 /* ==========================================================================
@@ -180,8 +215,25 @@ const ELECTIONS = [
    plaire à l'appareil coûte au pays, et réciproquement.
    ========================================================================== */
 
-/** Vitesse de convergence vers la cible, par tour. */
-const DRIFT = 0.28;
+/** Vitesse de convergence vers la cible, par an. */
+/*
+ * ON RÈGLE UNE DÉRIVE PAR AN, JAMAIS PAR TOUR.
+ *
+ * Elle valait 0,28 quand un tour faisait six mois. Un tour vaut une saison :
+ * l'année contient deux fois plus de tours, et une vitesse laissée telle
+ * quelle ferait fondre en dix-huit mois ce qui mettait trois ans à s'user.
+ * Les deux chiffres sont donc repris pour qu'une année entière fasse
+ * exactement le même chemin qu'avant — 1 − √0,72 et 1 − √0,83.
+ *
+ * CE QUE CELA COÛTE, ET C'EST VOULU. Ce qui fait monter une jauge, ce sont
+ * les événements, et il y en a un par tour : leur apport par an a doublé lui
+ * aussi, pendant que le rappel par an, lui, n'a pas bougé. Le niveau
+ * d'équilibre d'une jauge monte donc. Mesuré sur soixante carrières, la
+ * popularité de pointe passe de 63 à 75 et l'Élysée tombe plus souvent. C'est
+ * un réglage d'équilibrage à reprendre à part, pas une raison de fausser la
+ * durée d'un tour.
+ */
+const DRIFT = 0.15;
 
 /**
  * ON REDESCEND MOINS VITE QU'ON NE MONTE.
@@ -192,7 +244,7 @@ const DRIFT = 0.28;
  * qu'on a gagné doit s'user, pas fondre — sinon aucun coup d'éclat ne vaut
  * la peine et le joueur a le sentiment de vider un seau percé.
  */
-const DRIFT_DOWN = 0.17;
+const DRIFT_DOWN = 0.09;   // même conversion : 1 − √0,83
 
 /**
  * Exposition publique liée à la fonction : un maire est plus vu qu'un
@@ -340,8 +392,14 @@ function nominationNeed(stake, s) {
 }
 
 /**
- * Mortalité : aucune avant 60 ans, puis une probabilité par tour qui
- * grimpe avec l'âge.
+ * Mortalité : aucune avant 60 ans, puis une probabilité qui grimpe avec
+ * l'âge.
+ *
+ * TOUT CE BLOC SE LIT PAR AN. Les chiffres étaient des probabilités par tour,
+ * ce qui les rendait muets : ils changeaient de sens le jour où la durée d'un
+ * tour changeait, et une mort tous les six mois n'est pas une notion. Ils
+ * disent maintenant un risque annuel, et la conversion en tours se fait au
+ * dernier moment, une seule fois, avec YEARS_PER_TURN.
  */
 /**
  * LE CORPS PRÉVIENT TOUJOURS, SAUF QUAND C'EST UN ACCIDENT.
@@ -364,9 +422,9 @@ function healthWarned(state) {
   return HEALTH_TRAITS.some((id) => hasTrait(state, id));
 }
 
-/** L'accident : rare, sourd, et il n'a jamais prévenu personne. */
+/** L'accident, par an : rare, sourd, et il n'a jamais prévenu personne. */
 function accidentProbability(state) {
-  return 0.0012 + Math.max(0, state.age - 55) * 0.00012;
+  return 0.0024 + Math.max(0, state.age - 55) * 0.00024;
 }
 
 function deathProbability(state) {
@@ -376,16 +434,16 @@ function deathProbability(state) {
 
   // La part « santé » ne s'ouvre qu'à ceux dont le corps a déjà parlé.
   if (state.age >= 60 && healthWarned(state)) {
-    let sante = (state.age - 60) * 0.004 + 0.003;
+    let sante = (state.age - 60) * 0.008 + 0.006;
     if (state.flags.carefulHealth) sante /= 2;
     if (state.flags.frailHealth) sante *= 1.6;
     p += sante;
   }
 
   // Passé un certain âge, le corps a parlé pour tout le monde.
-  if (state.age >= 78) p += (state.age - 78) * 0.006;
+  if (state.age >= 78) p += (state.age - 78) * 0.012;
 
-  return p;
+  return p * YEARS_PER_TURN;
 }
 
 /**
@@ -405,7 +463,8 @@ function deathProbability(state) {
 function withdrawalProbability(state) {
   if (state.age < 62) return 0;
 
-  let p = (state.age - 62) * 0.003;
+  // Par an, comme la mortalité : la conversion en tours est à la sortie.
+  let p = (state.age - 62) * 0.006;
 
   // LA FORME PROTÈGE, ET PAS SEULEMENT L'ÉPUISEMENT QUI ACCABLE.
   //
@@ -417,12 +476,12 @@ function withdrawalProbability(state) {
   const forme = state.stats.energie;
   if (forme >= 12) p *= 0.3;
   else if (forme >= 8) p *= 0.65;
-  else if (forme <= 2) p += 0.02;
-  else if (forme <= 5) p += 0.008;
+  else if (forme <= 2) p += 0.04;
+  else if (forme <= 5) p += 0.016;
 
   if (state.flags.carefulHealth) p /= 2;
   if (state.flags.frailHealth) p *= 2;
-  return p;
+  return p * YEARS_PER_TURN;
 }
 
 /* ==========================================================================
@@ -594,7 +653,7 @@ function traitSoften(s) {
 /* ==========================================================================
    Le budget
    ==========================================================================
-   Chaque semestre, l'argent rentre et sort tout seul. Ce qui rentre : une
+   Chaque saison, l'argent rentre et sort tout seul. Ce qui rentre : une
    indemnité liée à la fonction, le rendement du patrimoine, les revenus
    occultes des traits. Ce qui sort : un train de vie qu'on ne choisit pas,
    et des postes d'investissement qu'on choisit entièrement.
@@ -691,7 +750,11 @@ function annualIncome(s) {
   return {
     salary: BUDGET_DATA.salaries[s.position] || 0,
     wealth: Math.round(Math.max(0, s.money) * BUDGET_DATA.wealth_yield),
-    hidden: traitSum(s, (d) => d.income) * 2, // les traits rapportent par tour
+    // Les traits déclarent un revenu occulte par SEMESTRE, et ce chiffre est
+    // celui que la fiche affiche : on le passe en annuel ici, et applyBudget
+    // le redécoupe en saisons. Découper l'année autrement ne change donc rien
+    // à ce que le trait rapporte dans l'année.
+    hidden: traitSum(s, (d) => d.income) * 2,
   };
 }
 
@@ -727,13 +790,14 @@ function annualBalance(s) {
 }
 
 /**
- * Un semestre de comptabilité. Si le solde vide le compte, on descend le
- * poste le plus cher d'un niveau : personne ne finance une agence de
- * communication avec un découvert.
+ * Un trimestre de comptabilité. Tout est écrit par an dans js/budget.data.js
+ * et divisé ici : c'est le seul endroit où la durée d'un tour touche l'argent.
+ * Si le solde vide le compte, on descend le poste le plus cher d'un niveau :
+ * personne ne finance une agence de communication avec un découvert.
  */
 function applyBudget(s) {
   const before = s.money;
-  s.money = Math.max(0, s.money + Math.round(annualBalance(s) / 2));
+  s.money = Math.max(0, s.money + Math.round(annualBalance(s) / TURNS_PER_YEAR));
 
   if (s.money > 0 || annualBalance(s) >= 0) return null;
 
@@ -881,7 +945,7 @@ const APPEAL_SHAPE_DRIFT = 0.06;
  * d'ensemble baisse à trente-quatre : c'est sans importance depuis que les
  * élections lisent les six électorats et non plus la moyenne.
  */
-const OTHERS_PULL = 0.04;
+const OTHERS_PULL = 0.02;
 
 /**
  * LE NIVEAU NATUREL DE CHAQUE ÉLECTORAT.
@@ -1351,7 +1415,7 @@ function energyCeiling(s) {
  * prudence perdait du terrain à chaque tour.
  */
 function recoverEnergy(s) {
-  if (s.turn % 4 !== 0) return;
+  if (s.turn % (TURNS_PER_YEAR * 2) !== 0) return;
   if (s.stats.energie < energyCeiling(s)) bump(s, "energie", +2);
 }
 
@@ -1452,7 +1516,7 @@ function credibilityTarget(s) {
 const CREDIBILITY_OVERSHOOT = 4;
 
 function credibilityDrift(s) {
-  if (s.turn % 4 !== 0) return;
+  if (s.turn % (TURNS_PER_YEAR * 2) !== 0) return;
 
   const cible = credibilityTarget(s);
   if (cible === undefined) return;
@@ -1492,7 +1556,7 @@ const NOMINATION_EVENTS = EVENT_DATA.nomination || [];
 const RACE_EVENTS = EVENT_DATA.races || [];
 
 /**
- * Les scrutins où l'on n'est pas candidat. Ils mangeaient un semestre entier
+ * Les scrutins où l'on n'est pas candidat. Ils mangeaient un tour entier
  * pour une phrase et un bouton « Continuer » : on traverse désormais la
  * campagne des autres en décidant quoi en faire.
  */
@@ -2355,10 +2419,11 @@ function markSeen(ev, s) {
    ========================================================================== */
 
 /** Délai par défaut quand un maillon n'en déclare pas : de six mois à un an. */
-const DEFAULT_CHAIN_DELAY = [1, 2];
+const DEFAULT_CHAIN_DELAY = [2, 4];
 
-/** Au-delà, une suite dont les conditions ne sont jamais réunies est oubliée. */
-const CHAIN_PATIENCE = 14;
+/** Au-delà (sept ans), une suite dont les conditions ne sont jamais réunies
+    est oubliée. */
+const CHAIN_PATIENCE = 28;
 
 function pendingChains(s) {
   return s.pending || (s.pending = []);
@@ -2406,14 +2471,17 @@ function dueChain(s) {
  * l'argent finit toujours par coûter autre chose.
  */
 function applyTraitTurn(s) {
-  const income = traitSum(s, (d) => d.income);
+  // Le revenu occulte est déclaré par semestre (voir annualIncome) : on en
+  // verse ici la part qui revient à une saison.
+  const income = Math.round(traitSum(s, (d) => d.income) * 2 * YEARS_PER_TURN);
   if (income) pay(s, income);
 
   traitsOf(s).forEach((id) => {
     const risk = TRAIT_DATA[id] && TRAIT_DATA[id].risk;
     if (!risk || s.seen[risk.chain]) return;
     if (pendingChains(s).some((entry) => entry.id === risk.chain)) return;
-    if (Math.random() < risk.p * (1 - investProtect(s))) scheduleChain(s, risk.chain);
+    // risk.p est un risque ANNUEL, ramené ici à la durée d'un tour.
+    if (Math.random() < risk.p * YEARS_PER_TURN * (1 - investProtect(s))) scheduleChain(s, risk.chain);
   });
 
   wealthAttention(s);
@@ -2440,7 +2508,8 @@ function applyTraitTurn(s) {
 const WEALTH_EXPLAINABLE = 400000;
 
 /**
- * Probabilité par tour qu'on regarde vos comptes de près.
+ * Probabilité PAR AN qu'on regarde vos comptes de près. wealthAttention() la
+ * ramène à la durée d'un tour.
  *
  * On ne compte pas la fortune, on compte L'ENRICHISSEMENT. Personne n'a
  * jamais reproché à un héritier d'avoir hérité : ce qu'on lui demande, c'est
@@ -2456,16 +2525,16 @@ function wealthRisk(s) {
   const gagné = Math.max(0, s.money - (s.startMoney || 0) - WEALTH_EXPLAINABLE);
   if (!gagné && !s.flags.dirtyMoney) return 0;
 
-  let p = (gagné / 1000000) * 0.02;
-  if (s.flags.dirtyMoney) p = p * 3 + 0.012;
-  return Math.min(0.05, p) * (1 - investProtect(s));
+  let p = (gagné / 1000000) * 0.04;
+  if (s.flags.dirtyMoney) p = p * 3 + 0.024;
+  return Math.min(0.10, p) * (1 - investProtect(s));
 }
 
 function wealthAttention(s) {
   const chain = s.flags.dirtyMoney ? "enquete_ouverte" : "patrimoine_declare";
   if (s.seen[chain]) return;
   if (pendingChains(s).some((entry) => entry.id === chain)) return;
-  if (Math.random() < wealthRisk(s)) scheduleChain(s, chain);
+  if (Math.random() < wealthRisk(s) * YEARS_PER_TURN) scheduleChain(s, chain);
 }
 
 /* ==========================================================================

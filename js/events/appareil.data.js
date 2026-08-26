@@ -35,7 +35,7 @@ const EV_appareil = [
 
 {
   "id": "mentor_dette",
-  "delay": [6, 16],
+  "delay": [12, 32],
   "weight": 0,
   "tag": { "fr": "Renvoi d'ascenseur", "en": "The favour returned" },
   "text": {
@@ -112,7 +112,7 @@ const EV_appareil = [
 
 {
   "id": "protege_perce",
-  "delay": [5, 12],
+  "delay": [10, 24],
   "weight": 0,
   "tag": { "fr": "Relève", "en": "The next generation" },
   "text": {
@@ -134,7 +134,7 @@ const EV_appareil = [
 
 {
   "id": "protege_trahison",
-  "delay": [4, 10],
+  "delay": [8, 20],
   "weight": 0,
   "tag": { "fr": "Trahison", "en": "Betrayal" },
   "text": {
@@ -233,7 +233,7 @@ const EV_appareil = [
 
 {
   "id": "transfuge_fuite",
-  "delay": [1, 2],
+  "delay": [2, 4],
   "weight": 0,
   "tag": { "fr": "Fuite", "en": "The leak" },
   "text": {
@@ -287,7 +287,7 @@ const EV_appareil = [
   "id": "rival_interne",
   "weight": 5,
   "cast": "camp_senior",
-  "when": { "minTurn": 8, "minStanding": 25, "partyLead": false },
+  "when": { "minTurn": 16, "minStanding": 25, "partyLead": false },
   "tag": { "fr": "Guerre interne", "en": "Internal war" },
   "text": {
     "fr": "{rival} occupe exactement la place que vous visez, et l'occupe bien. Trois personnes vous ont rapporté cette semaine que votre nom revenait dans ses conversations, jamais en bien.",
@@ -325,7 +325,7 @@ const EV_appareil = [
   "id": "chef_conteste",
   "weight": 5,
   "cast": "camp_senior",
-  "when": { "partyLead": true, "minTurn": 12 },
+  "when": { "partyLead": true, "minTurn": 24 },
   "tag": { "fr": "Guerre interne", "en": "Internal war" },
   "text": {
     "fr": "{rival} fait le tour des fédérations depuis six semaines sans jamais prononcer votre nom, ce qui est la façon la plus claire de le prononcer. Une motion circule, elle n'a pas encore de titre, et trois personnes vous ont déjà juré qu'elles ne la signeraient pas.",
@@ -367,7 +367,7 @@ const EV_appareil = [
 {
   "id": "fede_a_prendre",
   "weight": 5,
-  "when": { "minTurn": 6, "position": ["cadre", "conseiller", "maire", "euro", "depute"] },
+  "when": { "minTurn": 12, "position": ["cadre", "conseiller", "maire", "euro", "depute"] },
   "tag": { "fr": "Fédération", "en": "The federation" },
   "text": {
     "fr": "La fédération voisine est dirigée depuis vingt ans par un homme qui ne vient plus aux réunions. Six cents adhérents, un congrès dans huit mois, et personne n'a encore osé se déclarer."
@@ -407,7 +407,7 @@ const EV_appareil = [
   "once": true,
   "weight": 5,
   "cast": "camp_senior",
-  "when": { "minTurn": 14, "minStanding": 35, "partyLead": false },
+  "when": { "minTurn": 28, "minStanding": 35, "partyLead": false },
   "tag": { "fr": "Succession", "en": "Succession" },
   "text": {
     "fr": "{rival} annonce qu'{il} ne se représentera pas. La place est ouverte, quatre personnes la veulent, et les trois autres se connaissent depuis plus longtemps que vous ne les connaissez."
@@ -456,7 +456,7 @@ const EV_appareil = [
   "id": "debat_televise",
   "weight": 4,
   "cast": "leader",
-  "when": { "position": ["maire", "euro", "depute", "ministre", "chef"], "minTurn": 8 },
+  "when": { "position": ["maire", "euro", "depute", "ministre", "chef"], "minTurn": 16 },
   "tag": { "fr": "Face-à-face", "en": "Head to head" },
   "text": {
     "fr": "Une chaîne d'information vous met face à {rival}. Une heure de direct, deux équipes qui ont préparé les mêmes phrases et un présentateur qui espère un incident.",
@@ -503,7 +503,7 @@ const EV_appareil = [
   "id": "debauchage_cadre",
   "weight": 3,
   "cast": "opponent",
-  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 12, "minStanding": 45 },
+  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 24, "minStanding": 45 },
   "tag": { "fr": "Débauchage", "en": "Poaching" },
   "text": {
     "fr": "{rival} n'a plus d'avenir chez lui et le sait. Un déjeuner est organisé, sans témoin, par quelqu'un qui connaît vos deux numéros.",
@@ -535,7 +535,7 @@ const EV_appareil = [
   "id": "debauchage_joueur",
   "weight": 3,
   "cast": "leader",
-  "when": { "position": ["maire", "euro", "depute", "ministre"], "minTurn": 14, "maxStanding": 62, "notTrait": ["renegat"] },
+  "when": { "position": ["maire", "euro", "depute", "ministre"], "minTurn": 28, "maxStanding": 62, "notTrait": ["renegat"] },
   "tag": { "fr": "On vous fait signe", "en": "A hand is extended" },
   "text": {
     "fr": "{rival} vous fait porter un message : chez eux, on vous trouve mal employé. Il ne parle pas d'un poste, il parle d'un avenir, ce qui coûte moins cher.",
@@ -571,7 +571,7 @@ const EV_appareil = [
   "id": "pacte_electoral",
   "weight": 3,
   "cast": "leader",
-  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 16, "minStanding": 48, "allied": false },
+  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 32, "minStanding": 48, "allied": false },
   "tag": { "fr": "Accord", "en": "The deal" },
   "text": {
     "fr": "{rival} propose un accord entre {party} et {rival_party} : des désistements, un programme commun de deux pages et une photo. Les deux appareils y voient chacun le moyen d'absorber l'autre.",
@@ -601,7 +601,7 @@ const EV_appareil = [
 {
   "id": "pacte_rupture",
   "weight": 4,
-  "when": { "allied": true, "minTurn": 20 },
+  "when": { "allied": true, "minTurn": 40 },
   "tag": { "fr": "L'accord craque", "en": "The deal cracks" },
   "text": {
     "fr": "Votre allié vote contre vous sur un texte auquel personne ne comprend rien, puis explique en plateau que l'accord ne l'engageait pas sur ce point. Vos équipes demandent une réponse avant ce soir.",
@@ -632,7 +632,7 @@ const EV_appareil = [
   "id": "scission",
   "weight": 3,
   "cast": "leader",
-  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 18 },
+  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 36 },
   "tag": { "fr": "Scission", "en": "The split" },
   "text": {
     "fr": "Une aile de {party} claque la porte et annonce qu'elle rejoint {rival_party}. Ils sont une quinzaine, ils ont des fédérations entières derrière eux et ils tiennent une conférence de presse à l'heure du déjeuner.",
@@ -730,7 +730,7 @@ const EV_appareil = [
 {
   "id": "emission_divertissement",
   "weight": 4,
-  "when": { "minTurn": 8, "stat": { "notoriete": { "min": 4 } } },
+  "when": { "minTurn": 16, "stat": { "notoriete": { "min": 4 } } },
   "tag": { "fr": "Le samedi soir", "en": "Saturday night" },
   "text": {
     "fr": "Une émission de divertissement vous invite. Pas de politique, pas de contradiction, un jeu, un déguisement éventuel et six millions de personnes qui ne regardent jamais les débats. Votre entourage est divisé, ce qui veut dire que la moitié est contre.",
@@ -775,7 +775,7 @@ const EV_appareil = [
 {
   "id": "tribune_collective",
   "weight": 4,
-  "when": { "minTurn": 6 },
+  "when": { "minTurn": 12 },
   "tag": { "fr": "La tribune", "en": "The open letter" },
   "text": {
     "fr": "On vous propose de cosigner une tribune avec quatre-vingts personnalités. Le texte est bien écrit, la cause est juste, et vous ne connaissez ni son auteur réel ni les onze signataires qui vous précèdent dans la liste.",
@@ -821,7 +821,7 @@ const EV_appareil = [
 {
   "id": "ligne_usine",
   "weight": 5,
-  "when": { "position": ["cadre", "conseiller", "maire", "depute", "chef"], "minTurn": 8 },
+  "when": { "position": ["cadre", "conseiller", "maire", "depute", "chef"], "minTurn": 16 },
   "tag": { "fr": "La ligne", "en": "The line" },
   "text": {
     "fr": "Un site de six cents emplois ferme dans un département voisin. La direction invoque la concurrence, les syndicats parlent de dividendes, et les deux ont des chiffres. On vous demande votre position avant treize heures.",
@@ -885,7 +885,7 @@ const EV_appareil = [
   "id": "militant_origine",
   "once": true,
   "weight": 5,
-  "when": { "background": ["activism"], "minTurn": 6 },
+  "when": { "background": ["activism"], "minTurn": 12 },
   "tag": { "fr": "Ceux d'avant", "en": "The old crowd" },
   "text": {
     "fr": "L'association où vous avez tout appris tient son assemblée générale et vous y êtes invité. Trois personnes de l'époque vous attendent avec une question simple : est-ce que vous êtes encore des leurs, ou est-ce que vous venez chercher quelque chose.",
@@ -920,7 +920,7 @@ const EV_appareil = [
 {
   "id": "militant_permanent",
   "weight": 4,
-  "when": { "background": ["activism"], "position": ["militant", "cadre", "conseiller"], "minTurn": 4 },
+  "when": { "background": ["activism"], "position": ["militant", "cadre", "conseiller"], "minTurn": 8 },
   "tag": { "fr": "Le salariat", "en": "Going professional" },
   "text": {
     "fr": "On vous propose un poste de permanent : un salaire, un bureau, et la fin de la question de savoir comment vous vivez. C'est aussi la fin de quelque chose d'autre, et les trois personnes qui vous l'ont proposé le savent parfaitement.",
@@ -952,7 +952,7 @@ const EV_appareil = [
   "id": "emploi_familial",
   "once": true,
   "weight": 4,
-  "when": { "position": ["depute", "euro"], "minTurn": 8 },
+  "when": { "position": ["depute", "euro"], "minTurn": 16 },
   "tag": { "fr": "L'assistant", "en": "The assistant" },
   "text": {
     "fr": "Votre enveloppe d'assistants n'est pas dépensée et votre conjointe cherche un poste. Elle est compétente, le travail est réel, et l'ensemble est parfaitement légal jusqu'au jour où quelqu'un décide que ce ne l'est plus.",
@@ -989,7 +989,7 @@ const EV_appareil = [
   "id": "declaration_patrimoine",
   "once": true,
   "weight": 4,
-  "when": { "position": ["depute", "euro", "maire", "ministre", "premier"], "minTurn": 6, "minMoney": 300000 },
+  "when": { "position": ["depute", "euro", "maire", "ministre", "premier"], "minTurn": 12, "minMoney": 300000 },
   "tag": { "fr": "La déclaration", "en": "The declaration" },
   "text": {
     "fr": "Vous avez trente jours pour déclarer votre patrimoine à l'autorité, au centime. Votre comptable vous signale trois lignes discutables : un bien de famille sous-évalué depuis vingt ans, un compte ouvert à l'étranger pour des raisons oubliées, et une collection dont personne ne connaît la valeur.",
@@ -1025,7 +1025,7 @@ const EV_appareil = [
   "id": "demission_directe",
   "once": true,
   "weight": 8,
-  "when": { "position": ["ministre", "premier"], "minTurn": 10, "maxApproval": 50 },
+  "when": { "position": ["ministre", "premier"], "minTurn": 20, "maxApproval": 50 },
   "tag": { "fr": "Sept heures cinquante", "en": "Ten to eight" },
   "text": {
     "fr": "Vous êtes en direct à la matinale et l'on vous demande, pour la quatrième fois ce mois-ci, si vous vous reconnaissez encore dans la politique du gouvernement. Vous avez trois secondes pour répondre et vous savez que la réponse honnête est non.",
@@ -1061,7 +1061,7 @@ const EV_appareil = [
   "id": "convention_citoyenne",
   "once": true,
   "weight": 3,
-  "when": { "position": ["ministre", "premier", "chef", "depute"], "minTurn": 14 },
+  "when": { "position": ["ministre", "premier", "chef", "depute"], "minTurn": 28 },
   "tag": { "fr": "Cent cinquante citoyens", "en": "A hundred and fifty citizens" },
   "text": {
     "fr": "On installe une convention citoyenne tirée au sort sur un sujet que le Parlement n'arrive pas à trancher. Cent cinquante personnes, neuf week-ends, des experts, et un engagement solennel à reprendre leurs propositions. Vous savez déjà lesquelles ne passeront pas.",
@@ -1098,7 +1098,7 @@ const EV_appareil = [
   "id": "diplome_cv",
   "once": true,
   "weight": 3,
-  "when": { "minTurn": 7, "stat": { "notoriete": { "min": 4 } } },
+  "when": { "minTurn": 14, "stat": { "notoriete": { "min": 4 } } },
   "tag": { "fr": "La ligne du CV", "en": "The line on the CV" },
   "text": {
     "fr": "Un journaliste a vérifié votre biographie officielle. La formation que vous mentionnez depuis quinze ans est un certificat de trois mois, pas le diplôme que le mot laisse entendre. Vous ne vous rappelez même pas qui a écrit cette ligne.",
@@ -1129,7 +1129,7 @@ const EV_appareil = [
 {
   "id": "maire_desobeissance",
   "weight": 4,
-  "when": { "position": ["maire"], "minTurn": 8 },
+  "when": { "position": ["maire"], "minTurn": 16 },
   "tag": { "fr": "L'arrêté", "en": "The by-law" },
   "text": {
     "fr": "Une décision nationale s'applique chez vous et votre conseil municipal la refuse à l'unanimité. Vous pouvez prendre un arrêté qui sera annulé par le tribunal administratif dans six semaines, et tout le monde le sait, à commencer par vous.",
@@ -1166,7 +1166,7 @@ const EV_appareil = [
 {
   "id": "fait_divers_recup",
   "weight": 5,
-  "when": { "minTurn": 3 },
+  "when": { "minTurn": 6 },
   "tag": { "fr": "Dans l'heure", "en": "Within the hour" },
   "text": {
     "fr": "Une agression dans une gare de votre département, trois lignes de dépêche, aucun nom, aucun détail vérifié. Le compte national du parti a déjà publié. On vous demande de relayer avant que le sujet ne redescende, c'est-à-dire avant ce soir.",
@@ -1212,7 +1212,7 @@ const EV_appareil = [
   "id": "community_manager",
   "once": true,
   "weight": 4,
-  "when": { "position": ["militant", "cadre", "conseiller", "maire"], "minTurn": 2 },
+  "when": { "position": ["militant", "cadre", "conseiller", "maire"], "minTurn": 4 },
   "tag": { "fr": "Le stagiaire", "en": "The intern" },
   "text": {
     "fr": "Un bénévole de vingt-deux ans tient vos comptes depuis trois mois et il est bien meilleur que vous. Il vous propose un plan : trois publications par jour, un ton qui n'est pas le vôtre, et l'interdiction absolue de publier vous-même après vingt et une heures.",
@@ -1244,7 +1244,7 @@ const EV_appareil = [
 {
   "id": "boucle_whatsapp",
   "weight": 4,
-  "when": { "minTurn": 5 },
+  "when": { "minTurn": 10 },
   "tag": { "fr": "La capture", "en": "The screenshot" },
   "text": {
     "fr": "Une capture d'écran de la boucle privée du groupe circule chez les journalistes. On y lit ce que vous pensez vraiment de deux collègues, écrit à onze heures du soir, avec la ponctuation de quelqu'un qui ne se relit pas.",
@@ -1283,7 +1283,7 @@ const EV_appareil = [
 {
   "id": "fact_check",
   "weight": 4,
-  "when": { "minTurn": 6, "stat": { "notoriete": { "min": 4 } } },
+  "when": { "minTurn": 12, "stat": { "notoriete": { "min": 4 } } },
   "tag": { "fr": "Vérification", "en": "Fact check" },
   "text": {
     "fr": "Une cellule de vérification classe votre chiffre en « trompeur ». Le chiffre vient d'un rapport public, il est exact, et l'usage que vous en faites ne l'est pas tout à fait. L'article fait quatre mille signes et le titre en fait sept.",
@@ -1314,7 +1314,7 @@ const EV_appareil = [
 {
   "id": "meute",
   "weight": 4,
-  "when": { "minTurn": 4, "stat": { "notoriete": { "min": 3 } } },
+  "when": { "minTurn": 8, "stat": { "notoriete": { "min": 3 } } },
   "tag": { "fr": "La meute", "en": "The pile-on" },
   "text": {
     "fr": "Vous avez parlé quarante minutes hier soir sur un plateau. Il en reste dix secondes ce matin, coupées juste avant la phrase qui les expliquait. Onze mille messages ont déjà décidé de ce que vous vouliez dire.",
@@ -1355,7 +1355,7 @@ const EV_appareil = [
 {
   "id": "ia_contenu",
   "weight": 3,
-  "when": { "minTurn": 6 },
+  "when": { "minTurn": 12 },
   "tag": { "fr": "La machine", "en": "The machine" },
   "text": {
     "fr": "Votre équipe vous montre ce qu'elle a produit en une soirée : douze visuels, quatre discours de circonstance et une lettre de condoléances, tous écrits par une machine et tous parfaitement corrects. Personne ne saura jamais faire la différence.",
@@ -1391,7 +1391,7 @@ const EV_appareil = [
   "id": "podcast_long",
   "once": true,
   "weight": 3,
-  "when": { "minTurn": 8, "stat": { "notoriete": { "min": 5 } } },
+  "when": { "minTurn": 16, "stat": { "notoriete": { "min": 5 } } },
   "tag": { "fr": "Trois heures", "en": "Three hours" },
   "text": {
     "fr": "Un podcast vous propose trois heures d'entretien, sans montage, avec quelqu'un qui ne fait pas de politique et qui posera les questions que les journalistes politiques ne posent plus. Son audience est plus jeune que tous vos meetings réunis.",
@@ -1427,7 +1427,7 @@ const EV_appareil = [
   "id": "euro_rapporteur",
   "once": true,
   "weight": 6,
-  "when": { "position": ["euro"], "minTurn": 6, "notTrait": ["connexions_internationales"] },
+  "when": { "position": ["euro"], "minTurn": 12, "notTrait": ["connexions_internationales"] },
   "tag": { "fr": "Le rapport", "en": "The report" },
   "text": {
     "fr": "On vous propose d'être rapporteur sur un texte technique dont personne ne parlera jamais chez vous. Cela veut dire dix-huit mois de négociation avec vingt-six délégations, et un nom qui circulera dans des ministères que vous ne connaissez pas.",
@@ -1464,7 +1464,7 @@ const EV_appareil = [
   "id": "ministre_conseil",
   "once": true,
   "weight": 7,
-  "when": { "position": ["ministre", "premier"], "minTurn": 10, "notTrait": ["connexions_internationales"] },
+  "when": { "position": ["ministre", "premier"], "minTurn": 20, "notTrait": ["connexions_internationales"] },
   "tag": { "fr": "Le Conseil", "en": "The Council" },
   "text": {
     "fr": "Conseil des ministres européens, deux heures du matin, dix-neuvième heure de négociation. Il reste trois pays à convaincre et deux d'entre eux attendent de voir qui cédera le premier. Votre administration vous a préparé une position et vous êtes seul dans la salle.",
@@ -1501,7 +1501,7 @@ const EV_appareil = [
 {
   "id": "argent_campagne_perso",
   "weight": 4,
-  "when": { "position": ["conseiller", "maire", "depute", "euro", "chef"], "minTurn": 10, "minMoney": 120000 },
+  "when": { "position": ["conseiller", "maire", "depute", "euro", "chef"], "minTurn": 20, "minMoney": 120000 },
   "tag": { "fr": "Sur vos deniers", "en": "Out of your own pocket" },
   "text": {
     "fr": "Le parti finance la campagne au minimum légal et vous savez ce que cela vaut : deux permanences, une affiche et personne pour tenir le terrain. Votre directeur de campagne vous a préparé trois budgets et attend que vous en désigniez un.",
@@ -1547,7 +1547,7 @@ const EV_appareil = [
   "id": "argent_fondation",
   "once": true,
   "weight": 3,
-  "when": { "position": ["depute", "euro", "maire", "ministre", "chef"], "minTurn": 16, "minMoney": 300000 },
+  "when": { "position": ["depute", "euro", "maire", "ministre", "chef"], "minTurn": 32, "minMoney": 300000 },
   "tag": { "fr": "La fondation", "en": "The foundation" },
   "text": {
     "fr": "Pour exister entre deux campagnes, il faut un lieu qui produise des idées à votre nom. Un club, un institut, une fondation : trois mots pour la même chose, et trois budgets très différents.",
@@ -1590,7 +1590,7 @@ const EV_appareil = [
 {
   "id": "argent_pari",
   "weight": 3,
-  "when": { "minMoney": 400000, "minTurn": 12, "notTrait": ["intouchable"] },
+  "when": { "minMoney": 400000, "minTurn": 24, "notTrait": ["intouchable"] },
   "tag": { "fr": "L'occasion", "en": "The opportunity" },
   "text": {
     "fr": "Un ami d'avant la politique monte une opération et vous propose d'entrer. Ce n'est pas illégal, c'est seulement le genre de chose qu'on ne peut pas expliquer en trente secondes sur un plateau. Il faut répondre avant vendredi.",
@@ -1674,7 +1674,7 @@ const EV_appareil = [
   "id": "has_been_plateau",
   "once": true,
   "weight": 4,
-  "when": { "belowPeak": true, "minAge": 56, "minTurn": 24 },
+  "when": { "belowPeak": true, "minAge": 56, "minTurn": 48 },
   "tag": { "fr": "L'invitation", "en": "The invitation" },
   "text": {
     "fr": "Une chaîne d'info vous propose une chronique hebdomadaire : commenter l'actualité politique, sur le plateau, chaque mardi. On vous présentera par la plus haute fonction que vous ayez occupée.",
@@ -1747,7 +1747,7 @@ const EV_appareil = [
   "id": "poudre_toilettes",
   "once": true,
   "weight": 3,
-  "when": { "position": ["depute", "cadre", "ministre", "maire"], "minTurn": 8, "notTrait": ["drogue"] },
+  "when": { "position": ["depute", "cadre", "ministre", "maire"], "minTurn": 16, "notTrait": ["drogue"] },
   "tag": { "fr": "Deuxième étage", "en": "Second floor" },
   "text": {
     "fr": "Deux heures du matin, session de nuit, quatrième semaine de budget. Un collègue vous fait signe dans les toilettes du deuxième et vous explique, avec la simplicité de l'évidence, comment tout le monde tient.",
@@ -1813,7 +1813,7 @@ const EV_appareil = [
   "id": "couple_magazine",
   "once": true,
   "weight": 3,
-  "when": { "minPopularity": 54, "minTurn": 10, "notTrait": ["couple_people"] },
+  "when": { "minPopularity": 54, "minTurn": 20, "notTrait": ["couple_people"] },
   "tag": { "fr": "La double page", "en": "The spread" },
   "text": {
     "fr": "Votre compagne est connue pour autre chose que vous, et un magazine propose de vous photographier ensemble, chez vous, en huit pages. L'attaché de presse dit oui avant que vous ayez répondu.",
@@ -1845,7 +1845,7 @@ const EV_appareil = [
   "id": "ancrage_permanence",
   "once": true,
   "weight": 3,
-  "when": { "position": ["conseiller", "maire", "depute"], "minTurn": 12, "notTrait": ["ancrage_local"] },
+  "when": { "position": ["conseiller", "maire", "depute"], "minTurn": 24, "notTrait": ["ancrage_local"] },
   "tag": { "fr": "La permanence", "en": "The surgery" },
   "text": {
     "fr": "Douze ans que vous tenez la même permanence le samedi matin. Un cabinet parisien vous propose de professionnaliser tout ça : un attaché, des créneaux, un logiciel de rendez-vous, et vos samedis pour vous.",
@@ -1873,7 +1873,7 @@ const EV_appareil = [
   "id": "sommet_anglais",
   "once": true,
   "weight": 3,
-  "when": { "position": ["euro", "depute", "ministre", "premier", "chef"], "minTurn": 14 },
+  "when": { "position": ["euro", "depute", "ministre", "premier", "chef"], "minTurn": 28 },
   "tag": { "fr": "Le sommet", "en": "The summit" },
   "text": {
     "fr": "Conférence de presse commune à Bruxelles, deux cents journalistes, et une question posée en anglais à laquelle il va falloir répondre en anglais. La cabine d'interprétation est là, et l'utiliser se verra.",
@@ -1908,7 +1908,7 @@ const EV_appareil = [
 {
   "id": "loi_rue",
   "weight": 4,
-  "when": { "position": ["depute", "ministre", "premier"], "minTurn": 10 },
+  "when": { "position": ["depute", "ministre", "premier"], "minTurn": 20 },
   "tag": { "fr": "La rue", "en": "The street" },
   "text": {
     "fr": "Le texte est passé et le pays ne l'a pas accepté. Quatre cent mille personnes défilent le premier samedi, six cent mille le deuxième, et les préfectures annoncent la moitié.",
@@ -1947,7 +1947,7 @@ const EV_appareil = [
 
 {
   "id": "assemblee_absences",
-  "when": { "position": ["depute", "euro"], "minTurn": 8 },
+  "when": { "position": ["depute", "euro"], "minTurn": 16 },
   "tag": { "fr": "Le décompte", "en": "The attendance record" },
   "text": {
     "fr": "Un site publie le décompte des présences en séance. Le vôtre est mauvais, celui de trois de vos collègues est pire, et un journaliste local vous appelle pour vous demander de vous expliquer.",
@@ -1977,7 +1977,7 @@ const EV_appareil = [
 {
   "id": "assemblee_engueulade",
   "weight": 3,
-  "when": { "position": ["depute", "ministre", "premier"], "minTurn": 6 },
+  "when": { "position": ["depute", "ministre", "premier"], "minTurn": 12 },
   "tag": { "fr": "Séance suspendue", "en": "Sitting suspended" },
   "text": {
     "fr": "Une phrase de trop en séance, des cris des deux côtés, et le président de séance suspend. Dans le couloir, tout le monde a une caméra et personne n'a encore décidé de quoi il aura l'air.",
@@ -2007,7 +2007,7 @@ const EV_appareil = [
 {
   "id": "vote_contre_son_camp",
   "weight": 3,
-  "when": { "position": ["depute"], "minTurn": 8 },
+  "when": { "position": ["depute"], "minTurn": 16 },
   "tag": { "fr": "Consigne de vote", "en": "The party whip" },
   "text": {
     "fr": "Le groupe a arrêté sa position et elle est l'inverse de ce que vous avez promis chez vous. Le vote est nominatif, il sera publié, et votre circonscription le lira.",
@@ -2042,7 +2042,7 @@ const EV_appareil = [
 {
   "id": "pouvoir_greve",
   "weight": 3,
-  "when": { "ruling": true, "position": ["ministre", "premier"], "maxApproval": 45, "minTurn": 10 },
+  "when": { "ruling": true, "position": ["ministre", "premier"], "maxApproval": 45, "minTurn": 20 },
   "tag": { "fr": "Le blocage", "en": "The shutdown" },
   "text": {
     "fr": "Trois fédérations appellent à la reconductible et le pays s'arrête un jour sur deux. Votre ministère est en première ligne et l'Élysée attend de voir qui craquera le premier.",
@@ -2071,7 +2071,7 @@ const EV_appareil = [
 
 {
   "id": "opp_niche",
-  "when": { "ruling": false, "position": ["depute"], "minTurn": 6 },
+  "when": { "ruling": false, "position": ["depute"], "minTurn": 12 },
   "tag": { "fr": "Niche parlementaire", "en": "Opposition day" },
   "text": {
     "fr": "Votre groupe a sa journée réservée : une seule, dans l'année, où c'est l'opposition qui écrit l'ordre du jour. Trois textes se disputent le créneau et un seul ira au vote.",
@@ -2100,7 +2100,7 @@ const EV_appareil = [
 
 {
   "id": "opp_obstruction",
-  "when": { "ruling": false, "position": ["depute"], "majority": ["absolue"], "minTurn": 8 },
+  "when": { "ruling": false, "position": ["depute"], "majority": ["absolue"], "minTurn": 16 },
   "tag": { "fr": "Obstruction", "en": "Filibuster" },
   "text": {
     "fr": "Le gouvernement a la majorité absolue et fait passer ce qu'il veut. Il reste une arme : déposer trois mille amendements et tenir l'hémicycle jusqu'à quatre heures du matin pendant trois semaines.",
@@ -2162,7 +2162,7 @@ const EV_appareil = [
 
 {
   "id": "pouvoir_remaniement_cote",
-  "when": { "ruling": true, "position": ["depute", "ministre", "chef"], "maxApproval": 36, "minTurn": 10 },
+  "when": { "ruling": true, "position": ["depute", "ministre", "chef"], "maxApproval": 36, "minTurn": 20 },
   "tag": { "fr": "Le pouvoir s'enfonce", "en": "The government is sinking" },
   "text": {
     "fr": "Le gouvernement est à un niveau de rejet qu'on n'avait pas vu depuis longtemps. Dans votre camp, deux écoles s'affrontent : ceux qui veulent tenir jusqu'au bout et ceux qui préparent déjà l'après.",
@@ -2191,7 +2191,7 @@ const EV_appareil = [
 
 {
   "id": "opp_pouvoir_a_portee",
-  "when": { "ruling": false, "position": ["depute", "maire", "chef"], "maxApproval": 33, "minStanding": 45, "minTurn": 12 },
+  "when": { "ruling": false, "position": ["depute", "maire", "chef"], "maxApproval": 33, "minStanding": 45, "minTurn": 24 },
   "tag": { "fr": "Ça sent la fin", "en": "The end is in the air" },
   "text": {
     "fr": "Le pouvoir est au plus bas et tout le monde le sait, à commencer par ceux qui l'exercent. Dans l'opposition, on ne parle plus de combattre le gouvernement mais de savoir qui prendra sa place.",
@@ -2223,7 +2223,7 @@ const EV_appareil = [
   "id": "censure_grande",
   "weight": 4,
   "when": { "position": ["depute", "ministre", "chef"], "maxApproval": 34,
-            "majority": ["relative", "aucune"], "minTurn": 12 },
+            "majority": ["relative", "aucune"], "minTurn": 24 },
   "tag": { "fr": "La censure", "en": "The censure" },
   "text": {
     "fr": "Une motion de censure est déposée, et pour la première fois elle peut passer : le gouvernement n'a pas la majorité, le pays ne le soutient plus, et deux groupes qui ne se parlent jamais viennent de se parler.",

@@ -43,7 +43,7 @@ const EV_vie_privee = [
 
 {
   "id": "rupture",
-  "delay": [2, 6],
+  "delay": [4, 12],
   "weight": 0,
   "tag": { "fr": "Vie privée", "en": "Private life" },
   "text": {
@@ -97,7 +97,7 @@ const EV_vie_privee = [
 
 {
   "id": "anniversaire_carriere",
-  "when": { "minTurn": 30 },
+  "when": { "minTurn": 60 },
   "tag": { "fr": "Bilan", "en": "Taking stock" },
   "text": {
     "fr": "Quinze ans de vie politique. Un journaliste vous demande si vous referiez tout pareil.",
@@ -168,7 +168,7 @@ const EV_vie_privee = [
 {
   "id": "candidat_sans_fond",
   "weight": 4,
-  "when": { "trait": ["beau"], "minTurn": 10 },
+  "when": { "trait": ["beau"], "minTurn": 20 },
   "tag": { "fr": "Portrait", "en": "The profile" },
   "text": {
     "fr": "Un éditorialiste écrit que vous êtes « le plus beau des seconds couteaux » et que votre ascension ne doit rien à vos idées. L'article est injuste, bien écrit, et il circule dans votre propre parti depuis le matin.",
@@ -198,7 +198,7 @@ const EV_vie_privee = [
 {
   "id": "caricature",
   "weight": 4,
-  "when": { "trait": ["ingrat"], "minTurn": 8 },
+  "when": { "trait": ["ingrat"], "minTurn": 16 },
   "tag": { "fr": "Dessin de presse", "en": "The cartoon" },
   "text": {
     "fr": "Un dessinateur vous a trouvé une silhouette et ne vous lâche plus. Le trait est cruel, drôle, et il paraît trois fois par semaine depuis un mois.",
@@ -233,7 +233,7 @@ const EV_vie_privee = [
 {
   "id": "prise_de_poids",
   "weight": 4,
-  "when": { "notTrait": ["obese", "athletique"], "minTurn": 14, "position": ["maire", "euro", "depute", "ministre", "chef"] },
+  "when": { "notTrait": ["obese", "athletique"], "minTurn": 28, "position": ["maire", "euro", "depute", "ministre", "chef"] },
   "tag": { "fr": "Le corps", "en": "The body" },
   "text": {
     "fr": "Quatre ans de buffets à vingt-trois heures, de trains et de nuits courtes. Le tailleur vous le dit avant votre médecin, et votre attachée de presse avant les deux.",
@@ -264,7 +264,7 @@ const EV_vie_privee = [
 {
   "id": "regime_impose",
   "weight": 5,
-  "when": { "trait": ["obese"], "minTurn": 4 },
+  "when": { "trait": ["obese"], "minTurn": 8 },
   "tag": { "fr": "Conseil en image", "en": "Image consultants" },
   "text": {
     "fr": "L'état-major vous fait rencontrer une consultante. Elle ne parle pas de santé, elle parle de « lisibilité à l'écran » et montre des courbes. Elle propose un suivi médiatisé, avec des étapes et des photos.",
@@ -323,7 +323,7 @@ const EV_vie_privee = [
   "id": "moquerie_plateau",
   "weight": 4,
   "cast": "opponent",
-  "when": { "minTurn": 12, "position": ["depute", "ministre", "chef", "euro"] },
+  "when": { "minTurn": 24, "position": ["depute", "ministre", "chef", "euro"] },
   "tag": { "fr": "Sur le plateau", "en": "On air" },
   "text": {
     "fr": "En direct, {rival} lâche une pique sur votre physique. Ce n'est pas un argument, ça n'a rien à voir avec le sujet, et le plateau rit avant de se rendre compte.",
@@ -387,7 +387,7 @@ const EV_vie_privee = [
 {
   "id": "alerte_sante",
   "weight": 0,
-  "delay": [2, 6],
+  "delay": [4, 12],
   "when": { "flag": { "frailHealth": false } },
   "tag": { "fr": "Le médecin", "en": "The doctor" },
   "text": {
@@ -418,7 +418,7 @@ const EV_vie_privee = [
 {
   "id": "position_impopulaire",
   "weight": 0,
-  "delay": [6, 14],
+  "delay": [12, 28],
   "tag": { "fr": "Le temps a passé", "en": "Time has passed" },
   "text": {
     "fr": "La position que vous aviez tenue seul contre tout le monde revient dans l'actualité. Les archives ressortent, et la séquence où l'on vous coupait la parole tourne de nouveau.",
@@ -449,7 +449,7 @@ const EV_vie_privee = [
 {
   "id": "mentor_encombrant",
   "weight": 0,
-  "delay": [8, 18],
+  "delay": [16, 36],
   "tag": { "fr": "Votre parrain", "en": "Your patron" },
   "text": {
     "fr": "L'ancien qui vous a fait roi est devenu un poids. Il donne des interviews où il parle de vous au passé, et il rappelle à qui veut l'entendre qu'il vous a tout appris.",
@@ -479,7 +479,7 @@ const EV_vie_privee = [
 {
   "id": "ecole_du_parti",
   "weight": 0,
-  "delay": [8, 16],
+  "delay": [16, 32],
   "tag": { "fr": "Votre école", "en": "Your school" },
   "text": {
     "fr": "Ceux que vous avez formés se comptent maintenant en dizaines, et ils occupent des postes qui comptent. Un soir, quatre d'entre eux vous proposent de structurer tout ça en courant, avec un nom et des statuts.",
@@ -510,7 +510,7 @@ const EV_vie_privee = [
 {
   "id": "voix_antenne",
   "weight": 4,
-  "when": { "trait": ["voix"], "minTurn": 6 },
+  "when": { "trait": ["voix"], "minTurn": 12 },
   "tag": { "fr": "Antenne", "en": "On air" },
   "text": {
     "fr": "Une matinale de radio vous propose une chronique hebdomadaire. Sept minutes, en direct, sur le sujet de votre choix. Le directeur des programmes dit que c'est votre voix qui l'intéresse, pas vos idées, et il le dit gentiment.",
@@ -552,7 +552,7 @@ const EV_vie_privee = [
 {
   "id": "fatigue_agenda",
   "weight": 4,
-  "when": { "stat": { "energie": { "max": 5 } }, "minTurn": 6 },
+  "when": { "stat": { "energie": { "max": 5 } }, "minTurn": 12 },
   "tag": { "fr": "L'agenda", "en": "The diary" },
   "text": {
     "fr": "Votre directrice de cabinet vous présente la semaine : vingt-huit rendez-vous, quatre déplacements, deux nuits chez vous. Elle ne vous demande plus si cela vous va, elle vous montre l'écran et attend.",
@@ -584,7 +584,7 @@ const EV_vie_privee = [
   "id": "fatigue_stimulants",
   "weight": 4,
   "cast": "camp",
-  "when": { "stat": { "energie": { "max": 3 } }, "notTrait": ["drogue"], "minTurn": 8 },
+  "when": { "stat": { "energie": { "max": 3 } }, "notTrait": ["drogue"], "minTurn": 16 },
   "tag": { "fr": "Ce qui fait tenir", "en": "What gets you through" },
   "text": {
     "fr": "{rival} vous voit lutter contre le sommeil à quinze heures et vous glisse une boîte sans étiquette dans la poche, avec un nom de médecin. {Il} ne fait pas de commentaire, ce qui est la façon la plus efficace d'en faire un.",
@@ -611,7 +611,7 @@ const EV_vie_privee = [
 {
   "id": "fatigue_derapage",
   "weight": 4,
-  "when": { "stat": { "energie": { "max": 4 } }, "minTurn": 8 },
+  "when": { "stat": { "energie": { "max": 4 } }, "minTurn": 16 },
   "tag": { "fr": "Une phrase de trop", "en": "One sentence too many" },
   "text": {
     "fr": "Quatrième interview de la journée, la même question qu'aux trois premières, et une journaliste qui ne peut pas savoir que c'est la quatrième. Vous sentez très bien ce qui est en train de monter.",
@@ -637,7 +637,7 @@ const EV_vie_privee = [
 {
   "id": "fatigue_proche",
   "weight": 3,
-  "when": { "stat": { "energie": { "max": 4 } }, "minTurn": 12 },
+  "when": { "stat": { "energie": { "max": 4 } }, "minTurn": 24 },
   "tag": { "fr": "Ce qu'on vous dit chez vous", "en": "What they tell you at home" },
   "text": {
     "fr": "Quelqu'un qui vous connaît depuis toujours vous dit, sans élever la voix, que vous n'êtes plus la même personne depuis deux ans. Pas pire : plus la même. C'est la formulation qui vous empêche de répondre.",
@@ -664,7 +664,7 @@ const EV_vie_privee = [
 {
   "id": "fatigue_arret",
   "weight": 6,
-  "when": { "trait": ["epuise"], "minTurn": 10 },
+  "when": { "trait": ["epuise"], "minTurn": 20 },
   "tag": { "fr": "L'arrêt", "en": "The stop" },
   "text": {
     "fr": "Le médecin ne discute pas et ne propose rien : il vous dit ce qui arrivera si vous continuez, avec des mots que vous n'aviez jamais entendus appliqués à vous. Trois mois, dit-il. Vous pensez immédiatement au calendrier.",

@@ -8,7 +8,7 @@ const EV_chaines = [
 
 {
   "id": "enquete_ouverte",
-  "delay": [3, 9],
+  "delay": [6, 18],
   "weight": 3,
   "when": { "flag": { "dirtyMoney": true, "onTrial": false, "investigated": false } },
   "tag": { "fr": "Justice", "en": "Justice" },
@@ -41,7 +41,7 @@ const EV_chaines = [
 
 {
   "id": "perquisition",
-  "delay": [2, 6],
+  "delay": [4, 12],
   "weight": 0,
   "tag": { "fr": "Justice", "en": "Justice" },
   "text": {
@@ -77,7 +77,7 @@ const EV_chaines = [
 
 {
   "id": "proces",
-  "delay": [6, 14],
+  "delay": [12, 28],
   "weight": 0,
   "tag": { "fr": "Procès", "en": "Trial" },
   "text": {
@@ -115,7 +115,7 @@ const EV_chaines = [
 
 {
   "id": "patrimoine_declare",
-  "delay": [2, 7],
+  "delay": [4, 14],
   "weight": 0,
   "tag": { "fr": "Patrimoine", "en": "Assets" },
   "text": {
@@ -157,7 +157,7 @@ const EV_chaines = [
 
 {
   "id": "fisc",
-  "delay": [3, 8],
+  "delay": [6, 16],
   "weight": 0,
   "tag": { "fr": "Fisc", "en": "Tax" },
   "text": {
@@ -243,7 +243,7 @@ const EV_chaines = [
 
 {
   "id": "rechute",
-  "delay": [3, 8],
+  "delay": [6, 16],
   "weight": 0,
   "tag": { "fr": "Santé", "en": "Health" },
   "text": {
@@ -296,7 +296,7 @@ const EV_chaines = [
 
 {
   "id": "bataille_amendements",
-  "delay": [1, 3],
+  "delay": [2, 6],
   "weight": 0,
   "tag": { "fr": "Assemblée", "en": "The chamber" },
   "text": {
@@ -323,7 +323,7 @@ const EV_chaines = [
 
 {
   "id": "vote_final",
-  "delay": [1, 3],
+  "delay": [2, 6],
   "weight": 0,
   "tag": { "fr": "Vote solennel", "en": "The final vote" },
   "text": {

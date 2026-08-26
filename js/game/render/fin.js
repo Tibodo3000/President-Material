@@ -13,7 +13,7 @@ function renderEnd(host) {
   // La fin dépend de l'état exact de la carrière : la même victoire ne se
   // raconte pas de la même façon selon ce qu'on a laissé derrière soi.
   const ending = resolveEnding(game) || { title: { fr: "", en: "" }, text: { fr: "", en: "" } };
-  const years = Math.floor(game.turn / 2);
+  const years = Math.floor(game.turn / TURNS_PER_YEAR);
   const traits = traitsOf(game);
 
   // LE SOMMET D'UNE CARRIÈRE SE LIT SUR DEUX LIGNES, PAS UNE. La direction

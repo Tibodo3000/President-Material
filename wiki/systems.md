@@ -99,7 +99,7 @@ impossible; bad news always costs full price. Some traits (téflon) absorb a sha
 ## Energy — the one spendable stat
 
 `energie` is spent by demanding choices and recovered slowly:
-- **Recovery** (`recoverEnergy`): +2 every 2 years (`turn % 4 === 0`), never above a
+- **Recovery** (`recoverEnergy`): +2 every 2 years (`turn % 8 === 0`), never above a
   ceiling.
 - **Ceiling** (`energyCeiling`): holds at 14 until ~50, then drops 1 point every 3 years;
   health flags and some traits shift it. The UI draws a marker on the energy bar at this

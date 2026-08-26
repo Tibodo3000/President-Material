@@ -40,7 +40,7 @@ deck) and reassembled into `EVENT_DATA` by `_assemble.data.js`. You can author t
   "once": true,                   // play at most once (default for non-repeatable anyway)
   "repeatable": true,             // may return; only these fill "quiet turns"
   "cast": "opponent",             // who {rival} is (see below)
-  "delay": [2, 4],                // if used as a chain target: fire 2–4 turns after scheduling
+  "delay": [4, 8],                // if used as a chain target: fire 4–8 turns (= quarters) after scheduling
   "when": { ... },                // appearance conditions (see below)
   "tag":  { "fr": "...", "en": "..." },   // small category label
   "text": { "fr": "...", "en": "..." },   // the situation
@@ -282,8 +282,8 @@ mark to capitalize the output: `{Le} soutenir`.
   "energy": 2,                   // shifts the energy ceiling
   "rejection": 0.08,             // second-round voters who refuse you (0.08 = 8 points)
   "soften": 0.45,                // damps bad popularity news (0..1)
-  "income": 14000,               // hidden euros per turn
-  "risk": { "p": 0.05, "chain": "enquete_ouverte" },   // per-turn chance to trigger a chain
+  "income": 14000,               // hidden euros per half-year (the engine prorates it per turn)
+  "risk": { "p": 0.05, "chain": "enquete_ouverte" },   // per-YEAR chance to trigger a chain
   "blocks": ["intouchable"]      // incompatible traits removed when this is gained
 }
 ```

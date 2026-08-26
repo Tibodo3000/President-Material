@@ -1,7 +1,8 @@
 /*
  * President Material — moteur de la boucle de jeu (game.html).
  *
- * Un tour = six mois. À chaque tour : vieillissement, revenus, risque de
+ * Un tour = une saison, quatre tours par an (TURNS_PER_YEAR, dans
+ * js/game-data.js). À chaque tour : vieillissement, revenus, risque de
  * décès, puis UNE carte à droite — une élection si le calendrier en prévoit
  * une, sinon un événement tiré au sort. Les rivaux évoluent en arrière-plan.
  *
@@ -292,10 +293,10 @@ function naturalShare(key) {
 }
 
 /** Vitesse à laquelle le socle suit ce que le parti pèse réellement. */
-const BASELINE_FOLLOW = 0.012;
+const BASELINE_FOLLOW = 0.006;
 
 /** Ce que l'air du temps déplace tout seul, par tour. */
-const BASELINE_NOISE = 0.10;
+const BASELINE_NOISE = 0.07;   // un tour deux fois plus court : bruit ÷ √2
 
 /**
  * LA VIE DU SOCLE. Beaucoup plus lent que la part elle-même : un parti ne se
@@ -312,6 +313,17 @@ function driftBaseline() {
   });
 }
 
+/*
+ * TOUT CE QUI SE DÉPLACE PAR TOUR EST DIVISÉ PAR DEUX.
+ *
+ * Le rappel ci-dessous, l'usure de ceux qui gouvernent, ce qu'une figure
+ * populaire tire à son camp, ce qu'un pacte rapporte : ce sont des forces par
+ * tour, et l'année en compte désormais quatre. Elles sont toutes reprises de
+ * moitié, ce qui laisse le tableau à l'équilibre exactement où il était et
+ * lui fait mettre le même nombre d'années à y aller. Le BRUIT, lui, est
+ * divisé par √2 et non par 2 : c'est une marche au hasard, et c'est sa
+ * variance annuelle qu'il faut conserver.
+ */
 /**
  * Vitesse du rappel vers le socle, par tour.
  *
@@ -321,7 +333,7 @@ function driftBaseline() {
  * trace. Le paysage doit garder la mémoire de ce qu'on lui fait, sinon il
  * n'est qu'un décor qui tremble.
  */
-const LANDSCAPE_PULL = 0.022;
+const LANDSCAPE_PULL = 0.011;
 
 /** Répartition de départ, adossée à la difficulté des partis. */
 function initialLandscape(state) {
@@ -364,7 +376,7 @@ function rulingParty() {
    ========================================================================== */
 
 /** Ce que gouverner coûte par tour, et de plus en plus au second mandat. */
-const APPROVAL_WEAR = 1.3;
+const APPROVAL_WEAR = 0.65;
 
 /**
  * Vitesse de rappel vers la cote que mérite le parti au pouvoir, et amplitude
@@ -377,8 +389,8 @@ const APPROVAL_WEAR = 1.3;
  * ne sortaient donc jamais. Un rappel plus lâche et un bruit plus large font
  * de vraies traversées du désert, et de vrais états de grâce.
  */
-const APPROVAL_PULL = 0.09;
-const APPROVAL_NOISE = 9;
+const APPROVAL_PULL = 0.046;
+const APPROVAL_NOISE = 6.4;   // un tour deux fois plus court : bruit ÷ √2
 
 /**
  * La cote que vaudrait le gouvernement au vu de la seule force de son camp.
@@ -395,7 +407,7 @@ function driftApproval() {
   if (!game.president) return;
 
   let move = (approvalTarget() - game.approval) * APPROVAL_PULL;
-  move -= APPROVAL_WEAR + (game.presidentTerms - 1) * 1.1;
+  move -= APPROVAL_WEAR + (game.presidentTerms - 1) * 0.55;
   move += (Math.random() - 0.5) * APPROVAL_NOISE;
 
   game.approval = clamp100(game.approval + move);
@@ -456,8 +468,11 @@ const ASSEMBLY_POWER = 2.1;
  * ce qui n'est arrivé à personne.
  *
  * La vague ne vaut que dans la fenêtre où la confirmation a un sens. Passé
- * dix-huit mois, une législative redevient une élection ordinaire, et c'est
- * exactement ce qui distingue 2017 de 1997.
+ * six mois, une législative redevient une élection ordinaire, et c'est
+ * exactement ce qui distingue 2017 de 1997. La fenêtre valait trois tours
+ * quand un tour faisait six mois ; elle en vaut deux depuis que la
+ * législative tombe un trimestre après la présidentielle, et elle couvre donc
+ * la même chose : celle-là, et aucune dissolution ultérieure.
  */
 /*
  * Calibré en fabriquant deux cents législatives de confirmation par palier.
@@ -469,7 +484,7 @@ const ASSEMBLY_POWER = 2.1;
  * n'est pas la Cinquième République, c'est un plébiscite.
  */
 const COATTAIL = 1.35;
-const COATTAIL_WINDOW = 3;
+const COATTAIL_WINDOW = 2;
 
 /** Depuis combien de tours le président en exercice est en place. */
 function turnsSinceElection() {
@@ -484,8 +499,8 @@ function computeAssembly() {
   const poids = {};
   Object.keys(PARTIES).forEach((key) => {
     const part = Math.max(0.5, game.landscape[key] || 0);
-    // La prime au camp du président, ou la note qu'il paie : un an après son
-    // élection, on lui donne une majorité ou on la lui refuse.
+    // La prime au camp du président, ou la note qu'il paie : dans la foulée
+    // de son élection, on lui donne une majorité ou on la lui refuse.
     // La prime au camp du président : sa cote du moment, et la vague quand le
     // scrutin suit de près son élection.
     const vague = turnsSinceElection() <= COATTAIL_WINDOW ? COATTAIL : 1;
@@ -689,7 +704,7 @@ function partyIsPivot(s) {
  * voix. Le président dissout dans la foulée et le pays revote.
  */
 const CENSURE_APPROVAL = 26;
-const CENSURE_CHANCE = 0.11;
+const CENSURE_CHANCE = 0.055;
 
 function maybeCensure() {
   if (game.dissolution || !game.president) return;
@@ -727,7 +742,7 @@ function driftLandscape() {
     // paysage qui ne se recompose jamais n'est pas un paysage, c'est un
     // décor. Le bruit reste inférieur à ce que déplacent les événements : le
     // mouvement doit rester causé, il ne doit pas être impossible.
-    let move = (Math.random() - 0.5) * 1.6;
+    let move = (Math.random() - 0.5) * 1.15;
 
     // Le rappel vers ce que le parti pèse naturellement dans le pays.
     move += (naturalShare(key) / floor - game.landscape[key]) * LANDSCAPE_PULL;
@@ -735,11 +750,11 @@ function driftLandscape() {
     // GOUVERNER USE, ET DE PLUS EN PLUS. Un premier mandat s'entame
     // doucement, un second se paie plein tarif : c'est ce qui fait respirer
     // le tableau au lieu de le laisser figé sur ses socles.
-    if (key === ruling) move -= 0.45 + (game.presidentTerms - 1) * 0.5;
+    if (key === ruling) move -= 0.22 + (game.presidentTerms - 1) * 0.25;
 
     // Une figure populaire tire son parti vers le haut.
     const figure = figureOf(key);
-    if (figure) move += (figure.popularity - 45) / 90;
+    if (figure) move += (figure.popularity - 45) / 180;
 
     // Le joueur pèse sur son propre camp, d'autant plus qu'il est haut placé.
     // Un militant aimé de son quartier ne déplace pas les intentions de vote
@@ -749,12 +764,12 @@ function driftLandscape() {
     if (key === game.party) {
       // La lecture nationale, et pas la note : on ne tire pas les intentions
       // de vote d'un pays avec l'affection des siens.
-      move += ((nationalPopularity(game) - 50) / 95) * (0.4 + exposureOf(game) / 28);
+      move += ((nationalPopularity(game) - 50) / 190) * (0.4 + exposureOf(game) / 28);
     }
 
     // Deux partis alliés finissent par ressembler à une offre de gouvernement,
     // ce qui profite un peu aux deux.
-    if (ally && (key === ally || key === game.party)) move += 0.15;
+    if (ally && (key === ally || key === game.party)) move += 0.075;
 
     game.landscape[key] = Math.max(LANDSCAPE_FLOOR, game.landscape[key] + move);
   });
@@ -1027,7 +1042,7 @@ function electionAtTurn(turn) {
 
 /** La prochaine échéance électorale, pour l'affichage. */
 function nextElection() {
-  for (let ahead = 1; ahead <= 12; ahead++) {
+  for (let ahead = 1; ahead <= 24; ahead++) {
     const e = electionAtTurn(game.turn + ahead);
     if (e) return { election: e, inTurns: ahead };
   }
@@ -1056,7 +1071,7 @@ function nextElection() {
 const CALENDAR_LENGTH = 4;
 
 /** Jusqu'où on cherche. Deux cycles complets suffisent toujours. */
-const CALENDAR_HORIZON = 26;
+const CALENDAR_HORIZON = 52;
 
 function electionCalendar() {
   const suite = [];
@@ -1068,17 +1083,24 @@ function electionCalendar() {
 }
 
 /**
- * Dans combien de temps, en toutes lettres. Un tour vaut six mois, et
- * « dans 2.5 ans » ne se dit pas.
+ * Dans combien de temps, en toutes lettres. Un tour vaut un trimestre, et
+ * « dans 2.25 ans » ne se dit pas.
+ *
+ * Sous deux ans on compte en mois, parce que c'est ainsi qu'on parle d'une
+ * échéance qu'on prépare. Au-delà, on compte en années et en demies : les
+ * trimestres restants s'arrondissent au demi-an le plus proche, personne
+ * n'ayant jamais annoncé une élection « dans trois ans et neuf mois ».
  */
 function horizonLabel(turns) {
-  if (turns <= 1) return t("cal_six_months");
-  if (turns === 2) return t("cal_one_year");
-  // « dans 1 ans et demi » ne se dit pas : la première année s'écrit en toutes lettres.
-  if (turns === 3) return t("cal_one_year_half");
+  const mois = turns * (12 / TURNS_PER_YEAR);
 
-  const ans = Math.floor(turns / 2);
-  const demi = turns % 2 === 1;
+  if (mois < 12) return t("cal_months").replace("{n}", mois);
+  if (mois === 12) return t("cal_one_year");
+  if (mois === 18) return t("cal_one_year_half");
+  if (mois < 24) return t("cal_year_months").replace("{n}", mois - 12);
+
+  const ans = Math.floor(mois / 12);
+  const demi = mois % 12 >= 6;
   return t(demi ? "cal_years_half" : "cal_years").replace("{n}", ans);
 }
 
@@ -1841,15 +1863,15 @@ function evolveRivals() {
   [...game.rivals].forEach((r) => {
     if (game.rivals.indexOf(r) < 0) return;
 
-    r.age += 0.5;
+    r.age += YEARS_PER_TURN;
 
-    if (Math.random() < 0.25) {
+    if (Math.random() < 0.125) {
       const keys = Object.keys(r.stats);
       const k = keys[randInt(keys.length)];
       r.stats[k] = Math.max(1, Math.min(9, r.stats[k] + (Math.random() < 0.5 ? -1 : 1)));
     }
 
-    if (Math.random() < 0.3) r.progress++;
+    if (Math.random() < 0.15) r.progress++;
 
     // L'échelle passe désormais par Strasbourg, comme celle du joueur : un
     // conseiller qui monte va au Parlement européen une fois sur trois, et
@@ -1865,13 +1887,13 @@ function evolveRivals() {
     // La popularité glisse vers ce que valent les statistiques et la fonction,
     // moins l'usure de ceux qui gouvernent.
     const target = figurePopularity(r) - (r.party === ruling ? 8 : 0);
-    r.popularity = clamp100(r.popularity + (target - r.popularity) * 0.2 + (Math.random() - 0.5) * 3);
+    r.popularity = clamp100(r.popularity + (target - r.popularity) * 0.105 + (Math.random() - 0.5) * 2.1);
 
     // Le président en exercice ne quitte pas la scène tant qu'il est en poste.
     if (isPresident(r)) return;
 
-    if (r.age >= RETIRE_AGE && Math.random() < 0.18) return retireFigure(r, "age");
-    if (r.popularity <= RETIRE_POPULARITY && Math.random() < 0.12) return retireFigure(r, "popularity");
+    if (r.age >= RETIRE_AGE && Math.random() < 0.09) return retireFigure(r, "age");
+    if (r.popularity <= RETIRE_POPULARITY && Math.random() < 0.06) return retireFigure(r, "popularity");
   });
 
   ensureLeaders();
@@ -2063,7 +2085,7 @@ function setScene(ev) {
    ========================================================================== */
 
 /** Chance, à chaque tour, qu'un ralliement se produise quelque part. */
-const DEFECTION_CHANCE = 0.11;
+const DEFECTION_CHANCE = 0.055;
 
 /**
  * Ce qu'un ralliement déplace, en points d'intentions de vote. Une figure
@@ -2249,7 +2271,7 @@ function advanceTurn() {
   }
 
   game.turn++;
-  game.age += 0.5;
+  game.age += YEARS_PER_TURN;
   const compte = applyBudget(game);
   if (compte && compte.cut) {
     addLog({
@@ -2318,7 +2340,7 @@ function advanceTurn() {
   // de régime, et « Législatives » se lisait comme « Guerre interne ». Une
   // campagne commence donc par une carte d'ouverture qui pose le scrutin, le
   // rapport de force et ce qui se joue pour lui. Elle ne coûte pas un tour :
-  // c'est le même semestre, en deux temps.
+  // c'est la même saison, en deux temps.
   //
   // SAUF LE CONGRÈS. Il n'a pas de forces en présence à montrer : on n'y
   // interroge pas le pays, et sa propre carte dit déjà tout ce qu'une
@@ -2401,7 +2423,7 @@ function enterElection(electionId) {
 
    La dette de fatigue (voir payEnergy dans js/game-data.js) a désormais un
    terme. Passé un certain seuil, et seulement si l'on est encore à sec, le
-   corps s'arrête. Il prévient une fois : on a un semestre pour lever le pied,
+   corps s'arrête. Il prévient une fois : on a une saison pour lever le pied,
    et lever le pied suffit vraiment, puisque la dette se résorbe dès qu'on a
    de la marge. Une fin de partie qui tombe sans avertissement est une fin de
    partie qu'on n'a pas jouée.
@@ -2411,14 +2433,14 @@ function enterElection(electionId) {
  * LA DETTE DE FATIGUE.
  *
  * On ne s'épuise pas sur une nuit blanche, on s'épuise en enchaînant des
- * années sans marge. Elle monte à chaque semestre passé à sec, elle
+ * années sans marge. Elle monte à chaque saison passée à sec, elle
  * redescend dès qu'on a de quoi souffler, et c'est elle qui fait tomber la
  * marque puis, à la fin, le retrait. Se ménager la fait disparaître : il n'y
  * a rien d'irréversible tant qu'on s'arrête à temps.
  */
 const STRAIN_LOW = 3;      // à ce niveau ou en dessous, on creuse
 const STRAIN_REST = 7;     // à ce niveau ou au-dessus, on se refait
-const STRAIN_STRIKE = 5;   // tous les cinq points, le corps envoie un signe
+const STRAIN_STRIKE = 10;  // tous les dix points, le corps envoie un signe
 
 function wearOut() {
   if (game.stats.energie <= STRAIN_LOW) game.strain = (game.strain || 0) + 1;
@@ -2446,9 +2468,12 @@ function wearOut() {
       });
 }
 
-const BURNOUT_STRAIN = 14;
+/* La dette se compte en tours, et un tour vaut désormais une saison : les
+   deux seuils sont doublés pour que ce soit toujours le même nombre d'années
+   à sec qui casse quelqu'un. La probabilité, elle, est divisée. */
+const BURNOUT_STRAIN = 28;
 const BURNOUT_ENERGY = 2;
-const BURNOUT_CHANCE = 0.14;
+const BURNOUT_CHANCE = 0.07;
 
 function burnout() {
   if ((game.strain || 0) < BURNOUT_STRAIN) return false;
@@ -2507,7 +2532,7 @@ function drawEvent() {
     for (let i = 0; i < weight; i++) pool.push(ev);
   });
 
-  // Plus rien de neuf à jouer : la carrière traverse un semestre sans
+  // Plus rien de neuf à jouer : la carrière traverse une saison sans
   // histoire. Les temps morts sont les seuls événements qui peuvent revenir.
   const ev = pool.length ? pool[randInt(pool.length)] : quietEvent();
   game.lastEventId = ev.id;
@@ -3533,7 +3558,7 @@ const BUILD = "2026-08-21 11:45";
       game.pending = [];
       // Une sauvegarde d'avant les délais avait une suite en attente immédiate.
       if (typeof game.pendingChain === "string") {
-        game.pending.push({ id: game.pendingChain, turn: game.turn, expires: game.turn + 14 });
+        game.pending.push({ id: game.pendingChain, turn: game.turn, expires: game.turn + CHAIN_PATIENCE });
       }
       delete game.pendingChain;
     }

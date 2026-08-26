@@ -83,7 +83,10 @@
  *                   vous, untel n'y voit plus d'obstacle.
  *   "soften"        Amortit les mauvaises nouvelles de popularité (0 à 1).
  *   "income"        Revenu occulte par tour, en euros.
- *   "risk"          Risque par tour de déclencher un événement.
+ *   "risk"          Risque PAR AN de déclencher un événement. Le moteur le
+ *                   ramène à la durée d'un tour (applyTraitTurn) : un
+ *                   risque écrit par tour changeait de sens le jour où la
+ *                   durée d'un tour changeait.
  *   "blocks"        Traits incompatibles : les prendre retire ceux-là.
  *   "requiresParty" Le trait n'existe que pour qui est, ou a été, dans l'un
  *                   de ces camps. Les autres ne l'attrapent jamais, et les
@@ -392,7 +395,7 @@ const TRAIT_DATA = {
     },
     "stats": { "energie": -2 },
     "energy": -1,
-    "risk": { "p": 0.02, "chain": "alerte_sante" },
+    "risk": { "p": 0.04, "chain": "alerte_sante" },
     "blocks": ["robuste"]
   },
 
@@ -460,7 +463,7 @@ const TRAIT_DATA = {
     },
     "stats": { "energie": -2, "sangfroid": 1 },
     "energy": -1,
-    "risk": { "p": 0.02, "chain": "alerte_sante" },
+    "risk": { "p": 0.04, "chain": "alerte_sante" },
     "blocks": ["athletique"]
   },
 
@@ -712,7 +715,7 @@ const TRAIT_DATA = {
     "stats": { "reputation": -3 },
     "target": { "popularity": -5 },
     "rejection": 0.1,
-    "risk": { "p": 0.03, "chain": "enquete_ouverte" }
+    "risk": { "p": 0.06, "chain": "enquete_ouverte" }
   },
 
   "menteur": {
@@ -761,7 +764,7 @@ const TRAIT_DATA = {
     "stats": { "reseau": 2, "reputation": -2 },
     "target": { "standing": 4 },
     "income": 14000,
-    "risk": { "p": 0.05, "chain": "enquete_ouverte" },
+    "risk": { "p": 0.10, "chain": "enquete_ouverte" },
     "blocks": ["intouchable"]
   },
 
@@ -878,7 +881,7 @@ const TRAIT_DATA = {
       "en": "What gets you through eighty-hour weeks and all-night sittings. Everybody knows one, nobody names one, and it takes a single check."
     },
     "stats": { "energie": 2, "credibilite": -1, "reputation": -1 },
-    "risk": { "p": 0.04, "chain": "drogue_controle" }
+    "risk": { "p": 0.08, "chain": "drogue_controle" }
   },
 
   "couple_people": {

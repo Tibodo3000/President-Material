@@ -81,7 +81,7 @@ const EV_debuts = [
 {
   "id": "premier_discours",
   "once": true,
-  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 12 },
+  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 24 },
   "tag": { "fr": "Première fois", "en": "First time" },
   "text": {
     "fr": "On vous demande de parler cinq minutes devant deux cents personnes. Vous n'avez jamais fait ça.",
@@ -190,7 +190,7 @@ const EV_debuts = [
   "id": "double_vie",
   "once": true,
   "weight": 5,
-  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 16 },
+  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 32 },
   "tag": { "fr": "Le métier", "en": "The day job" },
   "text": {
     "fr": "Vous avez encore un travail, un vrai, avec un supérieur qui commence à compter vos absences. Il ne dit rien de la politique, il parle de disponibilité, ce qui revient au même.",
@@ -284,7 +284,7 @@ const EV_debuts = [
   "id": "famille_politique",
   "once": true,
   "weight": 4,
-  "when": { "position": ["militant", "cadre", "conseiller", "maire"], "maxTurn": 24 },
+  "when": { "position": ["militant", "cadre", "conseiller", "maire"], "maxTurn": 48 },
   "tag": { "fr": "À table", "en": "At the table" },
   "text": {
     "fr": "Un dimanche en famille, quelqu'un demande quand vous allez arrêter. Ce n'est pas méchant, c'est sincère, et personne autour de la table ne comprend pourquoi vous passez vos samedis dans une salle municipale.",
@@ -389,7 +389,7 @@ const EV_debuts = [
   "id": "premiere_interview",
   "once": true,
   "weight": 5,
-  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 20 },
+  "when": { "position": ["militant", "cadre", "conseiller"], "maxTurn": 40 },
   "tag": { "fr": "Trois questions", "en": "Three questions" },
   "text": {
     "fr": "Le journal local vous accorde trois questions dans son édition du samedi. C'est la première fois qu'on vous demande votre avis par écrit, et la journaliste a vingt-trois ans et un magnétophone.",

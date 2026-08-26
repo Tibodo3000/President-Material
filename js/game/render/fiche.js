@@ -21,8 +21,13 @@ function fmtAge(age) {
   return currentLang === "fr" ? years + " ans" : "Age " + years;
 }
 
+/* Quatre tours par an, et l'année commence au printemps : c'est la saison
+   où l'on élit un président, et le calendrier électoral est construit
+   dessus (voir ELECTIONS). */
+const SEASON_KEYS = ["season_spring", "season_summer", "season_autumn", "season_winter"];
+
 function seasonLabel() {
-  return t(game.turn % 2 === 0 ? "season_spring" : "season_autumn");
+  return t(SEASON_KEYS[game.turn % TURNS_PER_YEAR]);
 }
 
 /** Une jauge 0-100 : libellé, barre et valeur. */
@@ -203,7 +208,7 @@ function renderCalendar() {
       // toute la frise. La saison est sur la carte, juste dessous.
       '<span class="cal-name">' +
         (enCours ? t("cal_elec_" + enCours.id)
-                 : t("year_label") + " " + (Math.floor(game.turn / 2) + 1)) +
+                 : t("year_label") + " " + (Math.floor(game.turn / TURNS_PER_YEAR) + 1)) +
       "</span>" +
     "</li>";
 

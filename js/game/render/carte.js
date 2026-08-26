@@ -12,7 +12,7 @@
  */
 
 function cardHeader() {
-  const year = Math.floor(game.turn / 2) + 1;
+  const year = Math.floor(game.turn / TURNS_PER_YEAR) + 1;
   return fmtAge(game.age) + " · " + seasonLabel() + " · " + t("year_label") + " " + year;
 }
 

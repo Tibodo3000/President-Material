@@ -37,7 +37,9 @@ const translations = {
 
     /* -- Boucle de jeu -- */
     season_spring: "Printemps",
+    season_summer: "Été",
     season_autumn: "Automne",
+    season_winter: "Hiver",
     year_label: "Année",
 
     pos_militant: "Militant",
@@ -81,8 +83,9 @@ const translations = {
     cal_elec_europeennes: "Européennes",
     cal_elec_congres: "Congrès du parti",
     cal_elec_presidentielle: "Présidentielle",
-    cal_six_months: "Six mois",
+    cal_months: "{n} mois",
     cal_one_year: "Un an",
+    cal_year_months: "Un an et {n} mois",
     cal_one_year_half: "18 mois",
     cal_years: "{n} ans",
     cal_years_half: "{n} ans et demi",
@@ -462,7 +465,9 @@ const translations = {
 
     /* -- Game loop -- */
     season_spring: "Spring",
+    season_summer: "Summer",
     season_autumn: "Autumn",
+    season_winter: "Winter",
     year_label: "Year",
 
     pos_militant: "Activist",
@@ -506,8 +511,9 @@ const translations = {
     cal_elec_europeennes: "European",
     cal_elec_congres: "Party congress",
     cal_elec_presidentielle: "Presidential",
-    cal_six_months: "Six months",
+    cal_months: "{n} months",
     cal_one_year: "One year",
+    cal_year_months: "One year, {n} months",
     cal_one_year_half: "18 months",
     cal_years: "{n} years",
     cal_years_half: "{n}½ years",

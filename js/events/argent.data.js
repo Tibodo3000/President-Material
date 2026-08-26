@@ -167,7 +167,7 @@ const EV_argent = [
 
 {
   "id": "chantier_suite",
-  "delay": [4, 11],
+  "delay": [8, 22],
   "weight": 0,
   "tag": { "fr": "Marchés publics", "en": "Public contracts" },
   "text": {
@@ -201,7 +201,7 @@ const EV_argent = [
 
 {
   "id": "signalement_chambre",
-  "delay": [3, 9],
+  "delay": [6, 18],
   "weight": 0,
   "tag": { "fr": "Chambre régionale", "en": "Audit office" },
   "text": {
@@ -269,7 +269,7 @@ const EV_argent = [
 
 {
   "id": "amendements_dictes",
-  "delay": [3, 9],
+  "delay": [6, 18],
   "weight": 0,
   "tag": { "fr": "Bruxelles", "en": "Brussels" },
   "text": {
@@ -302,7 +302,7 @@ const EV_argent = [
 
 {
   "id": "fuite_bruxelles",
-  "delay": [4, 12],
+  "delay": [8, 24],
   "weight": 0,
   "tag": { "fr": "Bruxelles", "en": "Brussels" },
   "text": {
@@ -351,7 +351,7 @@ const EV_argent = [
 
 {
   "id": "financement_etranger",
-  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 14, "notTrait": ["caisse_noire"] },
+  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 28, "notTrait": ["caisse_noire"] },
   "tag": { "fr": "Financement", "en": "Funding" },
   "text": {
     "fr": "Un homme d'affaires très souriant, passeport d'un pays où l'on ne discute pas les résultats électoraux, propose de financer votre campagne « par une fondation culturelle ». Il précise qu'il n'attend rien en retour, ce qui est la seule chose invraisemblable de la conversation.",
@@ -386,7 +386,7 @@ const EV_argent = [
 
 {
   "id": "argent_etranger",
-  "delay": [4, 10],
+  "delay": [8, 20],
   "weight": 0,
   "tag": { "fr": "Douanes", "en": "Customs" },
   "text": {
@@ -420,7 +420,7 @@ const EV_argent = [
 
 {
   "id": "commission_enquete",
-  "delay": [3, 8],
+  "delay": [6, 16],
   "weight": 0,
   "tag": { "fr": "Commission d'enquête", "en": "Inquiry committee" },
   "text": {
@@ -454,7 +454,7 @@ const EV_argent = [
 
 {
   "id": "emploi_fictif",
-  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 8, "notTrait": ["intouchable"] },
+  "when": { "position": ["depute", "ministre", "chef"], "minTurn": 16, "notTrait": ["intouchable"] },
   "tag": { "fr": "Collaborateurs", "en": "Staffing" },
   "text": {
     "fr": "Votre enveloppe de collaborateurs est votre affaire, et personne ne vérifie vraiment qui la touche. Votre belle-sœur cherche un poste, et elle est, vous en êtes convaincu, parfaitement compétente pour un travail que vous n'arrivez pas à décrire.",
@@ -484,7 +484,7 @@ const EV_argent = [
 
 {
   "id": "emploi_fictif_presse",
-  "delay": [4, 12],
+  "delay": [8, 24],
   "weight": 0,
   "tag": { "fr": "Hebdomadaire", "en": "The weekly" },
   "text": {
@@ -516,7 +516,7 @@ const EV_argent = [
 
 {
   "id": "dossier_adversaire",
-  "when": { "minTurn": 12, "position": ["maire", "depute", "ministre", "chef"] },
+  "when": { "minTurn": 24, "position": ["maire", "depute", "ministre", "chef"] },
   "tag": { "fr": "Le dossier", "en": "The file" },
   "text": {
     "fr": "Un ancien policier reconverti dans « l'intelligence économique » vous propose un dossier sur {rival}. Il l'ouvre devant vous : des relevés bancaires, des adresses, une histoire de famille compliquée. Le prix est raisonnable, ce qui est le plus inquiétant.",
@@ -549,7 +549,7 @@ const EV_argent = [
 
 {
   "id": "dossier_retour_flamme",
-  "delay": [5, 14],
+  "delay": [10, 28],
   "weight": 0,
   "tag": { "fr": "Retour de bâton", "en": "Blowback" },
   "text": {
@@ -610,7 +610,7 @@ const EV_argent = [
 
 {
   "id": "cadeau_encombrant",
-  "when": { "stat": { "notoriete": { "min": 8 } }, "minTurn": 6 },
+  "when": { "stat": { "notoriete": { "min": 8 } }, "minTurn": 12 },
   "tag": { "fr": "Cadeaux", "en": "Gifts" },
   "text": {
     "fr": "Un ami entrepreneur vous fait livrer trois costumes et une montre, « entre amis, sans facture ». Le tout vaut à peu près deux ans de smic, et il vous rappelle en riant que ça ne se déclare pas.",

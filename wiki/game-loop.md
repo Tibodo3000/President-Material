@@ -8,11 +8,39 @@ in [game-data.js](../js/game-data.js); each set piece lives in its own file unde
 
 ---
 
-## A turn = six months
+## A turn = a season
 
-`2 turns = 1 year`. The player starts at age 30 (`START_AGE`) as a `militant`. Each turn
-presents **one card** on the right of `game.html`. The player reads it, makes a choice,
-sees the consequences, clicks continue — and the next turn advances.
+`4 turns = 1 year` (`TURNS_PER_YEAR`, in [game-data.js](../js/game-data.js)). The player
+starts at age 30 (`START_AGE`) as a `militant`. Each turn presents **one card** on the
+right of `game.html`. The player reads it, makes a choice, sees the consequences, clicks
+continue — and the next turn advances.
+
+**It used to be two turns a year, and elections ate the game.** Five contests per
+five-year cycle spread over ten turns meant one turn in two was a ballot: measured over
+sixty whole careers, **52% of turns were an election**, and a career played only **40 of
+the 250 ordinary events**. The rest was not cut, it was drowned — there was no room
+between two campaigns. Quartering the year changes nothing about the calendar (the
+country still votes as often per decade) and doubles the number of turns between two
+ballots. Same sixty careers, after: **27% of turns are an election, and 93 events get
+played**.
+
+**What that costs.** The player now lives through roughly twice as many scenes per year,
+so a career accumulates progress faster — peak popularity rises from 63 to 77, peak
+standing from 69 to 80, and the Élysée falls in 13 careers out of 60 instead of 3. That
+is a balancing pass of its own, deliberately left out of the calendar change.
+
+**Two rules keep the conversion honest.** Anything measured *per year* — a salary, a
+mortality risk, a gauge drift — is written per year and divided by `TURNS_PER_YEAR` at
+the moment it is applied. Anything measured *in delays* — an electoral cycle, the
+follow-up to a scandal, a `minTurn` gate — is written in turns, and a turn is now a
+quarter, so those numbers were doubled. Random noise is divided by √2 rather than 2:
+it is a random walk, and it is the yearly variance that has to be preserved.
+
+**The seasons are the French calendar.** `turn % 4` gives spring, summer, autumn,
+winter, and every contest owns one of them: presidential in spring, legislative and
+European in summer, municipal in autumn, party conference in winter. That is not
+decoration — the engine holds at most one ballot per turn, so the offsets have to be
+chosen so no two ever collide (see the `ELECTIONS` comment).
 
 ---
 
@@ -21,7 +49,7 @@ sees the consequences, clicks continue — and the next turn advances.
 Called between cards. In order ([game.js](../js/game.js) `advanceTurn`):
 
 ```
-turn++, age += 0.5
+turn++, age += 0.25
 applyBudget()          → income in, expenses out; auto-cut a post if broke
 recoverEnergy()        → +2 every 2 years, capped at the age-eroding ceiling
 credibilityDrift()     → stature drifts toward the level of your office
@@ -63,7 +91,7 @@ party congress, the contenders instead, because a congress does not ask the coun
 outgoing Assembly for a legislative, and — the line that was missing everywhere — **what is
 at stake for the player** (`scrutinStake`): a seat you are defending, a nomination in reach,
 the party leadership, or nothing at all. It costs a click, not a turn: `enterElection()`
-runs in the same six months, from the same `game.turn`.
+runs in the same season, from the same `game.turn`.
 
 **The party congress has no opening card.** It has no balance of forces to show — a congress
 does not ask the country — and its own card already says everything an opening would. A

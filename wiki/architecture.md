@@ -220,7 +220,7 @@ Every rule reads and mutates it. Key fields:
   stats: { charisme, eloquence, energie, sangfroid,   // "personal" stats
            reseau, notoriete, reputation, credibilite }, // "external" stats — all 0..20
   money, startMoney,  // euros now, and euros at entry (justice cares about the delta)
-  age, turn,          // age in years; turn counts six-month steps (2 turns = 1 year)
+  age, turn,          // age in years; turn counts seasons (4 turns = 1 year)
   position,           // current rung on the LADDER
   peakPosition,       // highest rung ever reached (a career is judged by its peak)
   partyLead,          // do you lead your party? NOT a rung — it cumulates with the office

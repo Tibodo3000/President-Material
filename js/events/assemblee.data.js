@@ -120,7 +120,7 @@ const EV_assemblee = [
 {
   "id": "chef_sans_majorite",
   "weight": 4,
-  "when": { "partyLead": true, "ruling": true, "majority": "aucune", "minTurn": 8 },
+  "when": { "partyLead": true, "ruling": true, "majority": "aucune", "minTurn": 16 },
   "tag": { "fr": "Le pouvoir sans les voix", "en": "Power without the votes" },
   "text": {
     "fr": "Votre camp gouverne et n'est même pas le premier groupe de l'Assemblée. Le gouvernement tient parce que ceux d'en face ne se supportent pas entre eux, ce qui est une majorité qu'aucun manuel ne décrit et sur laquelle personne ne peut compter deux mois de suite.",
@@ -150,7 +150,7 @@ const EV_assemblee = [
 {
   "id": "chef_allie_exigeant",
   "weight": 4,
-  "when": { "partyLead": true, "ruling": true, "allied": true, "minTurn": 10 },
+  "when": { "partyLead": true, "ruling": true, "allied": true, "minTurn": 20 },
   "tag": { "fr": "L'allié présente sa note", "en": "The ally sends the bill" },
   "text": {
     "fr": "Votre allié a voté tous vos textes depuis deux ans et il vient de s'en apercevoir. Il demande un ministère de plein exercice, trois circonscriptions aux prochaines législatives, et que vous cessiez de parler de votre majorité au singulier.",
@@ -227,7 +227,7 @@ const EV_assemblee = [
 {
   "id": "chef_premier_groupe",
   "weight": 5,
-  "when": { "partyLead": true, "ruling": false, "firstGroup": true, "minTurn": 8 },
+  "when": { "partyLead": true, "ruling": false, "firstGroup": true, "minTurn": 16 },
   "tag": { "fr": "Le premier groupe", "en": "The largest group" },
   "text": {
     "fr": "Votre parti est le premier groupe de l'Assemblée et ne gouverne pas. C'est la place la plus inconfortable de la Cinquième République : on vous demande des comptes sur un pouvoir que vous n'avez pas, et on ne vous laisse rien décider de ce dont on vous demande des comptes.",
@@ -257,7 +257,7 @@ const EV_assemblee = [
 {
   "id": "chef_petit_groupe",
   "weight": 5,
-  "when": { "partyLead": true, "ruling": false, "maxSeats": 32, "minTurn": 6 },
+  "when": { "partyLead": true, "ruling": false, "maxSeats": 32, "minTurn": 12 },
   "tag": { "fr": "Dix-sept députés", "en": "Seventeen members" },
   "text": {
     "fr": "Votre groupe tient dans un autocar. Vous avez deux minutes de temps de parole par séance, une place en fond d'hémicycle, et la certitude qu'aucun de vos amendements ne passera jamais sans l'accord de quelqu'un d'autre.",
@@ -294,7 +294,7 @@ const EV_assemblee = [
   "id": "chef_coalition_sans_rien",
   "weight": 4,
   "cast": "ruling",
-  "when": { "partyLead": true, "ruling": false, "inCoalition": true, "minTurn": 8 },
+  "when": { "partyLead": true, "ruling": false, "inCoalition": true, "minTurn": 16 },
   "tag": { "fr": "Le soutien sans contrepartie", "en": "Support without return" },
   "text": {
     "fr": "Votre groupe vote les textes du gouvernement depuis un an et n'a rien obtenu qu'on puisse montrer à un militant. {rival} vous remercie chaleureusement à chaque fois, ce qui commence à ressembler à une méthode.",
@@ -325,7 +325,7 @@ const EV_assemblee = [
   "id": "chef_investitures",
   "weight": 5,
   "cast": "camp_senior",
-  "when": { "partyLead": true, "minTurn": 10 },
+  "when": { "partyLead": true, "minTurn": 20 },
   "tag": { "fr": "Les investitures", "en": "The nominations" },
   "text": {
     "fr": "Les investitures pour les législatives se signent dans votre bureau, une par une, et c'est le seul pouvoir réel qu'on ait jamais dans un parti. {rival} attend dans le couloir avec une circonscription que vous vouliez donner à quelqu'un d'autre.",
@@ -355,7 +355,7 @@ const EV_assemblee = [
 {
   "id": "chef_cumul_circo",
   "weight": 4,
-  "when": { "partyLead": true, "position": ["depute", "maire"], "minTurn": 12 },
+  "when": { "partyLead": true, "position": ["depute", "maire"], "minTurn": 24 },
   "tag": { "fr": "La maison et la circonscription", "en": "The house and the seat" },
   "text": {
     "fr": "Vous dirigez le parti et vous avez une circonscription à tenir, et les deux tombent le même mois. Votre directeur de campagne local vous rappelle que vous n'êtes pas venu depuis onze semaines ; votre directeur de cabinet vous rappelle que le congrès est dans quinze jours.",
@@ -393,7 +393,7 @@ const EV_assemblee = [
 {
   "id": "alliance_programme",
   "weight": 0,
-  "delay": [1, 2],
+  "delay": [2, 4],
   "cast": "neighbour",
   "tag": { "fr": "Le programme commun", "en": "The joint platform" },
   "text": {
@@ -424,7 +424,7 @@ const EV_assemblee = [
 {
   "id": "alliance_postes",
   "weight": 0,
-  "delay": [1, 2],
+  "delay": [2, 4],
   "cast": "ruling",
   "tag": { "fr": "Le partage des postes", "en": "Carving up the posts" },
   "text": {
@@ -455,7 +455,7 @@ const EV_assemblee = [
 {
   "id": "alliance_a_la_carte",
   "weight": 0,
-  "delay": [1, 3],
+  "delay": [2, 6],
   "cast": "ruling",
   "tag": { "fr": "Texte par texte", "en": "Bill by bill" },
   "text": {
@@ -486,7 +486,7 @@ const EV_assemblee = [
 {
   "id": "alliance_epreuve",
   "weight": 0,
-  "delay": [3, 6],
+  "delay": [6, 12],
   "cast": "ruling",
   "when": { "allied": true },
   "tag": { "fr": "Le texte qui sépare", "en": "The bill that splits" },
@@ -515,7 +515,7 @@ const EV_assemblee = [
 {
   "id": "alliance_rupture",
   "weight": 0,
-  "delay": [1, 3],
+  "delay": [2, 6],
   "cast": "ruling",
   "tag": { "fr": "Après la rupture", "en": "After the break" },
   "text": {
@@ -547,7 +547,7 @@ const EV_assemblee = [
 {
   "id": "assemblee_texte_par_texte",
   "weight": 0,
-  "delay": [2, 4],
+  "delay": [4, 8],
   "tag": { "fr": "Le budget sans majorité", "en": "A budget without a majority" },
   "text": {
     "fr": "Le budget arrive et vous n'avez toujours signé avec personne. Quatre cent trente amendements, onze jours de séance, et à la fin il faudra soit trouver les voix, soit passer en force et l'admettre.",
@@ -587,7 +587,7 @@ const EV_assemblee = [
   "id": "depute_president_groupe",
   "weight": 3,
   "cast": "camp_senior",
-  "when": { "position": ["depute"], "minStanding": 48, "minTurn": 8 },
+  "when": { "position": ["depute"], "minStanding": 48, "minTurn": 16 },
   "tag": { "fr": "La présidence du groupe", "en": "The group chair" },
   "text": {
     "fr": "La présidence du groupe se libère. Ce n'est pas un mandat, cela ne se dit pas dans une biographie, et c'est la personne qui distribue les temps de parole, les places en commission et les questions au gouvernement. {rival} la veut aussi.",
@@ -617,7 +617,7 @@ const EV_assemblee = [
 {
   "id": "depute_commission_enquete",
   "weight": 3,
-  "when": { "position": ["depute"], "ruling": false, "minTurn": 8, "maxApproval": 48 },
+  "when": { "position": ["depute"], "ruling": false, "minTurn": 16, "maxApproval": 48 },
   "tag": { "fr": "La commission d'enquête", "en": "The committee of inquiry" },
   "text": {
     "fr": "Votre groupe a le droit d'obtenir une commission d'enquête par an, et c'est à vous qu'on propose de la mener. Six mois d'auditions publiques, des pouvoirs de justice, et un rapport que personne ne lira si vous ne trouvez rien.",
@@ -648,7 +648,7 @@ const EV_assemblee = [
 {
   "id": "depute_niche_parlementaire",
   "weight": 3,
-  "when": { "position": ["depute"], "ruling": false, "minTurn": 6 },
+  "when": { "position": ["depute"], "ruling": false, "minTurn": 12 },
   "tag": { "fr": "Votre journée", "en": "Your one day" },
   "text": {
     "fr": "C'est le gouvernement qui décide de ce que l'Assemblée examine, tous les jours de l'année sauf un : une fois par an, votre groupe choisit lui-même les textes de la journée. Vous avez cette journée-là pour en faire voter un, et ce qui n'est pas voté à minuit est mort. En face, on sait compter les heures aussi bien que vous.",
@@ -715,7 +715,7 @@ const EV_assemblee = [
 {
   "id": "depute_discipline_groupe",
   "weight": 3,
-  "when": { "position": ["depute"], "ruling": true, "majority": ["relative", "aucune"], "minTurn": 6 },
+  "when": { "position": ["depute"], "ruling": true, "majority": ["relative", "aucune"], "minTurn": 12 },
   "tag": { "fr": "La discipline de vote", "en": "The whip" },
   "text": {
     "fr": "Le texte passe à trois voix près et le vôtre en fait partie. Vous êtes contre depuis toujours, vous l'avez écrit dans votre profession de foi, et le président du groupe vient de s'asseoir à côté de vous sans rien dire.",
@@ -808,7 +808,7 @@ const EV_assemblee = [
 {
   "id": "depute_hemicycle_absent",
   "weight": 3,
-  "when": { "position": ["depute"], "minTurn": 10 },
+  "when": { "position": ["depute"], "minTurn": 20 },
   "tag": { "fr": "Le classement des absences", "en": "The attendance league" },
   "text": {
     "fr": "Une association publie le classement de présence en séance et vous figurez dans le dernier tiers. Le calcul est discutable, il ne compte ni les commissions ni la circonscription, et il sera repris tel quel par tout le monde pendant trois jours.",
@@ -838,7 +838,7 @@ const EV_assemblee = [
 {
   "id": "assemblee_soir_resultats",
   "weight": 3,
-  "when": { "position": ["depute", "maire", "ministre", "cadre", "euro"], "minTurn": 8, "majority": ["relative", "aucune"] },
+  "when": { "position": ["depute", "maire", "ministre", "cadre", "euro"], "minTurn": 16, "majority": ["relative", "aucune"] },
   "tag": { "fr": "Le soir des législatives", "en": "Legislative election night" },
   "text": {
     "fr": "Vingt heures, et l'hémicycle projeté à l'écran ne ressemble à rien de connu : trois blocs, aucune majorité, et des commentateurs qui répètent le mot ingouvernable en attendant d'avoir une idée. Une chaîne vous demande de venir en parler dans quarante minutes.",
@@ -878,7 +878,7 @@ const EV_assemblee = [
 {
   "id": "depute_majorite_absolue",
   "weight": 4,
-  "when": { "position": ["depute"], "ruling": true, "majority": "absolue", "minTurn": 6 },
+  "when": { "position": ["depute"], "ruling": true, "majority": "absolue", "minTurn": 12 },
   "tag": { "fr": "Un chiffre", "en": "A number" },
   "text": {
     "fr": "Votre amendement est retiré de la discussion avant même d'être défendu. On ne vous dit pas qu'il est mauvais : on vous dit que le texte a été négocié pendant huit mois et qu'on ne le rouvre pas. Avec la majorité qu'a le gouvernement, votre voix n'a jamais manqué à personne.",
@@ -913,7 +913,7 @@ const EV_assemblee = [
 {
   "id": "depute_opposition_ecrasee",
   "weight": 4,
-  "when": { "position": ["depute"], "ruling": false, "majority": "absolue", "minTurn": 8 },
+  "when": { "position": ["depute"], "ruling": false, "majority": "absolue", "minTurn": 16 },
   "tag": { "fr": "Perdre tous les votes", "en": "Losing every vote" },
   "text": {
     "fr": "Le gouvernement a la majorité absolue et vous ne la lui prendrez pas avant le prochain scrutin, c'est-à-dire dans des années. Tout ce que vous déposerez sera rejeté, tout ce qu'il déposera sera adopté, et vous savez déjà par combien de voix.",
@@ -944,7 +944,7 @@ const EV_assemblee = [
 {
   "id": "depute_texte_impose",
   "weight": 4,
-  "when": { "position": ["depute"], "ruling": true, "majority": ["relative", "aucune"], "minTurn": 8 },
+  "when": { "position": ["depute"], "ruling": true, "majority": ["relative", "aucune"], "minTurn": 16 },
   "tag": { "fr": "Sans vote", "en": "Without a vote" },
   "text": {
     "fr": "Vous aviez négocié un article pendant trois semaines et vous vous apprêtiez à voter le texte. À dix-sept heures, le gouvernement annonce qu'il l'adopte sans vote, par la procédure qui l'y autorise. Votre article est dedans, votre vote n'existe plus, et vous l'apprenez à la radio comme tout le monde.",
@@ -975,7 +975,7 @@ const EV_assemblee = [
 {
   "id": "depute_budget_circo",
   "weight": 4,
-  "when": { "position": ["depute"], "ruling": true, "majority": ["relative", "aucune"], "minTurn": 10 },
+  "when": { "position": ["depute"], "ruling": true, "majority": ["relative", "aucune"], "minTurn": 20 },
   "tag": { "fr": "Le prix d'une voix", "en": "The price of a vote" },
   "text": {
     "fr": "Le budget se joue à quelques voix et le gouvernement compte les siennes tous les matins. Un conseiller vous appelle : il y a une ligne pour la rocade de votre chef-lieu, elle n'est pas encore signée, et personne ne prononce le mot échange.",
@@ -1006,7 +1006,7 @@ const EV_assemblee = [
 {
   "id": "depute_premier_groupe_banc",
   "weight": 4,
-  "when": { "position": ["depute"], "ruling": false, "firstGroup": true, "minTurn": 8 },
+  "when": { "position": ["depute"], "ruling": false, "firstGroup": true, "minTurn": 16 },
   "tag": { "fr": "Le plus gros groupe", "en": "The largest group" },
   "text": {
     "fr": "Votre groupe est le plus nombreux de l'Assemblée et ne gouverne pas. Depuis un mois, des gens qui ne vous avaient jamais appelé vous appellent : deux fédérations professionnelles, un cabinet de conseil et un ministre qui aimerait « échanger, à titre personnel ».",

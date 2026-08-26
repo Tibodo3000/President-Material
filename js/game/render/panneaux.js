@@ -260,7 +260,7 @@ function renderJournal() {
   pane.innerHTML = game.log.length
     ? game.log.map((l) =>
         '<p class="journal-line"><span class="journal-turn">' + t("year_label") + " " +
-        (Math.floor(l.turn / 2) + 1) + "</span>" + logText(l) + "</p>"
+        (Math.floor(l.turn / TURNS_PER_YEAR) + 1) + "</span>" + logText(l) + "</p>"
       ).join("")
     : '<p class="trait-empty">' + t("journal_empty") + "</p>";
 }

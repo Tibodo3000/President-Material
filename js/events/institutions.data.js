@@ -23,7 +23,7 @@ const EV_institutions = [
   "id": "matignon_camp",
   "once": true,
   "weight": 6,
-  "when": { "ruling": true, "position": ["depute", "ministre", "chef"], "minStanding": 62, "minTurn": 16 },
+  "when": { "ruling": true, "position": ["depute", "ministre", "chef"], "minStanding": 62, "minTurn": 32 },
   "tag": { "fr": "Matignon", "en": "The top job" },
   "text": {
     "fr": "Le président cherche un Premier ministre dans son propre camp. Trois noms circulent, dont le vôtre, et l'entretien dure quarante minutes sans qu'aucune des deux personnes présentes ne prononce le mot « Matignon »."
@@ -58,7 +58,7 @@ const EV_institutions = [
   "once": true,
   "weight": 6,
   "when": { "ruling": false, "rulingClose": true, "position": ["depute", "ministre", "chef"],
-            "minPopularity": 63, "minShare": 15, "minTurn": 16 },
+            "minPopularity": 63, "minShare": 15, "minTurn": 32 },
   "tag": { "fr": "Matignon", "en": "The top job" },
   "text": {
     "fr": "Le président n'a pas de majorité et vient du camp d'à côté. Un émissaire vous propose Matignon en échange de vos voix à l'Assemblée. Votre parti n'est pas au courant."
@@ -123,7 +123,7 @@ const EV_institutions = [
 
 {
   "id": "matignon_censure",
-  "delay": [1, 3],
+  "delay": [2, 6],
   "weight": 0,
   "tag": { "fr": "Motion de censure", "en": "Censure motion" },
   "text": {
@@ -161,7 +161,7 @@ const EV_institutions = [
 {
   "id": "matignon_fusible",
   "weight": 4,
-  "when": { "position": ["premier"], "minTurn": 4 },
+  "when": { "position": ["premier"], "minTurn": 8 },
   "tag": { "fr": "Matignon", "en": "The top job" },
   "text": {
     "fr": "Les chiffres sont mauvais et l'Élysée a besoin d'un responsable. Un conseiller du président explique dans un dîner que « le Premier ministre n'a pas su expliquer la réforme ». Le dîner était off, la phrase est en une le lendemain."
@@ -245,7 +245,7 @@ const EV_institutions = [
   "id": "liste_europeenne",
   "once": true,
   "weight": 4,
-  "when": { "position": ["maire", "depute"], "minTurn": 10 },
+  "when": { "position": ["maire", "depute"], "minTurn": 20 },
   "tag": { "fr": "Tête de liste", "en": "Top of the list" },
   "text": {
     "fr": "La direction cherche une tête de liste aux européennes. On vous parle de dimension internationale, de dossiers d'avenir et de reconnaissance. Le poste est à Bruxelles, et vos électeurs sont ici."
@@ -307,7 +307,7 @@ const EV_institutions = [
 {
   "id": "directive_lobby",
   "weight": 4,
-  "when": { "position": ["euro"], "minTurn": 4 },
+  "when": { "position": ["euro"], "minTurn": 8 },
   "tag": { "fr": "Amendement", "en": "The amendment" },
   "text": {
     "fr": "Un cabinet de conseil vous propose un amendement tout rédigé sur une directive dont personne ne parlera jamais. Il tient en quatre lignes, il change une définition, et il vaut des centaines de millions à quelqu'un.",
@@ -337,7 +337,7 @@ const EV_institutions = [
 {
   "id": "absent_circonscription",
   "weight": 4,
-  "when": { "position": ["euro"], "minTurn": 6 },
+  "when": { "position": ["euro"], "minTurn": 12 },
   "tag": { "fr": "Au pays", "en": "Back home" },
   "text": {
     "fr": "Un journal local publie le décompte de vos apparitions dans la région depuis votre élection. Le chiffre est exact, le titre est cruel, et la photo est celle d'une salle vide.",
@@ -368,7 +368,7 @@ const EV_institutions = [
 {
   "id": "vote_strasbourg",
   "weight": 3,
-  "when": { "position": ["euro"], "minTurn": 8 },
+  "when": { "position": ["euro"], "minTurn": 16 },
   "tag": { "fr": "Consigne de vote", "en": "The whip" },
   "text": {
     "fr": "Votre groupe européen vote pour un texte que votre parti combat à la maison depuis dix ans. Les deux consignes arrivent le même matin, signées de deux personnes qui se sont parlé.",
@@ -409,7 +409,7 @@ const EV_institutions = [
   "id": "entree_gouvernement",
   "once": true,
   "weight": 6,
-  "when": { "ruling": true, "position": ["maire", "euro", "depute"], "minStanding": 50, "minTurn": 12 },
+  "when": { "ruling": true, "position": ["maire", "euro", "depute"], "minStanding": 50, "minTurn": 24 },
   "tag": { "fr": "Le téléphone sonne", "en": "The phone rings" },
   "text": {
     "fr": "Le secrétaire général de l'Élysée vous appelle un dimanche soir. On vous propose d'entrer au gouvernement, et on vous laisse le choix entre un grand ministère très exposé et un portefeuille technique dont personne n'a jamais fait tomber personne.",
@@ -475,7 +475,7 @@ const EV_institutions = [
 {
   "id": "couac_gouvernemental",
   "weight": 4,
-  "when": { "position": ["ministre"], "minTurn": 4 },
+  "when": { "position": ["ministre"], "minTurn": 8 },
   "tag": { "fr": "Solidarité gouvernementale", "en": "Collective responsibility" },
   "text": {
     "fr": "Le gouvernement annonce une mesure que vous combattez depuis toujours. On vous demande de la défendre à la matinale de huit heures vingt, en direct, demain.",
@@ -510,7 +510,7 @@ const EV_institutions = [
 {
   "id": "scandale_ministere",
   "weight": 3,
-  "when": { "position": ["ministre"], "minTurn": 6 },
+  "when": { "position": ["ministre"], "minTurn": 12 },
   "tag": { "fr": "Votre administration", "en": "Your department" },
   "text": {
     "fr": "Un marché public passé par votre ministère est attribué à une société dirigée par l'ancien collaborateur de votre prédécesseur. Vous découvrez le dossier en même temps que la presse, ce que personne ne croira.",
@@ -545,7 +545,7 @@ const EV_institutions = [
 {
   "id": "remaniement",
   "weight": 4,
-  "when": { "position": ["ministre"], "minTurn": 8 },
+  "when": { "position": ["ministre"], "minTurn": 16 },
   "tag": { "fr": "Remaniement", "en": "Reshuffle" },
   "text": {
     "fr": "Un remaniement se prépare. Votre nom circule dans les deux colonnes de la liste que tout le monde prétend ne pas avoir vue.",
@@ -579,7 +579,7 @@ const EV_institutions = [
 {
   "id": "demission_fracassante",
   "weight": 3,
-  "when": { "position": ["ministre"], "minTurn": 10, "minPopularity": 54 },
+  "when": { "position": ["ministre"], "minTurn": 20, "minPopularity": 54 },
   "tag": { "fr": "La porte", "en": "The door" },
   "text": {
     "fr": "Le gouvernement s'engage dans une réforme dont vous savez qu'elle finira mal. Vous pouvez la porter, ou vous en aller avec fracas et laisser les autres l'expliquer.",
@@ -607,7 +607,7 @@ const EV_institutions = [
 {
   "id": "demission_preparee",
   "weight": 0,
-  "delay": [3, 6],
+  "delay": [6, 12],
   "when": { "position": ["ministre"] },
   "tag": { "fr": "Le moment venu", "en": "The moment comes" },
   "text": {
