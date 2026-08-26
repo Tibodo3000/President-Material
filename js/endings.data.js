@@ -26,7 +26,79 @@
  */
 const ENDING_DATA = [
 
-  /* ---------- Victoires ---------- */
+  /* ==========================================================================
+     LES VICTOIRES
+     ==========================================================================
+     Une seule fin générique répondait à tout le monde : « Le pays vous a
+     choisi. L'ascension s'achève au sommet de l'État. » C'est vrai de
+     n'importe qui, et cela ne dit donc rien de personne. Une victoire ne veut
+     pas dire la même chose selon le camp qui la remporte, le métier d'où l'on
+     vient, et ce que la partie a laissé sur les mains.
+
+     L'ORDRE COMPTE : la liste est parcourue de haut en bas et la première
+     fin dont les conditions collent gagne. D'abord ce que la PARTIE a fait
+     (une caisse noire, une trahison, trois défaites avant celle-ci) parce
+     que c'est ce qui s'est réellement passé ; ensuite le PARCOURS, qui dit
+     d'où l'on vient ; ensuite le CAMP, qui dit ce que le pays vient de
+     faire ; la générique ferme la marche et ne devrait presque jamais sortir.
+     ========================================================================== */
+
+  /* --- 1. CE QUE LA PARTIE A FAIT --- */
+
+  {
+    "id": "sous_influence",
+    "from": "victory",
+    "when": { "trait": ["caisse_noire"] },
+    "title": { "fr": "Élu, et redevable", "en": "Elected, and in debt" },
+    "text": {
+      "fr": "Vous êtes président. Ceux qui ont financé la campagne connaissent le chemin de votre bureau, et ils prendront rendez-vous.",
+      "en": "You are president. The people who funded the campaign know the way to your office, and they will make appointments."
+    }
+  },
+
+  {
+    "id": "victoire_revanche",
+    "from": "victory",
+    "when": { "minElectionsLost": 4 },
+    "title": { "fr": "À force", "en": "In the end" },
+    "text": {
+      "fr": "Vous avez perdu quatre élections avant celle-là. Vous êtes président de la République.",
+      "en": "You lost four elections before this one. You are president of the Republic."
+    }
+  },
+
+  {
+    "id": "victoire_renegat",
+    "from": "victory",
+    "when": { "trait": ["renegat"] },
+    "title": { "fr": "Élu sous une autre étiquette", "en": "Elected under another banner" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée, et ce n'est pas le parti où vous avez commencé. Ceux que vous avez quittés n'ont pas appelé.",
+      "en": "You take {party} to the presidency, and it is not the party you started in. The people you left have not called."
+    }
+  },
+
+  {
+    "id": "victoire_malade",
+    "from": "victory",
+    "when": { "minDecline": 2 },
+    "title": { "fr": "Élu, et prévenu", "en": "Elected, and warned" },
+    "text": {
+      "fr": "Vous êtes président. Votre médecin vous a donné dix-huit mois avant le prochain examen, et personne d'autre ne le sait.",
+      "en": "You are president. Your doctor gave you eighteen months until the next scan, and nobody else knows."
+    }
+  },
+
+  {
+    "id": "victoire_menteur",
+    "from": "victory",
+    "when": { "trait": ["menteur"] },
+    "title": { "fr": "Élu quand même", "en": "Elected anyway" },
+    "text": {
+      "fr": "Vos adversaires ont ressorti chacune de vos approximations pendant la campagne. Vous avez gagné de quatre points.",
+      "en": "Your opponents dug up every one of your approximations during the campaign. You won by four points."
+    }
+  },
 
   {
     "id": "irreprochable",
@@ -36,32 +108,10 @@ const ENDING_DATA = [
       "stat": { "reputation": { "min": 14 } },
       "flag": { "dirtyMoney": false }
     },
-    "title": { "fr": "Président irréprochable", "en": "The clean president" },
+    "title": { "fr": "Président sans dossier", "en": "President with no file" },
     "text": {
-      "fr": "Vous arrivez au sommet sans dossier, sans dette et sans casserole. Les journalistes qui ont fouillé votre passé pendant la campagne en sont revenus les mains vides, et cela restera votre plus belle victoire.",
-      "en": "You reach the top with no file, no debt and no baggage. The reporters who dug through your past during the campaign came back empty-handed, and that will remain your finest victory."
-    }
-  },
-
-  {
-    "id": "sous_influence",
-    "from": "victory",
-    "when": { "trait": ["caisse_noire"] },
-    "title": { "fr": "Président sous influence", "en": "The president they own" },
-    "text": {
-      "fr": "Vous entrez à l'Élysée avec une comptabilité que personne ne doit ouvrir. Les gens qui l'ont tenue pour vous connaissent le chemin de votre bureau, et ils prendront rendez-vous.",
-      "en": "You enter office with a set of books nobody must ever open. The people who kept them for you know the way to your desk, and they will make appointments."
-    }
-  },
-
-  {
-    "id": "irruption",
-    "from": "victory",
-    "when": { "party": ["radical_left", "identitarians"] },
-    "title": { "fr": "L'irruption", "en": "The breakthrough" },
-    "text": {
-      "fr": "On vous promettait une carrière de témoin. Le pays a préféré vous confier les clés, et la moitié des éditorialistes qui commentent votre victoire écrivaient il y a six mois qu'elle était impossible.",
-      "en": "They promised you a career as a witness to history. The country handed you the keys instead, and half the columnists explaining your win were writing six months ago that it could not happen."
+      "fr": "Vous arrivez au sommet sans casserole. Les journalistes ont fouillé pendant six mois et sont revenus les mains vides.",
+      "en": "You reach the top with nothing on you. Reporters dug for six months and came back with nothing."
     }
   },
 
@@ -71,20 +121,139 @@ const ENDING_DATA = [
     "when": { "minAge": 64 },
     "title": { "fr": "Le dernier train", "en": "The last train" },
     "text": {
-      "fr": "Vous avez commencé jeune et fini vieux, et tous ceux qui vous avaient enterré en cours de route sont venus vous féliciter. Le mandat sera court, la revanche est complète.",
-      "en": "You started young and finished old, and everyone who buried you along the way turned up to congratulate you. The term will be short; the vindication is total."
+      "fr": "Vous êtes élu à un âge où l'on ne l'est plus. Le mandat sera court, et tous ceux qui vous avaient enterré sont venus vous féliciter.",
+      "en": "You are elected at an age when people no longer are. The term will be short, and everyone who buried you turned up to congratulate you."
     }
   },
+
+  /* --- 2. D'OÙ L'ON VIENT --- */
+
+  {
+    "id": "victoire_journalisme",
+    "from": "victory",
+    "when": { "background": ["journalism"] },
+    "title": { "fr": "De l'autre côté du micro", "en": "The other side of the microphone" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Vous avez passé quinze ans à commenter les présidents ; ce soir, ce sont vos anciens confrères qui vous tendent le micro.",
+      "en": "You take {party} to the presidency. You spent fifteen years commenting on presidents; tonight it is your former colleagues holding out the microphone."
+    }
+  },
+
+  {
+    "id": "victoire_affaires",
+    "from": "victory",
+    "when": { "background": ["business"] },
+    "title": { "fr": "Le patron à l'Élysée", "en": "The boss in office" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Vous venez du privé, vous avez dit toute la campagne qu'on dirige un pays comme une entreprise, et vous allez découvrir qu'on n'y licencie personne.",
+      "en": "You take {party} to the presidency. You come from business, you said all campaign that a country is run like a company, and you are about to find out that nobody here can be fired."
+    }
+  },
+
+  {
+    "id": "victoire_activisme",
+    "from": "victory",
+    "when": { "background": ["activism"] },
+    "title": { "fr": "De la pancarte au perron", "en": "From the placard to the steps" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Il existe des photos de vous derrière une banderole devant ce bâtiment ; vous en montez les marches ce soir.",
+      "en": "You take {party} to the presidency. There are photographs of you behind a banner outside this building; tonight you are walking up its steps."
+    }
+  },
+
+  {
+    "id": "victoire_celebrite",
+    "from": "victory",
+    "when": { "background": ["celebrity"] },
+    "title": { "fr": "On vous connaissait déjà", "en": "They already knew you" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Le pays vous appelait par votre prénom avant votre premier meeting, et il vient de vous confier le pays.",
+      "en": "You take {party} to the presidency. The country was on first-name terms with you before your first rally, and it has just handed you the country."
+    }
+  },
+
+  {
+    "id": "victoire_haute_fonction",
+    "from": "victory",
+    "when": { "background": ["civil"] },
+    "title": { "fr": "La maison élit un des siens", "en": "The house elects its own" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Vous avez fait toute votre carrière dans l'administration : vous prenez vos fonctions dans un bâtiment que vous connaissez par cœur.",
+      "en": "You take {party} to the presidency. You spent your whole career in the civil service: you take office in a building you know by heart."
+    }
+  },
+
+  {
+    "id": "victoire_droit",
+    "from": "victory",
+    "when": { "background": ["law"] },
+    "title": { "fr": "L'avocat et la Constitution", "en": "The lawyer and the constitution" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Vous avez plaidé pendant vingt ans, et vous héritez de la Constitution.",
+      "en": "You take {party} to the presidency. You spent twenty years in court, and you have just inherited the constitution."
+    }
+  },
+
+  {
+    "id": "victoire_universite",
+    "from": "victory",
+    "when": { "background": ["academia"] },
+    "title": { "fr": "La théorie et la pratique", "en": "Theory, then practice" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Vous aviez écrit un livre sur l'exercice du pouvoir ; vos adversaires en ont un exemplaire annoté sur leur bureau.",
+      "en": "You take {party} to the presidency. You once wrote a book on the exercise of power; your opponents have an annotated copy on their desks."
+    }
+  },
+
+  {
+    "id": "victoire_comms",
+    "from": "victory",
+    "when": { "background": ["comms"] },
+    "title": { "fr": "Vous connaissiez la recette", "en": "You knew the recipe" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Vous avez fabriqué des campagnes pour d'autres pendant vingt ans, et celle-ci était la vôtre.",
+      "en": "You take {party} to the presidency. You built campaigns for other people for twenty years, and this one was yours."
+    }
+  },
+
+  /* --- 3. CE QUE LE PAYS VIENT DE FAIRE ---
+     Elles couvrent les six camps : rien de conditionnel ne peut vivre après
+     elles, et c'est pourquoi elles ferment la liste. --- */
+
+  {
+    "id": "victoire_radical",
+    "from": "victory",
+    "when": { "party": ["radical_left"] },
+    "title": { "fr": "La gauche radicale à l'Élysée", "en": "The radical left takes power" },
+    "text": {
+      "fr": "Vous menez {party} au pouvoir pour la première fois. Les marchés ouvrent dans huit heures et vos militants dansent encore.",
+      "en": "You take {party} to power for the first time. The markets open in eight hours and your activists are still dancing."
+    }
+  },
+
+  {
+    "id": "victoire_identitaire",
+    "from": "victory",
+    "when": { "party": ["identitarians"] },
+    "title": { "fr": "Le cordon a cédé", "en": "The cordon has broken" },
+    "text": {
+      "fr": "Vous menez {party} à l'Élysée. Ceux qui appelaient à faire barrage sont en direct et cherchent leurs mots.",
+      "en": "You take {party} to the presidency. The people who called for a firewall are live on air, searching for words."
+    }
+  },
+
+  /* --- 4. LE FILET, qui ne devrait presque jamais sortir --- */
 
   {
     "id": "victory",
     "from": "victory",
     "title": { "fr": "Président de la République", "en": "President of the Republic" },
     "text": {
-      "fr": "Le pays vous a choisi. L'ascension s'achève au sommet de l'État : tout ce qui suit s'appelle l'Histoire.",
-      "en": "The country has chosen you. The climb ends at the top of the state: everything that follows is called history."
+      "fr": "Vous menez {party} à l'Élysée. La campagne est finie, et tout le reste commence lundi.",
+      "en": "You take {party} to the presidency. The campaign is over, and everything else starts on Monday."
     }
   },
+
 
   /* ---------- Retraites ---------- */
 

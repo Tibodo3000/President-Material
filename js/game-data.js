@@ -1869,6 +1869,18 @@ function eventMatches(ev, s) {
   if (w.minDecline !== undefined && (s.decline || 0) < w.minDecline) return false;
   if (w.maxDecline !== undefined && (s.decline || 0) > w.maxDecline) return false;
 
+  // CE QUE LES URNES ONT DIT, EN NOMBRE. Sert aux fins : on ne raconte pas
+  // de la même façon un sommet atteint du premier coup et un sommet atteint
+  // après trois défaites. La frise (game.career) est la seule mémoire du jeu
+  // qui garde ça.
+  if (w.minElectionsWon !== undefined || w.minElectionsLost !== undefined) {
+    const frise = s.career || [];
+    if (w.minElectionsWon !== undefined &&
+        frise.filter((e) => e.kind === "election" && e.won).length < w.minElectionsWon) return false;
+    if (w.minElectionsLost !== undefined &&
+        frise.filter((e) => e.kind === "election" && !e.won).length < w.minElectionsLost) return false;
+  }
+
   if (w.stat) {
     for (const [key, range] of Object.entries(w.stat)) {
       const value = s.stats[key];

@@ -2591,7 +2591,7 @@ body.is-end #election-calendar { display: none; }
 body.is-end .game-layout { grid-template-columns: minmax(0, 1fr); }
 
 body.is-end .game-col {
-  max-width: 64rem;
+  max-width: 50rem;
   margin: 0 auto;
   padding-top: 1rem;
 }
@@ -2611,12 +2611,12 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 .end-head,
 .end-story,
 .end-verdict,
-.end-columns,
+.end-block,
 .end-actions { animation: end-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
 .end-story { animation-delay: 0.14s; }
 .end-verdict { animation-delay: 0.26s; }
-.end-columns { animation-delay: 0.38s; }
+.end-block { animation-delay: 0.38s; }
 .end-actions { animation-delay: 0.5s; }
 
 /* L'ÉTIQUETTE ENTRE DEUX FILETS. C'est elle qui structure toute la page :
@@ -2766,25 +2766,16 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 .end-victory .end-rank { color: var(--gold); }
 
 /* ---------- 4. LE RELEVÉ ----------
-   La stèle du haut occupe toute la largeur ; le relevé se partage en deux.
-   Une page large ne se lit pas sur une gouttière de trente rem — la colonne
-   unique alignait tout, et n'utilisait rien. */
-.end-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
-  gap: 3rem;
-  align-items: start;
-  padding: 2.8rem 0 0;
-  text-align: left;
-}
-
-.end-col { min-width: 0; }
+   Une colonne, et la frise au centre. Deux colonnes la coupaient en deux et
+   la reléguaient à côté d'une liste de traits, alors que c'est elle le récit
+   de la partie : elle prend toute la largeur, le journal se déplie sous elle
+   puisque c'est la même matière, et ce qu'on laisse ferme la page en petit. */
+.end-block { padding: 2.8rem 0 0; text-align: left; }
 
 .end-stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.2rem;
-  margin-bottom: 0.4rem;
   text-align: center;
 }
 
@@ -2814,7 +2805,13 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
    le fait part à gauche. Monter est doré, tomber est rouge, changer de camp
    est bleu, le corps a sa teinte — on doit pouvoir lire la forme d'une vie
    politique sans lire les mots. */
+/* Les trois mesures de la frise vivent ici et nulle part ailleurs : le fil
+   vertical se calcule à partir d'elles, sinon il passe à côté des pastilles
+   dès qu'on touche à une gouttière — ce qui est arrivé. */
 .frise-list {
+  --frise-date: 4.2rem;
+  --frise-gap: 1.1rem;
+  --frise-dot: 0.5rem;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -2823,10 +2820,10 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 
 .frise-step {
   display: grid;
-  grid-template-columns: 3.6rem 0.5rem minmax(0, 1fr);
-  gap: 0.9rem;
+  grid-template-columns: var(--frise-date) var(--frise-dot) minmax(0, 1fr);
+  gap: var(--frise-gap);
   align-items: baseline;
-  padding: 0.36rem 0;
+  padding: 0.5rem 0;
   position: relative;
 }
 
@@ -2834,10 +2831,11 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 .frise-step::before {
   content: "";
   position: absolute;
-  left: 4.28rem;
+  left: calc(var(--frise-date) + var(--frise-gap) + var(--frise-dot) / 2);
   top: 0;
   bottom: 0;
   width: 1px;
+  margin-left: -0.5px;
   background: var(--line-2);
 }
 
@@ -2846,7 +2844,7 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 
 .frise-when {
   text-align: right;
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -2857,15 +2855,16 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 .frise-mark {
   position: relative;
   z-index: 1;
-  width: 0.44rem;
-  height: 0.44rem;
+  justify-self: center;
+  width: var(--frise-dot);
+  height: var(--frise-dot);
   align-self: center;
   border-radius: 50%;
   background: var(--frise-tone, var(--faint));
   box-shadow: 0 0 0 3px var(--bg), 0 0 12px var(--frise-tone, transparent);
 }
 
-.frise-what { font-size: 0.86rem; color: var(--muted); }
+.frise-what { font-size: 0.95rem; line-height: 1.45; color: var(--muted); }
 
 .frise-up { --frise-tone: var(--gold-2); }
 .frise-up .frise-what { color: var(--ink); font-weight: 500; }
@@ -2891,14 +2890,20 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 
 /* ---------- 5. CE QU'IL LAISSE ---------- */
 
+/* Ce qu'on laisse ferme la page, en petit et sur plusieurs colonnes : c'est
+   un inventaire, pas un récit. */
 .end-traits {
   display: grid;
-  gap: 0.5rem;
-  justify-items: start;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.5rem 1.6rem;
+  align-items: start;
   text-align: left;
+  font-size: 0.86em;
 }
 
-.end-col .fold { margin-top: 2rem; }
+.end-traits .trait-family { grid-column: 1 / -1; }
+
+.end-block-frise .fold { margin-top: 2rem; }
 
 /* ---------- 6. LES PIÈCES ----------
    Les archives se rangent en bas, pliées. On ne montre ni cinq rangées de
@@ -2978,10 +2983,6 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 
 .end-actions { padding: 2.4rem 0 1rem; }
 .end-actions .event-choice { max-width: 18rem; margin: 0 auto; }
-
-@media (max-width: 820px) {
-  .end-columns { grid-template-columns: minmax(0, 1fr); gap: 2.4rem; }
-}
 
 @media (max-width: 560px) {
   .end-stats { grid-template-columns: minmax(0, 1fr); gap: 1rem; }

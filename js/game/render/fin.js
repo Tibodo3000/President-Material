@@ -236,15 +236,19 @@ function renderEnd(host) {
         // Certaines fins s'intitulent exactement comme la fonction atteinte
         // (« Président de la République ») : on lisait le même mot deux fois
         // à trois lignes d'écart, en capitales puis en italique.
-        (L(ending.title) === sommet ? "" : '<p class="end-office">' + sommet + "</p>") +
+        (fillText(ending.title, game) === sommet ? "" : '<p class="end-office">' + sommet + "</p>") +
         '<p class="end-identity">' + t("end_stat_age").replace("{n}", Math.floor(game.age)) +
           " · " + t("party_" + game.party) + "</p>" +
       "</header>" +
 
       /* 2. CE QU'ON EN DIT. */
       '<div class="end-story">' +
-        '<p class="end-title">' + L(ending.title) + "</p>" +
-        '<p class="end-text">' + L(ending.text) + "</p>" +
+        // LES FINS ONT DROIT AUX MARQUES DE TEXTE. Elles passaient par L(),
+        // qui ne résout rien : une fin ne pouvait donc pas nommer le camp du
+        // joueur, et toutes celles qui parlent d'un parti devaient rester
+        // vagues. fillText() sait le faire, comme pour n'importe quelle carte.
+        '<p class="end-title">' + fillText(ending.title, game) + "</p>" +
+        '<p class="end-text">' + fillText(ending.text, game) + "</p>" +
       "</div>" +
 
       /* 3. CE QUE ÇA VAUT. */
@@ -258,29 +262,33 @@ function renderEnd(host) {
                  "fold-score") +
       "</div>" +
 
-      /* 4. LE RELEVÉ — deux colonnes, parce qu'une page large ne se lit pas
-         sur une gouttière de trente rem. La stèle du haut occupe toute la
-         largeur, le relevé du bas se partage : les chiffres et la frise à
-         gauche, ce qu'on laisse et les archives à droite. */
-      '<div class="end-columns">' +
-        '<section class="end-col">' +
-          '<p class="end-label">' + t("end_recap_title") + "</p>" +
-          '<div class="end-stats">' +
-            stat(years, t("end_stat_years")) +
-            stat(game.careerPartial && !gagnes ? "—" : gagnes, t("end_stat_won")) +
-            stat(formatMoney(game.money), t("end_stat_money")) +
-          "</div>" +
-          '<p class="end-label end-label-space">' + t("end_timeline_title") + "</p>" +
-          timelineHTML() +
-        "</section>" +
-        '<section class="end-col">' +
-          (traits.length
-            ? '<p class="end-label">' + t("end_recap_traits") + "</p>" +
-              '<div class="end-traits">' + traitRowsHTML(traits) + "</div>"
-            : "") +
-          journalHTML() +
-        "</section>" +
-      "</div>" +
+      /* 4. LE RELEVÉ — une colonne, et la frise au centre.
+         Les deux colonnes coupaient la frise en deux et la reléguaient à
+         côté d'une liste de traits : c'est pourtant elle le récit de la
+         partie. Elle prend donc toute la largeur, le journal se déplie
+         directement sous elle puisque c'est la même matière, et ce qu'on
+         laisse ferme la page en petit. */
+      '<section class="end-block">' +
+        '<p class="end-label">' + t("end_recap_title") + "</p>" +
+        '<div class="end-stats">' +
+          stat(years, t("end_stat_years")) +
+          stat(game.careerPartial && !gagnes ? "—" : gagnes, t("end_stat_won")) +
+          stat(formatMoney(game.money), t("end_stat_money")) +
+        "</div>" +
+      "</section>" +
+
+      '<section class="end-block end-block-frise">' +
+        '<p class="end-label">' + t("end_timeline_title") + "</p>" +
+        timelineHTML() +
+        journalHTML() +
+      "</section>" +
+
+      (traits.length
+        ? '<section class="end-block">' +
+            '<p class="end-label">' + t("end_recap_traits") + "</p>" +
+            '<div class="end-traits">' + traitRowsHTML(traits) + "</div>" +
+          "</section>"
+        : "") +
 
       '<div class="end-actions">' +
         '<button type="button" class="event-choice event-continue" data-restart>' + t("game_restart") + "</button>" +
