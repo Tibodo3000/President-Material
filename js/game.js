@@ -153,6 +153,8 @@ function newGame(character) {
     turn: 0,
     position: "militant",
     peakPosition: "militant",
+    peakPopularity: 0,    // le sommet, pas la fin : l'écran de fin lit les deux
+    peakStanding: 0,
     // La direction du parti ne se range pas dans "position" : elle se cumule
     // avec elle. Voir LA DIRECTION DU PARTI dans js/game-data.js.
     partyLead: false,
@@ -162,6 +164,7 @@ function newGame(character) {
     strainStruck: 0,   // avertissements du corps déjà envoyés
     decline: 0,        // combien de fois le corps a parlé : voir LE CORPS PRÉVIENT
     declineTurn: null, // le tour du dernier signe
+    career: [],        // la frise : tout ce dont on se souviendra à la fin
     traits: [],        // marques durables laissées par les choix
     strikes: {},       // écarts commis, avant qu'ils ne fassent une réputation
     investments: {},   // niveaux des postes de dépense choisis par le joueur
@@ -200,6 +203,10 @@ function newGame(character) {
   // Le pays dans lequel on entre n'est pas le même d'une partie à l'autre.
   state.baseline = initialBaseline();
   state.landscape = initialLandscape(state);
+  // CE QUE LES PARTIS PESAIENT LE JOUR OÙ VOUS ÊTES ENTRÉ. C'est la seule
+  // comparaison honnête à faire en fin de partie : ce qu'un camp vaut
+  // aujourd'hui par rapport à ce qu'il valait quand vous êtes arrivé.
+  state.startShares = { ...state.landscape };
 
   // Le caractère est un trait, mais ses points sont déjà dans computeStats :
   // on l'inscrit sur la fiche sans les compter une seconde fois.
@@ -1259,6 +1266,27 @@ const MANDATES = ["conseiller", "maire", "euro", "depute"];
  * démissionne du mandat précédent en prenant le suivant, et le joueur doit
  * le lire noir sur blanc, sans quoi il croit garder sa mairie.
  */
+/* ==========================================================================
+   LA FRISE D'UNE CARRIÈRE
+   ==========================================================================
+   Le jeu ne gardait aucune trace de ce qu'il avait raconté. Le journal tient
+   huit lignes et se vide, `seen` dit quelles scènes ont été jouées mais pas
+   ce qu'elles ont produit, et l'écran de fin ne pouvait donc annoncer qu'un
+   sommet et une fortune. Une carrière de quarante ans se résumait à trois
+   nombres.
+
+   On enregistre donc, au fil de la partie, les seuls moments dont on se
+   souvient d'une vie politique : les fonctions prises et rendues, la maison
+   qu'on dirige, les camps qu'on quitte, les soirs d'élection, et les fois où
+   le corps a parlé. C'est de cette liste que l'écran de fin tire la frise et
+   le relevé — et elle ne se tronque jamais, contrairement au journal.
+   ========================================================================== */
+
+function recordCareer(s, entry) {
+  if (!s.career) s.career = [];
+  s.career.push({ turn: s.turn, age: Math.floor(s.age), ...entry });
+}
+
 function setOffice(s, position) {
   if (!position || !LADDER.includes(position) || s.position === position) return false;
 
@@ -1268,6 +1296,7 @@ function setOffice(s, position) {
 
   s.position = position;
   if (LADDER.indexOf(position) > LADDER.indexOf(s.peakPosition)) s.peakPosition = position;
+  recordCareer(s, { kind: "office", position, party: s.party });
 
   // Le maire est conseiller municipal : c'est le même mandat, pas un
   // deuxième. On ne démissionne de rien en montant du conseil à la mairie.
@@ -1304,6 +1333,7 @@ function setPartyLead(s, on) {
 
   s.partyLead = veut;
   if (veut) s.peakLead = true;
+  recordCareer(s, { kind: "lead", on: veut, party: s.party });
 
   // Un parti a un chef et un seul : celui qui portait le titre le rend, ou
   // le reprend. La ligne de journal est écrite là-bas, avec les autres.
@@ -1546,6 +1576,7 @@ function setPresident(who) {
 
   game.presidentTerms = same ? game.presidentTerms + 1 : 1;
   game.president = who;
+  if (who && who.isPlayer) recordCareer(game, { kind: "office", position: "president", party: game.party });
 
   // L'ÉTAT DE GRÂCE. Un président qu'on vient d'élire est populaire, et il
   // l'est d'autant plus qu'il est neuf : un sortant reconduit reprend là où
@@ -2173,6 +2204,7 @@ function switchParty(s, key) {
   s.character.party = key;
   partyHistory(s);
   s.alliance = null;
+  recordCareer(s, { kind: "party", from, to: key });
 
   // La direction ne suit jamais : on arrive avec un bureau et un titre
   // d'appareil, pas avec le parti qu'on vient de quitter. Le mandat, lui,
@@ -2285,6 +2317,13 @@ function advanceTurn() {
   wearOut();
   credibilityDrift(game);
   driftGauges();
+
+  // LE SOMMET, ET PAS SEULEMENT LA FIN. Une carrière qui a été aimée puis
+  // oubliée n'a pas été la même qu'une carrière qui n'a jamais été aimée, et
+  // l'écran de fin ne pouvait pas faire la différence : il ne lisait que
+  // l'état du dernier tour.
+  game.peakPopularity = Math.max(game.peakPopularity || 0, Math.round(game.popularity));
+  game.peakStanding = Math.max(game.peakStanding || 0, Math.round(game.standing));
   promoteWithinParty();
   evolveRivals();
 
@@ -2660,6 +2699,7 @@ function drawEvent() {
     if (suite.decline) {
       game.decline = Math.max(game.decline || 0, suite.decline);
       game.declineTurn = game.turn;
+      recordCareer(game, { kind: "decline", stage: suite.decline });
     }
     return suite;
   }
@@ -3353,6 +3393,9 @@ function applyOutcome(electionId, stake, marge, attendu) {
   else if (!won && stake.defense) setOffice(game, officeAfterDefeat(game));
   else if (won) setOffice(game, stake.target);
 
+  recordCareer(game, { kind: "election", id: electionId, key: out.key, won,
+                       target: stake.target, defense: Boolean(stake.defense) });
+
   return { won, key: out.key, defense: Boolean(stake.defense), target: stake.target,
            marge, attendu: attendu === undefined ? 0 : attendu };
 }
@@ -3465,6 +3508,13 @@ function snapshot(s) {
 /* ---------- Pourquoi une option est ouverte, et ce qu'elle risque ---------- */
 
 function renderCard() {
+  // La page prend la couleur du moment qu'elle affiche, ou la reprend à son
+  // camp. Voir « LES TEMPS FORTS NE SONT PAS DES CARTES » (carte.js).
+  renderCardBody();
+  syncMomentTone(document.getElementById("event-area"));
+}
+
+function renderCardBody() {
   const host = document.getElementById("event-area");
   const card = game.card;
 
@@ -3484,7 +3534,7 @@ function renderCard() {
   if (!showingResult && !card && !game.ended) {
     advanceTurn();
     saveGame();
-    renderCard();
+    renderCardBody();
     return;
   }
 
@@ -3742,6 +3792,14 @@ const BUILD = "2026-08-21 11:45";
     if (game.decline === undefined) {
       game.decline = game.flags && game.flags.frailHealth ? 1 : 0;
       game.declineTurn = game.decline ? game.turn : null;
+    }
+    // Une sauvegarde d'avant la frise n'a rien à raconter : on ne reconstruit
+    // pas un passé qu'on n'a pas vécu, on ouvre la frise sur la fonction du
+    // moment et la suite s'écrira.
+    if (!game.startShares) game.startShares = { ...game.landscape };
+    if (!game.career) {
+      game.career = [{ turn: game.turn, age: Math.floor(game.age), kind: "office",
+                       position: game.position, party: game.party }];
     }
     game.rivals.forEach((r) => {
       if (r.popularity === undefined) r.popularity = figurePopularity(r);

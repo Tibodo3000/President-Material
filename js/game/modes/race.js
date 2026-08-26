@@ -263,7 +263,8 @@ function resolveRace() {
     texte = ajouter(texte, suite);
   }
 
-  game.race.result = { won, text: texte, poll: sondage, changes: diffSince(before, game) };
+  game.race.result = { won, text: texte, poll: sondage, verdict: res,
+                       changes: diffSince(before, game) };
   addLog(texte);
   return won;
 }
@@ -277,15 +278,20 @@ function renderRaceCard(host, card) {
 
   if (race.result) {
     const dernier = race.result.poll;
-    host.innerHTML =
-      '<div class="event-card event-card-election">' +
-        electionBanner(race.id, t("race_result")) +
-        '<p class="event-tag">' + cardHeader() + "</p>" +
-        (dernier ? pollHTML(dernier, "label_poll") : "") +
-        '<p class="event-text event-result">' + logText({ text: race.result.text }) + "</p>" +
+    // LE DÉPOUILLEMENT N'EST PAS UNE CARTE. Voir « LES TEMPS FORTS NE SONT
+    // PAS DES CARTES » dans js/game/render/carte.js.
+    const verdict = raceVerdict(race.result.verdict);
+    host.innerHTML = momentHTML({
+      tone: verdict.tone,
+      kicker: t("cal_elec_" + race.id) + " · " + cardHeader(),
+      word: verdict.word,
+      note: verdict.note,
+      body:
+        (dernier ? pollHTML(dernier, "label_result") : "") +
+        '<p class="moment-text">' + logText({ text: race.result.text }) + "</p>" +
         changesHTML(race.result.changes) +
-        continueButton("data-race-done") +
-      "</div>";
+        continueButton("data-race-done"),
+    });
     return;
   }
 

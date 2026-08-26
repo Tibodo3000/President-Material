@@ -1571,6 +1571,190 @@ function credibilityDrift(s) {
 }
 
 /* ==========================================================================
+   LA NOTE DE LA POSTÉRITÉ
+   ==========================================================================
+   L'écran de fin annonçait trois nombres : des années, un sommet, une
+   fortune. Une carrière de quarante ans, quatre cents cartes et une
+   quinzaine de scrutins n'y laissait aucune trace, et deux parties très
+   différentes s'y ressemblaient exactement.
+
+   Cinq lignes, donc, et elles ne mesurent pas la même chose. Ce qu'on a été,
+   ce que les urnes ont dit, ce que le pays a retenu, ce que la maison vous
+   doit, ce qu'on laisse derrière soi. Le total n'est pas une performance :
+   c'est ce qui restera dans le manuel, et le manuel compte autrement que le
+   joueur.
+
+   ON COMPTE LE SOMMET, PAS LA FIN. Une carrière aimée puis oubliée n'est pas
+   une carrière qui n'a jamais été aimée. Les jauges entrent donc par leur
+   plus haut (peakPopularity, peakStanding), et la dernière ligne, celle des
+   marques, est la seule qui juge l'état dans lequel on s'arrête.
+   ========================================================================== */
+
+/**
+ * Ce que vaut une fonction dans le manuel d'histoire.
+ *
+ * LE SOMMET DOIT ÉCRASER LE RESTE. La première échelle était trop plate : un
+ * joueur élu président de la République à quarante ans, au terme d'une
+ * carrière courte et fulgurante, terminait à quatre-vingt-cinq points et se
+ * voyait résumé par « une notabilité locale ». C'est le contraire de ce que
+ * fait un manuel d'histoire, qui retient d'abord la fonction et ensuite
+ * seulement le temps qu'on y a passé. L'Élysée vaut donc à lui seul plus que
+ * tout ce qu'une longue carrière d'élu local peut accumuler.
+ */
+const SCORE_OFFICE = {
+  militant: 0, cadre: 3, conseiller: 6, euro: 12, maire: 18, depute: 24,
+  ministre: 45, premier: 70, president: 140,
+};
+
+/** Diriger son parti n'est pas un mandat, et cela compte quand même. */
+const SCORE_LEAD = 20;
+
+/** Une année passée avec un mandat, quel qu'il soit. */
+const SCORE_YEAR = 1.2;
+
+/** Ce que rapporte un scrutin gagné, par ce qui se jouait. */
+const SCORE_WON = {
+  conseiller: 3, euro: 5, maire: 8, depute: 10, ministre: 10, premier: 16,
+  chef: 14, president: 40,
+};
+
+/** Ce que coûte un scrutin perdu. Défendre et perdre coûte davantage. */
+const SCORE_LOST = -2;
+const SCORE_LOST_DEFENSE = -4;
+
+/** Ce que valent les marques et les atouts qu'on emporte. */
+const SCORE_ASSET = 3;
+const SCORE_MARK = -4;
+
+/**
+ * Les rangs. Le premier dont le seuil est atteint, en partant du haut.
+ * Ce ne sont pas des grades : c'est la phrase par laquelle on sera résumé.
+ */
+const SCORE_RANKS = [
+  // Mesuré sur deux cents carrières : la meilleure atteint 329. Le rang le
+  // plus haut doit rester rare, pas inatteignable.
+  { min: 320, key: "rank_boulevard" },
+  { min: 270, key: "rank_figure" },
+  { min: 180, key: "rank_lourd" },
+  { min: 115, key: "rank_nationale" },
+  { min: 65,  key: "rank_notable" },
+  { min: 30,  key: "rank_federation" },
+  { min: -1e9, key: "rank_organigramme" },
+];
+
+/**
+ * LE PLANCHER DE LA FONCTION.
+ *
+ * Un total ne suffit pas à résumer quelqu'un, et il ne doit pas pouvoir
+ * mentir : on n'écrit pas « une notabilité locale » sous le nom d'un
+ * président de la République, quel que soit le reste du relevé. La fonction
+ * la plus haute atteinte impose donc un rang minimum, que le total peut
+ * dépasser mais jamais démentir. C'est aussi ce que fait un manuel : il
+ * range d'abord par ce qu'on a été.
+ */
+const SCORE_FLOOR = {
+  president: "rank_figure",
+  premier: "rank_lourd",
+  ministre: "rank_nationale",
+  depute: "rank_nationale",
+  maire: "rank_notable",
+  euro: "rank_notable",
+  conseiller: "rank_federation",
+};
+
+function rankFor(total, sommet, lead) {
+  const parLeTotal = SCORE_RANKS.findIndex((r) => total >= r.min);
+  let plancher = SCORE_FLOOR[sommet];
+  // Diriger son parti vaut au moins ce que vaut un ministère : on ne résume
+  // pas par sa mairie quelqu'un qui a tenu une des six maisons du pays.
+  if (lead && !plancher) plancher = "rank_nationale";
+  const parLaFonction = plancher
+    ? SCORE_RANKS.findIndex((r) => r.key === plancher)
+    : SCORE_RANKS.length - 1;
+  return SCORE_RANKS[Math.min(parLeTotal, parLaFonction)].key;
+}
+
+/** Les fonctions qui sont un mandat : celles qui font compter les années. */
+function heldOffice(position) {
+  return MANDATES.includes(position) || position === "president";
+}
+
+/**
+ * Le relevé de fin de partie. Renvoie les cinq lignes, le total et le rang.
+ * Chaque ligne porte de quoi s'expliquer d'elle-même : un total qu'on ne
+ * peut pas décomposer ne se lit pas, il se subit.
+ */
+function careerScore(s) {
+  const frise = s.career || [];
+  const lines = [];
+
+  /* 1. CE QUE VOUS AVEZ ÉTÉ. Le sommet atteint, la maison si on l'a tenue,
+        et les années passées avec un mandat — être élu vingt ans n'est pas
+        la même carrière qu'être élu deux fois six mois. */
+  const president = s.ended && s.ended.type === "victory";
+  const sommet = president ? "president" : s.peakPosition;
+  let annees = 0;
+  let depuis = null;
+  frise.forEach((e) => {
+    if (e.kind !== "office") return;
+    if (heldOffice(e.position)) { if (depuis === null) depuis = e.turn; }
+    else if (depuis !== null) { annees += (e.turn - depuis) / TURNS_PER_YEAR; depuis = null; }
+  });
+  if (depuis !== null) annees += (s.turn - depuis) / TURNS_PER_YEAR;
+  annees = Math.round(annees);
+
+  const fonction = (SCORE_OFFICE[sommet] || 0) + (s.peakLead ? SCORE_LEAD : 0);
+  lines.push({ key: "score_office", points: Math.round(fonction + annees * SCORE_YEAR),
+               detail: { sommet, lead: Boolean(s.peakLead), annees } });
+
+  /* 2. LES URNES. Ce que les électeurs ont dit, et rien d'autre. */
+  const scrutins = frise.filter((e) => e.kind === "election");
+  const gagnes = scrutins.filter((e) => e.won);
+  const perdus = scrutins.filter((e) => !e.won);
+  const urnes = gagnes.reduce((sum, e) => sum + (SCORE_WON[e.target] || 4), 0) +
+    perdus.reduce((sum, e) => sum + (e.defense ? SCORE_LOST_DEFENSE : SCORE_LOST), 0);
+  lines.push({ key: "score_ballots", points: Math.round(urnes),
+               detail: { gagnes: gagnes.length, perdus: perdus.length } });
+
+  /* 3. CE QUE LE PAYS A RETENU. Le sommet de la popularité, plus ce que la
+        notoriété dit d'un nom : on peut être connu sans être aimé, et cela
+        compte aussi dans un manuel. */
+  const pays = (s.peakPopularity || 0) / 3 + statScore(s, "notoriete");
+  lines.push({ key: "score_country", points: Math.round(pays),
+               detail: { pic: Math.round(s.peakPopularity || 0) } });
+
+  /* 4. CE QUE LA MAISON VOUS DOIT. Le sommet de la cote, et surtout ce que le
+        camp pèse aujourd'hui PAR RAPPORT AU JOUR OÙ VOUS ÊTES ENTRÉ : un
+        parti laissé plus grand qu'on ne l'a trouvé est la seule chose qu'un
+        appareil n'oublie jamais.
+        On comparait au « socle », c'est-à-dire au niveau théorique vers
+        lequel le moteur rappelle chaque camp. C'était à la fois du jargon
+        interne affiché tel quel au joueur et la mauvaise référence : ce qui
+        compte n'est pas l'écart à une valeur d'équilibre, c'est le chemin
+        parcouru pendant votre carrière. */
+  const depart = (s.startShares && s.startShares[s.party]) ||
+    (s.landscape && s.landscape[s.party]) || naturalShare(s.party);
+  const part = (s.landscape && s.landscape[s.party]) || depart;
+  const ecart = part - depart;
+  const maison = (s.peakStanding || 0) / 3 + ecart * 2.5;
+  lines.push({ key: "score_house", points: Math.round(maison),
+               detail: { pic: Math.round(s.peakStanding || 0), ecart: Math.round(ecart * 10) / 10 } });
+
+  /* 5. CE QUE VOUS LAISSEZ. Les marques d'une carrière, et elles seules :
+        c'est la ligne qui juge l'état dans lequel on s'arrête. Le caractère
+        de départ ne compte pas — on n'a pas choisi d'être né calculateur. */
+  const marques = traitsOf(s).filter((id) => TRAIT_DATA[id] && !TRAIT_DATA[id].core);
+  const atouts = marques.filter((id) => TRAIT_DATA[id].kind === "asset").length;
+  const casseroles = marques.length - atouts;
+  const laisse = atouts * SCORE_ASSET + casseroles * SCORE_MARK;
+  lines.push({ key: "score_legacy", points: Math.round(laisse),
+               detail: { atouts, casseroles } });
+
+  const total = Math.max(0, lines.reduce((sum, l) => sum + l.points, 0));
+  return { total, rank: rankFor(total, sommet, Boolean(s.peakLead)), lines };
+}
+
+/* ==========================================================================
    Interpréteur d'événements
    ==========================================================================
    Les événements ne vivent plus dans le code mais dans js/events/*.data.js,

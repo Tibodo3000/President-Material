@@ -477,13 +477,15 @@ function renderCampaignCard(host, card) {
   // Dimanche du second tour : le verdict.
   if (campaign.phase === "runoff") {
     const res = campaign.result;
-    host.innerHTML =
-      '<div class="event-card event-card-campaign">' +
-        electionBanner("presidentielle", t("label_round2")) +
-        '<p class="event-tag">' + cardHeader() + "</p>" +
+    host.innerHTML = momentHTML({
+      tone: res.playerWon ? "summit" : "loss",
+      kicker: t("elec_presidentielle") + " · " + t("label_round2"),
+      word: t(res.playerWon ? "verdict_elysee" : "verdict_runoff_lost"),
+      note: cardHeader(),
+      body:
         // Le titre du sondage répétait mot pour mot celui de la carte.
         pollHTML(campaign.runoff.finalists, "label_result", 1) +
-        '<p class="event-text event-result">' +
+        '<p class="moment-text">' +
           L(res.playerWon
             ? { fr: "Vous êtes élu président de la République avec " + res.myShare + " % des voix.",
                 en: "You are elected president with " + res.myShare + "% of the vote." }
@@ -494,8 +496,8 @@ function renderCampaignCard(host, card) {
                     (res.lostLeadership ? " The party strips you of the leadership straight after." : ""),
               }) +
         "</p>" +
-        continueButton("data-campaign-done") +
-      "</div>";
+        continueButton("data-campaign-done"),
+    });
     return;
   }
 
@@ -504,12 +506,14 @@ function renderCampaignCard(host, card) {
     const first = campaign.first;
     const leader = first.leaderKey ? t(first.leaderKey) : first.leaderName;
 
-    host.innerHTML =
-      '<div class="event-card event-card-campaign">' +
-        electionBanner("presidentielle", t("label_round1")) +
-        '<p class="event-tag">' + cardHeader() + "</p>" +
-        pollHTML(sortedField(), "label_round1") +
-        '<p class="event-text event-result">' +
+    host.innerHTML = momentHTML({
+      tone: first.qualified ? "win" : "loss",
+      kicker: t("elec_presidentielle") + " · " + t("label_round1"),
+      word: t(first.qualified ? "verdict_runoff_in" : "verdict_out_first"),
+      note: cardHeader(),
+      body:
+        pollHTML(sortedField(), "label_result") +
+        '<p class="moment-text">' +
           L(first.qualified
             ? { fr: "Vous êtes au second tour avec " + first.myShare + " % des voix. Reste à convaincre ceux qui ont voté pour quelqu'un d'autre, et ils sont la majorité.",
                 en: "You are through to the runoff on " + first.myShare + "%. Now you have to win over the people who voted for somebody else, and they are the majority." }
@@ -519,8 +523,8 @@ function renderCampaignCard(host, card) {
                     (campaign.result && campaign.result.lostLeadership ? " The party strips you of the leadership straight after." : ""),
               }) +
         "</p>" +
-        continueButton(first.qualified ? "data-campaign-runoff" : "data-campaign-done") +
-      "</div>";
+        continueButton(first.qualified ? "data-campaign-runoff" : "data-campaign-done"),
+    });
     return;
   }
 

@@ -2019,6 +2019,140 @@ body {
 
 .event-card-election::before { opacity: 0.9; }
 
+/* ---------- LE RYTHME ----------
+   Une carte arrive, elle ne clignote pas : six pixels et un fondu suffisent
+   à faire comprendre que la page a tourné. */
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.event-card { animation: card-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ==========================================================================
+   LES TEMPS FORTS NE SONT PAS DES CARTES
+   ==========================================================================
+   Première tentative : un grand mot posé À L'INTÉRIEUR de la carte, même
+   cadre, même largeur, même fond. Cela n'a rien changé — un badge dans un
+   conteneur identique ajoute une ligne, il ne casse pas un rythme, et une
+   soirée d'élection continuait de ressembler à un dîner de fédération.
+
+   Un temps fort n'a donc plus de boîte. Pas de bordure, pas de fond de
+   carte : le bloc prend toute la colonne, déborde de sa gouttière, et le mot
+   occupe la largeur. La PAGE change de couleur derrière lui
+   (body[data-moment]). On ne lit pas un résultat, on entre dans une autre
+   pièce — et la carte suivante, redevenue une carte, fait le chemin inverse.
+   ========================================================================== */
+
+.moment {
+  /* Déborde la colonne : c'est ce débordement qui dit « ceci n'est pas une
+     carte », avant même qu'on ait lu le mot. */
+  margin: -0.4rem -1.6rem 0;
+  padding: 2.6rem 1.6rem 0.6rem;
+  position: relative;
+  animation: moment-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes moment-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.moment-head {
+  text-align: center;
+  padding-bottom: 1.6rem;
+  margin-bottom: 1.8rem;
+  border-bottom: 1px solid var(--moment-line, var(--line-2));
+}
+
+.moment-kicker {
+  margin: 0 0 0.9rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.moment-word {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 7.4vw, 4.6rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: var(--moment-ink, var(--ink));
+  text-shadow: 0 0 60px var(--moment-glow, transparent);
+  animation: moment-word-in 0.62s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.05s;
+}
+
+@keyframes moment-word-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.97); }
+  to   { opacity: 1; transform: none; }
+}
+
+.moment-note {
+  margin: 0.85rem 0 0;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+/* Le corps garde les meubles habituels — sondage, conséquences, bouton — mais
+   dans une mesure de lecture, pas dans une boîte. */
+.moment-body {
+  max-width: 34rem;
+  margin: 0 auto;
+  padding-bottom: 0.4rem;
+}
+
+.moment-text {
+  margin: 1.4rem 0;
+  font-size: 1.02rem;
+  line-height: 1.68;
+  color: var(--ink);
+}
+
+/* Les barres d'un dépouillement respirent plus que celles d'un sondage de
+   campagne : c'est le résultat, pas une projection. */
+.moment .poll { background: none; border: 0; padding: 0; }
+.moment .poll-track { height: 0.62rem; }
+.moment .poll-row { padding: 0.34rem 0; }
+
+/* Trois tons, et pas un de plus : ce qu'on prend, ce qu'on perd, l'Élysée. */
+.moment-win {
+  --moment-ink: var(--gold-2);
+  --moment-line: var(--gold-dim);
+  --moment-glow: rgba(233, 200, 119, 0.28);
+}
+
+.moment-loss {
+  --moment-ink: var(--red);
+  --moment-line: rgba(209, 106, 114, 0.32);
+  --moment-glow: rgba(209, 106, 114, 0.26);
+}
+
+.moment-summit {
+  --moment-ink: var(--gold-2);
+  --moment-line: var(--gold);
+  --moment-glow: rgba(233, 200, 119, 0.5);
+}
+
+.moment-summit .moment-word { font-size: clamp(3rem, 9vw, 5.6rem); }
+
+/* LA PAGE SUIT. Sans cela le bloc flotte sur un fond qui n'a pas bougé, et
+   l'on reste dans la même pièce. */
+body[data-moment="win"] { --party-glow: rgba(233, 200, 119, 0.2); }
+body[data-moment="loss"] { --party-glow: rgba(209, 106, 114, 0.2); }
+body[data-moment="summit"] { --party-glow: rgba(233, 200, 119, 0.34); }
+
+@media (max-width: 600px) {
+  .moment { margin-left: -1rem; margin-right: -1rem; padding: 2rem 1rem 0.5rem; }
+}
+
 /* ---------- Le bandeau de scrutin ----------
    Une élection se lisait comme une scène ordinaire : le nom du scrutin était
    posé dans la même ligne, la même casse et la même couleur que le titre d'un
@@ -2430,26 +2564,8 @@ body {
 .end-victory .end-title { color: var(--gold-2); }
 .end-conviction .end-title { color: var(--red); }
 
-.end-recap {
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  padding: 1rem 0;
-  margin: 0 0 1.4rem;
-}
-
-.end-recap p {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 0.3rem 0;
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.end-recap strong { color: var(--ink); font-variant-numeric: tabular-nums; }
-
-/* Ce que la carrière a laissé sur le personnage, sous le récapitulatif */
-.end-traits-title {
+/* Le titre d'une section de l'écran de fin : la note, la frise, les marques. */
+.end-section-title {
   font-size: 0.6rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -2457,6 +2573,176 @@ body {
   color: var(--faint);
   margin: 0 0 0.5rem;
   text-align: center;
+}
+
+/* ---------- LA NOTE DE LA POSTÉRITÉ ----------
+   Un total qu'on ne peut pas décomposer ne se lit pas, il se subit : le
+   chiffre est gros, le rang est la phrase qu'on retiendra, et les cinq
+   lignes disent chacune d'où vient sa part. */
+.end-note {
+  border-top: 1px solid var(--line);
+  padding: 1.4rem 0 0.2rem;
+  margin: 0 0 1.6rem;
+}
+
+.note-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.6rem 0 0.1rem;
+}
+
+.note-total strong {
+  font-family: var(--font-display);
+  font-size: 3.4rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--gold-2);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 34px rgba(233, 200, 119, 0.28);
+}
+
+.note-total span {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.note-rank {
+  margin: 0 0 1.2rem;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* Cinq chiffres sur une ligne, pas cinq rangées : le détail de chacun est au
+   survol, pour qui veut savoir d'où vient sa part. */
+.note-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.35rem 1.1rem;
+  margin: 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.note-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  cursor: help;
+}
+
+.note-chip-label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.note-chip-points {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+
+.note-chip-points.is-down { color: var(--red); }
+
+/* La ligne de faits sous le récit : trois choses, une seule rangée. */
+.end-meta {
+  margin: 0 0 1.5rem;
+  padding-bottom: 1.3rem;
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.end-note {
+  border-top: 0;
+  padding: 0;
+  margin: 0 0 1.8rem;
+}
+
+/* ---------- LA FRISE ----------
+   Une carrière se relit comme une colonne de dates : une pastille par
+   moment, la couleur du camp dans le filet, et le mot qui dit ce qui s'est
+   passé. Monter est doré, tomber est rouge, changer de camp est bleu, et le
+   corps qui parle a sa propre teinte — on doit pouvoir lire la forme d'une
+   vie politique sans lire les mots. */
+.end-frise { margin: 0 0 1.6rem; }
+
+.frise-list {
+  list-style: none;
+  margin: 0.8rem 0 0;
+  padding: 0 0 0 0.2rem;
+}
+
+.frise-step {
+  display: grid;
+  grid-template-columns: 0.9rem 4.2rem minmax(0, 1fr);
+  gap: 0.7rem;
+  align-items: baseline;
+  padding: 0.32rem 0;
+  position: relative;
+}
+
+/* Le fil qui relie les moments entre eux. */
+.frise-step::before {
+  content: "";
+  position: absolute;
+  left: 0.36rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--line-2);
+}
+
+.frise-step:first-child::before { top: 0.75rem; }
+.frise-step:last-child::before { bottom: calc(100% - 0.75rem); }
+
+.frise-mark {
+  position: relative;
+  width: 0.42rem;
+  height: 0.42rem;
+  margin-top: 0.5rem;
+  border-radius: 50%;
+  background: var(--frise-tone, var(--faint));
+  box-shadow: 0 0 0 3px var(--surface), 0 0 12px var(--frise-tone, transparent);
+}
+
+.frise-when {
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.frise-what { font-size: 0.85rem; color: var(--muted); }
+
+.frise-up { --frise-tone: var(--gold-2); }
+.frise-up .frise-what { color: var(--ink); font-weight: 500; }
+.frise-down { --frise-tone: var(--red); }
+.frise-side { --frise-tone: var(--blue); }
+.frise-body { --frise-tone: var(--amber); }
+.frise-start,
+.frise-end { --frise-tone: var(--frise-party, var(--faint)); }
+.frise-start .frise-what,
+.frise-end .frise-what { font-style: italic; }
+
+@media (max-width: 520px) {
+  .frise-step { grid-template-columns: 0.9rem 3.4rem minmax(0, 1fr); gap: 0.5rem; }
+  .note-total strong { font-size: 2.8rem; }
 }
 
 .end-traits {

@@ -206,6 +206,22 @@ function renderPrimaryCard(host, card) {
       : "") +
     '<button type="button" class="event-choice" data-primaire="out">' + t("primaire_out") + "</button>";
 
+  // L'INVESTITURE EST UNE BASCULE. On ne se présente pas parce qu'on l'a
+  // décidé, on se présente parce que le parti l'a décidé, et cela se lisait
+  // comme un compte rendu de commission.
+  if (card.resolved && card.verdict) {
+    host.innerHTML = momentHTML({
+      tone: card.verdict === "won" ? "win" : "loss",
+      kicker: t("elec_presidentielle") + " · " + t("primaire_tag"),
+      word: t(card.verdict === "won" ? "verdict_nomination" : "verdict_nomination_lost"),
+      note: cardHeader(),
+      body:
+        '<p class="moment-text">' + card.resultText + "</p>" +
+        changesHTML(card.resultChanges) + continueButton("data-continue"),
+    });
+    return;
+  }
+
   host.innerHTML =
     '<div class="event-card event-card-election">' +
       electionBanner("presidentielle", t("primaire_tag")) +
@@ -222,6 +238,8 @@ function primaryChoice(target) {
   const quoi = target.getAttribute("data-primaire");
   const before = snapshot(game);
   let texte;
+
+  let verdict = null;
 
   if (quoi === "back") {
     const meneur = primaryField()[0];
@@ -245,13 +263,16 @@ function primaryChoice(target) {
       bump(game, "notoriete", +2);
       bumpPop(game, +6);
       texte = tBoth("primaire_won");
+      verdict = "won";
     } else {
       bumpStanding(game, -8);
       bump(game, "notoriete", +1);
       texte = tBoth("primaire_lost", { name: res.rival ? res.rival.name : "" });
+      verdict = "lost";
     }
   }
 
+  game.card.verdict = verdict;
   game.card.resolved = true;
   game.card.resultText = L(texte);
   game.card.resultChanges = diffSince(before, game);

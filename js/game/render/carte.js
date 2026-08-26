@@ -17,6 +17,82 @@ function cardHeader() {
 }
 
 /* ==========================================================================
+   LES TEMPS FORTS NE SONT PAS DES CARTES
+   ==========================================================================
+   Toutes les cartes se ressemblaient, et une première tentative n'a rien
+   réglé : on avait posé un grand mot À L'INTÉRIEUR de la même boîte, avec le
+   même cadre, la même largeur, le même fond. Un badge dans un conteneur
+   identique ne casse pas un rythme, il ajoute une ligne — et un soir
+   d'élection continuait de ressembler à un dîner de fédération.
+
+   Un temps fort cesse donc d'être une carte. Pas de boîte, pas de bordure,
+   pas de fond : le bloc prend toute la colonne, déborde de sa gouttière, le
+   mot occupe la largeur dans la police d'apparat, et la PAGE ELLE-MÊME
+   change de couleur derrière — body[data-moment] reprend la teinte du
+   verdict. On ne lit pas un résultat, on entre dans une autre pièce.
+
+   Il n'y en a qu'aux endroits où une soirée bascule : les urnes, les deux
+   tours d'une présidentielle, l'investiture, le congrès. Un signal qu'on met
+   partout ne signale plus rien, et c'est exactement ce dont on sort.
+   ========================================================================== */
+
+/**
+ * Le bloc entier. "body" est ce qui vient sous le mot — un sondage, le récit,
+ * les conséquences, le bouton — et il garde ses composants habituels : c'est
+ * le CADRE qui change, pas les meubles.
+ */
+function momentHTML(parts) {
+  return (
+    '<div class="moment moment-' + parts.tone + '">' +
+      '<div class="moment-head">' +
+        (parts.kicker ? '<p class="moment-kicker">' + parts.kicker + "</p>" : "") +
+        '<p class="moment-word">' + parts.word + "</p>" +
+        (parts.note ? '<p class="moment-note">' + parts.note + "</p>" : "") +
+      "</div>" +
+      '<div class="moment-body">' + (parts.body || "") + "</div>" +
+    "</div>"
+  );
+}
+
+/** La nuance d'un score, quand il y en a une à dire. */
+const VERDICT_NOTES = { large: "verdict_large", narrow: "verdict_narrow",
+                        honorable: "verdict_honorable", rout: "verdict_rout" };
+
+/**
+ * Le verdict d'un scrutin ordinaire, tiré de ce que applyOutcome a renvoyé.
+ * Un congrès ne se raconte pas comme une élection : on n'y prend pas un
+ * siège, on y prend une maison.
+ */
+function raceVerdict(res) {
+  const note = res && VERDICT_NOTES[res.key] ? t(VERDICT_NOTES[res.key]) : "";
+  if (!res) return { word: "", note: "", tone: "win" };
+
+  if (res.target === "chef") {
+    return { word: t(res.won ? "verdict_house_won" : "verdict_house_lost"),
+             note, tone: res.won ? "win" : "loss" };
+  }
+  if (res.won) return { word: t(res.defense ? "verdict_kept" : "verdict_win"), note, tone: "win" };
+  return { word: t(res.defense ? "verdict_seat_lost" : "verdict_loss"), note, tone: "loss" };
+}
+
+/**
+ * La page prend la couleur du moment, ou la reprend à son camp. C'est la
+ * moitié de l'effet : sans elle, le bloc flotte sur un fond qui n'a pas
+ * bougé et l'on reste dans la même pièce.
+ */
+function syncMomentTone(host) {
+  // On lit le ton dans le HTML produit plutôt que dans le DOM : le harnais de
+  // non-régression a un faux DOM sans querySelector complet, et l'affichage
+  // ne doit jamais être ce qui casse une mesure.
+  const html = host && host.innerHTML ? String(host.innerHTML) : "";
+  const tone = (html.match(/class="moment moment-([a-z]+)"/) || [])[1];
+  const body = document.body;
+  if (!body || !body.dataset) return;
+  if (tone) body.dataset.moment = tone;
+  else delete body.dataset.moment;
+}
+
+/* ==========================================================================
    LE BANDEAU DE SCRUTIN
    ==========================================================================
    Une élection se lisait comme une scène ordinaire. Le nom du scrutin était
