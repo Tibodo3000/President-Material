@@ -2132,6 +2132,11 @@ function fillText(obj, s) {
     text = text.replace(/\{rival_party\}/g, t("party_" + scene.party));
   }
   if (text.includes("{party}")) text = text.replace(/\{party\}/g, t("party_" + s.party));
+  // AVEC SON ARTICLE. {party} rend « Centristes », ce qui ne se met pas
+  // derrière un verbe : « vous menez Centristes à l'Élysée ». Le journal
+  // avait déjà la forme correcte sous {party_the:clé} ; on l'ouvre aux
+  // textes de carte et de fin, pour le camp du joueur.
+  if (text.includes("{party_the}")) text = text.replace(/\{party_the\}/g, t("party_the_" + s.party));
   return text;
 }
 

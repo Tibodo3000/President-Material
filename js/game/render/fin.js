@@ -236,7 +236,10 @@ function renderEnd(host) {
         // Certaines fins s'intitulent exactement comme la fonction atteinte
         // (« Président de la République ») : on lisait le même mot deux fois
         // à trois lignes d'écart, en capitales puis en italique.
-        (fillText(ending.title, game) === sommet ? "" : '<p class="end-office">' + sommet + "</p>") +
+        // La fonction est déjà en manchette pour une victoire : on ne la
+        // répète pas trois lignes plus haut.
+        (game.ended.type === "victory" || fillText(ending.title, game) === sommet
+          ? "" : '<p class="end-office">' + sommet + "</p>") +
         '<p class="end-identity">' + t("end_stat_age").replace("{n}", Math.floor(game.age)) +
           " · " + t("party_" + game.party) + "</p>" +
       "</header>" +
@@ -247,7 +250,14 @@ function renderEnd(host) {
         // qui ne résout rien : une fin ne pouvait donc pas nommer le camp du
         // joueur, et toutes celles qui parlent d'un parti devaient rester
         // vagues. fillText() sait le faire, comme pour n'importe quelle carte.
-        '<p class="end-title">' + fillText(ending.title, game) + "</p>" +
+        // UNE VICTOIRE S'INTITULE « PRÉSIDENT DE LA RÉPUBLIQUE ». Le titre de
+        // la fin sert à nuancer, pas à remplacer : « Élu quand même » en
+        // manchette d'une page qui célèbre l'accession à l'Élysée enterre la
+        // seule information qui compte. La nuance vit dans le texte, qui
+        // change selon le camp et le parcours ; le titre, lui, ne bouge pas.
+        '<p class="end-title">' +
+          (game.ended.type === "victory" ? t("pos_president") : fillText(ending.title, game)) +
+        "</p>" +
         '<p class="end-text">' + fillText(ending.text, game) + "</p>" +
       "</div>" +
 

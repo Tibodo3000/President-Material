@@ -161,7 +161,7 @@ function checkEffects(deck, id, fx, where) {
    avec l'objet possédé et non avec la personne : « son nom » et « sa place »
    s'écrivent en clair, sans marque.
    ------------------------------------------------------------------------ */
-const MARKS = new Set([...genderMarks(), "rival", "rival_party", "party"]);
+const MARKS = new Set([...genderMarks(), "rival", "rival_party", "party", "party_the"]);
 
 function checkMarks(deck, id, o, where) {
   if (!o) return;
@@ -245,9 +245,12 @@ for (const [deck, list] of Object.entries(DECKS)) {
 const END_TYPES = ["victory", "retire", "withdrawal", "death", "conviction"];
 const parFamille = {};
 
+const vues = new Set();
 ENDINGS.forEach((e, n) => {
   const id = e && e.id ? e.id : "entrée " + n;
   if (!e || !e.id) return say("fins", id, "vide — virgule en trop dans le tableau");
+  if (vues.has(e.id)) say("fins", id, "identifiant en double : la seconde ne jouera jamais");
+  vues.add(e.id);
   if (!END_TYPES.includes(e.from)) say("fins", id, "type de fin inconnu « " + e.from + " »");
   checkBilingual("fins", id, e.title, "titre", true);
   checkBilingual("fins", id, e.text, "texte", true);
