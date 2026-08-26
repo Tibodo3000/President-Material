@@ -459,6 +459,244 @@ const EV_races = [
       "result": { "fr": "Vous garantissez leurs postes à ses quatre fidèles. Vous en garderez deux, et les deux autres l'apprendront par un communiqué.",
                   "en": "You guarantee the jobs of his four loyalists. You will keep two, and the other two will find out from a press release." } }
   ]
+},
+
+/* ==========================================================================
+   CE QUE LA CIRCONSCRIPTION DOIT AU PARTI, ET RÉCIPROQUEMENT
+   ==========================================================================
+   Seize scènes pour près de quatorze tirages par carrière : on rejouait la
+   même salle vide et le même journal local trois fois par vie politique. Les
+   six qui suivent élargissent le paquet, et elles posent toutes la même
+   question que les précédentes évitaient — une campagne locale se gagne
+   contre le parti aussi souvent qu'avec lui.
+   ========================================================================== */
+
+{
+  "id": "race_colistiers",
+  "moment": [3, 2],
+  "race": ["municipales"],
+  "tag": { "fr": "Campagne", "en": "The campaign" },
+  "text": {
+    "fr": "Il vous faut trente-neuf colistiers avant vendredi. La fédération vous en impose douze, vous en connaissez quinze qui savent travailler, et les deux listes n'ont que trois noms en commun.",
+    "en": "You need thirty-nine running mates by Friday. The federation is imposing twelve, you know fifteen who can actually work, and the two lists have three names in common."
+  },
+  "choices": [
+    { "label": { "fr": "Prendre les douze de la fédération", "en": "Take the federation's twelve" },
+      "roll": { "chance": 0.7, "chanceBonus": [ { "when": { "trait": ["appareil"] }, "value": 0.15 } ] },
+      "success": { "effects": { "score": 3, "standing": 8, "reseau": 2 },
+        "result": { "fr": "La fédération met tout le monde sur le terrain dès le lendemain. Vous aurez un conseil municipal ingérable pendant six ans, ce qui est un problème de gagnant.",
+                    "en": "The federation puts everybody on the ground the next day. You will have an ungovernable council for six years, which is a winner's problem." } },
+      "failure": { "effects": { "score": -3, "standing": 3, "popularity": -4, "energie": -1 },
+        "result": { "fr": "Deux des douze ont une affaire en cours et un troisième habite à quarante kilomètres. Le quotidien régional publie les trois fiches le même jour.",
+                    "en": "Two of the twelve have a case pending and a third lives twenty-five miles away. The regional daily runs all three profiles on the same day." } } },
+    { "label": { "fr": "Composer votre liste vous-même", "en": "Pick your own list" },
+      "roll": { "base": 15, "stat": "reseau", "plus": { "reputation": 0.3 }, "dice": 16 },
+      "success": { "effects": { "score": 5, "popularity": 6, "standing": -7, "credibilite": 1 },
+        "result": { "fr": "Une infirmière, un patron de PME, deux profs et personne de la fédération. La liste est bonne, elle se voit, et le siège apprend les noms par la presse.",
+                    "en": "A nurse, a small-business owner, two teachers and nobody from the federation. The list is good, it shows, and headquarters learns the names from the press." } },
+      "failure": { "effects": { "score": -5, "standing": -12, "energie": -2,
+                                "landscape": { "self": -0.4 } },
+        "result": { "fr": "Trois de vos quinze se désistent en quarante-huit heures après un coup de téléphone de la fédération. Vous complétez la liste avec des inconnus, en vingt-quatre heures.",
+                    "en": "Three of your fifteen withdraw within forty-eight hours after a phone call from the federation. You fill the list with strangers, in a day." } } },
+    { "label": { "fr": "Négocier nom par nom", "en": "Negotiate name by name" },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "reseau": 0.35, "standing": 0.04 }, "dice": 16 },
+      "success": { "effects": { "score": 4, "standing": 5, "reseau": 2, "popularity": 3, "energie": -2 },
+        "result": { "fr": "Onze heures de réunion, trois pauses cigarette et un tableau au feutre. Vous sortez avec huit des leurs, douze des vôtres, et personne qui ait envie de recommencer.",
+                    "en": "Eleven hours of meetings, three cigarette breaks and a flipchart. You come out with eight of theirs, twelve of yours, and nobody who wants to do it again." } },
+      "failure": { "effects": { "score": -4, "standing": -6, "energie": -3, "reputation": -1 },
+        "result": { "fr": "Onze heures pour arriver au vendredi sans liste. La préfecture ferme à dix-sept heures et le dépôt se fait dans la panique, avec les douze de la fédération.",
+                    "en": "Eleven hours to arrive at Friday with no list. The registry closes at five and the filing is done in a panic, with the federation's twelve." } } }
+  ]
+},
+
+{
+  "id": "race_permanence",
+  "moment": [3, 2],
+  "tag": { "fr": "Campagne", "en": "The campaign" },
+  "text": {
+    "fr": "Il faut une permanence de campagne. Le siège en propose une, gratuite, dans une zone d'activité derrière un magasin de carrelage. L'autre est en centre-ville, avec une vitrine, et il faut la payer.",
+    "en": "You need a campaign office. Headquarters offers one, free, in an industrial estate behind a tile showroom. The other is in the town centre, with a shopfront, and you have to pay for it."
+  },
+  "choices": [
+    { "label": { "fr": "Payer la vitrine du centre-ville", "en": "Pay for the town-centre shopfront" },
+      "when": { "minMoney": 15000 },
+      "roll": { "chance": 0.7, "chanceBonus": [ { "when": { "minPopularity": 55 }, "value": 0.15 } ] },
+      "success": { "effects": { "score": 4, "money": -14000, "popularity": 4, "reseau": 1 },
+        "result": { "fr": "Quarante personnes poussent la porte le premier samedi, dont onze qui ne vous auraient jamais téléphoné. Une vitrine est le seul outil de campagne qui travaille la nuit.",
+                    "en": "Forty people push the door on the first Saturday, eleven of whom would never have phoned. A shopfront is the only campaign tool that works at night." } },
+      "failure": { "effects": { "score": -1, "money": -14000, "energie": -1, "standing": -2 },
+        "result": { "fr": "La vitrine est belle, et elle est sur la seule rue que la ville a piétonnisée le mois dernier. Personne ne passe plus devant, sauf le samedi matin.",
+                    "en": "The shopfront is handsome, and it is on the one street the town pedestrianised last month. Nobody walks past any more, except on a Saturday morning." } } },
+    { "label": { "fr": "Prendre le local gratuit du siège", "en": "Take headquarters' free unit" },
+      "roll": { "chance": 0.6 },
+      "success": { "effects": { "score": 1, "standing": 5, "money": 3000, "reseau": 1 },
+        "result": { "fr": "Personne ne vient jamais, ce qui laisse toute la place pour empiler des tracts et tenir des réunions que personne ne voit. C'est plus utile qu'une vitrine et beaucoup plus triste.",
+                    "en": "Nobody ever comes, which leaves plenty of room to stack leaflets and hold meetings nobody sees. It is more useful than a shopfront and a great deal sadder." } },
+      "failure": { "effects": { "score": -3, "standing": 2, "popularity": -3, "energie": -1 },
+        "result": { "fr": "Un journaliste vient faire un portrait et photographie le magasin de carrelage. La légende dit « la campagne d'un candidat qu'on ne voit pas », et elle n'a pas tort.",
+                    "en": "A reporter comes to do a profile and photographs the tile showroom. The caption reads “the campaign of a candidate nobody sees”, and it is not wrong." } } },
+    { "label": { "fr": "Faire campagne sans permanence du tout", "en": "Campaign with no office at all" },
+      "roll": { "base": 15, "stat": "energie", "plus": { "charisme": 0.35 }, "dice": 16 },
+      "success": { "effects": { "score": 3, "popularity": 5, "money": 6000, "energie": -2,
+                                "notoriete": 1 },
+        "result": { "fr": "Vous tenez la campagne depuis une table de café, un téléphone et le coffre de la voiture. Trois journaux locaux en font un papier, et le papier vaut la vitrine.",
+                    "en": "You run the campaign from a café table, a telephone and the boot of the car. Three local papers write it up, and the write-up is worth the shopfront." } },
+      "failure": { "effects": { "score": -4, "energie": -3, "standing": -4, "reseau": -1 },
+        "result": { "fr": "Les militants n'ont nulle part où se retrouver, alors ils ne se retrouvent pas. On perd trois semaines à s'appeler pour savoir qui a les clés de quoi.",
+                    "en": "The activists have nowhere to meet, so they do not meet. Three weeks go on phoning each other to find out who has the keys to what." } } }
+  ]
+},
+
+{
+  "id": "race_sortant",
+  "moment": [3, 2],
+  "race": ["municipales", "legislatives"],
+  "cast": "camp_senior",
+  "tag": { "fr": "Campagne", "en": "The campaign" },
+  "text": {
+    "fr": "{rival} occupe le siège depuis vingt-deux ans et la commission vous a investi à sa place. {Il} ne l'a pas contesté, {il} n'a rien dit du tout, et {il} n'a pas rendu le fichier ni les clés de la permanence.",
+    "en": "{rival} has held the seat for twenty-two years and the committee nominated you instead. {He} did not contest it, {he} said nothing at all, and {he} has not handed over the contact file or the keys to the office."
+  },
+  "choices": [
+    { "label": { "fr": "Aller {le} chercher chez {lui}", "en": "Go and see {him} at home" },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "reputation": 0.35 }, "dice": 16 },
+      "success": { "effects": { "score": 6, "standing": 6, "reseau": 2 },
+        "result": { "fr": "Deux heures dans une cuisine, sans témoin. {Il} vous donne les clés, le fichier, et le nom des quatre personnes qu'il faut voir avant les autres. {Il} ne fera pas campagne, et {il} ne fera pas campagne contre vous.",
+                    "en": "Two hours in a kitchen, no witnesses. {He} hands over the keys, the file, and the names of the four people to see before anyone else. {He} will not campaign, and {he} will not campaign against you." } },
+      "failure": { "effects": { "score": -3, "standing": -4, "energie": -1, "reputation": -1 },
+        "result": { "fr": "{Il} vous reçoit debout dans l'entrée, poliment, pendant quatre minutes. Vous repartez sans les clés et avec la certitude que la circonscription le saura avant vous.",
+                    "en": "{He} receives you standing in the hallway, politely, for four minutes. You leave without the keys and certain that the constituency will know before you do." } } },
+    { "label": { "fr": "{Le} mettre en tête d'affiche de votre campagne", "en": "Put {him} at the top of your campaign posters" },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "personality": ["calculating"] }, "value": 0.2 } ] },
+      "success": { "effects": { "score": 5, "popularity": -3, "standing": 7,
+                                "landscape": { "self": 0.4 } },
+        "result": { "fr": "Son nom en gros au-dessus du vôtre sur douze mille tracts. Vingt-deux ans d'électeurs suivent une photo, et cela ne s'achète pas autrement.",
+                    "en": "{His} name larger than yours on twelve thousand leaflets. Twenty-two years of voters follow a photograph, and there is no other way to buy that." } },
+      "failure": { "effects": { "score": -4, "popularity": -6, "notoriete": -2, "standing": -3 },
+        "result": { "fr": "Les électeurs lisent son nom, retiennent son nom, et beaucoup d'entre eux croiront jusqu'au dimanche que c'est {lui} le candidat.",
+                    "en": "Voters read {his} name, remember {his} name, and many of them will believe until Sunday that {he} is the candidate." } } },
+    { "label": { "fr": "Faire campagne contre vingt-deux ans d'immobilisme", "en": "Campaign against twenty-two years of standing still" },
+      "roll": { "base": 16, "stat": "eloquence", "plus": { "notoriete": 0.3 }, "dice": 16 },
+      "success": { "effects": { "score": 4, "popularity": 8, "standing": -10, "notoriete": 2 },
+        "result": { "fr": "Vous faites toute la campagne sur le renouvellement sans jamais prononcer son nom, ce qui est plus efficace que de le prononcer. La circonscription comprend très bien.",
+                    "en": "You run the whole campaign on renewal without ever saying {his} name, which is more effective than saying it. The constituency understands perfectly." } },
+      "failure": { "effects": { "score": -6, "standing": -13, "popularity": -4,
+                                "landscape": { "self": -0.5 } },
+        "result": { "fr": "{Il} sort de son silence le mercredi pour dire du mal de vous pendant six minutes sur la radio locale, et six minutes suffisent largement.",
+                    "en": "{He} breaks {his} silence on the Wednesday to speak against you for six minutes on local radio, and six minutes is more than enough." } } }
+  ]
+},
+
+{
+  "id": "race_reseaux",
+  "tag": { "fr": "Campagne", "en": "The campaign" },
+  "text": {
+    "fr": "Une vidéo de vous, tournée par un militant de vingt ans avec un téléphone, fait cent quatre-vingt mille vues en deux jours. Vous y êtes drôle, mal cadré, et vous dites une phrase que votre parti n'a jamais validée.",
+    "en": "A video of you, shot by a twenty-year-old activist on a phone, gets a hundred and eighty thousand views in two days. In it you are funny, badly framed, and you say a line your party has never signed off."
+  },
+  "choices": [
+    { "label": { "fr": "En faire toute votre campagne", "en": "Build the whole campaign on it" },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "notoriete": 0.3 }, "dice": 16 },
+      "success": { "effects": { "score": 5, "notoriete": 3, "popularity": 7, "standing": -6 },
+        "result": { "fr": "Quatorze vidéos en trois semaines, toujours mal cadrées, toujours drôles. Vous touchez plus de gens que six mois de tractage et le siège apprend le mot « format ».",
+                    "en": "Fourteen videos in three weeks, always badly framed, always funny. You reach more people than six months of leafleting and headquarters learns the word “format”." } },
+      "failure": { "effects": { "score": -4, "popularity": -7, "credibilite": -2, "standing": -4 },
+        "result": { "fr": "La quatrième vidéo est de trop, et la sixième est reprise par un compte adverse qui n'a rien eu à monter. On ne fait pas quatorze fois la même blague.",
+                    "en": "The fourth video is one too many, and the sixth is picked up by an opposing account that had nothing to edit. You cannot make the same joke fourteen times." } } },
+    { "label": { "fr": "La faire retirer et publier la version validée", "en": "Take it down and publish the approved version" },
+      "roll": { "chance": 0.55, "chanceBonus": [ { "when": { "background": ["comms"] }, "value": 0.2 } ] },
+      "success": { "effects": { "score": 1, "standing": 6, "credibilite": 1, "popularity": -2 },
+        "result": { "fr": "La version validée fait onze mille vues, ce qui est un désastre et ce dont personne au siège ne se plaindra jamais. La ligne est tenue.",
+                    "en": "The approved version gets eleven thousand views, which is a disaster and which nobody at headquarters will ever complain about. The line has held." } },
+      "failure": { "effects": { "score": -5, "popularity": -8, "notoriete": 1, "standing": -3 },
+        "result": { "fr": "Internet n'oublie rien et la suppression fait trois fois plus de vues que la vidéo. Le militant de vingt ans, lui, ne recollera plus jamais une affiche.",
+                    "en": "The internet forgets nothing and the deletion gets three times the views of the video. The twenty-year-old activist, for his part, will never put up another poster." } } },
+    { "label": { "fr": "Ne rien faire et laisser courir", "en": "Do nothing and let it run" },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "trait": ["teflon"] }, "value": 0.2 } ] },
+      "success": { "effects": { "score": 3, "notoriete": 2, "popularity": 3, "energie": 1 },
+        "result": { "fr": "La vidéo vit sa vie et meurt en dix jours, comme toutes les vidéos. Elle aura laissé cent quatre-vingt mille personnes avec votre visage et aucune polémique.",
+                    "en": "The video lives its life and dies in ten days, like all videos. It leaves a hundred and eighty thousand people with your face and no row." } },
+      "failure": { "effects": { "score": -3, "standing": -8, "credibilite": -1 },
+        "result": { "fr": "Un porte-parole national doit s'expliquer sur votre phrase à l'antenne, mal, un mardi matin. On vous appellera le soir même et ce ne sera pas pour vous féliciter.",
+                    "en": "A national spokesperson has to account for your line on air, badly, on a Tuesday morning. You will get a call that evening and it will not be congratulations." } } }
+  ]
+},
+
+{
+  "id": "race_promesse_locale",
+  "moment": 2,
+  "race": ["municipales", "legislatives", "europeennes"],
+  "tag": { "fr": "Campagne", "en": "The campaign" },
+  "text": {
+    "fr": "L'usine de la ville ferme dans huit mois et huit cents personnes le savent. Le programme national de votre parti dit exactement le contraire de ce qu'il faudrait promettre ici, et il le dit page onze.",
+    "en": "The town's factory closes in eight months and eight hundred people know it. Your party's national programme says exactly the opposite of what would need to be promised here, and it says it on page eleven."
+  },
+  "choices": [
+    { "label": { "fr": "Promettre de la sauver, quoi qu'il en coûte", "en": "Promise to save it, whatever it takes" },
+      "roll": { "base": 16, "stat": "eloquence", "plus": { "charisme": 0.35 }, "dice": 16 },
+      "success": { "effects": { "score": 6, "popularity": 8, "standing": -9, "credibilite": -1,
+                                "strike": "menteur" },
+        "result": { "fr": "Vous le dites devant la grille à six heures du matin, et huit cents personnes vous croient parce qu'elles ont besoin de croire quelqu'un. Vous savez déjà que vous ne pourrez pas.",
+                    "en": "You say it at the factory gate at six in the morning, and eight hundred people believe you because they need to believe somebody. You already know you will not be able to." } },
+      "failure": { "effects": { "score": -3, "popularity": -5, "credibilite": -3, "standing": -6 },
+        "result": { "fr": "Un délégué syndical vous demande, devant tout le monde, comment. Vous n'avez pas de réponse et le silence dure onze secondes de trop.",
+                    "en": "A union rep asks you, in front of everybody, how. You have no answer and the silence lasts eleven seconds too long." } } },
+    { "label": { "fr": "Dire la vérité et parler de l'après", "en": "Tell the truth and talk about what comes next" },
+      "roll": { "base": 16, "stat": "credibilite", "plus": { "reputation": 0.35 }, "dice": 16 },
+      "success": { "effects": { "score": 3, "credibilite": 3, "popularity": 5, "standing": 5,
+                                "reputation": 2, "landscape": { "self": 0.4 } },
+        "result": { "fr": "Vous dites qu'elle fermera, et vous restez deux heures de plus pour parler du terrain, des formations et de qui paie. Personne ne vous applaudit et tout le monde vous écoute.",
+                    "en": "You say it will close, and you stay two hours longer to talk about the site, retraining and who pays. Nobody applauds you and everybody listens." } },
+      "failure": { "effects": { "score": -6, "popularity": -9, "standing": -3, "energie": -2 },
+        "result": { "fr": "On vous entend dire « elle fermera » et on n'entend rien d'autre. La phrase fait le tour de la ville en une journée, amputée de tout ce qui suivait.",
+                    "en": "People hear you say “it will close” and hear nothing else. The sentence goes round the town in a day, stripped of everything that followed it." } } },
+    { "label": { "fr": "Éviter le sujet pendant toute la campagne", "en": "Avoid the subject for the whole campaign" },
+      "roll": { "chance": 0.4, "chanceBonus": [ { "when": { "personality": ["calculating"] }, "value": 0.2 } ] },
+      "success": { "effects": { "score": -1, "standing": 3, "energie": 1 },
+        "result": { "fr": "Vous parlez de sécurité, de transports et de sport scolaire pendant trois semaines. Personne ne vous pose la question, parce que personne n'attend plus rien.",
+                    "en": "You talk about policing, transport and school sport for three weeks. Nobody asks you the question, because nobody expects anything any more." } },
+      "failure": { "effects": { "score": -5, "popularity": -8, "reputation": -2, "standing": -3 },
+        "result": { "fr": "On vous la pose au débat, en dernière question, et votre hésitation dure exactement le temps qu'il faut pour faire un extrait de quinze secondes.",
+                    "en": "You are asked at the debate, as the last question, and your hesitation lasts exactly as long as it takes to make a fifteen-second clip." } } }
+  ]
+},
+
+{
+  "id": "race_strasbourg",
+  "race": ["europeennes"],
+  "tag": { "fr": "Campagne", "en": "The campaign" },
+  "text": {
+    "fr": "On vous demande, dans quatre réunions publiques d'affilée, ce que fait exactement un député européen. La réponse honnête prend huit minutes, la réponse utile en prend quinze secondes, et ce ne sont pas les mêmes.",
+    "en": "At four public meetings in a row, you are asked what a Member of the European Parliament actually does. The honest answer takes eight minutes, the useful answer takes fifteen seconds, and they are not the same answer."
+  },
+  "choices": [
+    { "label": { "fr": "Expliquer vraiment, pendant huit minutes", "en": "Actually explain it, for eight minutes" },
+      "roll": { "base": 16, "stat": "eloquence", "plus": { "credibilite": 0.4 }, "dice": 16 },
+      "success": { "effects": { "score": 4, "credibilite": 2, "popularity": 5, "reputation": 1 },
+        "result": { "fr": "Vous expliquez les commissions, les trilogues et pourquoi votre voix compte sur les emballages. Quarante personnes comprennent, et trente-huit voteront.",
+                    "en": "You explain committees, trilogues and why your vote matters on packaging. Forty people understand, and thirty-eight of them will vote." } },
+      "failure": { "effects": { "score": -4, "popularity": -5, "energie": -2 },
+        "result": { "fr": "Au bout de quatre minutes, six personnes regardent leur téléphone et l'organisateur cherche votre regard. La deuxième moitié de l'explication ne sera jamais donnée.",
+                    "en": "After four minutes, six people are looking at their phones and the organiser is trying to catch your eye. The second half of the explanation will never be given." } } },
+    { "label": { "fr": "Répondre en parlant de tout autre chose", "en": "Answer by talking about something else entirely" },
+      "roll": { "base": 14, "stat": "charisme", "plus": { "notoriete": 0.3 }, "dice": 16 },
+      "success": { "effects": { "score": 5, "popularity": 6, "notoriete": 1, "credibilite": -1 },
+        "result": { "fr": "Vous parlez de la ferme d'à côté, du prix du gazole et de Bruxelles comme d'un adversaire. C'est une campagne nationale déguisée en campagne européenne, et c'est ce que sont toutes les européennes.",
+                    "en": "You talk about the farm down the road, the price of diesel and Brussels as an opponent. It is a national campaign dressed as a European one, and that is what every European election is." } },
+      "failure": { "effects": { "score": -3, "credibilite": -2, "popularity": -4, "standing": -2 },
+        "result": { "fr": "Quelqu'un vous fait remarquer que vous n'avez pas répondu, et vous ne répondez pas non plus à cette remarque-là. La salle en tire ses conclusions.",
+                    "en": "Somebody points out that you did not answer, and you do not answer that either. The room draws its conclusions." } } },
+    { "label": { "fr": "Dire que c'est une élection nationale, et l'assumer", "en": "Say it is a national election, and own it" },
+      "when": { "personality": ["provocative", "principled"] },
+      "roll": { "base": 16, "stat": "sangfroid", "plus": { "reputation": 0.35 }, "dice": 16 },
+      "success": { "effects": { "score": 4, "popularity": 7, "notoriete": 2, "reputation": 1,
+                                "landscape": { "self": 0.5 } },
+        "result": { "fr": "Vous dites que personne ne vote pour un député européen, que tout le monde vote contre un gouvernement, et que vous ne ferez pas semblant. La salle applaudit d'un coup.",
+                    "en": "You say that nobody votes for an MEP, that everybody votes against a government, and that you will not pretend otherwise. The room applauds all at once." } },
+      "failure": { "effects": { "score": -5, "credibilite": -3, "standing": -6, "popularity": -3 },
+        "result": { "fr": "Vous venez d'expliquer devant deux cents personnes que le mandat que vous briguez ne sert à rien. C'est vrai, c'est courageux, et c'est un argument de campagne pour quelqu'un d'autre.",
+                    "en": "You have just explained to two hundred people that the office you are seeking is pointless. It is true, it is brave, and it is a campaign argument for somebody else." } } }
+  ]
 }
 
 ];

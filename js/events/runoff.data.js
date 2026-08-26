@@ -316,6 +316,171 @@ const EV_runoff = [
       "result": { "fr": "Quatre-vingt mille portes en dix jours. Ce n'est pas spectaculaire, cela ne passe à aucun journal, et c'est la seule chose ici qui se mesure.",
                   "en": "Eighty thousand doors in ten days. It is not spectacular, it leads no bulletin, and it is the only thing here that can actually be measured." } }
   ]
+},
+
+/* ==========================================================================
+   LA QUINZAINE COÛTE CE QU'ON PROMET POUR LA GAGNER
+   ==========================================================================
+   Huit scènes pour trois temps : deux entre-deux-tours dans une carrière
+   suffisaient à faire le tour du paquet. Les quatre qui suivent l'élargissent
+   et posent la question de la quinzaine — tout ce qu'on donne pour prendre
+   les voix des éliminés se paie cinq semaines plus tard, aux législatives,
+   avec l'argent du parti.
+   ========================================================================== */
+
+{
+  "id": "r_gouvernement",
+  "moment": [3, 2],
+  "tag": { "fr": "Entre les deux tours", "en": "Between the rounds" },
+  "text": {
+    "fr": "Tout le monde veut savoir qui sera votre Premier ministre. Le nommer maintenant rassure ou effraie, et ne le nommer pas laisse quatre personnes croire que ce sera elles, ce qui les fait travailler.",
+    "en": "Everybody wants to know who your prime minister will be. Naming them now either reassures or frightens, and not naming them lets four people believe it will be them, which keeps them working."
+  },
+  "choices": [
+    { "label": { "fr": "Annoncer un nom rassurant venu d'ailleurs", "en": "Announce a reassuring name from outside politics" },
+      "roll": { "base": 15, "stat": "credibilite", "plus": { "reseau": 0.35 }, "dice": 16 },
+      "success": { "effects": { "poll": 6, "credibilite": 2, "popularity": 5, "standing": -7 },
+        "result": { "fr": "Un préfet de soixante-deux ans que personne n'a jamais entendu prononcer un mot de trop. Les marchés se calment, le pays respire, et votre parti apprend qu'il n'aura pas Matignon.",
+                    "en": "A sixty-two-year-old senior official nobody has ever heard say a word too many. The markets settle, the country breathes, and your party learns it will not get the premiership." } },
+      "failure": { "effects": { "poll": -5, "standing": -11, "reputation": -1,
+                                "landscape": { "self": -0.6 } },
+        "result": { "fr": "Le nom sort et deux courants annoncent dans la journée qu'ils ne voteront pas la confiance. On ne présente pas un gouvernement avant d'avoir gagné l'élection.",
+                    "en": "The name comes out and two factions announce within the day that they will not vote confidence. You do not present a government before winning the election." } } },
+    { "label": { "fr": "Promettre Matignon à votre parti", "en": "Promise the premiership to your own party" },
+      "roll": { "chance": 0.7, "chanceBonus": [ { "when": { "minStanding": 60 }, "value": 0.15 } ] },
+      "success": { "effects": { "poll": 3, "standing": 13, "reseau": 2, "landscape": { "self": 0.7 },
+                                "popularity": -3 },
+        "result": { "fr": "Vous dites que le Premier ministre viendra de la majorité et de nulle part ailleurs. La maison entière se met en marche en une nuit : il y a soudain quelque chose à gagner.",
+                    "en": "You say the prime minister will come from the majority and nowhere else. The entire house starts moving overnight: there is suddenly something to win." } },
+      "failure": { "effects": { "poll": -4, "standing": 4, "credibilite": -2, "popularity": -6 },
+        "result": { "fr": "Les quatre candidats à Matignon se mettent à faire campagne l'un contre l'autre pendant que vous faites campagne contre quelqu'un d'autre.",
+                    "en": "The four candidates for the premiership start campaigning against each other while you are campaigning against somebody else." } } },
+    { "label": { "fr": "Ne rien annoncer du tout", "en": "Announce nothing at all" },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "eloquence": 0.3 }, "dice": 16 },
+      "success": { "effects": { "poll": 2, "sangfroid": 1, "standing": 3, "credibilite": 1 },
+        "result": { "fr": "« On verra dimanche soir. » Vous le dites quatorze fois en quinze jours, avec le même sourire, et personne n'obtient rien. Quatre personnes continuent de travailler pour vous.",
+                    "en": "“We shall see on Sunday evening.” You say it fourteen times in a fortnight, with the same smile, and nobody gets anything. Four people keep working for you." } },
+      "failure": { "effects": { "poll": -5, "popularity": -6, "credibilite": -2 },
+        "result": { "fr": "Le refus de répondre devient le sujet. À la neuvième fois, la question n'est plus qui sera Premier ministre, c'est ce que vous cachez.",
+                    "en": "The refusal to answer becomes the story. By the ninth time, the question is no longer who the prime minister will be, it is what you are hiding." } } }
+  ]
+},
+
+{
+  "id": "r_circonscriptions",
+  "cast": "eliminated",
+  "moment": [3, 2],
+  "tag": { "fr": "Entre les deux tours", "en": "Between the rounds" },
+  "text": {
+    "fr": "{rival} ne demande pas de ministère : {il} demande soixante circonscriptions aux législatives, sans concurrent de votre camp. C'est le prix de l'appel à voter, et {il} le fait dire par quelqu'un d'autre.",
+    "en": "{rival} is not asking for a ministry: {he} wants sixty constituencies at the legislatives, with no candidate from your camp against {him}. That is the price of {his} endorsement, and {he} has somebody else say it."
+  },
+  "choices": [
+    { "label": { "fr": "Accepter les soixante", "en": "Accept all sixty" },
+      "roll": { "chance": 0.7 },
+      "success": { "effects": { "poll": 7, "standing": -9, "landscape": { "self": -1.0, "ally": 0.8 },
+                                "alliance": "scene" },
+        "result": { "fr": "L'appel à voter tombe le mardi et il est chaleureux, ce qui n'était pas prévu. Vous avez acheté dimanche avec soixante sièges que vous n'aurez pas en juin.",
+                    "en": "The endorsement lands on the Tuesday and it is warm, which was not expected. You have bought Sunday with sixty seats you will not have in June." } },
+      "failure": { "effects": { "poll": 2, "standing": -14, "reputation": -2,
+                                "landscape": { "self": -1.2 }, "strike": "traitre" },
+        "result": { "fr": "La liste des soixante fuite avant l'appel à voter, et soixante sortants de votre camp découvrent dans la presse qu'ils ne se représenteront pas.",
+                    "en": "The list of sixty leaks before the endorsement, and sixty sitting members of your own camp learn from the press that they will not be standing again." } } },
+    { "label": { "fr": "En offrir quinze et pas une de plus", "en": "Offer fifteen and not one more" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.35, "standing": 0.04 }, "dice": 16 },
+      "success": { "effects": { "poll": 4, "standing": 4, "reseau": 2, "landscape": { "self": -0.3 } },
+        "result": { "fr": "Quinze circonscriptions, dont onze imprenables, et l'appel à voter quand même. {Il} savait qu'{il} n'obtiendrait pas soixante, {il} voulait savoir ce que vous valiez en négociation.",
+                    "en": "Fifteen constituencies, eleven of them unwinnable, and the endorsement anyway. {He} knew {he} would not get sixty; {he} wanted to know how you negotiate." } },
+      "failure": { "effects": { "poll": -6, "standing": -5, "energie": -2 },
+        "result": { "fr": "{Il} appelle à voter « selon sa conscience », ce qui est la formule exacte qu'on emploie quand on veut que ses électeurs restent chez eux.",
+                    "en": "{He} calls on {his} voters to “follow their conscience”, which is the exact phrase used when you want them to stay at home." } } },
+    { "label": { "fr": "Refuser publiquement et raconter la demande", "en": "Refuse publicly, and describe the demand" },
+      "roll": { "base": 16, "stat": "eloquence", "plus": { "reputation": 0.3 }, "dice": 16 },
+      "success": { "effects": { "poll": 5, "popularity": 9, "standing": 8, "credibilite": 2,
+                                "landscape": { "self": 0.6 } },
+        "result": { "fr": "Vous dites à l'antenne ce qu'on vous a demandé, avec le chiffre. Le pays entend soixante et comprend tout seul, et {rival} passe la fin de la quinzaine à s'expliquer.",
+                    "en": "You say on air what you were asked for, with the number. The country hears sixty and works it out on its own, and {rival} spends the rest of the fortnight explaining {him}self." } },
+      "failure": { "effects": { "poll": -8, "standing": -6, "reputation": -1,
+                                "landscape": { "self": -0.5 } },
+        "result": { "fr": "{Il} dément avoir jamais rien demandé, l'émissaire aussi, et il n'existe évidemment aucun écrit. Vous passez pour quelqu'un qui raconte des réunions.",
+                    "en": "{He} denies having asked for anything, so does {his} emissary, and of course nothing was ever written down. You come across as somebody who tells tales about meetings." } } }
+  ]
+},
+
+{
+  "id": "r_soutien_encombrant",
+  "tag": { "fr": "Entre les deux tours", "en": "Between the rounds" },
+  "text": {
+    "fr": "Un ancien président de la République, condamné deux fois et toujours écouté par deux millions de personnes, appelle à voter pour vous dans une tribune de quatre mille signes que personne ne lui avait demandée.",
+    "en": "A former president of the Republic, twice convicted and still listened to by two million people, endorses you in a four-thousand-word article nobody asked him for."
+  },
+  "choices": [
+    { "label": { "fr": "Remercier chaleureusement", "en": "Thank him warmly" },
+      "roll": { "chance": 0.5, "chanceBonus": [ { "when": { "party": ["conservatives", "liberals", "identitarians"] }, "value": 0.2 },
+                                                { "when": { "trait": ["teflon"] }, "value": 0.15 } ] },
+      "success": { "effects": { "poll": 5, "standing": 4, "reputation": -1, "appeal": { "others": -1 } },
+        "result": { "fr": "Vous le remerciez en trois phrases sans jamais prononcer le mot « condamné ». Deux millions d'électeurs se souviennent qu'ils ont un candidat, et personne d'autre ne relève.",
+                    "en": "You thank him in three sentences without once saying the word “convicted”. Two million voters remember that they have a candidate, and nobody else picks it up." } },
+      "failure": { "effects": { "poll": -6, "popularity": -8, "reputation": -2, "credibilite": -1 },
+        "result": { "fr": "La photo d'archive ressort dans la minute, et c'est celle du tribunal. On ne vous demandera plus rien d'autre pendant trois jours.",
+                    "en": "The archive photograph is up within the minute, and it is the one from the courthouse. Nothing else will be asked of you for three days." } } },
+    { "label": { "fr": "Le refuser publiquement", "en": "Refuse the endorsement publicly" },
+      "roll": { "base": 16, "stat": "reputation", "plus": { "sangfroid": 0.3 }, "dice": 16 },
+      "success": { "effects": { "poll": 3, "popularity": 10, "credibilite": 2, "reputation": 2,
+                                "standing": -6 },
+        "result": { "fr": "Vous dites que vous n'avez pas besoin de ce soutien-là, et vous le dites sans une once de plaisir. La phrase fait l'ouverture des trois journaux du soir.",
+                    "en": "You say you do not need that particular endorsement, and you say it without a trace of pleasure. The line leads all three evening bulletins." } },
+      "failure": { "effects": { "poll": -7, "standing": -10, "popularity": -3,
+                                "appeal": { "self": -5 } },
+        "result": { "fr": "Ses deux millions d'électeurs entendent « je ne veux pas de vous ». À quinze jours d'un second tour, on ne renvoie pas deux millions de personnes chez elles.",
+                    "en": "His two million voters hear “I do not want you”. A fortnight before a runoff, you do not send two million people home." } } },
+    { "label": { "fr": "Ne pas répondre et changer de sujet", "en": "Not respond, and change the subject" },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "personality": ["calculating"] }, "value": 0.2 } ] },
+      "success": { "effects": { "poll": 1, "sangfroid": 1, "energie": -1 },
+        "result": { "fr": "Vous parlez de logement pendant quatre jours avec une constance qui force l'admiration. Le sujet meurt d'ennui, ce qui est la seule mort propre.",
+                    "en": "You talk about housing for four days with admirable consistency. The story dies of boredom, which is the only clean death." } },
+      "failure": { "effects": { "poll": -5, "popularity": -6, "credibilite": -2 },
+        "result": { "fr": "On vous pose la question à chaque plateau, et à chaque plateau vous ne répondez pas. Au quatrième, le refus de répondre est devenu la réponse.",
+                    "en": "You are asked at every broadcast, and at every broadcast you do not answer. By the fourth, the refusal to answer has become the answer." } } }
+  ]
+},
+
+{
+  "id": "r_manifestation",
+  "when": { "foeFar": true },
+  "tag": { "fr": "Entre les deux tours", "en": "Between the rounds" },
+  "text": {
+    "fr": "Deux cent mille personnes défilent contre votre adversaire dans quarante villes, sans vous avoir prévenu et en vous citant partout. En fin de cortège, à Paris, quelques dizaines de vitrines y passent.",
+    "en": "Two hundred thousand people march against your opponent in forty cities, without warning you and quoting you everywhere. At the back of the Paris march, a few dozen shopfronts go in."
+  },
+  "choices": [
+    { "label": { "fr": "Vous en réclamer sans réserve", "en": "Claim it without reservation" },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "popularity": 0.05 }, "dice": 16 },
+      "success": { "effects": { "poll": 6, "appeal": { "self": 8, "others": -2 }, "notoriete": 2,
+                                "landscape": { "self": 0.7 } },
+        "result": { "fr": "Vous parlez de deux cent mille personnes et jamais des vitrines. Le lendemain, les inscriptions en mairie explosent chez les moins de trente ans.",
+                    "en": "You talk about two hundred thousand people and never about the shopfronts. The next day, voter registrations among the under-thirties go through the roof." } },
+      "failure": { "effects": { "poll": -7, "popularity": -8, "credibilite": -2,
+                                "appeal": { "others": -4 } },
+        "result": { "fr": "Les vitrines tournent en boucle sur trois chaînes pendant que vous remerciez le cortège. Le montage se fait tout seul, et il est imparable.",
+                    "en": "The shopfronts run on a loop on three channels while you thank the marchers. The edit assembles itself, and it is unanswerable." } } },
+    { "label": { "fr": "Saluer le cortège et condamner les casseurs", "en": "Salute the march and condemn the rioters" },
+      "roll": { "base": 14, "stat": "eloquence", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "poll": 4, "popularity": 6, "credibilite": 2, "standing": 2 },
+        "result": { "fr": "Deux phrases, une pour chaque chose, et dans le bon ordre. C'est l'exercice le plus banal de la vie politique et presque personne ne le réussit.",
+                    "en": "Two sentences, one for each, and in the right order. It is the most ordinary exercise in political life and almost nobody gets it right." } },
+      "failure": { "effects": { "poll": -4, "appeal": { "self": -5 }, "popularity": -3 },
+        "result": { "fr": "Vous condamnez d'abord et vous saluez ensuite, ce qui inverse tout. Le cortège retient l'ordre des phrases, et il a raison de le retenir.",
+                    "en": "You condemn first and salute second, which reverses everything. The march remembers the order of the sentences, and it is right to remember it." } } },
+    { "label": { "fr": "Ne rien dire : ce n'est pas votre manifestation", "en": "Say nothing: it is not your march" },
+      "roll": { "chance": 0.55, "chanceBonus": [ { "when": { "personality": ["principled"] }, "value": 0.2 } ] },
+      "success": { "effects": { "poll": 2, "credibilite": 1, "sangfroid": 1 },
+        "result": { "fr": "Vous laissez deux cent mille personnes défiler sans essayer de vous mettre devant. Elles voteront quand même, et elles voteront moins mal.",
+                    "en": "You let two hundred thousand people march without trying to get in front of them. They will vote anyway, and they will vote less grudgingly." } },
+      "failure": { "effects": { "poll": -5, "appeal": { "self": -6 }, "standing": -4 },
+        "result": { "fr": "Votre silence est lu comme une distance, y compris par ceux qui défilaient avec votre nom sur leurs pancartes. On ne se tait pas devant deux cent mille personnes.",
+                    "en": "Your silence is read as distance, including by the people marching with your name on their placards. You do not stay quiet in front of two hundred thousand people." } } }
+  ]
 }
 
 ];

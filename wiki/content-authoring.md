@@ -20,17 +20,25 @@ deck) and reassembled into `EVENT_DATA` by `_assemble.data.js`. You can author t
   the FR/EN text, and names the exact file to paste the exported JSON into. Recommended;
   it catches the mistakes below before they reach the data.
 
+**Either way, run `node tools/valide-contenu.js` afterwards.** A vocabulary mistake in an
+event does not break anything — it does nothing, which is worse. A `"personality":
+["brutal"]` when the personality is called `provocative` is a choice that never shows; a
+`"strike"` on a mark that does not exist is an effect that never applies; a `"chain"` to a
+missing id is a follow-up that never fires. The game runs, the regression harness sees
+nothing, and the scene is dead. The checker confronts every word with what the engine
+actually knows, in both languages, and prints one line per problem.
+
 `EVENT_DATA` has seven decks. Pick the right one:
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
 | `events` | Ordinary turns (250 events) | the full schema below |
-| `campaign` | The 6 steps before the first round, when the player runs (20) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
-| `runoff` | The 3 steps between the two rounds (8) | `poll` moves the head-to-head; `cast: "eliminated"` |
-| `support` | The 3 steps of a presidential campaign the player is not in (8) | effects use `score`, which moves your camp's line in a poll the player watches for three scenes |
-| `aside` | An ordinary election that happens without the player (6) | ordinary effects, no `score`. Split in two halves by `partyLead`: an election you merely watch is a different evening when you are the one who signed every nomination — **keep both halves populated**, `drawAside()` falls back to the whole deck when nothing matches |
-| `nomination` | When the party refuses to nominate you (10) | rewards `standing` different ways. `"election": ["municipales","legislatives","europeennes"]` restricts a scene to the contests it makes sense in — the same idea as `race` in the `races` deck. Anything about lists, constituencies or a candidate parachuted in by head office needs it: nobody parachutes a party leader, and a congress has no list to balance. Scenes about the machine itself carry no `election` and play everywhere (6 of the 10 do) |
-| `races` | Steps of an ordinary election campaign (16) | effects use `score`; `race: [...]`, `moment` |
+| `campaign` | The 6 steps before the first round, when the player runs (26) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
+| `runoff` | The 3 steps between the two rounds (12) | `poll` moves the head-to-head; `cast: "eliminated"` |
+| `support` | The 3 steps of a presidential campaign the player is not in (16) | effects use `score`, which moves your camp's line in a poll the player watches for three scenes |
+| `aside` | An ordinary election that happens without the player (12) | ordinary effects, no `score`. Split in two halves by `partyLead` (6 and 6): an election you merely watch is a different evening when you are the one who signed every nomination — **keep both halves populated**, `drawAside()` falls back to the whole deck when nothing matches |
+| `nomination` | When the party refuses to nominate you (14) | rewards `standing` different ways. `"election": ["municipales","legislatives","europeennes"]` restricts a scene to the contests it makes sense in — the same idea as `race` in the `races` deck. Anything about lists, constituencies or a candidate parachuted in by head office needs it: nobody parachutes a party leader, and a congress has no list to balance. Scenes about the machine itself carry no `election` and play everywhere |
+| `races` | Steps of an ordinary election campaign (22) | effects use `score`; `race: [...]`, `moment` |
 
 ### Event shape
 ```jsonc
@@ -258,8 +266,24 @@ reads as a statement.
 ### Text placeholders
 `{rival}` = staged figure's name (first mention adds party+office), `{rival_party}` =
 their party, `{party}` = yours. **Gender agreement marks** for the staged figure (resolved
-by `fillGender`): FR `{il}{le}{lui}{celui}{un}{e}`, EN `{he}{him}{his}`. Capitalize the
-mark to capitalize the output: `{Le} soutenir`.
+by `fillGender`): FR `{il}{le}{lui}{celui}{un}{e}{premier}`, EN `{he}{him}{his}`. Capitalize
+the mark to capitalize the output: `{Le} soutenir`.
+
+**A mark the table does not know is printed as-is**, braces and all, in the middle of the
+sentence. Nothing crashes and nothing warns; the player simply reads `{son} suppléant`.
+`node tools/valide-contenu.js` checks every mark in every deck against the real table —
+run it after writing.
+
+Three traps that are *not* mark problems, and that the checker cannot see:
+
+- **The French possessive agrees with the thing owned, not the person.** *son nom*, *sa
+  place*, *ses militants* — write them plainly, whatever the figure's gender. There is no
+  `{son}` and there does not need to be one.
+- **`{lui}` is the disjunctive pronoun** (*derrière lui / derrière elle*), and it resolves
+  to `elle` for a woman. The indirect object pronoun is invariant — *lui proposer*, *vous
+  lui offrez* — so write that one plainly too, or a woman gets *elle proposer*.
+- **Elision does not vary.** *l'exclure* is the same for both, so write it out;
+  `{Le} exclure` produces *Le exclure*.
 
 ---
 

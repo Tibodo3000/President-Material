@@ -644,6 +644,281 @@ const EV_campaign = [
       "result": { "fr": "Six pages sur votre enfance et pas un visage qui n'ait choisi d'être là. C'est le compromis le plus cher et le seul qui se défende.",
                   "en": "Six pages on your childhood and not one face that did not choose to be there. It is the most expensive compromise and the only defensible one." } }
   ]
+},
+
+/* ==========================================================================
+   CE QU'ON DONNE AU PARTI, ET CE QU'ON GARDE POUR SOI
+   ==========================================================================
+   Six temps tirés dans vingt scènes : une carrière voyait donc à peu près
+   tout le paquet, et une deuxième candidature rejouait la première. Les six
+   scènes qui suivent l'élargissent, et elles tirent toutes sur le seul
+   arbitrage qu'une campagne présidentielle pose vraiment à celui qui la
+   mène — le point de sondage de dimanche contre la maison qu'il faudra
+   diriger lundi.
+   ========================================================================== */
+
+{
+  "id": "c_investitures_legislatives",
+  "moment": [5, 2],
+  "weight": 3,
+  "tag": { "fr": "L'appareil", "en": "The machine" },
+  "text": {
+    "fr": "Les législatives suivent la présidentielle de cinq semaines et tout le monde y pense déjà. Quatre barons vous font savoir, séparément et exactement dans les mêmes termes, que leur mobilisation dépend de la liste des investitures.",
+    "en": "The legislatives follow the presidential by five weeks and everybody is already thinking about them. Four party barons let you know, separately and in exactly the same words, that their level of effort depends on the nominations list."
+  },
+  "choices": [
+    { "label": { "fr": "Promettre les quatre circonscriptions", "en": "Promise all four constituencies" },
+      "roll": { "chance": 0.75, "chanceBonus": [ { "when": { "trait": ["appareil"] }, "value": 0.15 } ] },
+      "success": { "effects": { "poll": 5, "standing": 6, "reseau": 1, "landscape": { "self": -0.4 },
+                                "reputation": -1 },
+        "result": { "fr": "L'appareil se met en marche en quarante-huit heures : les fédérations rouvrent, les tracts partent, les cars sont réservés. Vous venez d'hypothéquer quatre sièges pour une semaine de campagne, et vous le savez.",
+                    "en": "The machine starts up within forty-eight hours: federations reopen, leaflets go out, coaches are booked. You have just mortgaged four seats for a week of campaigning, and you know it." } },
+      "failure": { "effects": { "poll": 2, "standing": -6, "reputation": -2, "strike": "appareil",
+                                "landscape": { "self": -0.7 } },
+        "result": { "fr": "Les quatre listes ne se recoupent pas et deux des barons voulaient la même ville. Ils l'apprennent le même soir, par le même permanent, qui aurait dû se taire.",
+                    "en": "The four lists do not match up and two of the barons wanted the same town. They find out the same evening, from the same staffer, who should have kept quiet." } } },
+    { "label": { "fr": "N'en promettre aucune, et le dire", "en": "Promise none of them, and say so" },
+      "roll": { "base": 16, "stat": "credibilite", "plus": { "sangfroid": 0.35 }, "dice": 16 },
+      "success": { "effects": { "poll": 2, "popularity": 7, "standing": -5, "credibilite": 2,
+                                "landscape": { "self": 0.6 }, "reputation": 2 },
+        "result": { "fr": "Vous annoncez que les investitures seront décidées après le second tour, par une commission, sur dossier. C'est la première fois que quelqu'un dit cette phrase et la tient.",
+                    "en": "You announce that nominations will be decided after the runoff, by a committee, on the merits. It is the first time anybody has said that sentence and meant it." } },
+      "failure": { "effects": { "poll": -5, "standing": -10, "energie": -2,
+                                "landscape": { "self": -0.5 } },
+        "result": { "fr": "Les quatre fédérations font la campagne au ralenti sans jamais rien dire. On appelle ça une grève du zèle, et elle ne se photographie pas.",
+                    "en": "The four federations run the campaign at half speed without ever saying a word. It is called working to rule, and it does not photograph." } } },
+    { "label": { "fr": "En promettre deux et faire attendre les deux autres", "en": "Promise two and keep the other two waiting" },
+      "when": { "personality": ["calculating"] },
+      "roll": { "base": 15, "stat": "reseau", "plus": { "standing": 0.05 }, "dice": 16 },
+      "success": { "effects": { "poll": 4, "standing": 3, "reseau": 2, "landscape": { "self": -0.2 } },
+        "result": { "fr": "Deux barons travaillent parce qu'ils ont eu leur ville, deux parce qu'ils espèrent l'avoir. Le second groupe travaille mieux, ce qui est la seule leçon utile de cette campagne.",
+                    "en": "Two barons work because they got their town, two because they hope to. The second pair works harder, which is the only useful lesson of this campaign." } },
+      "failure": { "effects": { "poll": -4, "standing": -9, "reputation": -1, "strike": "menteur" },
+        "result": { "fr": "Les quatre se parlent le jeudi soir, comparent, et comprennent en douze minutes. Il n'existe pas de secret entre quatre personnes qui veulent la même chose.",
+                    "en": "The four of them talk on the Thursday evening, compare notes, and work it out in twelve minutes. There is no such thing as a secret between four people who want the same thing." } } },
+    { "label": { "fr": "Promettre la vôtre à quelqu'un d'autre", "en": "Promise your own seat to somebody else" },
+      "when": { "position": ["depute", "maire"] },
+      "roll": { "base": 14, "stat": "charisme", "plus": { "reputation": 0.3 }, "dice": 16 },
+      "success": { "effects": { "poll": 6, "standing": 9, "popularity": 5,
+                                "landscape": { "self": 0.5 } },
+        "result": { "fr": "Vous annoncez que vous ne vous représenterez nulle part, quel que soit le résultat. La salle met quatre secondes à comprendre, et applaudit debout pendant deux minutes.",
+                    "en": "You announce that you will not stand anywhere again, whatever the result. The hall takes four seconds to understand, then applauds standing for two minutes." } },
+      "failure": { "effects": { "poll": -3, "standing": -4, "popularity": -6, "credibilite": -2 },
+        "result": { "fr": "On y lit ce qu'il faut y lire : quelqu'un qui n'a pas de plan B ne renonce pas à son plan B. La phrase « il sait qu'il a perdu » sort dans les trois heures.",
+                    "en": "It is read exactly as it should be: somebody with no fallback does not give up their fallback. The line “he knows he has lost” appears within three hours." } } }
+  ]
+},
+
+{
+  "id": "c_porte_parole",
+  "moment": [6, 3],
+  "cast": "camp_senior",
+  "tag": { "fr": "L'équipe", "en": "The team" },
+  "text": {
+    "fr": "{rival} veut être votre porte-parole. {Il} est excellent{e} en plateau, {il} a fait campagne contre vous à la primaire, et {il} n'a jamais caché qu'{il} pensait à la fois d'après.",
+    "en": "{rival} wants to be your campaign spokesperson. {He} is excellent on television, {he} ran against you in the primary, and {he} has never hidden that {he} is thinking about the next time."
+  },
+  "choices": [
+    { "label": { "fr": "{Le} nommer et {le} laisser occuper l'antenne", "en": "Appoint {him} and let {him} take the airtime" },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "standing": 0.04 }, "dice": 16 },
+      "success": { "effects": { "poll": 6, "standing": 7, "energie": 2, "landscape": { "self": 0.5 },
+                                "notoriete": -1 },
+        "result": { "fr": "{Il} fait quarante plateaux en six semaines et {il} les fait bien. Le camp parle d'une seule voix pour la première fois depuis dix ans, et ce n'est pas la vôtre.",
+                    "en": "{He} does forty broadcasts in six weeks and does them well. The camp speaks with one voice for the first time in ten years, and it is not yours." } },
+      "failure": { "effects": { "poll": -3, "standing": -4, "popularity": -5, "notoriete": -2 },
+        "result": { "fr": "{Il} répond à côté de la ligne trois fois en dix jours, toujours dans le même sens, et jamais tout à fait assez pour qu'on puisse {le} démentir.",
+                    "en": "{He} strays from the line three times in ten days, always in the same direction, and never quite enough for anyone to be able to correct {him}." } } },
+    { "label": { "fr": "{Le} nommer et {le} tenir en laisse courte", "en": "Appoint {him} and keep {him} on a short leash" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "poll": 3, "standing": 4, "credibilite": 1, "energie": -2 },
+        "result": { "fr": "Éléments de langage tous les matins à sept heures, débrief tous les soirs. {Il} tient six semaines, {il} déteste chaque minute, et rien ne fuit.",
+                    "en": "Talking points every morning at seven, debrief every evening. {He} lasts six weeks, {he} hates every minute, and nothing leaks." } },
+      "failure": { "effects": { "poll": -4, "standing": -7, "energie": -3, "reputation": -1 },
+        "result": { "fr": "{Il} raconte la laisse avant la fin de la campagne, avec l'horaire des réunions et le nom du document. On ne retiendra rien d'autre de votre organisation.",
+                    "en": "{He} describes the leash before the campaign is over, with the times of the meetings and the name of the document. Nothing else about your organisation will be remembered." } } },
+    { "label": { "fr": "Refuser et parler vous-même", "en": "Refuse, and speak for yourself" },
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "energie": 0.35 }, "dice": 16 },
+      "success": { "effects": { "poll": 4, "notoriete": 2, "popularity": 5, "standing": -6,
+                                "energie": -3 },
+        "result": { "fr": "Vous prenez tous les plateaux, y compris ceux de sept heures du matin. Le pays finit par ne connaître qu'un visage de cette campagne, et c'est le vôtre.",
+                    "en": "You take every broadcast, including the seven in the morning ones. The country ends up knowing one face from this campaign, and it is yours." } },
+      "failure": { "effects": { "poll": -5, "energie": -4, "standing": -8, "popularity": -3 },
+        "result": { "fr": "Six semaines à dormir quatre heures. La huitième interview de la semaine est celle de trop, et c'est celle-là que tout le monde regardera.",
+                    "en": "Six weeks on four hours' sleep. The eighth interview of the week is the one too many, and it is the one everybody watches." } } }
+  ]
+},
+
+{
+  "id": "c_micro_ouvert",
+  "weight": 3,
+  "tag": { "fr": "Micro ouvert", "en": "Hot mic" },
+  "text": {
+    "fr": "Entre deux plateaux, vous dites à votre directeur de cabinet ce que vous pensez vraiment des électeurs d'une certaine ville. Le micro-cravate est resté branché et l'ingénieur du son a tout entendu.",
+    "en": "Between two studios, you tell your chief of staff what you really think of the voters of a certain town. The lapel mic is still live and the sound engineer heard all of it."
+  },
+  "choices": [
+    { "label": { "fr": "Aller le voir avant qu'il ne sorte", "en": "Go and see him before it gets out" },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "reputation": 0.3 }, "dice": 16 },
+      "success": { "effects": { "poll": 0, "reseau": 1, "sangfroid": 1, "energie": -1 },
+        "result": { "fr": "Vous allez lui parler cinq minutes en régie, sans témoin et sans rien promettre. Il efface le fichier devant vous, parce que personne ne le lui avait jamais demandé comme ça.",
+                    "en": "You talk to him for five minutes in the gallery, no witnesses, no promises. He deletes the file in front of you, because nobody had ever asked him like that." } },
+      "failure": { "effects": { "poll": -6, "popularity": -9, "reputation": -2,
+                                "appeal": { "others": -3 } },
+        "result": { "fr": "Il enregistre aussi la conversation où vous lui demandez d'effacer la première. Les deux sortent ensemble, et c'est la seconde qui fait le plus de mal.",
+                    "en": "He also records the conversation in which you ask him to delete the first one. Both come out together, and it is the second that does the damage." } } },
+    { "label": { "fr": "Prendre les devants et publier la phrase", "en": "Get ahead of it and publish the line yourself" },
+      "roll": { "base": 16, "stat": "sangfroid", "plus": { "eloquence": 0.4 }, "dice": 16 },
+      "success": { "effects": { "poll": 4, "notoriete": 2, "popularity": 6, "credibilite": 1,
+                                "reputation": 1 },
+        "result": { "fr": "Vous la citez vous-même en ouverture du meeting du soir, en expliquant pourquoi vous l'avez dite. La salle rit, le pays trouve ça humain, et il n'y a plus rien à révéler.",
+                    "en": "You quote it yourself at the top of the evening rally, explaining why you said it. The hall laughs, the country finds it human, and there is nothing left to reveal." } },
+      "failure": { "effects": { "poll": -7, "popularity": -11, "standing": -5,
+                                "appeal": { "others": -6 } },
+        "result": { "fr": "Vous la citez et vous l'expliquez, ce qui la fait entendre deux fois. La ville concernée fait le reste, et elle a vingt-deux mille électeurs.",
+                    "en": "You quote it and you explain it, which means it is heard twice. The town in question does the rest, and it has twenty-two thousand voters." } } },
+    { "label": { "fr": "Nier en bloc", "en": "Deny everything" },
+      "roll": { "chance": 0.35, "chanceBonus": [ { "when": { "trait": ["teflon"] }, "value": 0.3 },
+                                                 { "when": { "background": ["comms"] }, "value": 0.2 } ] },
+      "success": { "effects": { "poll": -1, "reputation": -1, "sangfroid": 1 },
+        "result": { "fr": "Il n'y a pas de bande, il n'y a qu'un témoin, et un témoin sans bande n'existe pas dans une campagne. Le sujet meurt en trente-six heures.",
+                    "en": "There is no tape, there is only a witness, and a witness without a tape does not exist in a campaign. The story dies in thirty-six hours." } },
+      "failure": { "effects": { "poll": -8, "popularity": -10, "credibilite": -3,
+                                "strike": "menteur", "appeal": { "others": -3 } },
+        "result": { "fr": "La bande sort quarante minutes après votre démenti, et c'est le démenti qui passe en boucle. On ne meurt pas de la phrase, on meurt de l'avoir niée.",
+                    "en": "The tape comes out forty minutes after your denial, and it is the denial that runs on a loop. Nobody dies of the sentence, they die of having denied it." } } }
+  ]
+},
+
+{
+  "id": "c_livre",
+  "moment": [6, 4],
+  "tag": { "fr": "Le livre", "en": "The book" },
+  "text": {
+    "fr": "Votre livre de campagne sort dans trois semaines. L'éditeur veut un chapitre personnel, votre directeur de campagne veut un programme, et votre parti veut savoir qui figure dans les remerciements.",
+    "en": "Your campaign book comes out in three weeks. The publisher wants a personal chapter, your campaign director wants a programme, and your party wants to know who is in the acknowledgements."
+  },
+  "choices": [
+    { "label": { "fr": "Écrire le chapitre personnel", "en": "Write the personal chapter" },
+      "roll": { "base": 15, "stat": "reputation", "plus": { "charisme": 0.35 }, "dice": 16 },
+      "success": { "effects": { "poll": 5, "popularity": 8, "notoriete": 2, "standing": -4 },
+        "result": { "fr": "Quarante pages sur votre père, votre ville et l'année où tout a failli s'arrêter. Deux cent mille exemplaires, et les gens vous parlent de ce chapitre-là sur les marchés pendant six ans.",
+                    "en": "Forty pages about your father, your town and the year it nearly all stopped. Two hundred thousand copies, and people talk to you about that chapter in markets for six years." } },
+      "failure": { "effects": { "poll": -4, "popularity": -6, "reputation": -2, "money": -20000 },
+        "result": { "fr": "Le chapitre est sincère et il est mal écrit, ce qui est la pire combinaison. Trois critiques en font des extraits, toujours les mêmes quatre lignes.",
+                    "en": "The chapter is sincere and badly written, which is the worst combination. Three reviewers quote extracts, always the same four lines." } } },
+    { "label": { "fr": "En faire un programme et rien d'autre", "en": "Make it a programme and nothing else" },
+      "roll": { "base": 14, "stat": "credibilite", "plus": { "eloquence": 0.3 }, "dice": 16 },
+      "success": { "effects": { "poll": 3, "credibilite": 3, "standing": 6, "popularity": -2,
+                                "landscape": { "self": 0.5 } },
+        "result": { "fr": "Cent quatre-vingts pages chiffrées que personne ne lira en entier et que tout le monde citera. C'est le document dont votre parti vivra pendant cinq ans.",
+                    "en": "A hundred and eighty costed pages nobody will read in full and everybody will quote. It is the document your party will live off for five years." } },
+      "failure": { "effects": { "poll": -3, "popularity": -5, "money": -25000, "energie": -2 },
+        "result": { "fr": "Onze mille exemplaires vendus, dont quatre mille achetés par les fédérations. Le livre le plus sérieux de la campagne est aussi celui qu'on retrouvera en pilon.",
+                    "en": "Eleven thousand copies sold, four thousand of them bought by the federations. The most serious book of the campaign is also the one that ends up pulped." } } },
+    { "label": { "fr": "Régler vos comptes avec votre propre camp", "en": "Settle scores with your own side" },
+      "when": { "personality": ["provocative"] },
+      "roll": { "base": 17, "stat": "eloquence", "plus": { "popularity": 0.05 }, "dice": 16 },
+      "success": { "effects": { "poll": 6, "popularity": 10, "notoriete": 3, "standing": -14,
+                                "landscape": { "self": -0.5 } },
+        "result": { "fr": "Trois chapitres sur ceux qui vous ont barré la route, avec les dates et les salles. Le livre se vend comme un roman policier et personne dans la maison ne vous adressera plus la parole.",
+                    "en": "Three chapters on the people who blocked your path, with the dates and the rooms. The book sells like a thriller and nobody in the house will speak to you again." } },
+      "failure": { "effects": { "poll": -7, "standing": -18, "reputation": -2, "strike": "traitre",
+                                "landscape": { "self": -1.0 } },
+        "result": { "fr": "On répond, tous ensemble, avec leurs propres dates et leurs propres salles. Une guerre interne pendant une campagne présidentielle ne s'arbitre pas, elle se perd.",
+                    "en": "They answer, all together, with their own dates and their own rooms. A civil war during a presidential campaign is not arbitrated, it is lost." } } }
+  ]
+},
+
+{
+  "id": "c_greve",
+  "moment": [5, 2],
+  "tag": { "fr": "Le pays", "en": "The country" },
+  "text": {
+    "fr": "Le pays s'arrête au milieu de votre campagne : plus de trains, plus de raffineries, et une intersyndicale qui donne rendez-vous à onze heures place de la République. Toutes les caméras y seront, et toutes attendent de voir qui y va.",
+    "en": "The country stops in the middle of your campaign: no trains, no refineries, and a joint union platform calling a rally for eleven o'clock. Every camera will be there, and every camera is waiting to see who turns up."
+  },
+  "choices": [
+    { "label": { "fr": "Y aller et marcher dans le cortège", "en": "Turn up and walk in the march" },
+      "roll": { "base": 15, "stat": "charisme", "plus": { "reputation": 0.3 }, "dice": 16 },
+      "success": { "effects": { "axis": "self", "poll": 5, "popularity": 8, "notoriete": 2,
+                                "landscape": { "self": 0.6 } },
+        "result": { "fr": "Vous marchez deux heures sans service d'ordre et sans discours. La photo du soir vaut trois meetings, et elle n'a rien coûté que deux heures de marche.",
+                    "en": "You walk for two hours with no security detail and no speech. The evening's photograph is worth three rallies, and it cost nothing but two hours of walking." } },
+      "failure": { "effects": { "poll": -6, "popularity": -7, "reputation": -1,
+                                "appeal": { "others": -3 } },
+        "result": { "fr": "Le cortège vous siffle sur trois cents mètres, et ces trois cents mètres-là sont les seuls qui passeront au journal. On n'entre pas dans une manifestation qui ne vous a pas invité.",
+                    "en": "The march whistles at you for three hundred yards, and those three hundred yards are the only ones that make the news. You do not walk into a demonstration that did not invite you." } } },
+    { "label": { "fr": "Recevoir les syndicats et personne d'autre", "en": "Receive the unions and nobody else" },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "poll": 3, "credibilite": 2, "standing": 5, "reseau": 2,
+                                "popularity": 2 },
+        "result": { "fr": "Trois heures de réunion sans communiqué et sans photo. Vous n'obtenez rien, ils n'obtiennent rien, et vous êtes le seul candidat à qui ils décrochent encore.",
+                    "en": "Three hours of talks, no statement, no photograph. You get nothing, they get nothing, and you are the only candidate whose calls they still take." } },
+      "failure": { "effects": { "poll": -4, "popularity": -5, "standing": -3, "energie": -2 },
+        "result": { "fr": "La réunion fuite avant la fin, résumée en une ligne fausse. Vous passez la journée à démentir une phrase que vous n'avez pas dite dans une réunion qui n'existait pas.",
+                    "en": "The meeting leaks before it ends, summed up in one false line. You spend the day denying a sentence you did not say in a meeting that did not exist." } } },
+    { "label": { "fr": "Appeler au retour à l'ordre", "en": "Call for a return to order" },
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "sangfroid": 0.3 }, "dice": 16 },
+      "success": { "effects": { "axis": { "social": 45, "economy": 50 }, "poll": 4, "popularity": 6,
+                                "credibilite": 2 },
+        "result": { "fr": "Vous parlez des huit millions de gens qui n'ont pas pu aller travailler, et vous en nommez trois. La séquence tourne dans un électorat qui ne vous écoutait pas.",
+                    "en": "You talk about the eight million people who could not get to work, and you name three of them. The clip travels in an electorate that was not listening to you." } },
+      "failure": { "effects": { "poll": -5, "popularity": -8, "appeal": { "self": -6 },
+                                "standing": -5 },
+        "result": { "fr": "Votre propre base entend la phrase avant le pays, et elle l'entend très bien. Deux fédérations demandent une clarification, ce qui est le mot poli pour autre chose.",
+                    "en": "Your own base hears the sentence before the country does, and hears it very clearly. Two federations request a clarification, which is the polite word for something else." } } },
+    { "label": { "fr": "Ne rien dire pendant trois jours", "en": "Say nothing for three days" },
+      "when": { "personality": ["calculating"] },
+      "roll": { "chance": 0.55, "chanceBonus": [ { "when": { "minPopularity": 55 }, "value": 0.2 } ] },
+      "success": { "effects": { "poll": 2, "sangfroid": 2, "energie": 1 },
+        "result": { "fr": "Trois jours sans une déclaration pendant que les autres se répartissent les torts. Le mouvement s'essouffle tout seul, et vous êtes le seul à n'avoir rien à retirer.",
+                    "en": "Three days without a statement while the others divide the blame. The movement runs out of steam on its own, and you are the only one with nothing to withdraw." } },
+      "failure": { "effects": { "poll": -4, "popularity": -6, "notoriete": -1, "credibilite": -1 },
+        "result": { "fr": "Trois jours de silence pendant que le pays est à l'arrêt s'appellent une absence. La question « où était-il ? » est posée à l'antenne avant même que vous ne répondiez.",
+                    "en": "Three days of silence while the country is at a standstill is called an absence. The question “where was he?” is asked on air before you have even answered." } } }
+  ]
+},
+
+{
+  "id": "c_maire_promesse",
+  "moment": [5, 2],
+  "cast": "camp",
+  "tag": { "fr": "L'appareil", "en": "The machine" },
+  "text": {
+    "fr": "{rival} tient une ville de quatre-vingt mille habitants et une fédération qui pèse au congrès. {Il} vous propose de venir, avec les caméras, si vous annoncez sur place le contournement routier que votre programme entend supprimer.",
+    "en": "{rival} runs a town of eighty thousand and a federation that counts at conference. {He} offers you a visit, cameras and all, provided you announce on the spot the bypass your programme intends to scrap."
+  },
+  "choices": [
+    { "label": { "fr": "Annoncer le contournement", "en": "Announce the bypass" },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "personality": ["calculating"] }, "value": 0.2 } ] },
+      "success": { "effects": { "poll": 4, "standing": 7, "reseau": 1, "credibilite": -1,
+                                "landscape": { "self": 0.4 } },
+        "result": { "fr": "Vous l'annoncez devant deux cents personnes et une chaîne régionale, et personne au national ne relève. La fédération vous doit une campagne, et une fédération qui doit paie.",
+                    "en": "You announce it in front of two hundred people and one regional channel, and nobody national picks it up. The federation owes you a campaign, and a federation that owes, pays." } },
+      "failure": { "effects": { "poll": -6, "credibilite": -3, "popularity": -7, "strike": "menteur",
+                                "reputation": -1 },
+        "result": { "fr": "Un journaliste national avait fait le déplacement et connaît votre programme page quarante-deux. Le split-screen est prêt avant que vous ne remontiez en voiture.",
+                    "en": "One national reporter had made the trip and knows page forty-two of your programme. The split-screen is ready before you get back in the car." } } },
+    { "label": { "fr": "Y aller et refuser de l'annoncer", "en": "Go, and refuse to announce it" },
+      "roll": { "base": 16, "stat": "sangfroid", "plus": { "credibilite": 0.4 }, "dice": 16 },
+      "success": { "effects": { "poll": 3, "credibilite": 2, "popularity": 6, "standing": -6,
+                                "reputation": 2 },
+        "result": { "fr": "Vous expliquez devant la salle, {rival} au premier rang, pourquoi ce contournement ne se fera pas. Deux cents personnes n'applaudissent pas et trois millions regardent la vidéo.",
+                    "en": "You explain to the hall, with {rival} in the front row, why the bypass will not happen. Two hundred people do not applaud and three million watch the video." } },
+      "failure": { "effects": { "poll": -4, "standing": -9, "popularity": -3, "energie": -1,
+                                "landscape": { "self": -0.4 } },
+        "result": { "fr": "{Il} quitte la salle avant la fin, devant les caméras, ce qui était le seul plan possible pour {lui} à partir du moment où vous aviez dit non.",
+                    "en": "{He} leaves the hall before the end, in front of the cameras, which was the only available plan for {him} the moment you said no." } } },
+    { "label": { "fr": "Ne pas y aller du tout", "en": "Not go at all" },
+      "roll": { "chance": 0.5, "chanceBonus": [ { "when": { "minStanding": 60 }, "value": 0.2 } ] },
+      "success": { "effects": { "poll": 1, "standing": -2, "energie": 2, "credibilite": 1 },
+        "result": { "fr": "Vous faites dire que l'agenda ne le permet pas, ce qui est faux et ce que tout le monde accepte. Une campagne se gagne aussi sur les déplacements qu'on ne fait pas.",
+                    "en": "You have it put about that the diary does not allow it, which is untrue and which everybody accepts. A campaign is also won on the trips you do not make." } },
+      "failure": { "effects": { "poll": -3, "standing": -8, "reseau": -1,
+                                "landscape": { "self": -0.5 } },
+        "result": { "fr": "{Il} reçoit un autre candidat trois semaines plus tard, dans la même salle, devant les mêmes caméras. Le contournement figure dans le programme de quelqu'un d'autre.",
+                    "en": "{He} receives another candidate three weeks later, in the same hall, in front of the same cameras. The bypass appears in somebody else's programme." } } }
+  ]
 }
 
 ];

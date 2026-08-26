@@ -122,9 +122,126 @@ const EV_aside = [
         "result": { "fr": "Vous tirez sur la direction pendant que les militants pleurent. La séquence est mauvaise et elle vous colle à la peau pendant deux congrès.",
                     "en": "You shoot at the leadership while the activists are still crying. It plays badly and it sticks to you for two conferences." } } }
   ]
-}
+},
 
-,
+{
+  "id": "aside_voisin_qui_gagne",
+  "when": { "partyLead": false, "position": ["cadre", "conseiller", "maire", "euro", "depute"] },
+  "cast": "neighbour",
+  "tag": { "fr": "Pendant ce temps", "en": "Meanwhile" },
+  "text": {
+    "fr": "Le camp voisin monte chez vous. Sur les marchés que vous tenez depuis dix ans, ce sont leurs tracts qu'on prend, et {rival} a tenu une salle pleine à quatre rues de votre permanence.",
+    "en": "The neighbouring camp is surging on your own patch. In the markets you have worked for ten years, it is their leaflets people take, and {rival} filled a hall four streets from your office."
+  },
+  "choices": [
+    { "label": { "fr": "Les attaquer frontalement sur leur programme", "en": "Attack them head-on over their programme" },
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "popularity": 6, "standing": 6, "landscape": { "self": 0.8, "scene": -0.8 } },
+        "result": { "fr": "Vous démontez leur chiffrage ligne à ligne pendant quarante minutes devant deux cents personnes. Ils ne reviendront pas dans cette salle, et le marché redevient le vôtre.",
+                    "en": "You take their costings apart line by line for forty minutes in front of two hundred people. They will not come back to that hall, and the market is yours again." } },
+      "failure": { "effects": { "popularity": -7, "standing": -4, "landscape": { "self": -0.5, "scene": 0.6 } },
+        "result": { "fr": "Vous passez quarante minutes à parler d'eux. Deux cents personnes rentrent chez elles en ayant appris leur nom, leur programme et l'adresse de leur permanence.",
+                    "en": "You spend forty minutes talking about them. Two hundred people go home having learned their name, their programme and the address of their office." } } },
+    { "label": { "fr": "Leur proposer un accord local", "en": "Offer them a local deal" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.3 }, "dice": 16 },
+      "success": { "effects": { "standing": 5, "reseau": 2, "landscape": { "self": 0.5, "ally": 0.3 },
+                                "reputation": -1 },
+        "result": { "fr": "Un café, deux heures, et une répartition des marchés du dimanche qui ne sera jamais écrite nulle part. Les deux appareils apprendront la nouvelle par leurs militants.",
+                    "en": "One coffee, two hours, and a division of the Sunday markets that will never be written down anywhere. Both machines will learn of it from their own activists." } },
+      "failure": { "effects": { "standing": -9, "reputation": -2, "popularity": -3,
+                                "landscape": { "self": -0.6 } },
+        "result": { "fr": "Ils racontent le café à la presse locale avant vous. Le mot « arrangement » se lit très mal en une du quotidien régional, surtout quand la photo est bonne.",
+                    "en": "They tell the local press about the coffee before you do. The word “arrangement” reads very badly on the front of the regional daily, especially when the photograph is good." } } },
+    { "label": { "fr": "Ne rien faire et laisser passer la vague", "en": "Do nothing and let the wave pass" },
+      "roll": { "chance": 0.55, "chanceBonus": [ { "when": { "trait": ["ancrage_local"] }, "value": 0.25 },
+                                                 { "when": { "minPopularity": 58 }, "value": 0.15 } ] },
+      "success": { "effects": { "popularity": 3, "energie": 2, "sangfroid": 1, "standing": -1 },
+        "result": { "fr": "Six semaines plus tard, la salle pleine est vide et vos marchés sont toujours vos marchés. Une vague nationale ne se combat pas, elle s'attend.",
+                    "en": "Six weeks later the full hall is empty and your markets are still your markets. A national wave is not fought, it is waited out." } },
+      "failure": { "effects": { "popularity": -6, "standing": -6, "landscape": { "self": -0.7, "scene": 0.7 } },
+        "result": { "fr": "La vague ne passe pas, elle s'installe. Ils ouvrent une permanence à l'année dans votre rue, avec une vitrine et deux salariés.",
+                    "en": "The wave does not pass, it settles. They open a permanent office in your street, with a shopfront and two staff." } } }
+  ]
+},
+
+{
+  "id": "aside_suppleant",
+  "when": { "partyLead": false, "position": ["militant", "cadre", "conseiller"] },
+  "cast": "camp_senior",
+  "tag": { "fr": "Pendant ce temps", "en": "Meanwhile" },
+  "text": {
+    "fr": "{rival} vous propose d'être son suppléant. C'est un titre qui ne sert à rien, sauf le jour où il sert à tout, et cela suppose de faire toute la campagne sans qu'on prononce jamais votre nom.",
+    "en": "{rival} offers to make you {his} substitute. It is a title that serves no purpose, except on the day it serves every purpose, and it means running the whole campaign without your name ever being said out loud."
+  },
+  "choices": [
+    { "label": { "fr": "Accepter et faire la campagne à sa place", "en": "Accept, and run the campaign for them" },
+      "roll": { "base": 14, "stat": "energie", "plus": { "reseau": 0.4 }, "dice": 16 },
+      "success": { "effects": { "standing": 12, "reseau": 2, "energie": -3, "notoriete": 1 },
+        "result": { "fr": "Vous tenez les réunions publiques que {rival} n'a pas le temps de tenir, et la circonscription apprend votre visage sans jamais lire votre nom sur un bulletin. C'est ainsi qu'on hérite d'un siège.",
+                    "en": "You run the public meetings {he} has no time for, and the constituency learns your face without ever reading your name on a ballot. That is how a seat is inherited." } },
+      "failure": { "effects": { "standing": 2, "energie": -3, "popularity": -2, "reputation": -1 },
+        "result": { "fr": "Vous faites six semaines de salles des fêtes et {il} gagne de vingt points. On vous remercie par SMS le dimanche soir, et vous ne remettrez pas les pieds dans son bureau.",
+                    "en": "You do six weeks of village halls and {he} wins by twenty points. You are thanked by text on the Sunday evening, and you will not set foot in {his} office again." } } },
+    { "label": { "fr": "Accepter, et négocier un écrit", "en": "Accept, and get it in writing" },
+      "when": { "background": ["law"] },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "standing": 9, "credibilite": 2, "reseau": 1, "reputation": 1 },
+        "result": { "fr": "Trois paragraphes signés qui disent ce qui se passe en cas de remaniement, de démission ou de décès. Personne ne signe jamais ça, et {il} a signé.",
+                    "en": "Three signed paragraphs saying what happens in the event of a reshuffle, a resignation or a death. Nobody ever signs that, and {he} signed." } },
+      "failure": { "effects": { "standing": -8, "reseau": -1, "reputation": -1 },
+        "result": { "fr": "{Il} lit les trois paragraphes, sourit, et propose la suppléance à quelqu'un d'autre le soir même. On ne demande pas de garanties à qui vous en offre une.",
+                    "en": "{He} reads the three paragraphs, smiles, and offers the substitute's slot to somebody else the same evening. You do not ask for guarantees from the person handing you one." } } },
+    { "label": { "fr": "Refuser : vous voulez votre propre circonscription", "en": "Refuse: you want a seat of your own" },
+      "roll": { "chance": 0.4, "chanceBonus": [ { "when": { "minStanding": 50 }, "value": 0.25 },
+                                                { "when": { "personality": ["hardworking"] }, "value": 0.15 } ] },
+      "success": { "effects": { "standing": 4, "credibilite": 1, "popularity": 2 },
+        "result": { "fr": "Vous dites que vous serez candidat, un jour, quelque part, et que vous préférez attendre. La commission d'investiture note votre nom pour la première fois.",
+                    "en": "You say that you will be a candidate one day, somewhere, and that you would rather wait. The nominations committee writes your name down for the first time." } },
+      "failure": { "effects": { "standing": -7, "reseau": -1, "energie": -1 },
+        "result": { "fr": "On vous explique gentiment que la file d'attente est longue, qu'elle ne bouge que par le haut, et que vous venez de refuser la seule place qu'elle offrait.",
+                    "en": "It is gently explained to you that the queue is long, that it only moves from the top, and that you have just turned down the only place it had." } } }
+  ]
+},
+
+{
+  "id": "aside_soiree_adverse",
+  "when": { "partyLead": false, "minPopularity": 45, "position": ["conseiller", "maire", "euro", "depute", "ministre"] },
+  "cast": "opponent",
+  "tag": { "fr": "Le soir du scrutin", "en": "Election night" },
+  "text": {
+    "fr": "{rival} vous invite à sa soirée électorale. C'est {un} adversaire, la salle sera pleine de ses militants, et les caméras y seront dès dix-neuf heures trente.",
+    "en": "{rival} invites you to {his} election night party. {He} is an opponent, the room will be full of {his} activists, and the cameras will be there from half past seven."
+  },
+  "choices": [
+    { "label": { "fr": "Y aller et rester une heure", "en": "Go, and stay an hour" },
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "charisme": 0.35 }, "dice": 16 },
+      "success": { "effects": { "popularity": 8, "notoriete": 2, "standing": -5, "reseau": 2,
+                                "credibilite": 1 },
+        "result": { "fr": "Vous serrez des mains chez l'adversaire pendant une heure, à visage découvert, et vous partez avant les résultats. Le pays trouve ça républicain. Votre fédération trouve ça autre chose.",
+                    "en": "You shake hands in the opponent's camp for an hour, in plain sight, and leave before the results. The country finds it statesmanlike. Your federation finds it something else." } },
+      "failure": { "effects": { "popularity": -5, "standing": -9, "reputation": -1 },
+        "result": { "fr": "Une photo de vous en train de rire avec {rival} tourne avant vingt heures. Le rire était poli, la photo ne l'est pas, et personne ne montrera les deux secondes d'avant.",
+                    "en": "A photograph of you laughing with {rival} is circulating before eight. The laugh was polite, the photograph is not, and nobody will show the two seconds before it." } } },
+    { "label": { "fr": "Refuser et le faire savoir", "en": "Refuse, and make sure it is known" },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "personality": ["principled"] }, "value": 0.2 },
+                                                { "when": { "party": ["radical_left", "identitarians"] }, "value": 0.2 } ] },
+      "success": { "effects": { "standing": 8, "appeal": { "self": 6, "others": -2 }, "reputation": 1 },
+        "result": { "fr": "Vous publiez la réponse en même temps que l'invitation. Vos militants la partagent quatre mille fois et l'expression « soirée républicaine » prend un coup dont elle ne se remettra pas.",
+                    "en": "You publish your reply alongside the invitation. Your activists share it four thousand times, and the phrase “a cordial evening” takes a blow it will not recover from." } },
+      "failure": { "effects": { "standing": 2, "popularity": -7, "reputation": -1 },
+        "result": { "fr": "La réponse est plus longue que nécessaire et trois phrases de trop sont citées partout. On vous trouve mauvais joueur avant même que les résultats ne tombent.",
+                    "en": "The reply is longer than it needed to be and three sentences too many are quoted everywhere. You are called a bad loser before the results are even in." } } },
+    { "label": { "fr": "Ne pas répondre du tout", "en": "Not reply at all" },
+      "roll": { "chance": 0.7 },
+      "success": { "effects": { "energie": 2, "sangfroid": 1, "standing": 1 },
+        "result": { "fr": "L'invitation reste sans réponse et personne n'en parle jamais. C'est la seule chose qui ne coûte rien de toute cette soirée.",
+                    "en": "The invitation goes unanswered and nobody ever mentions it. It is the only thing that costs nothing all evening." } },
+      "failure": { "effects": { "popularity": -4, "standing": -3, "reseau": -1 },
+        "result": { "fr": "{Il} raconte en direct qu'{il} vous avait invité et que vous n'avez même pas répondu. La salle rit, et la séquence dure onze secondes de trop.",
+                    "en": "{He} says live on air that {he} invited you and that you did not even reply. The room laughs, and the clip runs eleven seconds too long." } } }
+  ]
+},
+
 
 /* ==========================================================================
    2. ON NE SE PRÉSENTE PAS, ET C'EST QUAND MÊME VOTRE SOIRÉE
@@ -235,6 +352,125 @@ const EV_aside = [
       "effects": { "energie": 2, "standing": -10, "popularity": -5, "reputation": -2, "strike": "lache" },
       "result": { "fr": "Deux cents personnes cherchent leur chef pendant une heure et une caméra filme une porte de service. C'est la seule image de la soirée qui sera encore diffusée dans cinq ans.",
                   "en": "Two hundred people spend an hour looking for their leader while a camera films a service door. It is the only image of the evening that will still be broadcast in five years." } }
+  ]
+},
+{
+  "id": "aside_chef_carte",
+  "when": { "partyLead": true },
+  "tag": { "fr": "Pendant ce temps", "en": "Meanwhile" },
+  "text": {
+    "fr": "La carte du matin est claire : vous avez de quoi financer quarante campagnes correctes ou douze très bonnes. Les quarante sauvent l'appareil, les douze font des élus, et les deux calculs ne donnent jamais le même résultat.",
+    "en": "The morning map is clear: you can fund forty decent campaigns or twelve very good ones. The forty keep the machine alive, the twelve produce elected members, and the two calculations never give the same answer."
+  },
+  "choices": [
+    { "label": { "fr": "Tout concentrer sur les douze gagnables", "en": "Concentrate everything on the twelve winnable seats" },
+      "roll": { "base": 15, "stat": "credibilite", "plus": { "reseau": 0.35 }, "dice": 16 },
+      "success": { "effects": { "standing": 8, "landscape": { "self": 1.0 }, "credibilite": 2,
+                                "reputation": -1 },
+        "result": { "fr": "Neuf des douze passent, ce qui est le meilleur rendement de la maison depuis vingt ans. Les vingt-huit autres fédérations ont fait campagne à la photocopieuse et le savent.",
+                    "en": "Nine of the twelve get in, the best return the house has had in twenty years. The other twenty-eight federations campaigned on a photocopier and know it." } },
+      "failure": { "effects": { "standing": -11, "landscape": { "self": -0.5 }, "reputation": -1 },
+        "result": { "fr": "Quatre des douze passent et l'on compte partout ailleurs ce qu'on n'a pas reçu. Un chef de parti qui choisit ses circonscriptions choisit aussi ses ennemis.",
+                    "en": "Four of the twelve get in, and everywhere else people are counting what they did not receive. A party leader who picks constituencies is also picking enemies." } } },
+    { "label": { "fr": "Répartir également entre les quarante", "en": "Spread it evenly across the forty" },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "minStanding": 60 }, "value": 0.15 } ] },
+      "success": { "effects": { "standing": 11, "reseau": 2, "landscape": { "self": 0.3 } },
+        "result": { "fr": "Quarante fédérations reçoivent exactement la même somme et pas une ne se plaint. Vous n'aurez pas plus d'élus et vous aurez le congrès, ce qui n'est pas rien.",
+                    "en": "Forty federations receive exactly the same sum and not one complains. You will not have more members elected and you will have the conference, which is not nothing." } },
+      "failure": { "effects": { "standing": -4, "landscape": { "self": -0.7 }, "credibilite": -1 },
+        "result": { "fr": "Chacun reçoit de quoi ne rien faire de bien. Le soir du scrutin, on compte trois élus de moins qu'à la dernière fois et personne ne sait à qui le reprocher.",
+                    "en": "Everyone receives enough to do nothing well. On the night, the party is three members down on last time and nobody knows who to blame." } } },
+    { "label": { "fr": "Réserver un tiers pour votre propre fédération", "en": "Hold back a third for your own federation" },
+      "roll": { "chance": 0.45, "chanceBonus": [ { "when": { "personality": ["calculating"] }, "value": 0.2 },
+                                                 { "when": { "trait": ["appareil"] }, "value": 0.2 } ] },
+      "success": { "effects": { "popularity": 6, "standing": -3, "reseau": 1, "money": 20000 },
+        "result": { "fr": "Votre fédération fait la meilleure campagne du pays, ce qui n'étonnera personne, et personne n'ira vérifier pourquoi. Un tiers ne se voit pas dans une ligne budgétaire.",
+                    "en": "Your own federation runs the best campaign in the country, which will surprise nobody, and nobody will check why. A third does not show up in a budget line." } },
+      "failure": { "effects": { "standing": -15, "reputation": -2, "strike": "appareil",
+                                "landscape": { "self": -0.6 } },
+        "result": { "fr": "Le trésorier sortant publie le tableau de répartition dans une tribune de deux mille signes. Un tiers, ça se voit très bien dans un tableau.",
+                    "en": "The outgoing treasurer publishes the allocation table in a two-thousand-word opinion piece. A third shows up extremely well in a table." } } }
+  ]
+},
+
+{
+  "id": "aside_chef_dissident",
+  "when": { "partyLead": true },
+  "cast": "camp_senior",
+  "tag": { "fr": "Pendant ce temps", "en": "Meanwhile" },
+  "text": {
+    "fr": "{rival}, à qui vous avez refusé l'investiture, se présente quand même. {Il} a vingt ans de maison, trois cents militants derrière {lui}, et {il} tient une conférence de presse à onze heures.",
+    "en": "{rival}, whose nomination you refused, is standing anyway. {He} has twenty years in the house, three hundred activists behind {him}, and a press conference at eleven."
+  },
+  "choices": [
+    { "label": { "fr": "L'exclure le jour même", "en": "Expel {him} the same day" },
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "standing": 0.05 }, "dice": 16 },
+      "success": { "effects": { "standing": 9, "credibilite": 2, "landscape": { "self": 0.4 },
+                                "popularity": -3 },
+        "result": { "fr": "Bureau politique convoqué à quinze heures, exclusion votée à seize. La maison comprend que la règle existe, ce qu'elle avait cessé de croire.",
+                    "en": "Executive convened at three, expulsion voted at four. The house understands that the rule exists, which it had stopped believing." } },
+      "failure": { "effects": { "standing": -12, "landscape": { "self": -0.9 }, "reputation": -1 },
+        "result": { "fr": "Trois cents militants partent avec {lui} dans la semaine, dont deux membres du bureau politique. On ne compte pas ses ennemis avant de sortir le règlement.",
+                    "en": "Three hundred activists leave with {him} within the week, including two members of the executive. You do not count your enemies after reaching for the rulebook." } } },
+    { "label": { "fr": "Laisser faire et ne pas commenter", "en": "Let it happen and refuse to comment" },
+      "roll": { "chance": 0.5, "chanceBonus": [ { "when": { "minStanding": 62 }, "value": 0.2 },
+                                                { "when": { "personality": ["calculating"] }, "value": 0.15 } ] },
+      "success": { "effects": { "standing": 4, "sangfroid": 1, "landscape": { "self": 0.2 } },
+        "result": { "fr": "{Il} fait quatre pour cent et rentre à la maison en novembre. Vous n'avez pas prononcé son nom une seule fois, et c'est la seule chose qu'{il} ne vous pardonnera pas.",
+                    "en": "{He} takes four per cent and comes home in November. You did not say {his} name once, and it is the only thing {he} will not forgive you." } },
+      "failure": { "effects": { "standing": -8, "landscape": { "self": -0.8 }, "credibilite": -2 },
+        "result": { "fr": "{Il} fait onze pour cent, prend la circonscription et fonde son mouvement en janvier. Une dissidence qu'on ne combat pas s'appelle un parti six mois plus tard.",
+                    "en": "{He} takes eleven per cent, wins the seat and founds a movement in January. A rebellion nobody fights is called a party six months later." } } },
+    { "label": { "fr": "Lui proposer autre chose, tout de suite", "en": "Offer {him} something else, immediately" },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "eloquence": 0.35 }, "dice": 16 },
+      "success": { "effects": { "standing": 7, "reseau": 2, "landscape": { "self": 0.5 },
+                                "reputation": -1 },
+        "result": { "fr": "Vous lui offrez la tête de liste aux européennes avant onze heures. La conférence de presse devient une déclaration de soutien, et deux journalistes repartent sans papier.",
+                    "en": "You offer {him} the top of the European list before eleven o'clock. The press conference becomes an endorsement, and two reporters leave without a story." } },
+      "failure": { "effects": { "standing": -6, "reputation": -2, "landscape": { "self": -0.5 },
+                                "strike": "appareil" },
+        "result": { "fr": "{Il} lit votre proposition à haute voix devant les caméras, à onze heures deux. Le mot « marchandage » est prononcé par {lui}, ce qui est bien pire que par la presse.",
+                    "en": "{He} reads your offer out loud in front of the cameras at two minutes past eleven. The word “horse-trading” is said by {him}, which is far worse than by the press." } } }
+  ]
+},
+
+{
+  "id": "aside_chef_bilan_national",
+  "when": { "partyLead": true },
+  "tag": { "fr": "Le soir du scrutin", "en": "Election night" },
+  "text": {
+    "fr": "Vingt heures. Le score national du parti s'affiche, et c'est le vôtre : vous n'étiez sur aucun bulletin et c'est votre nom que trois éditorialistes prononcent dans la minute qui suit.",
+    "en": "Eight o'clock. The party's national score comes up, and it is yours: you were on no ballot and it is your name three commentators say within the minute."
+  },
+  "choices": [
+    { "label": { "fr": "Assumer le résultat au micro, seul", "en": "Own the result at the microphone, alone" },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "eloquence": 0.4 }, "dice": 16 },
+      "success": { "effects": { "standing": 10, "credibilite": 2, "popularity": 4, "reputation": 1 },
+        "result": { "fr": "Vous descendez à vingt heures dix, sans notes, et vous prenez tout : les circonscriptions perdues, les investitures ratées, la ligne. Personne dans la salle n'attendait ça et tout le monde s'en souviendra.",
+                    "en": "You come down at ten past eight, without notes, and you take all of it: the seats lost, the nominations botched, the line. Nobody in the room expected it and everybody will remember it." } },
+      "failure": { "effects": { "standing": -9, "popularity": -5, "credibilite": -1 },
+        "result": { "fr": "Vous parlez sept minutes de contexte national avant d'arriver au résultat. La chaîne coupe au bout de quatre, et le montage garde les quatre.",
+                    "en": "You speak for seven minutes about the national context before reaching the result. The channel cuts after four, and the edit keeps the four." } } },
+    { "label": { "fr": "Faire monter les gagnants et rester en coulisses", "en": "Put the winners on stage and stay in the wings" },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "minStanding": 58 }, "value": 0.2 } ] },
+      "success": { "effects": { "standing": 8, "reseau": 3, "landscape": { "self": 0.4 },
+                                "popularity": -2 },
+        "result": { "fr": "Six nouveaux élus au micro, et vous au fond de la salle avec un verre en plastique. Ces six-là voteront pour vous au prochain congrès sans qu'on ait besoin de le leur demander.",
+                    "en": "Six newly elected members at the microphone, and you at the back of the room with a plastic cup. Those six will vote for you at the next conference without anyone having to ask." } },
+      "failure": { "effects": { "standing": -5, "notoriete": -1, "popularity": -4 },
+        "result": { "fr": "Les six parlent, aucun ne vous cite, et la chaîne conclut en s'interrogeant sur votre absence. Rester en coulisses un soir de défaite s'appelle se cacher.",
+                    "en": "The six speak, none of them mentions you, and the channel signs off wondering where you were. Staying in the wings on the night of a defeat is called hiding." } } },
+    { "label": { "fr": "Désigner un responsable, et ce ne sera pas vous", "en": "Name someone responsible, and it will not be you" },
+      "when": { "personality": ["calculating"] },
+      "roll": { "chance": 0.4, "chanceBonus": [ { "when": { "minStanding": 65 }, "value": 0.25 },
+                                                { "when": { "trait": ["appareil"] }, "value": 0.15 } ] },
+      "success": { "effects": { "standing": 6, "reseau": -1, "reputation": -2, "credibilite": 1 },
+        "result": { "fr": "Le directeur des élections démissionne à vingt-deux heures pour raisons personnelles. Tout le monde sait, personne ne dit, et la maison retient que le sommet ne tombe pas.",
+                    "en": "The elections director resigns at ten for personal reasons. Everyone knows, nobody says, and the house registers that the top does not fall." } },
+      "failure": { "effects": { "standing": -14, "reputation": -2, "popularity": -4,
+                                "strike": "traitre", "landscape": { "self": -0.5 } },
+        "result": { "fr": "Il refuse de tomber et donne trois interviews en quarante-huit heures avec des dates, des courriels et un plan de campagne signé de votre main.",
+                    "en": "He refuses to fall and gives three interviews in forty-eight hours, with dates, emails and a campaign plan signed in your own hand." } } }
   ]
 }
 
