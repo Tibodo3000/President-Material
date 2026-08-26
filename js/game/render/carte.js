@@ -80,6 +80,27 @@ function raceVerdict(res) {
  * moitié de l'effet : sans elle, le bloc flotte sur un fond qui n'a pas
  * bougé et l'on reste dans la même pièce.
  */
+/**
+ * L'ÉCRAN DE FIN EST UNE PAGE, PAS UNE CARTE.
+ *
+ * Il arrivait dans la même boîte que les quatre cents cartes précédentes,
+ * avec la fiche du personnage à gauche et les deux panneaux du pays en
+ * dessous, si bien qu'une victoire à l'Élysée s'affichait au même volume
+ * qu'un dîner de fédération. On ne fabrique pas une deuxième page HTML pour
+ * autant — la sauvegarde, la langue et le bouton de reprise vivent ici : le
+ * corps prend une classe, tout ce qui appartient à la partie en cours
+ * disparaît, et il ne reste que le relevé, au centre.
+ */
+function syncEndPage(host) {
+  const html = host && host.innerHTML ? String(host.innerHTML) : "";
+  const fin = /class="end-card end-([a-z]+)"/.exec(html);
+  const body = document.body;
+  if (!body || !body.classList) return;
+  body.classList.toggle("is-end", Boolean(fin));
+  if (fin) body.dataset.end = fin[1];
+  else if (body.dataset) delete body.dataset.end;
+}
+
 function syncMomentTone(host) {
   // On lit le ton dans le HTML produit plutôt que dans le DOM : le harnais de
   // non-régression a un faux DOM sans querySelector complet, et l'affichage

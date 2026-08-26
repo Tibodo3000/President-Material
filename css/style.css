@@ -2555,14 +2555,82 @@ body[data-moment="summit"] { --party-glow: rgba(233, 200, 119, 0.34); }
 
 .end-title {
   font-family: var(--font-display);
-  font-size: 1.7rem;
-  font-weight: 600;
+  font-size: clamp(1.9rem, 5vw, 2.6rem);
+  font-weight: 700;
+  line-height: 1.1;
   text-align: center;
-  margin: 0 0 1rem;
+  margin: 0 0 1.5rem;
 }
 
 .end-victory .end-title { color: var(--gold-2); }
 .end-conviction .end-title { color: var(--red); }
+
+/* ==========================================================================
+   L'ÉCRAN DE FIN EST UNE PAGE
+   ==========================================================================
+   Il arrivait dans la même boîte que les quatre cents cartes précédentes,
+   avec la fiche à gauche et les panneaux du pays en dessous : une victoire à
+   l'Élysée s'affichait au même volume qu'un dîner de fédération, et rien ne
+   ressemblait à une fin de partie. Le corps prend donc une classe, tout ce
+   qui appartient à la partie en cours disparaît, et il ne reste que le
+   relevé, au centre, sur un fond qui a changé de couleur.
+   ========================================================================== */
+
+body.is-end .game-sheet,
+body.is-end .side-panel,
+body.is-end #election-calendar { display: none; }
+
+body.is-end .game-layout { grid-template-columns: minmax(0, 1fr); }
+
+body.is-end .game-col {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding-top: 1.5rem;
+}
+
+/* Le fond prend la couleur de la fin. La victoire est la seule qui ait droit
+   à l'or plein : c'est le seul écran du jeu qui célèbre quelque chose. */
+body[data-end] { --party-glow: rgba(110, 122, 150, 0.14); }
+body[data-end="victory"] { --party-glow: rgba(233, 200, 119, 0.3); }
+body[data-end="conviction"] { --party-glow: rgba(209, 106, 114, 0.2); }
+body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
+
+.end-card {
+  animation: card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  text-align: center;
+}
+
+.end-kicker {
+  margin: 0 0 1.4rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+
+.end-text {
+  max-width: 33rem;
+  margin: 0 auto 1.6rem;
+  text-align: left;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+/* La victoire ne se lit pas comme une condamnation : le titre double de
+   taille, il rayonne, et il arrive plus lentement que le reste. */
+.end-victory .end-title {
+  font-size: clamp(2.4rem, 7vw, 3.6rem);
+  color: var(--gold-2);
+  text-shadow: 0 0 70px rgba(233, 200, 119, 0.45);
+  animation: moment-word-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
+}
+
+.end-victory .note-total strong { text-shadow: 0 0 46px rgba(233, 200, 119, 0.5); }
+
+.end-card .event-choices { max-width: 22rem; margin: 0 auto; }
 
 /* Le titre d'une section de l'écran de fin : la note, la frise, les marques. */
 .end-section-title {
@@ -2735,6 +2803,12 @@ body[data-moment="summit"] { --party-glow: rgba(233, 200, 119, 0.34); }
 .frise-down { --frise-tone: var(--red); }
 .frise-side { --frise-tone: var(--blue); }
 .frise-body { --frise-tone: var(--amber); }
+.frise-summit { --frise-tone: var(--gold-2); }
+.frise-summit .frise-what {
+  color: var(--gold-2);
+  font-weight: 600;
+  font-style: normal;
+}
 .frise-start,
 .frise-end { --frise-tone: var(--frise-party, var(--faint)); }
 .frise-start .frise-what,

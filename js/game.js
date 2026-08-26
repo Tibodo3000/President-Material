@@ -3511,7 +3511,9 @@ function renderCard() {
   // La page prend la couleur du moment qu'elle affiche, ou la reprend à son
   // camp. Voir « LES TEMPS FORTS NE SONT PAS DES CARTES » (carte.js).
   renderCardBody();
-  syncMomentTone(document.getElementById("event-area"));
+  const host = document.getElementById("event-area");
+  syncMomentTone(host);
+  syncEndPage(host);
 }
 
 function renderCardBody() {

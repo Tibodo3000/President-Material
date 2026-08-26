@@ -336,6 +336,11 @@ const translations = {
     frise_decline_3: "Il n'y a plus de discussion",
     frise_start: "Entrée en politique",
     frise_end: "Fin de la carrière",
+    frise_end_victory: "Élu président de la République",
+    frise_end_retire: "Vous vous retirez de votre plein gré",
+    frise_end_withdrawal: "On vous retire de la vie publique",
+    frise_end_death: "La carrière s'arrête là",
+    frise_end_conviction: "Condamné",
     frise_year: "an {n}",
 
     /* -- Création de personnage -- */
@@ -831,6 +836,11 @@ const translations = {
     frise_decline_3: "There is no discussion left",
     frise_start: "Enters politics",
     frise_end: "End of the career",
+    frise_end_victory: "Elected president of the Republic",
+    frise_end_retire: "You step back, of your own accord",
+    frise_end_withdrawal: "You are retired from public life",
+    frise_end_death: "The career stops there",
+    frise_end_conviction: "Convicted",
     frise_year: "year {n}",
 
     /* -- Character creation -- */

@@ -52,6 +52,9 @@ function timelineLabel(entry, frise, i) {
     const voisin = frise[i + 1];
     if (voisin && voisin.kind === "election" && voisin.turn === entry.turn) return null;
     if (entry.position === "militant" || entry.position === "cadre") return null;
+    // La ligne de clôture dit déjà « élu président de la République » : on ne
+    // l'annonce pas deux fois à un tour d'intervalle.
+    if (entry.position === "president" && game.ended && game.ended.type === "victory") return null;
     return { text: t("frise_office").replace("{pos}", t("pos_" + entry.position)), tone: "up" };
   }
 
@@ -93,7 +96,16 @@ function timelineHTML() {
     rows.push(ligne(an, label.text, label.tone, entry.party || null));
   });
 
-  rows.push(ligne(Math.floor(game.turn / TURNS_PER_YEAR) + 1, t("frise_end"), "end", game.party));
+  // LA DERNIÈRE LIGNE DIT CE QUI S'EST PASSÉ. Elle annonçait « fin de la
+  // carrière » dans tous les cas, y compris sous le nom de quelqu'un qui
+  // vient d'être élu président de la République : ce n'est pas une fin de
+  // carrière, c'est le sommet, et le jeu s'arrête parce qu'il n'a plus rien
+  // à raconter au-dessus.
+  const type = (game.ended && game.ended.type) || "";
+  const cle = "frise_end_" + type;
+  const dernier = t(cle) === cle ? t("frise_end") : t(cle);
+  rows.push(ligne(Math.floor(game.turn / TURNS_PER_YEAR) + 1, dernier,
+                  type === "victory" ? "summit" : "end", game.party));
 
   return (
     '<div class="end-frise">' +
@@ -181,10 +193,10 @@ function renderEnd(host) {
     : t("pos_" + game.peakPosition) + (game.peakLead ? " · " + t("pos_chef") : "");
 
   host.innerHTML =
-    '<div class="event-card end-card end-' + game.ended.type + '">' +
-      '<p class="event-tag">' + cardHeader() + "</p>" +
+    '<div class="end-card end-' + game.ended.type + '">' +
+      '<p class="end-kicker">' + cardHeader() + "</p>" +
       '<p class="end-title">' + L(ending.title) + "</p>" +
-      '<p class="event-text">' + L(ending.text) + "</p>" +
+      '<p class="end-text">' + L(ending.text) + "</p>" +
       // TROIS FAITS, UNE LIGNE. Ils occupaient trois rangées bordées juste
       // au-dessus de la note : deux tableaux de chiffres l'un sur l'autre.
       '<p class="end-meta">' +
