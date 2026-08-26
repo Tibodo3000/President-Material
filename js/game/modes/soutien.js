@@ -227,7 +227,7 @@ function resolveSupport() {
   ensureLeaders();
   const gagnant = duel.winner;
   const figure = gagnant.name ? game.rivals.find((r) => r.name === gagnant.name) : figureOf(gagnant.party);
-  if (figure) setPresident({ name: figure.name, party: gagnant.party });
+  if (figure) setPresident({ name: figure.name, party: gagnant.party, sex: figure.sex });
   else setPresident({ name: t("party_" + gagnant.party), party: gagnant.party });
 
   const mien = gagnant.party === game.party;

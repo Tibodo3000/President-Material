@@ -1579,7 +1579,15 @@ function setPresident(who) {
 
   game.presidentTerms = same ? game.presidentTerms + 1 : 1;
   game.president = who;
-  if (who && who.isPlayer) recordCareer(game, { kind: "office", position: "president", party: game.party });
+  if (who && who.isPlayer) {
+    recordCareer(game, { kind: "office", position: "president", party: game.party });
+  } else if (who) {
+    // LE PAYS AUSSI A UNE HISTOIRE. Une carrière se déroule sous quatre ou
+    // cinq présidents, et la frise n'en nommait aucun : on relisait sa vie
+    // politique sans savoir qui gouvernait pendant ce temps-là.
+    recordCareer(game, { kind: "president", name: who.name, party: who.party,
+                         again: same, sex: who.sex });
+  }
 
   // L'ÉTAT DE GRÂCE. Un président qu'on vient d'élire est populaire, et il
   // l'est d'autant plus qu'il est neuf : un sortant reconduit reprend là où
@@ -2933,7 +2941,7 @@ function backgroundElectionText(electionId) {
   if (!winner) return { fr: "", en: "" };
   const reelected = isPresident(winner);
 
-  setPresident({ name: winner.name, party: winnerParty });
+  setPresident({ name: winner.name, party: winnerParty, sex: winner.sex });
 
   if (reelected) {
     return {

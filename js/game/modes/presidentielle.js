@@ -298,6 +298,8 @@ function resolveFirstRound() {
       winnerName: sorted[0].name,
       winnerKey: sorted[0].nameKey || null,
     };
+    recordCareer(game, { kind: "presidentielle", stage: "first",
+                         share: Math.round(me.share) });
     concedeElection(sorted[0]);
   }
 }
@@ -396,6 +398,13 @@ function resolveRunoff() {
     winnerKey: result.winner.nameKey || null,
   };
 
+  // Une présidentielle perdue au second tour est le moment le plus important
+  // d'une carrière qui n'a pas gagné : la frise n'en gardait rien.
+  if (!result.winner.isPlayer) {
+    recordCareer(game, { kind: "presidentielle", stage: "runoff",
+                         share: Math.round(me.share) });
+  }
+
   if (result.winner.isPlayer) {
     setPresident({ isPlayer: true, name: game.character.name || "", party: game.party });
     game.ended = { type: "victory" };
@@ -434,7 +443,7 @@ function campaignGap() {
 }
 
 function concedeElection(winner, share) {
-  setPresident({ name: winner.name, party: winner.party });
+  setPresident({ name: winner.name, party: winner.party, sex: winner.sex });
   bump(game, "notoriete", +1);
   bumpPop(game, +6);
 

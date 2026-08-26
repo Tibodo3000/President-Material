@@ -2873,6 +2873,11 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 .frise-body { --frise-tone: var(--amber); }
 .frise-summit { --frise-tone: var(--gold-2); }
 .frise-summit .frise-what { color: var(--gold-2); font-weight: 600; }
+/* Ce que le pays fait pendant ce temps-là : la couleur du camp qui gagne,
+   et un texte en retrait — c'est le décor, pas la carrière. */
+.frise-world { --frise-tone: var(--frise-party, var(--faint)); }
+.frise-world .frise-what { color: var(--faint); font-size: 0.8rem; }
+
 .frise-start,
 .frise-end { --frise-tone: var(--frise-party, var(--faint)); }
 .frise-start .frise-what,

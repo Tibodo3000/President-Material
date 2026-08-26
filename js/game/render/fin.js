@@ -30,6 +30,14 @@
    scrutin qui la porte, dans les deux sens — un siège gagné, un siège perdu.
    -------------------------------------------------------------------------- */
 
+/** « Maire » plutôt que « Municipales · élu » : on dit le siège qu'on prend. */
+function posLow(key) {
+  const bas = t("pos_" + key + "_low");
+  if (bas !== "pos_" + key + "_low") return bas;
+  const nom = t("pos_" + key);
+  return nom.charAt(0).toLowerCase() + nom.slice(1);
+}
+
 function timelineLabel(entry, frise, i) {
   const elec = (id) => t("cal_elec_" + id);
 
@@ -39,11 +47,33 @@ function timelineLabel(entry, frise, i) {
                tone: entry.won ? "up" : "down" };
     }
     if (entry.won) {
-      return { text: t(entry.defense ? "frise_kept" : "frise_elected").replace("{elec}", elec(entry.id)),
-               tone: "up" };
+      // MUNICIPALES · ÉLU NE DIT PAS QUOI. Le même scrutin donne un siège de
+      // conseiller ou une mairie, et la frise ne faisait pas la différence.
+      const gagne = entry.defense
+        ? t("frise_kept").replace("{elec}", elec(entry.id))
+        : t(entry.target ? "frise_elected_as" : "frise_elected")
+            .replace("{elec}", elec(entry.id))
+            .replace("{pos}", entry.target ? posLow(entry.target) : "");
+      return { text: gagne, tone: "up" };
     }
     return { text: t(entry.defense ? "frise_lost_seat" : "frise_beaten").replace("{elec}", elec(entry.id)),
              tone: "down" };
+  }
+
+  // LA PRÉSIDENTIELLE PERDUE EST LE MOMENT LE PLUS IMPORTANT D'UNE CARRIÈRE
+  // QUI N'A PAS GAGNÉ, et la frise n'en gardait rien.
+  if (entry.kind === "presidentielle") {
+    return { text: t(entry.stage === "first" ? "frise_pres_out" : "frise_pres_lost")
+                     .replace("{n}", entry.share),
+             tone: "down" };
+  }
+
+  // Ce que le pays fait pendant ce temps-là.
+  if (entry.kind === "president") {
+    return { text: fillGender(t(entry.again ? "frise_president_again" : "frise_president")
+                     .replace("{name}", entry.name)
+                     .replace("{party}", t("party_" + entry.party)), entry),
+             tone: "world", party: entry.party };
   }
 
   if (entry.kind === "office") {
@@ -59,6 +89,11 @@ function timelineLabel(entry, frise, i) {
   }
 
   if (entry.kind === "lead") {
+    // PRENDRE LA MAISON SE DIT UNE FOIS. Le congrès du même tour porte déjà
+    // « la maison est à vous » : on lisait les deux lignes à la suite.
+    const congres = frise.some((e) => e.kind === "election" && e.target === "chef" &&
+                                      e.turn === entry.turn && e.won === entry.on);
+    if (congres) return null;
     return { text: t(entry.on ? "frise_lead_on" : "frise_lead_off"), tone: entry.on ? "up" : "down" };
   }
 
@@ -96,7 +131,7 @@ function timelineHTML() {
     const label = timelineLabel(entry, frise, i);
     if (!label) return;
     const an = Math.floor(entry.turn / TURNS_PER_YEAR) + 1;
-    rows.push(ligne(an, label.text, label.tone, entry.party || null));
+    rows.push(ligne(an, label.text, label.tone, label.party || entry.party || null));
   });
 
   // LA DERNIÈRE LIGNE DIT CE QUI S'EST PASSÉ. Elle annonçait « fin de la
