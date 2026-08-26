@@ -256,14 +256,31 @@ function playCareer(seed, character, maxSteps) {
   return trace;
 }
 
-/* --- Plusieurs profils, pour couvrir tous les modes ----------------------- */
+/* --- Plusieurs profils, pour couvrir tous les modes -----------------------
+   LES PROFILS DOIVENT EXISTER. Quatre des six personnalités écrites ici
+   n'étaient pas des personnalités : « sincere », « charismatic », « brutal »
+   et « tenacious » ne figurent nulle part dans TRAIT_DATA, où la famille
+   « caractere » s'appelle hardworking, charming, clever, provocative,
+   principled, calculating. Une condition sur une personnalité inexistante
+   n'échoue pas, elle ne correspond simplement jamais : le harnais jouait donc
+   quatre carrières sur six SANS personnalité du tout, et onze événements du
+   jeu — tous ceux qui demandent d'être provocateur, brillant, charmeur,
+   intègre ou acharné — n'ont jamais été joués une seule fois en trois cents
+   carrières. Le harnais couvrait ce qu'il croyait couvrir.
+
+   Les six profils balaient donc les six personnalités, les six partis, les
+   quatre origines et six des huit parcours. Journalisme, célébrité et
+   communication étaient dans le même angle mort : les scènes qui les
+   demandent ne sortaient jamais non plus. */
 const CHARACTERS = [
-  { name: "Test Alpha",   sex: "male",   origin: "modest",    background: "civil",    personality: "calculating", party: "socdem" },
-  { name: "Test Beta",    sex: "female", origin: "dynasty",   background: "business", personality: "sincere",     party: "conservatives" },
-  { name: "Test Gamma",   sex: "female", origin: "middle",    background: "academia", personality: "charismatic", party: "centrists" },
-  { name: "Test Delta",   sex: "male",   origin: "bourgeois", background: "law",      personality: "brutal",      party: "identitarians" },
-  { name: "Test Epsilon", sex: "male",   origin: "modest",    background: "activism", personality: "tenacious",   party: "radical_left" },
-  { name: "Test Zeta",    sex: "female", origin: "middle",    background: "business", personality: "calculating", party: "liberals" },
+  { name: "Test Alpha",   sex: "male",   origin: "modest",    background: "civil",      personality: "calculating", party: "socdem" },
+  { name: "Test Beta",    sex: "female", origin: "dynasty",   background: "business",   personality: "principled",  party: "conservatives" },
+  { name: "Test Gamma",   sex: "female", origin: "middle",    background: "academia",   personality: "clever",      party: "centrists" },
+  { name: "Test Delta",   sex: "male",   origin: "bourgeois", background: "law",        personality: "provocative", party: "identitarians" },
+  { name: "Test Epsilon", sex: "male",   origin: "modest",    background: "activism",   personality: "hardworking", party: "radical_left" },
+  { name: "Test Zeta",    sex: "female", origin: "middle",    background: "comms",      personality: "charming",    party: "liberals" },
+  { name: "Test Eta",     sex: "female", origin: "bourgeois", background: "journalism", personality: "clever",      party: "socdem" },
+  { name: "Test Theta",   sex: "male",   origin: "middle",    background: "celebrity",  personality: "charming",    party: "centrists" },
 ];
 
 const CAREERS = Number(process.env.PM_CAREERS || 60);
