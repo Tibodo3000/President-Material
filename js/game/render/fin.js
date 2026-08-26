@@ -158,9 +158,9 @@ function scoreLinesHTML() {
  * cinq rangées de chiffres à quelqu'un qui vient de terminer une partie, et
  * on ne les lui refuse pas non plus.
  */
-function foldHTML(titre, contenu) {
+function foldHTML(titre, contenu, extra) {
   return (
-    '<details class="fold">' +
+    '<details class="fold' + (extra ? " " + extra : "") + '">' +
       "<summary>" + titre + "</summary>" +
       '<div class="fold-body">' + contenu + "</div>" +
     "</details>"
@@ -219,7 +219,10 @@ function renderEnd(host) {
       "</header>" +
 
       /* 2. LE BANDEAU — ce que la postérité en fait. Le rang à gauche, le
-         total à droite : c'est une ligne, pas un monument au milieu. */
+         total à droite et en grand : c'est le chiffre de la partie, il doit
+         se voir de loin. Le détail se déplie JUSTE EN DESSOUS — relégué en
+         bas de la colonne de droite, il n'avait plus aucun rapport avec le
+         nombre qu'il explique. */
       '<div class="end-verdict">' +
         '<div class="end-verdict-rank">' +
           '<span class="end-label">' + t("end_score_title") + "</span>" +
@@ -230,6 +233,8 @@ function renderEnd(host) {
           '<span class="end-label">' + t("end_score_unit") + "</span>" +
         "</div>" +
       "</div>" +
+      foldHTML(t("end_score_detail"), '<ul class="note-lines">' + scoreLinesHTML() + "</ul>",
+               "fold-verdict") +
 
       /* 3. LE RELEVÉ — deux colonnes, un seul bord. */
       '<div class="end-columns">' +
@@ -249,7 +254,6 @@ function renderEnd(host) {
             ? '<p class="end-label end-label-space">' + t("end_recap_traits") + "</p>" +
               '<div class="end-traits">' + traitRowsHTML(traits) + "</div>"
             : "") +
-          foldHTML(t("end_score_detail"), '<ul class="note-lines">' + scoreLinesHTML() + "</ul>") +
         "</section>" +
       "</div>" +
 
