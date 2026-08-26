@@ -263,6 +263,7 @@ const translations = {
     game_restart: "Nouvelle partie",
 
     /* Les titres et les textes de fin sont dans js/endings.data.js */
+    end_recap_title: "La carrière",
     end_recap_years: "Années en politique",
     end_recap_peak: "Plus haute fonction",
     end_recap_money: "Patrimoine final",
@@ -289,6 +290,8 @@ const translations = {
     /* -- Le relevé de fin de partie -- */
     end_score_title: "La note de la postérité",
     end_score_unit: "points",
+    end_score_detail: "Le détail de la note",
+    end_journal: "Le journal de la carrière",
     score_office: "Ce que vous avez été",
     score_ballots: "Ce que les urnes ont dit",
     score_country: "Ce que le pays a retenu",
@@ -763,6 +766,7 @@ const translations = {
     game_restart: "New game",
 
     /* Les titres et les textes de fin sont dans js/endings.data.js */
+    end_recap_title: "The career",
     end_recap_years: "Years in politics",
     end_recap_peak: "Highest office",
     end_recap_money: "Final wealth",
@@ -789,6 +793,8 @@ const translations = {
     /* -- The final record -- */
     end_score_title: "What history will file",
     end_score_unit: "points",
+    end_score_detail: "How the score breaks down",
+    end_journal: "The career journal",
     score_office: "What you were",
     score_ballots: "What the ballots said",
     score_country: "What the country kept",

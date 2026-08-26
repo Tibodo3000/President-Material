@@ -12,6 +12,9 @@
 
 const GAME_KEY = "pm-game";
 
+/** Ce que le journal garde. Le panneau latéral n'en montre que les dernières. */
+const LOG_MAX = 400;
+
 /* ==========================================================================
    État
    ========================================================================== */
@@ -2778,7 +2781,12 @@ function eventById(id) {
  */
 function addLog(text) {
   game.log.unshift({ turn: game.turn, text });
-  game.log = game.log.slice(0, 8);
+  // ON GARDE TOUT. Le journal était tronqué à huit lignes à l'écriture, si
+  // bien qu'une carrière de quarante ans ne laissait aucune archive : l'écran
+  // de fin ne pouvait pas la relire. C'est le panneau latéral qui n'en montre
+  // que huit, ce qui est son affaire ; le plafond ici n'existe que pour ne
+  // pas faire enfler une sauvegarde sans limite.
+  game.log = game.log.slice(0, LOG_MAX);
 }
 
 /**

@@ -93,7 +93,7 @@ function raceVerdict(res) {
  */
 function syncEndPage(host) {
   const html = host && host.innerHTML ? String(host.innerHTML) : "";
-  const fin = /class="end-card end-([a-z]+)"/.exec(html);
+  const fin = /class="end-page end-([a-z]+)"/.exec(html);
   const body = document.body;
   if (!body || !body.classList) return;
   body.classList.toggle("is-end", Boolean(fin));

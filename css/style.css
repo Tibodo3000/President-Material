@@ -2566,14 +2566,20 @@ body[data-moment="summit"] { --party-glow: rgba(233, 200, 119, 0.34); }
 .end-conviction .end-title { color: var(--red); }
 
 /* ==========================================================================
-   L'ÉCRAN DE FIN EST UNE PAGE
+   L'ÉCRAN DE FIN EST UNE PAGE DE RELEVÉ
    ==========================================================================
-   Il arrivait dans la même boîte que les quatre cents cartes précédentes,
-   avec la fiche à gauche et les panneaux du pays en dessous : une victoire à
-   l'Élysée s'affichait au même volume qu'un dîner de fédération, et rien ne
-   ressemblait à une fin de partie. Le corps prend donc une classe, tout ce
-   qui appartient à la partie en cours disparaît, et il ne reste que le
-   relevé, au centre, sur un fond qui a changé de couleur.
+   Trois versions ont raté, et pour la même raison : on empilait des blocs
+   centrés, des blocs alignés à gauche, un grand nombre au milieu et des
+   cadres posés au hasard. Rien ne tombait sur rien, et l'œil n'avait aucun
+   bord auquel se raccrocher — « rien n'est aligné ni cohérent » était la
+   description exacte.
+
+   La page est donc construite comme un relevé de journal, sur UN SEUL AXE :
+   un titre plein cadre, un bandeau de verdict qui traverse toute la largeur,
+   puis deux colonnes qui gardent le même bord du haut jusqu'en bas. Tout
+   s'aligne à gauche ; seul ce qui se lit comme un chiffre se range à droite
+   de sa ligne. Les trois temps entrent l'un après l'autre : c'est ce
+   décalage qui fait qu'une page se déroule au lieu de tomber d'un bloc.
    ========================================================================== */
 
 body.is-end .game-sheet,
@@ -2583,25 +2589,55 @@ body.is-end #election-calendar { display: none; }
 body.is-end .game-layout { grid-template-columns: minmax(0, 1fr); }
 
 body.is-end .game-col {
-  max-width: 40rem;
+  max-width: 54rem;
   margin: 0 auto;
-  padding-top: 1.5rem;
+  padding-top: 1rem;
 }
 
 /* Le fond prend la couleur de la fin. La victoire est la seule qui ait droit
    à l'or plein : c'est le seul écran du jeu qui célèbre quelque chose. */
 body[data-end] { --party-glow: rgba(110, 122, 150, 0.14); }
-body[data-end="victory"] { --party-glow: rgba(233, 200, 119, 0.3); }
+body[data-end="victory"] { --party-glow: rgba(233, 200, 119, 0.32); }
 body[data-end="conviction"] { --party-glow: rgba(209, 106, 114, 0.2); }
 body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
 
-.end-card {
-  animation: card-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
-  text-align: center;
+@keyframes end-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
 }
 
+.end-head,
+.end-verdict,
+.end-columns,
+.end-actions { animation: end-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+.end-verdict { animation-delay: 0.18s; }
+.end-columns { animation-delay: 0.34s; }
+.end-actions { animation-delay: 0.48s; }
+
+/* L'étiquette de section : une seule dans toute la page, pour que les
+   colonnes commencent toutes à la même hauteur et sur le même signal. */
+.end-label {
+  display: block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--faint);
+  margin: 0 0 0.9rem;
+}
+
+.end-label-space { margin-top: 1.9rem; }
+
+/* ---------- 1. L'ENTÊTE ---------- */
+
+.end-head { padding: 1.4rem 0 2rem; }
+
 .end-kicker {
-  margin: 0 0 1.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.2rem;
   font-size: 0.62rem;
   font-weight: 700;
   letter-spacing: 0.22em;
@@ -2609,135 +2645,176 @@ body[data-end="death"] { --party-glow: rgba(109, 143, 212, 0.16); }
   color: var(--faint);
 }
 
+.end-crest { color: var(--gold); font-size: 0.9rem; letter-spacing: 0; }
+.end-victory .end-crest { color: var(--gold-2); text-shadow: 0 0 22px rgba(233, 200, 119, 0.7); }
+
+.end-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.1rem, 6vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  margin: 0 0 1.3rem;
+}
+
+.end-victory .end-title {
+  color: var(--gold-2);
+  text-shadow: 0 0 70px rgba(233, 200, 119, 0.4);
+}
+
 .end-text {
-  max-width: 33rem;
-  margin: 0 auto 1.6rem;
-  text-align: left;
-  font-size: 1.02rem;
-  line-height: 1.7;
+  max-width: 38rem;
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.72;
   color: var(--muted);
 }
 
-/* La victoire ne se lit pas comme une condamnation : le titre double de
-   taille, il rayonne, et il arrive plus lentement que le reste. */
-.end-victory .end-title {
-  font-size: clamp(2.4rem, 7vw, 3.6rem);
-  color: var(--gold-2);
-  text-shadow: 0 0 70px rgba(233, 200, 119, 0.45);
-  animation: moment-word-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.1s;
+/* ---------- 2. LE BANDEAU DE VERDICT ---------- */
+
+.end-verdict {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
 }
 
-.end-victory .note-total strong { text-shadow: 0 0 46px rgba(233, 200, 119, 0.5); }
-
-.end-card .event-choices { max-width: 22rem; margin: 0 auto; }
-
-/* Le titre d'une section de l'écran de fin : la note, la frise, les marques. */
-.end-section-title {
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--faint);
-  margin: 0 0 0.5rem;
-  text-align: center;
+.end-victory .end-verdict {
+  border-color: var(--gold-dim);
+  background: linear-gradient(180deg, rgba(201, 162, 75, 0.06), transparent);
 }
 
-/* ---------- LA NOTE DE LA POSTÉRITÉ ----------
-   Un total qu'on ne peut pas décomposer ne se lit pas, il se subit : le
-   chiffre est gros, le rang est la phrase qu'on retiendra, et les cinq
-   lignes disent chacune d'où vient sa part. */
-.end-note {
-  border-top: 1px solid var(--line);
-  padding: 1.4rem 0 0.2rem;
-  margin: 0 0 1.6rem;
+.end-verdict-rank strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 3.6vw, 1.85rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink);
 }
 
-.note-total {
+.end-victory .end-verdict-rank strong { color: var(--gold-2); }
+
+.end-verdict-score {
   display: flex;
   align-items: baseline;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 0.6rem 0 0.1rem;
+  gap: 0.4rem;
+  flex: none;
 }
 
-.note-total strong {
+.end-verdict-score .end-label { margin: 0; }
+
+.end-score-value {
   font-family: var(--font-display);
-  font-size: 3.4rem;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
   font-weight: 700;
   line-height: 1;
-  color: var(--gold-2);
+  color: var(--gold);
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 34px rgba(233, 200, 119, 0.28);
 }
 
-.note-total span {
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+/* ---------- 3. LE RELEVÉ ---------- */
+
+.end-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 2.6rem;
+  align-items: start;
+  padding: 2.2rem 0 2.4rem;
+}
+
+.end-facts .fact {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.55rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8rem;
   color: var(--faint);
 }
 
-.note-rank {
-  margin: 0 0 1.2rem;
-  text-align: center;
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-style: italic;
-  color: var(--muted);
+.end-facts .fact strong {
+  color: var(--ink);
+  font-weight: 600;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Cinq chiffres sur une ligne, pas cinq rangées : le détail de chacun est au
-   survol, pour qui veut savoir d'où vient sa part. */
-.note-chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.35rem 1.1rem;
-  margin: 0;
-  padding-top: 1rem;
-  border-top: 1px solid var(--line);
-}
+.end-traits { display: grid; gap: 0.5rem; justify-items: start; }
 
-.note-chip {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  cursor: help;
-}
+/* ---------- LES DÉPLIANTS ----------
+   Un dépliant ferme le sujet sans l'effacer : on ne montre pas cinq rangées
+   de chiffres ni quarante ans de journal à quelqu'un qui vient de terminer
+   une partie, et on ne les lui refuse pas non plus. */
+.fold { margin-top: 1.6rem; border-top: 1px solid var(--line); }
 
-.note-chip-label {
+.fold summary {
+  padding: 0.75rem 0 0.2rem;
   font-size: 0.6rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
+  color: var(--faint);
+  cursor: pointer;
+  list-style: none;
+  transition: color var(--transition);
+}
+
+.fold summary::-webkit-details-marker { display: none; }
+.fold summary::after { content: " ▾"; }
+.fold[open] summary::after { content: " ▴"; }
+.fold summary:hover { color: var(--gold-2); }
+
+.fold-body {
+  padding: 0.6rem 0 0.4rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.note-lines { list-style: none; margin: 0; padding: 0; }
+
+.note-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0 0.9rem;
+  align-items: baseline;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.note-label { font-size: 0.78rem; font-weight: 600; color: var(--ink); }
+
+.note-detail {
+  grid-column: 1 / -1;
+  font-size: 0.68rem;
+  line-height: 1.45;
   color: var(--faint);
 }
 
-.note-chip-points {
-  font-size: 0.86rem;
+.note-points {
+  font-family: var(--font-display);
+  font-size: 1rem;
   font-weight: 600;
   color: var(--gold);
   font-variant-numeric: tabular-nums;
 }
 
-.note-chip-points.is-down { color: var(--red); }
+.note-points.is-down { color: var(--red); }
 
-/* La ligne de faits sous le récit : trois choses, une seule rangée. */
-.end-meta {
-  margin: 0 0 1.5rem;
-  padding-bottom: 1.3rem;
-  border-bottom: 1px solid var(--line);
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--muted);
+.end-actions {
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--line);
 }
 
-.end-note {
-  border-top: 0;
-  padding: 0;
-  margin: 0 0 1.8rem;
+.end-actions .event-choice { max-width: 20rem; }
+
+@media (max-width: 780px) {
+  .end-columns { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
 }
 
 /* ---------- LA FRISE ----------

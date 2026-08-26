@@ -253,12 +253,19 @@ function renderLandscape() {
   }).join("");
 }
 
+/** Combien de lignes le panneau latéral affiche. */
+const JOURNAL_PANEL = 8;
+
 function renderJournal() {
   const pane = document.getElementById("pane-journal");
   if (!pane) return;
 
-  pane.innerHTML = game.log.length
-    ? game.log.map((l) =>
+  // Le panneau ne montre que les dernières : le journal, lui, garde tout, et
+  // c'est l'écran de fin qui le relit en entier.
+  const recentes = game.log.slice(0, JOURNAL_PANEL);
+
+  pane.innerHTML = recentes.length
+    ? recentes.map((l) =>
         '<p class="journal-line"><span class="journal-turn">' + t("year_label") + " " +
         (Math.floor(l.turn / TURNS_PER_YEAR) + 1) + "</span>" + logText(l) + "</p>"
       ).join("")
