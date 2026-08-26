@@ -3807,9 +3807,35 @@ const BUILD = "2026-08-21 11:45";
     // pas un passé qu'on n'a pas vécu, on ouvre la frise sur la fonction du
     // moment et la suite s'écrira.
     if (!game.startShares) game.startShares = { ...game.landscape };
+    // LES SOMMETS N'EXISTAIENT PAS AVANT. Une sauvegarde d'avant affichait
+    // « sommet de popularité : 0 » sous le nom d'un président de la
+    // République. On ne connaît pas son vrai sommet, mais on sait qu'il vaut
+    // au moins ce qu'il vaut aujourd'hui : c'est faux par défaut, ce n'est
+    // pas absurde.
+    if (!game.peakPopularity) game.peakPopularity = Math.round(game.popularity || 0);
+    if (!game.peakStanding) game.peakStanding = Math.round(game.standing || 0);
     if (!game.career) {
       game.career = [{ turn: game.turn, age: Math.floor(game.age), kind: "office",
                        position: game.position, party: game.party }];
+      // ET ELLE LE DIT. Sans ce drapeau, l'écran de fin annonçait « 0 scrutin
+      // remporté » à quelqu'un qui venait d'être élu député puis président :
+      // il ne lisait pas une carrière vide, il lisait une archive qui
+      // n'existait pas encore. Un relevé qui ne sait pas se tait.
+      game.careerPartial = true;
+    }
+
+    /* UNE SAUVEGARDE MIGRÉE PAR UNE VERSION INTERMÉDIAIRE PASSAIT ENTRE LES
+       MAILLES. Elle a bien un tableau `career` — la migration précédente le
+       lui a posé — mais il ne contient que l'entrée d'ouverture, et le
+       drapeau `careerPartial` n'existait pas encore. On lisait donc « aucun
+       scrutin disputé » sous le nom de quelqu'un qui siège depuis vingt ans.
+       On ne peut pas distinguer une archive absente d'une carrière qui
+       commence autrement qu'en regardant si le personnage a déjà un mandat
+       ou de la bouteille. */
+    if (game.careerPartial === undefined) {
+      const aucunScrutin = !game.career.some((e) => e.kind === "election");
+      game.careerPartial = aucunScrutin &&
+        (game.turn > 12 || MANDATES.includes(game.position) || game.position === "premier");
     }
     game.rivals.forEach((r) => {
       if (r.popularity === undefined) r.popularity = figurePopularity(r);

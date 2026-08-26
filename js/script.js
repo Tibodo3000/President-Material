@@ -263,7 +263,11 @@ const translations = {
     game_restart: "Nouvelle partie",
 
     /* Les titres et les textes de fin sont dans js/endings.data.js */
-    end_recap_title: "La carrière",
+    end_recap_title: "La carrière en chiffres",
+    end_stat_years: "ans en politique",
+    end_stat_won: "scrutins remportés",
+    end_stat_money: "de patrimoine",
+    end_stat_age: "{n} ans",
     end_recap_years: "Années en politique",
     end_recap_peak: "Plus haute fonction",
     end_recap_money: "Patrimoine final",
@@ -307,6 +311,7 @@ const translations = {
     score_office_lead: "et la direction du parti",
     score_ballots_detail: "{w} gagnées, {l} perdues",
     score_ballots_none: "aucun scrutin disputé",
+    score_partial: "partie commencée avant ce relevé",
     score_country_detail: "sommet de popularité : {n}",
     score_house_detail: "sommet de cote : {n}",
     score_house_up: "le camp a gagné {n} points depuis vos débuts",
@@ -766,7 +771,11 @@ const translations = {
     game_restart: "New game",
 
     /* Les titres et les textes de fin sont dans js/endings.data.js */
-    end_recap_title: "The career",
+    end_recap_title: "The career in figures",
+    end_stat_years: "years in politics",
+    end_stat_won: "elections won",
+    end_stat_money: "in assets",
+    end_stat_age: "age {n}",
     end_recap_years: "Years in politics",
     end_recap_peak: "Highest office",
     end_recap_money: "Final wealth",
@@ -810,6 +819,7 @@ const translations = {
     score_office_lead: "and the party leadership",
     score_ballots_detail: "{w} won, {l} lost",
     score_ballots_none: "no contest ever fought",
+    score_partial: "career begun before this record existed",
     score_country_detail: "peak popularity: {n}",
     score_house_detail: "peak standing: {n}",
     score_house_up: "the camp gained {n} points since you started",

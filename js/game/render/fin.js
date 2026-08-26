@@ -78,11 +78,14 @@ function timelineHTML() {
   const frise = game.career || [];
   const rows = [];
 
+  // L'ANNÉE D'ABORD, LE FAIT ENSUITE. Sur une plaque centrée, la colonne des
+  // dates se ferre à droite contre le fil, et le fait part à gauche : c'est
+  // le seul agencement où la frise a deux bords nets au lieu d'un.
   const ligne = (an, texte, tone, party) => (
     '<li class="frise-step frise-' + tone + '"' +
       (party ? ' style="--frise-party: var(--p-' + party + ')"' : "") + ">" +
-      '<span class="frise-mark" aria-hidden="true"></span>' +
       '<span class="frise-when">' + t("frise_year").replace("{n}", an) + "</span>" +
+      '<span class="frise-mark" aria-hidden="true"></span>' +
       '<span class="frise-what">' + texte + "</span>" +
     "</li>"
   );
@@ -107,7 +110,8 @@ function timelineHTML() {
   rows.push(ligne(Math.floor(game.turn / TURNS_PER_YEAR) + 1, dernier,
                   type === "victory" ? "summit" : "end", game.party));
 
-  return '<ol class="frise-list">' + rows.join("") + "</ol>";
+  return '<ol class="frise-list">' + rows.join("") + "</ol>" +
+    (game.careerPartial ? '<p class="frise-note">' + t("score_partial") + "</p>" : "");
 }
 
 /* --------------------------------------------------------------------------
@@ -117,12 +121,17 @@ function timelineHTML() {
 function scoreDetail(line) {
   const d = line.detail;
 
+  /* UN RELEVÉ QUI NE SAIT PAS SE TAIT. Une partie commencée avant que la
+     frise n'existe n'a pas d'archive : on annonçait « 0 an de mandat » et
+     « aucun scrutin disputé » sous le nom d'un président de la République.
+     Ce n'est pas une carrière vide, c'est une archive qui n'existait pas. */
   if (line.key === "score_office") {
-    const parts = [t("score_office_detail").replace("{n}", d.annees)];
+    const parts = d.partiel ? [] : [t("score_office_detail").replace("{n}", d.annees)];
     if (d.lead) parts.push(t("score_office_lead"));
-    return t("pos_" + d.sommet) + " · " + parts.join(" ");
+    return t("pos_" + d.sommet) + (parts.length ? " · " + parts.join(" ") : "");
   }
   if (line.key === "score_ballots") {
+    if (d.partiel && !d.gagnes && !d.perdus) return t("score_partial");
     if (!d.gagnes && !d.perdus) return t("score_ballots_none");
     return t("score_ballots_detail").replace("{w}", d.gagnes).replace("{l}", d.perdus);
   }
@@ -180,80 +189,96 @@ function journalHTML() {
 /* -------------------------------------------------------------------------- */
 
 function renderEnd(host) {
-  // La fin dépend de l'état exact de la carrière : la même victoire ne se
-  // raconte pas de la même façon selon ce qu'on a laissé derrière soi.
+  /* ------------------------------------------------------------------
+     UNE PLAQUE COMMÉMORATIVE, PAS UN ÉCRAN DE RÉSULTATS.
+     ------------------------------------------------------------------
+     Quatre versions ont raté et elles ont raté de la même façon : on
+     assemblait des blocs — un cadre ici, deux colonnes là, un nombre au
+     milieu, une liste ferrée à gauche — sans qu'aucune règle ne les tienne
+     ensemble. Et la page parlait de quelqu'un sans jamais le nommer, le nom
+     du joueur vivant sur la fiche de gauche, qui disparaît ici.
+
+     Le registre juste est celui que la direction artistique du jeu emploie
+     déjà partout : nuit institutionnelle, or, typographie éditoriale. C'est
+     une plaque. Une seule colonne étroite, tout centré sur un axe unique, la
+     hiérarchie faite par les filets et les petites capitales, et beaucoup
+     d'air. Rien ne peut être mal aligné parce qu'il n'y a qu'un alignement.
+
+     L'ordre est celui d'une stèle : à qui, ce qu'il fut, ce qu'on en dit, ce
+     que ça vaut, ce qu'il a fait, ce qu'il laisse. Les pièces justificatives
+     — le détail du calcul, le journal des quarante ans — sont pliées en bas,
+     là où l'on met les archives.
+     ------------------------------------------------------------------ */
   const ending = resolveEnding(game) || { title: { fr: "", en: "" }, text: { fr: "", en: "" } };
   const note = careerScore(game);
   const years = Math.floor(game.turn / TURNS_PER_YEAR);
   const traits = traitsOf(game);
+  const gagnes = (game.career || []).filter((e) =>
+    (e.kind === "election" && e.won) || (e.kind === "office" && e.position === "president")).length;
 
-  // LE SOMMET D'UNE CARRIÈRE SE LIT SUR DEUX LIGNES, PAS UNE. La direction
-  // d'un parti n'est plus une marche de l'échelle : sans cette mention, une
-  // carrière qui a tenu son camp pendant douze ans se résumait à « député ».
   const sommet = game.ended.type === "victory"
     ? t("pos_president")
     : t("pos_" + game.peakPosition) + (game.peakLead ? " · " + t("pos_chef") : "");
 
-  const fait = (label, valeur) => (
-    '<p class="fact"><span>' + label + "</span><strong>" + valeur + "</strong></p>"
+  const stat = (valeur, libelle) => (
+    '<div class="end-stat"><strong>' + valeur + "</strong><span>" + libelle + "</span></div>"
   );
 
-  /* UNE PAGE DE RELEVÉ, ET UN SEUL AXE.
-     Les versions précédentes empilaient des blocs centrés, des blocs alignés
-     à gauche, un grand nombre au milieu et des cadres au hasard : rien ne
-     tombait sur rien, et l'œil n'avait aucun bord auquel se raccrocher. La
-     page est maintenant construite comme un relevé de journal — un titre
-     plein cadre, un bandeau de verdict qui traverse toute la largeur, puis
-     deux colonnes qui gardent le même bord du haut jusqu'en bas. Tout est
-     aligné à gauche, sauf ce qui se lit comme un chiffre et qui va se ranger
-     à droite de sa ligne. */
   host.innerHTML =
     '<div class="end-page end-' + game.ended.type + '">' +
 
-      /* 1. L'ENTÊTE — ce qui vient d'arriver. */
+      /* 1. À QUI. */
       '<header class="end-head">' +
-        '<p class="end-kicker"><span class="end-crest" aria-hidden="true">★</span>' +
-          cardHeader() + "</p>" +
-        '<h2 class="end-title">' + L(ending.title) + "</h2>" +
-        '<p class="end-text">' + L(ending.text) + "</p>" +
+        '<span class="end-crest" aria-hidden="true">★</span>' +
+        '<p class="end-kicker">' + t("year_label") + " " +
+          (Math.floor(game.turn / TURNS_PER_YEAR) + 1) + "</p>" +
+        '<h2 class="end-name">' + (game.character.name || t("sheet_name_empty")) + "</h2>" +
+        // Certaines fins s'intitulent exactement comme la fonction atteinte
+        // (« Président de la République ») : on lisait le même mot deux fois
+        // à trois lignes d'écart, en capitales puis en italique.
+        (L(ending.title) === sommet ? "" : '<p class="end-office">' + sommet + "</p>") +
+        '<p class="end-identity">' + t("end_stat_age").replace("{n}", Math.floor(game.age)) +
+          " · " + t("party_" + game.party) + "</p>" +
       "</header>" +
 
-      /* 2. LE BANDEAU — ce que la postérité en fait. Le rang à gauche, le
-         total à droite et en grand : c'est le chiffre de la partie, il doit
-         se voir de loin. Le détail se déplie JUSTE EN DESSOUS — relégué en
-         bas de la colonne de droite, il n'avait plus aucun rapport avec le
-         nombre qu'il explique. */
-      '<div class="end-verdict">' +
-        '<div class="end-verdict-rank">' +
-          '<span class="end-label">' + t("end_score_title") + "</span>" +
-          '<strong>' + t(note.rank) + "</strong>" +
-        "</div>" +
-        '<div class="end-verdict-score">' +
-          '<span class="end-score-value">' + note.total + "</span>" +
-          '<span class="end-label">' + t("end_score_unit") + "</span>" +
-        "</div>" +
+      /* 2. CE QU'ON EN DIT. */
+      '<div class="end-story">' +
+        '<p class="end-title">' + L(ending.title) + "</p>" +
+        '<p class="end-text">' + L(ending.text) + "</p>" +
       "</div>" +
-      foldHTML(t("end_score_detail"), '<ul class="note-lines">' + scoreLinesHTML() + "</ul>",
-               "fold-verdict") +
 
-      /* 3. LE RELEVÉ — deux colonnes, un seul bord. */
+      /* 3. CE QUE ÇA VAUT. */
+      '<div class="end-verdict">' +
+        '<p class="end-label">' + t("end_score_title") + "</p>" +
+        '<p class="end-score">' + note.total + "</p>" +
+        '<p class="end-rank">' + t(note.rank) + "</p>" +
+        // Le détail appartient au chiffre qu'il explique : relégué dans les
+        // archives du bas, il n'expliquait plus rien.
+        foldHTML(t("end_score_detail"), '<ul class="note-lines">' + scoreLinesHTML() + "</ul>",
+                 "fold-score") +
+      "</div>" +
+
+      /* 4. LE RELEVÉ — deux colonnes, parce qu'une page large ne se lit pas
+         sur une gouttière de trente rem. La stèle du haut occupe toute la
+         largeur, le relevé du bas se partage : les chiffres et la frise à
+         gauche, ce qu'on laisse et les archives à droite. */
       '<div class="end-columns">' +
         '<section class="end-col">' +
-          '<p class="end-label">' + t("end_timeline_title") + "</p>" +
+          '<p class="end-label">' + t("end_recap_title") + "</p>" +
+          '<div class="end-stats">' +
+            stat(years, t("end_stat_years")) +
+            stat(game.careerPartial && !gagnes ? "—" : gagnes, t("end_stat_won")) +
+            stat(formatMoney(game.money), t("end_stat_money")) +
+          "</div>" +
+          '<p class="end-label end-label-space">' + t("end_timeline_title") + "</p>" +
           timelineHTML() +
-          journalHTML() +
         "</section>" +
         '<section class="end-col">' +
-          '<p class="end-label">' + t("end_recap_title") + "</p>" +
-          '<div class="end-facts">' +
-            fait(t("end_recap_years"), years) +
-            fait(t("end_recap_peak"), sommet) +
-            fait(t("end_recap_money"), formatMoney(game.money)) +
-          "</div>" +
           (traits.length
-            ? '<p class="end-label end-label-space">' + t("end_recap_traits") + "</p>" +
+            ? '<p class="end-label">' + t("end_recap_traits") + "</p>" +
               '<div class="end-traits">' + traitRowsHTML(traits) + "</div>"
             : "") +
+          journalHTML() +
         "</section>" +
       "</div>" +
 

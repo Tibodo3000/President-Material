@@ -1705,16 +1705,25 @@ function careerScore(s) {
 
   const fonction = (SCORE_OFFICE[sommet] || 0) + (s.peakLead ? SCORE_LEAD : 0);
   lines.push({ key: "score_office", points: Math.round(fonction + annees * SCORE_YEAR),
-               detail: { sommet, lead: Boolean(s.peakLead), annees } });
+               detail: { sommet, lead: Boolean(s.peakLead), annees,
+                         partiel: Boolean(s.careerPartial) } });
 
   /* 2. LES URNES. Ce que les électeurs ont dit, et rien d'autre. */
-  const scrutins = frise.filter((e) => e.kind === "election");
+  // LA PRÉSIDENTIELLE GAGNÉE EST UN SCRUTIN GAGNÉ. Elle ne passe pas par
+  // applyOutcome — une campagne présidentielle a son propre dépouillement —
+  // et elle n'était donc comptée nulle part : on annonçait « aucun scrutin
+  // disputé » à un président de la République.
+  const scrutins = frise.filter((e) => e.kind === "election")
+    .concat(frise.filter((e) => e.kind === "office" && e.position === "president")
+                 .map((e) => ({ kind: "election", id: "presidentielle", won: true,
+                                target: "president", defense: false })));
   const gagnes = scrutins.filter((e) => e.won);
   const perdus = scrutins.filter((e) => !e.won);
   const urnes = gagnes.reduce((sum, e) => sum + (SCORE_WON[e.target] || 4), 0) +
     perdus.reduce((sum, e) => sum + (e.defense ? SCORE_LOST_DEFENSE : SCORE_LOST), 0);
   lines.push({ key: "score_ballots", points: Math.round(urnes),
-               detail: { gagnes: gagnes.length, perdus: perdus.length } });
+               detail: { gagnes: gagnes.length, perdus: perdus.length,
+                         partiel: Boolean(s.careerPartial) } });
 
   /* 3. CE QUE LE PAYS A RETENU. Le sommet de la popularité, plus ce que la
         notoriété dit d'un nom : on peut être connu sans être aimé, et cela
