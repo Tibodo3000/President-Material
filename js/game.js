@@ -160,6 +160,8 @@ function newGame(character) {
     flags: {},
     strain: 0,         // énergie dépensée qu'on n'avait pas : la dette de fatigue
     strainStruck: 0,   // avertissements du corps déjà envoyés
+    decline: 0,        // combien de fois le corps a parlé : voir LE CORPS PRÉVIENT
+    declineTurn: null, // le tour du dernier signe
     traits: [],        // marques durables laissées par les choix
     strikes: {},       // écarts commis, avant qu'ils ne fassent une réputation
     investments: {},   // niveaux des postes de dépense choisis par le joueur
@@ -2298,6 +2300,11 @@ function advanceTurn() {
   maybeDefection();
   applyTraitTurn(game);
 
+  // LE CORPS PARLE AVANT DE S'ARRÊTER. Il ne termine rien ici : il programme
+  // une carte, et ce sont ces cartes-là qui ouvrent les portes de sortie
+  // ci-dessous. Voir « LE CORPS PRÉVIENT, ET IL PRÉVIENT SUR UNE CARTE ».
+  bodyWarning();
+
   // LE CORPS DÉCIDE À VOTRE PLACE. Le retrait forcé n'existait qu'à partir de
   // soixante-deux ans : on pouvait donc mener une carrière entière à zéro
   // d'énergie sans que rien n'arrive jamais. L'épuisement a maintenant sa
@@ -2475,35 +2482,162 @@ const BURNOUT_STRAIN = 28;
 const BURNOUT_ENERGY = 2;
 const BURNOUT_CHANCE = 0.07;
 
+/* ==========================================================================
+   LE CORPS PRÉVIENT, ET IL PRÉVIENT SUR UNE CARTE
+   ==========================================================================
+   Une carrière s'arrêtait net. Mesuré sur trois cents parties : un retrait
+   forcé sur cinq tombait sans qu'aucune carte n'ait rien annoncé, une mort
+   sur six frappait à soixante-dix-huit ans sur quelqu'un que rien n'avait
+   jamais fatigué, et le seul avertissement du jeu — deux lignes de journal à
+   soixante-deux ans, dans un panneau latéral — pouvait précéder la fin de
+   dix ans. Un joueur qui ne peut pas voir venir une fin ne la joue pas, il
+   la subit, et une fin qu'on subit sans l'avoir vue venir se lit comme un
+   bug même quand elle est juste.
+
+   Le corps parle donc AVANT, et il parle sur une carte, avec des choix. Trois
+   fois au plus : un premier signe qu'on peut prendre pour de la fatigue, un
+   deuxième qu'on ne peut plus, un troisième après lequel il n'y a plus de
+   discussion. Chaque signe est une scène ordinaire — même carte, mêmes
+   boutons, même paquet — programmée par le moteur et tirée par dueChain().
+   Le joueur peut lever le pied, ce qui coûte de la cote et rend du temps, ou
+   forcer, ce qui rapporte et abrège.
+
+   ET LES FINS N'EXISTENT QU'APRÈS. Le retrait forcé et la mort par la santé
+   ne sont plus possibles tant que le corps n'a rien dit (voir
+   deathProbability et withdrawalProbability dans js/game-data.js), et leur
+   probabilité monte avec le nombre de signes déjà donnés.
+
+   UNE SEULE EXCEPTION, ET ELLE EST VOULUE : l'accident. Il ne prévient
+   jamais, il est rare, il ne monte presque pas avec l'âge, et il a sa propre
+   fin dans js/endings.data.js. C'est ce qui reste d'imprévisible quand tout
+   le reste est annoncé.
+   ========================================================================== */
+
+/** Au-delà, le corps n'a plus rien à ajouter. */
+const DECLINE_MAX = 3;
+
+/** À partir de ce niveau de dette de fatigue, le corps commence à parler. */
+const STRAIN_TALKS = BURNOUT_STRAIN / 2;
+
+/**
+ * La probabilité, PAR AN, qu'un signe tombe. Elle vaut à peu près trois fois
+ * ce que vaut la fin correspondante : c'est ce rapport-là qui fait qu'on est
+ * prévenu avant, et il n'y a pas d'autre réglage derrière.
+ */
+function declineRate(s) {
+  let p = 0;
+
+  // L'âge, à partir de cinquante-cinq ans.
+  if (s.age >= 55) p += (s.age - 55) * 0.022;
+
+  // Le corps qui s'abîme, déclaré ou visible.
+  p += HEALTH_TRAITS.filter((id) => hasTrait(s, id)).length * 0.10;
+  if (s.flags.frailHealth) p += 0.12;
+
+  // L'épuisement, seul chemin ouvert avant l'âge : c'est ainsi qu'une
+  // carrière menée à vide s'annonce, et à trente-cinq ans si nécessaire.
+  if (s.stats.energie <= 3) p += 0.16;
+  else if (s.stats.energie <= 5) p += 0.06;
+  if ((s.strain || 0) >= STRAIN_TALKS) p += 0.12;
+
+  // Une fois qu'il a parlé, il parle plus souvent.
+  p *= 1 + (s.decline || 0) * 0.5;
+
+  // Se ménager ne supprime rien, cela espace.
+  if (s.flags.carefulHealth) p *= 0.6;
+
+  return p;
+}
+
+/**
+ * L'ÂGE OÙ LE COMPTE À REBOURS PEUT COMMENCER.
+ *
+ * Le premier signe est ouvert à tout le monde : une carrière menée à vide
+ * s'annonce à trente-cinq ans comme à soixante-dix, et c'est très bien. Les
+ * deux suivants, non. Mesuré sur trois cents carrières, le premier réglage
+ * faisait parler le corps à cinquante-trois ans en médiane et à trente-trois
+ * pour le dixième le plus pressé, si bien qu'un joueur atteignait le dernier
+ * temps avant même d'avoir une fonction — et les portes de sortie s'ouvraient
+ * avec lui.
+ *
+ * Passé le premier signe, il faut donc l'âge, ou la rupture. Quelqu'un de
+ * jeune qui s'épuise est prévenu ; il ne descend l'escalier que s'il continue
+ * jusqu'à ce que la dette de fatigue atteigne le point de rupture, ce qui est
+ * exactement ce que raconte le burnout et ce qui doit rester possible.
+ */
+const DECLINE_AGE = 58;
+
+function declineAllowed(etage) {
+  if (etage <= 1) return true;
+  return game.age >= DECLINE_AGE || (game.strain || 0) >= BURNOUT_STRAIN;
+}
+
+/**
+ * Programme le prochain signe. Les scènes vivent dans js/events/declin.data.js
+ * comme n'importe quel événement : elles portent un champ "decline" qui dit à
+ * quel temps du corps elles appartiennent, un poids nul pour n'être jamais
+ * tirées au hasard, et leurs propres conditions — on ne raconte pas la même
+ * chose à un homme de quarante ans à bout de forces et à une femme de
+ * soixante-quinze qui cherche ses mots.
+ */
+function scheduleDecline() {
+  const etage = (game.decline || 0) + 1;
+  if (!declineAllowed(etage)) return false;
+
+  const candidates = EVENTS.filter((ev) =>
+    ev.decline === etage && !game.seen[ev.id] &&
+    !pendingChains(game).some((entry) => entry.id === ev.id) &&
+    eventMatches({ ...ev, id: null }, game));
+
+  if (!candidates.length) return false;
+
+  scheduleChain(game, candidates[randInt(candidates.length)].id);
+  return true;
+}
+
+/**
+ * Le corps parle-t-il ce tour-ci ? Appelée une fois par tour, avant les
+ * portes de sortie. Elle ne termine jamais rien : elle programme une carte.
+ */
+function bodyWarning() {
+  if ((game.decline || 0) >= DECLINE_MAX) return;
+
+  // Un signe déjà programmé et pas encore joué : on n'en empile pas deux.
+  if (pendingChains(game).some((entry) => EVENTS.some((ev) => ev.id === entry.id && ev.decline))) return;
+
+  // LA DETTE DE FATIGUE PARLE TOUT DE SUITE. Quand elle atteint le seuil de
+  // rupture, on ne tire pas : le corps a déjà donné tous les signes qu'il
+  // pouvait donner, et le suivant est le dernier.
+  const rupture = (game.strain || 0) >= BURNOUT_STRAIN && game.stats.energie <= BURNOUT_ENERGY;
+
+  if (rupture || Math.random() < declineRate(game) * YEARS_PER_TURN) scheduleDecline();
+}
+
+/**
+ * L'épuisement va-t-il jusqu'au bout ? Il ne le peut plus tant que le corps
+ * n'a pas parlé au moins deux fois : on ne s'arrête pas d'un coup, on
+ * s'arrête après avoir ignoré ce qu'on avait déjà entendu.
+ */
 function burnout() {
   if ((game.strain || 0) < BURNOUT_STRAIN) return false;
   if (game.stats.energie > BURNOUT_ENERGY) return false;
+  if ((game.decline || 0) < 2) return false;
 
-  if (!game.flags.burnoutWarned) {
-    game.flags.burnoutWarned = true;
-    addLog({
-      fr: "Un malaise en fin de réunion, mis sur le compte de la chaleur. Le médecin que vous voyez le lendemain ne parle pas de chaleur, il parle de mois, et il vous demande lesquels vous comptez prendre.",
-      en: "A dizzy spell at the end of a meeting, blamed on the heat. The doctor you see the next day does not talk about heat, he talks about months, and asks which ones you intend to take.",
-    });
-    return false;
-  }
-
-  return Math.random() < BURNOUT_CHANCE;
+  return Math.random() < BURNOUT_CHANCE * (game.decline - 1);
 }
 
+/**
+ * La question de l'âge, qui n'est pas celle du corps : un éditorialiste ne
+ * regarde pas un bilan de santé, il compte les années. Elle reste une ligne
+ * de journal parce qu'elle ne décide de rien — ce sont les cartes du corps
+ * qui ouvrent les portes de sortie.
+ */
 function warnAboutAge() {
   if (game.age >= 62 && !game.flags.ageWarned) {
     game.flags.ageWarned = true;
     addLog({
       fr: "Un éditorialiste écrit que votre génération a fait son temps. La question de l'âge est posée, et elle ne se refermera plus.",
       en: "A columnist writes that your generation has had its turn. The age question is open now, and it will not close again.",
-    });
-  }
-  if (game.age >= 60 && game.stats.energie <= 3 && !game.flags.exhaustionWarned) {
-    game.flags.exhaustionWarned = true;
-    addLog({
-      fr: "Votre entourage allège l'agenda sans vous demander votre avis. Personne ne dit le mot, tout le monde l'a en tête.",
-      en: "Your staff quietly thins out the diary without asking you. Nobody says the word; everyone is thinking it.",
     });
   }
 }
@@ -2520,6 +2654,13 @@ function drawEvent() {
   if (suite) {
     game.lastEventId = suite.id;
     setScene(suite);
+    // Le signe ne compte que quand le joueur le VOIT. Entre le moment où le
+    // moteur le programme et celui où la carte tombe, les portes de sortie
+    // restent fermées : on n'est pas prévenu par une scène qu'on n'a pas lue.
+    if (suite.decline) {
+      game.decline = Math.max(game.decline || 0, suite.decline);
+      game.declineTurn = game.turn;
+    }
     return suite;
   }
 
@@ -3595,6 +3736,13 @@ const BUILD = "2026-08-21 11:45";
     if (!game.landscapeBefore) game.landscapeBefore = { ...game.landscape };
     if (game.alliance === undefined) game.alliance = null;
     if (game.scene === undefined) game.scene = null;
+    // Une sauvegarde d'avant l'arc de fin de carrière n'a pas de compteur.
+    // On ne le devine pas : une santé déjà déclarée fragile vaut un signe,
+    // le reste part de zéro et le corps parlera quand il parlera.
+    if (game.decline === undefined) {
+      game.decline = game.flags && game.flags.frailHealth ? 1 : 0;
+      game.declineTurn = game.decline ? game.turn : null;
+    }
     game.rivals.forEach((r) => {
       if (r.popularity === undefined) r.popularity = figurePopularity(r);
     });

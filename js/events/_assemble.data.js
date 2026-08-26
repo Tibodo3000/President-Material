@@ -240,7 +240,7 @@
 
 /* Assemblé depuis js/events/*.data.js — voir le schéma ci-dessus. */
 const EVENT_DATA = {
-  events: [].concat(EV_debuts, EV_medias, EV_argent, EV_appareil, EV_chaines, EV_rivaux, EV_vie_privee, EV_partis, EV_caractere, EV_institutions, EV_assemblee, EV_grandes_decisions, EV_divers),
+  events: [].concat(EV_debuts, EV_medias, EV_argent, EV_appareil, EV_chaines, EV_rivaux, EV_vie_privee, EV_partis, EV_caractere, EV_institutions, EV_assemblee, EV_grandes_decisions, EV_divers, EV_declin),
   campaign: EV_campaign,
   runoff: EV_runoff,
   nomination: EV_nomination,

@@ -159,6 +159,24 @@ const ENDING_DATA = [
     }
   },
 
+  /*
+   * ON VOUS L'AVAIT DIT TROIS FOIS. Ces deux fins-là ne sont possibles que
+   * depuis que le corps prévient sur des cartes : elles lisent le nombre de
+   * scènes de fin de carrière que le joueur a effectivement jouées, et elles
+   * disent ce qu'il en a fait. Une sortie qu'on a refusé de voir venir n'est
+   * pas la même histoire qu'une sortie qui tombe du ciel.
+   */
+  {
+    "id": "prevenu_trois_fois",
+    "from": "death",
+    "when": { "minDecline": 3 },
+    "title": { "fr": "On vous avait prévenu", "en": "You had been told" },
+    "text": {
+      "fr": "Il n'y aura pas de surprise, et c'est bien ce qu'on vous reprochera : trois médecins, un entourage entier et votre propre miroir vous avaient dit la même chose, et vous aviez chaque fois trouvé une échéance à tenir d'abord. Les hommages diront que vous êtes mort au travail. C'est exact, et cela ne veut pas dire ce qu'ils croient.",
+      "en": "There will be no surprise, and that is exactly what will be held against you: three doctors, an entire staff and your own mirror had told you the same thing, and each time you found one more deadline to get past first. The tributes will say you died in harness. That is accurate, and it does not mean what they think it means."
+    }
+  },
+
   {
     "id": "en_pleine_gloire",
     "from": "death",
@@ -200,6 +218,17 @@ const ENDING_DATA = [
     "text": {
       "fr": "Vous n'êtes pas tombé de haut, vous vous êtes arrêté net, un mardi, dans un couloir que vous empruntiez depuis douze ans. Le mot qu'on emploie tient en deux syllabes et personne ne l'écrira dans un communiqué. Vous aviez l'âge où l'on commence, et vous avez déjà tout donné.",
       "en": "You did not fall from a height, you simply stopped, on a Tuesday, in a corridor you had walked for twelve years. The word people use has two syllables and nobody will put it in a statement. You were the age at which careers begin, and you had already given everything."
+    }
+  },
+
+  {
+    "id": "retrait_prevenu",
+    "from": "withdrawal",
+    "when": { "minDecline": 3, "minAge": 60 },
+    "title": { "fr": "La dernière réunion", "en": "The last meeting" },
+    "text": {
+      "fr": "On ne vous pousse pas dehors : on vous rappelle, poliment, ce que vous saviez déjà. Vous êtes le seul dans la pièce à découvrir la nouvelle, et vous ne la découvrez pas. Le communiqué parle d'une décision personnelle, ce qu'elle aurait pu être si vous l'aviez prise deux ans plus tôt.",
+      "en": "Nobody pushes you out: they remind you, politely, of what you already knew. You are the only person in the room hearing the news, and you are not hearing it. The statement calls it a personal decision, which is what it could have been had you taken it two years earlier."
     }
   },
 

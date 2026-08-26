@@ -60,8 +60,10 @@ landscapeBefore = {…}; driftLandscape()   → the national vote-share shifts
 ensureGovernment()     → the ruling camp gets a PM + ministers
 maybeDefection()       → someone may cross the floor
 applyTraitTurn()       → hidden income, per-trait risk rolls, wealth-attention rolls
-──── mortality gate ────  death (60+) → end
-──── withdrawal gate ───  forced exit (62+, worsened by exhaustion) → end
+bodyWarning()          → the body may schedule its next warning card (never ends anything)
+──── burnout gate ─────  exhaustion, only after two warnings → end
+──── mortality gate ────  accident always; illness only after a warning → end
+──── withdrawal gate ───  forced exit (62+), only after a warning → end
 ── pick the card for this turn ──
 ```
 
@@ -351,6 +353,14 @@ The result text says which way the camp moved, because a rising standing under t
 ---
 
 ## Ending the game
+
+**An ending announces itself first.** Both forced exits — the withdrawal and death by
+illness — are closed until the body has spoken on a card the player actually read
+(`bodySpoke`, see *The end announces itself* in [systems.md](systems.md)). The scenes live
+in [declin.data.js](../js/events/declin.data.js), three stages of three, and the last stage
+always offers to stop on your own terms. The single exception is the **accident**: rare,
+flat with age, announced by nothing, and with its own endings — because something has to
+stay unforeseeable once everything else is foretold.
 
 The engine knows only a handful of end *types* (`victory`, `retire`, `withdrawal`,
 `death`, `conviction`), set by writing `game.ended = { type }`. The **narrated** ending

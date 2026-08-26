@@ -409,17 +409,45 @@ function nominationNeed(stake, s) {
  * s'arrêter sur un tirage muet.
  *
  * Deux morts distinctes, donc. Celle qui vient de la santé n'est possible que
- * si le corps a déjà parlé — santé fragile déclarée, ou l'un des traits qui
- * disent qu'on s'abîme. Et celle qui ne prévient pas, l'accident, reste
+ * si le corps a déjà parlé. Et celle qui ne prévient pas, l'accident, reste
  * possible à tout âge parce que c'est ce qu'est un accident : elle est rare,
  * elle ne monte presque pas avec l'âge, et elle a droit à sa propre fin.
  */
 const HEALTH_TRAITS = ["fragile", "obese", "use", "declin"];
 
-/** Le corps a-t-il déjà donné signe ? */
-function healthWarned(state) {
-  if (state.flags.frailHealth) return true;
-  return HEALTH_TRAITS.some((id) => hasTrait(state, id));
+/**
+ * QUI TÉMOIGNE QUE LE CORPS A PARLÉ.
+ *
+ * C'était le dossier médical : santé déclarée fragile, ou l'un des traits qui
+ * disent qu'on s'abîme. Mauvais témoin. Un trait pris à trente-cinq ans
+ * ouvrait la mortalité à soixante sur quelqu'un qui n'avait plus rien vu
+ * passer depuis vingt-cinq ans ; et à l'inverse, quelqu'un qui n'avait jamais
+ * rien attrapé mourait à soixante-dix-huit ans sans qu'aucune carte de la
+ * partie n'ait rien annoncé. Mesuré sur trois cents carrières : une mort sur
+ * six et un retrait forcé sur cinq tombaient ainsi.
+ *
+ * Ce qui compte est ce que le joueur a LU. state.decline compte les scènes de
+ * fin de carrière effectivement jouées — voir « LE CORPS PRÉVIENT, ET IL
+ * PRÉVIENT SUR UNE CARTE » dans js/game.js — et rien d'autre n'ouvre la porte.
+ */
+function bodySpoke(state) {
+  return (state.decline || 0) > 0;
+}
+
+/**
+ * Ce que pèse ce qui a déjà été dit. Un premier signe entrouvre la porte, le
+ * troisième la tient grande ouverte : on ne meurt pas d'un avertissement, on
+ * meurt de les avoir tous ignorés.
+ *
+ * Le deuxième temps vaut à peu près ce que valait le risque avant que cet
+ * arc n'existe. C'est le point de calage : une carrière qui va au bout de ce
+ * que le corps a à lui dire se termine à peu près quand elle se terminait,
+ * et une carrière qui s'arrête au premier signe gagne des années.
+ */
+const DECLINE_WEIGHT = [0, 0.5, 1.2, 2.0];
+
+function declineWeight(state) {
+  return DECLINE_WEIGHT[Math.min(state.decline || 0, DECLINE_WEIGHT.length - 1)];
 }
 
 /** L'accident, par an : rare, sourd, et il n'a jamais prévenu personne. */
@@ -430,18 +458,26 @@ function accidentProbability(state) {
 function deathProbability(state) {
   if (state.age >= 92) return 1;
 
+  // L'ACCIDENT NE PASSE PAS PAR LE CORPS, et c'est la seule chose qui ne
+  // passe pas par lui : il faut qu'il reste quelque chose d'imprévisible
+  // quand tout le reste est annoncé.
   let p = accidentProbability(state);
 
-  // La part « santé » ne s'ouvre qu'à ceux dont le corps a déjà parlé.
-  if (state.age >= 60 && healthWarned(state)) {
-    let sante = (state.age - 60) * 0.008 + 0.006;
-    if (state.flags.carefulHealth) sante /= 2;
-    if (state.flags.frailHealth) sante *= 1.6;
-    p += sante;
-  }
+  if (bodySpoke(state)) {
+    const poids = declineWeight(state);
 
-  // Passé un certain âge, le corps a parlé pour tout le monde.
-  if (state.age >= 78) p += (state.age - 78) * 0.012;
+    // La part « santé ».
+    if (state.age >= 60) {
+      let sante = ((state.age - 60) * 0.008 + 0.006) * poids;
+      if (state.flags.carefulHealth) sante /= 2;
+      if (state.flags.frailHealth) sante *= 1.6;
+      p += sante;
+    }
+
+    // Passé un certain âge, le corps a parlé pour tout le monde — mais il a
+    // parlé, et le joueur l'a lu.
+    if (state.age >= 78) p += (state.age - 78) * 0.012 * poids;
+  }
 
   return p * YEARS_PER_TURN;
 }
@@ -463,8 +499,14 @@ function deathProbability(state) {
 function withdrawalProbability(state) {
   if (state.age < 62) return 0;
 
+  // ON NE POUSSE PAS DEHORS QUELQU'UN QUE RIEN N'A ANNONCÉ. Quatre retraits
+  // forcés sur cinq tombaient sur le seul critère de l'âge, sans qu'aucune
+  // carte de la partie n'ait rien dit : c'est exactement la fin abrupte que
+  // l'arc de fin de carrière existe pour supprimer.
+  if (!bodySpoke(state)) return 0;
+
   // Par an, comme la mortalité : la conversion en tours est à la sortie.
-  let p = (state.age - 62) * 0.006;
+  let p = (state.age - 62) * 0.006 * declineWeight(state);
 
   // LA FORME PROTÈGE, ET PAS SEULEMENT L'ÉPUISEMENT QUI ACCABLE.
   //
@@ -1627,6 +1669,12 @@ function eventMatches(ev, s) {
   if (w.maxStanding !== undefined && s.standing > w.maxStanding) return false;
   if (w.minMoney !== undefined && s.money < w.minMoney) return false;
   if (w.maxMoney !== undefined && s.money > w.maxMoney) return false;
+
+  // COMBIEN DE FOIS LE CORPS A PARLÉ. Sert surtout aux fins : on ne raconte
+  // pas de la même façon une sortie qu'on n'a pas vue venir et une sortie
+  // qu'on a refusé de voir venir trois fois de suite.
+  if (w.minDecline !== undefined && (s.decline || 0) < w.minDecline) return false;
+  if (w.maxDecline !== undefined && (s.decline || 0) > w.maxDecline) return false;
 
   if (w.stat) {
     for (const [key, range] of Object.entries(w.stat)) {

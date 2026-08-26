@@ -135,18 +135,53 @@ You do not burn out on one sleepless night, you burn out on years without margin
 |---|---|
 | `STRAIN_LOW` (3) | at or below this energy, strain climbs by 1 each turn |
 | `STRAIN_REST` (7) | at or above it, strain falls by 1 — easing off genuinely undoes it |
-| `STRAIN_STRIKE` (5) | every five points, the body sends a sign: a strike toward `epuise` |
-| `BURNOUT_STRAIN` (14) | past this, and only while still empty, the career can stop |
+| `STRAIN_STRIKE` (10) | every ten points, the body sends a sign: a strike toward `epuise` |
+| `BURNOUT_STRAIN` (28) | past this, and only while still empty, the career can stop |
 
 `epuise` ("Épuisé") is **not** `use` ("Usé"). Wear is the erosion of a late career and does
 not heal; exhaustion is an acute state you inflict on yourself and come back from. It costs
 `sangfroid` −2 and two points of recovery ceiling, needs two strikes to land, and
 `fatigue_arret` can lift it — for twelve points of standing.
 
-Burnout ends the career as a `withdrawal`, **warned one turn ahead** (`burnout()`): a
-game-over that falls without notice is a game-over you did not get to play. The narrated
-ending is `burnout` in [endings.data.js](../js/endings.data.js) for anyone under 58, since
-"the party calls it a transition" means nothing at forty-three.
+Burnout ends the career as a `withdrawal`, and it can no longer arrive without notice:
+`burnout()` requires the body to have spoken **twice** (`state.decline >= 2`) and scales
+with it. Reaching the second sign before 58 needs strain at rupture level, which is exactly
+what burning out is. The narrated ending is `burnout` in
+[endings.data.js](../js/endings.data.js) for anyone under 58, since "the party calls it a
+transition" means nothing at forty-three.
+
+---
+
+## The end announces itself — `decline`
+
+A career used to stop dead. Measured over 300 careers: **one forced withdrawal in five
+fell on age alone with no card having said anything**, one death in six struck a
+seventy-eight-year-old nothing had ever tired, and the game's only two warnings were
+journal lines in a side panel that could precede the end by ten years. An ending the
+player cannot see coming is not played, it is suffered — and it reads as a bug even when
+it is fair.
+
+**The body now speaks first, and it speaks on a card.** Three times at most, escalating:
+
+| | |
+|---|---|
+| `declineRate()` (game.js) | the chance **per year** that a sign lands. Age from 55, health traits, `frailHealth`, low energy, strain. Roughly three times the terminal risk it precedes — that ratio is the whole mechanism |
+| `bodyWarning()` | called once a turn, before the exits. It never ends anything: it schedules a scene |
+| `scheduleDecline()` | picks an unplayed scene of the next stage from [declin.data.js](../js/events/declin.data.js) and schedules it like any chain. `state.decline` rises when the card is actually **drawn** — you are not warned by a scene you never read |
+| `declineAllowed()` | stage 1 is open to anyone (a thirty-five-year-old running on empty gets a scare); stages 2 and 3 need `DECLINE_AGE` (58) **or** strain at rupture |
+| `DECLINE_WEIGHT` `[0, .5, 1.2, 2]` (game-data.js) | what the exits are worth at each stage. Stage 2 is about what the risk was before this arc existed: that is the calibration point |
+
+`bodySpoke()` gates both exits. `withdrawalProbability` returns 0 until the body has
+spoken; `deathProbability` keeps only its **accident** term — rare, flat with age, and
+deliberately the one thing nothing announces, with its own endings.
+
+Measured over the same 300 careers after the change: **100% of forced withdrawals** and
+**86% of deaths** are preceded by a sign, the last one a median 7 and 11 turns before the
+end. The remaining 14% of deaths are the accidents. Median ages moved by about a year
+(withdrawal 71.8 → 69.8, death 69.5 → 68).
+
+The three stage-3 scenes each offer to **stop on your own terms** (`"end": "retire"`).
+That is the point of seeing it coming: leaving is a move.
 
 Measured over 150 careers: a player choosing at random ends up exhausted 10% of the time and
 warned 3%; a player who always takes the most demanding option is exhausted 95% of the time

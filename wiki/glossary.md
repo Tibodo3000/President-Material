@@ -40,7 +40,9 @@ lives. Filenames link to the file — search the function name inside to land on
 | `DRIFT`, `driftToward`* | Gauge convergence rate (*`driftToward` is in game.js) |
 | `popularityTarget`, `standingTarget` | Stat-derived gauge targets |
 | `NOMINATION_THRESHOLD`, `INCUMBENT_DISCOUNT`, `SEATED_CLAIM`, `nominationNeed` | Standing gates for candidacy, and the two discounts that lower them |
-| `deathProbability`, `withdrawalProbability` | End-of-career risk by age/health |
+| `deathProbability`, `withdrawalProbability` | End-of-career risk by age/health, gated on `bodySpoke` |
+| `declineRate`, `bodyWarning`, `scheduleDecline`, `declineAllowed` | The body's three warnings, on cards (game.js) |
+| `bodySpoke`, `declineWeight`, `DECLINE_WEIGHT` | What has already been said, and what it opens (game-data.js) |
 | `STAT_SCALE`, `statScore` | The 0–20 → 0–10 conversion used by every formula |
 | `bump`, `bumpPop`, `bumpStanding`, `pay` | Bounded mutators (diminishing returns, soften) |
 | `overallPopularity`, `nationalPopularity`, `reachWeights`, `noteTarget` | The two readings of the six electorates: the note the player sees (own camp two-thirds, then by proximity) and the national average everything comparative uses |

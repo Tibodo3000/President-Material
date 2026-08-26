@@ -60,6 +60,7 @@ function genderMarks() {
 }
 
 const DECKS = read("EVENT_DATA");
+const ENDINGS = read("ENDING_DATA") || [];
 const TRAITS = read("TRAIT_DATA");
 const MODS = read("STAT_MODIFIERS");
 const LANG = read("translations");
@@ -77,6 +78,7 @@ const CASTS = ["opponent", "leader", "ruling", "neighbour", "camp", "camp_senior
 
 const WHEN_KEYS = new Set(["party", "position", "origin", "background", "personality", "minAge", "maxAge",
   "minTurn", "maxTurn", "minPopularity", "maxPopularity", "minStanding", "maxStanding", "minMoney", "maxMoney",
+  "minGeneral", "maxGeneral", "minDecline", "maxDecline",
   "stat", "flag", "trait", "anyTrait", "notTrait", "ruling", "allied", "partyLead", "minShare", "rulingClose",
   "belowPeak", "legal", "comms", "majority", "minApproval", "maxApproval", "inCoalition", "firstGroup", "pivot",
   "minSeats", "maxSeats", "dissolved", "outshinePresident", "foeIncumbent", "foeParty", "foeFar",
@@ -190,6 +192,12 @@ for (const [deck, list] of Object.entries(DECKS)) {
     seen.add(e.id);
 
     if (e.cast && !CASTS.includes(e.cast)) say(deck, e.id, "cast inconnu « " + e.cast + " »");
+    /* Les scènes de fin de carrière : le moteur les programme lui-même, elles
+       ne doivent donc jamais pouvoir sortir d'un tirage au hasard. */
+    if (e.decline !== undefined) {
+      if (![1, 2, 3].includes(e.decline)) say(deck, e.id, "temps du corps invalide « " + e.decline + " »");
+      if (e.weight !== 0) say(deck, e.id, "scène de fin de carrière tirable au hasard (weight doit valoir 0)");
+    }
     checkBilingual(deck, e.id, e.text, "texte", true);
     checkBilingual(deck, e.id, e.tag, "étiquette", false);
     checkWhen(deck, e.id, e.when, "when");
@@ -229,10 +237,42 @@ for (const [deck, list] of Object.entries(DECKS)) {
   });
 }
 
+/* ---------- LES FINS ------------------------------------------------------
+   Elles vivent dans js/endings.data.js, elles lisent les mêmes conditions que
+   les événements, et personne ne les vérifiait. Une fin dont le "when" porte
+   une faute ne se déclenche jamais : c'est la fin ordinaire de sa famille qui
+   passe à sa place, et le joueur ne sait pas qu'il a raté un texte. */
+const END_TYPES = ["victory", "retire", "withdrawal", "death", "conviction"];
+const parFamille = {};
+
+ENDINGS.forEach((e, n) => {
+  const id = e && e.id ? e.id : "entrée " + n;
+  if (!e || !e.id) return say("fins", id, "vide — virgule en trop dans le tableau");
+  if (!END_TYPES.includes(e.from)) say("fins", id, "type de fin inconnu « " + e.from + " »");
+  checkBilingual("fins", id, e.title, "titre", true);
+  checkBilingual("fins", id, e.text, "texte", true);
+  checkWhen("fins", id, e.when, "when");
+  if (!e.when) (parFamille[e.from] = parFamille[e.from] || []).push(id);
+});
+
+/* Chaque famille doit se fermer sur une fin sans condition, et celle-ci doit
+   être la dernière : la liste est parcourue dans l'ordre et la première qui
+   correspond gagne, donc une fin ordinaire placée trop haut mange toutes les
+   suivantes. */
+END_TYPES.forEach((type) => {
+  const ordinaires = parFamille[type] || [];
+  if (!ordinaires.length) return say("fins", type, "aucune fin ordinaire : cette famille peut ne rien afficher");
+  if (ordinaires.length > 1) say("fins", type, "plusieurs fins sans condition (" + ordinaires.join(", ") + ") : seule la première jouera");
+  const liste = ENDINGS.filter((e) => e && e.from === type);
+  if (liste.length && liste[liste.length - 1].id !== ordinaires[0])
+    say("fins", ordinaires[0], "fin ordinaire placée avant d'autres fins de la même famille, qui ne joueront jamais");
+});
+
 if (problems.length) {
   console.log(problems.join("\n"));
   console.log("\n" + problems.length + " problème(s).");
   process.exit(1);
 }
 console.log("Contenu vérifié : " +
-  Object.entries(DECKS).map(([k, v]) => k + " " + v.length).join(", ") + ". Rien à signaler.");
+  Object.entries(DECKS).map(([k, v]) => k + " " + v.length).join(", ") +
+  ", fins " + ENDINGS.length + ". Rien à signaler.");

@@ -229,6 +229,7 @@ Every rule reads and mutates it. Key fields:
   traits: [...],      // durable marks (trait ids from TRAIT_DATA)
   strikes: {},        // partial marks: { traitId: count } before a reputation sticks
   investments: {},    // { budgetPostKey: level }
+  decline, declineTurn, // how many times the body has spoken, and when (see systems.md)
   seen: {},           // events already played (they don't return)
   pending: [...],     // scheduled chain follow-ups: { id, turn, expires }
   popularity, standing,   // the two career gauges, 0..100

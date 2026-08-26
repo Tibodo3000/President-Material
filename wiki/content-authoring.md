@@ -32,7 +32,8 @@ actually knows, in both languages, and prints one line per problem.
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
-| `events` | Ordinary turns (250 events) | the full schema below |
+| `events` | Ordinary turns (259 events) | the full schema below |
+| ↳ *end-of-career scenes* | inside `events`, in [declin.data.js](../js/events/declin.data.js) | `"decline": 1\|2\|3` marks which of the body's three warnings a scene is. `"weight": 0` is **required** — the engine schedules them itself (`scheduleDecline`), they must never come out of a random draw. Keep **one scene per stage with no `when` at all**: if none matched, nothing would be scheduled and the exits would stay shut forever |
 | `campaign` | The 6 steps before the first round, when the player runs (26) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
 | `runoff` | The 3 steps between the two rounds (12) | `poll` moves the head-to-head; `cast: "eliminated"` |
 | `support` | The 3 steps of a presidential campaign the player is not in (16) | effects use `score`, which moves your camp's line in a poll the player watches for three scenes |
@@ -108,6 +109,7 @@ no longer drawn, it is scripted.
 "minPopularity": 60, "maxPopularity": 30
 "minStanding": 60,   "maxStanding": 30
 "minMoney": 200000,  "maxMoney": 5000
+"minDecline": 3, "maxDecline": 0     // how many times the body has spoken (0..3)
 "stat": { "notoriete": { "min": 6 }, "energie": { "max": 4 } }   // remember: 0..20 scale
 "flag": { "dirtyMoney": true, "onTrial": false }
 "trait": ["orateur","teflon"]          // ALL of these traits
