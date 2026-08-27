@@ -592,11 +592,6 @@ const EV_caractere = [
                   "en": "You look at him without answering until he changes the subject, which takes eleven seconds. He will back you anyway, and tell the story differently." } },
     { "label": { "fr": "Prendre les devants et en parler publiquement", "en": "Get ahead of it and say it publicly" },
       "effects": { "notoriete": 2, "popularity": 5, "reputation": 3, "standing": -6 },
-      "effectsIf": [
-        { "when": { "party": ["radical_left", "socdem"] }, "effects": { "standing": 10, "popularity": 4 } },
-        { "when": { "party": ["conservatives"] }, "effects": { "standing": -6 } },
-        { "when": { "party": ["identitarians"] }, "effects": { "standing": -14, "popularity": -6 } }
-      ],
       "result": { "fr": "Une phrase dans une interview, sans emphase, au milieu d'un paragraphe sur autre chose. Elle fait quatre jours de commentaires et vous ne la répéterez plus jamais.",
                   "en": "One sentence in an interview, no emphasis, in the middle of a paragraph about something else. It runs for four days and you will never repeat it." } }
   ]
@@ -615,10 +610,6 @@ const EV_caractere = [
   "choices": [
     { "label": { "fr": "Le devancer d'un jour", "en": "Beat them by a day" },
       "effects": { "axis": {"social": -60}, "notoriete": 2, "popularity": 9, "reputation": 2, "energie": -1 },
-      "effectsIf": [
-        { "when": { "party": ["identitarians", "conservatives"] }, "effects": { "standing": -10 } },
-        { "when": { "party": ["radical_left", "socdem"] }, "effects": { "standing": 6 } }
-      ],
       "result": { "fr": "Vous publiez mercredi soir, en trois phrases, sans photo et sans confidence. Le papier du jeudi tombe à plat et son auteur explique partout qu'il allait le sortir en bien.",
                   "en": "You publish on Wednesday evening, three sentences, no photograph and no confidences. Thursday's piece falls flat and its author explains everywhere that he was going to be kind about it." } },
     { "label": { "fr": "Attaquer en justice pour vie privée", "en": "Sue over privacy" },
@@ -650,9 +641,6 @@ const EV_caractere = [
   "choices": [
     { "label": { "fr": "Il figure, comme tous les autres", "en": "He appears, like everybody else" },
       "effects": { "popularity": 6, "reputation": 2, "notoriete": 1 },
-      "effectsIf": [
-        { "when": { "party": ["identitarians", "conservatives"] }, "effects": { "standing": -8, "popularity": -4 } }
-      ],
       "result": { "fr": "La photo est banale, ce qui est exactement le but. Deux chaînes la commentent pendant quarante minutes, ce qui prouve qu'elle ne l'était pas encore.",
                   "en": "The photograph is unremarkable, which is exactly the point. Two channels discuss it for forty minutes, which proves it was not unremarkable yet." } },
     { "label": { "fr": "Y aller seul, pour ne pas l'exposer", "en": "Go alone, to keep him out of it" },
