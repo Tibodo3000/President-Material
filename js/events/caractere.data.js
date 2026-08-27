@@ -170,7 +170,7 @@ const EV_caractere = [
                   "en": "They read your old statements back to you through a megaphone. You stay until dark." } },
     { "label": { "fr": "Négocier discrètement un plan de reprise", "en": "Quietly broker a rescue deal" },
       "roll": { "base": 18, "stat": "reseau", "plus": { "sangfroid": 0.4, "standing": 0.03 }, "dice": 16 },
-      "success": { "effects": { "reseau": 2, "popularity": 8, "standing": 6, "energie": -2 },
+      "success": { "effects": { "reseau": 2, "reputation": 2, "standing": 6, "energie": -2 },
         "result": { "fr": "Un repreneur sauve la moitié des postes. Vous n'en tirez aucune gloire publique, et c'est mieux ainsi.",
                     "en": "A buyer saves half the jobs. You get no public credit for it, which is just as well." } },
       "failure": { "effects": { "energie": -2, "popularity": -6, "reseau": -1 },

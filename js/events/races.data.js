@@ -515,7 +515,7 @@ const EV_races = [
                     "en": "Three of your fifteen withdraw within forty-eight hours after a phone call from the federation. You fill the list with strangers, in a day." } } },
     { "label": { "fr": "Négocier nom par nom", "en": "Negotiate name by name" },
       "roll": { "base": 17, "stat": "sangfroid", "plus": { "reseau": 0.35, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "score": 4, "standing": 5, "reseau": 2, "popularity": 3, "energie": -2 },
+      "success": { "effects": { "score": 4, "standing": 5, "reseau": 2, "energie": -2 },
         "result": { "fr": "Onze heures de réunion, trois pauses cigarette et un tableau au feutre. Vous sortez avec huit des leurs, douze des vôtres, et personne qui ait envie de recommencer.",
                     "en": "Eleven hours of meetings, three cigarette breaks and a flipchart. You come out with eight of theirs, twelve of yours, and nobody who wants to do it again." } },
       "failure": { "effects": { "score": -4, "standing": -6, "energie": -3, "reputation": -1 },

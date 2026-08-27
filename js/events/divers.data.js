@@ -348,7 +348,7 @@ const EV_divers = [
       "result": { "fr": "Vous récitez votre CV. Personne n'avait posé cette question.",
                   "en": "You recite your CV. Nobody had asked that question." } },
     { "label": { "fr": "Passer la soirée au bar avec lui", "en": "Spend the evening at the bar with him" },
-      "effects": { "popularity": 8, "energie": -2, "charisme": 1, "standing": -3 },
+      "effects": { "popularity": 3, "energie": -2, "charisme": 1, "standing": -3 },
       "result": { "fr": "Deux heures de discussion et trois tournées. Il ne votera pas pour vous, mais il le dira à trente personnes.",
                   "en": "Two hours of talking and three rounds. He will not vote for you, but he will tell thirty people about it." } }
   ]
@@ -428,7 +428,7 @@ const EV_divers = [
   "choices": [
     { "label": { "fr": "Renouveler tout l'état-major", "en": "Replace the entire leadership team" },
       "roll": { "chance": 0.55 },
-      "success": { "effects": { "reseau": 1, "energie": 1, "standing": 10, "popularity": 7 },
+      "success": { "effects": { "reseau": 1, "energie": 1, "standing": 10, "appeal": { "self": 5 } },
         "result": { "fr": "Le sang neuf redonne un souffle. On reparle de vous au présent.",
                     "en": "The new blood gives you air. People talk about you in the present tense again." } },
       "failure": { "effects": { "reseau": -2, "standing": -16, "popularity": -5 },
@@ -457,7 +457,7 @@ const EV_divers = [
   },
   "choices": [
     { "label": { "fr": "Faire circuler le chiffre", "en": "Circulate the number" },
-      "effects": { "notoriete": 1, "reseau": 1, "popularity": 8, "standing": -4, "reputation": -1 },
+      "effects": { "notoriete": 1, "reseau": 1, "popularity": 3, "standing": -4, "reputation": -1 },
       "result": { "fr": "Le chiffre arrive aux bonnes oreilles. On commence à parler de vous.",
                   "en": "The number reaches the right ears. People are starting to talk." } },
     { "label": { "fr": "Ne rien commenter", "en": "Say nothing" },
@@ -467,7 +467,7 @@ const EV_divers = [
     { "label": { "fr": "Faire fuiter un sondage encore meilleur", "en": "Leak an even better poll" },
       "when": { "personality": ["calculating"] },
       "roll": { "base": 14, "stat": "reseau", "plus": { "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "notoriete": 1, "popularity": 7, "standing": 6 },
+      "success": { "effects": { "notoriete": 1, "popularity": 3, "standing": 6 },
         "result": { "fr": "Le second chiffre écrase le premier. Personne ne demande d'où il sort.",
                     "en": "The second number buries the first. Nobody asks where it came from." } },
       "failure": { "effects": { "reputation": -2, "standing": -8 },
@@ -536,7 +536,7 @@ const EV_divers = [
     { "label": { "fr": "Faire changer la consigne de vote", "en": "Get the whip changed" },
       "when": { "position": ["chef"] },
       "roll": { "base": 15, "stat": "reseau", "plus": { "standing": 0.05, "eloquence": 0.4 }, "dice": 16 },
-      "success": { "effects": { "reseau": 1, "popularity": 9, "standing": 12 },
+      "success": { "effects": { "reseau": 1, "popularity": 3, "standing": 12 },
         "result": { "fr": "Le groupe recule. Vous n'avez rien renié et vous avez tenu la maison.",
                     "en": "The group backs down. You gave up nothing and you held the house." } },
       "failure": { "effects": { "standing": -13, "reputation": -1 },

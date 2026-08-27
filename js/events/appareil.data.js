@@ -21,7 +21,7 @@ const EV_appareil = [
       "result": { "fr": "Les portes s'ouvrent. Vous lui devez quelque chose, désormais.",
                   "en": "Doors open. You owe them something now." } },
     { "label": { "fr": "Faire votre chemin seul", "en": "Make your own way" },
-      "effects": { "reputation": 1, "popularity": 10, "standing": -6 },
+      "effects": { "reputation": 1, "popularity": 3, "standing": -6 },
       "result": { "fr": "On note votre indépendance. Elle plaît dehors et agace dedans.",
                   "en": "Your independence is noted. It plays well outside and grates inside." } },
     { "label": { "fr": "Accepter, en comptant bien s'en affranchir", "en": "Accept, fully intending to shake him off later" },
@@ -48,7 +48,7 @@ const EV_appareil = [
       "result": { "fr": "Le fils est investi. Tout le monde a compris, personne n'a rien dit.",
                   "en": "The son is nominated. Everyone understood; nobody said a word." } },
     { "label": { "fr": "Refuser et rompre", "en": "Refuse and break with him" },
-      "effects": { "landscape": { "self": -1.2 }, "strike": "intrepide", "standing": -11, "reputation": 2, "popularity": 10, "reseau": -1 },
+      "effects": { "landscape": { "self": -1.2 }, "strike": "intrepide", "standing": -11, "reputation": 2, "popularity": 3, "reseau": -1 },
       "result": { "fr": "Il ne vous adressera plus la parole. Vous vous découvrez libre et seul.",
                   "en": "He will never speak to you again. You find yourself free and alone." } }
   ]
@@ -125,7 +125,7 @@ const EV_appareil = [
       "result": { "fr": "Vous en faites votre bras droit officiel. Le tandem impressionne.",
                   "en": "You make him your official right hand. The pairing impresses." } },
     { "label": { "fr": "Le remettre à sa place", "en": "Put him back in his place" },
-      "effects": { "standing": -4, "sangfroid": 1, "energie": 1, "popularity": 3 },
+      "effects": { "standing": -4, "sangfroid": 1, "energie": 1 },
       "result": { "fr": "Il encaisse en silence. On remarque surtout votre nervosité.",
                   "en": "He takes it silently. What people notice is your nervousness." } }
   ]
@@ -151,7 +151,7 @@ const EV_appareil = [
         "result": { "fr": "La guerre ouverte tourne à votre désavantage. On vous trouve vieux.",
                     "en": "The open war turns against you. People are calling you old." } } },
     { "label": { "fr": "Lui laisser sa chance", "en": "Let him have his shot" },
-      "effects": { "reputation": 2, "popularity": 10, "standing": -8 },
+      "effects": { "reputation": 2, "popularity": 4, "standing": -8 },
       "result": { "fr": "Votre élégance impressionne le pays et désole vos lieutenants.",
                   "en": "Your grace impresses the country and dismays your lieutenants." } }
   ]
@@ -349,7 +349,7 @@ const EV_appareil = [
     { "label": { "fr": "Convoquer un congrès extraordinaire et trancher devant les militants", "en": "Call a special congress and settle it in front of the members" },
       "when": { "minStanding": 55 },
       "roll": { "base": 15, "stat": "charisme", "plus": { "eloquence": 0.45, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "standing": 13, "credibilite": 2, "notoriete": 1, "energie": -3, "popularity": 3 },
+      "success": { "effects": { "standing": 13, "credibilite": 2, "notoriete": 1, "energie": -3, "appeal": { "self": 5 } },
         "result": { "fr": "Vous allez au-devant du vote au lieu de l'attendre, et vous l'emportez largement dans une salle qui n'attendait que d'être consultée. Une direction qui se fait réélire est plus forte qu'une direction qui dure.",
                     "en": "You go out to meet the vote instead of waiting for it, and you win comfortably in a hall that was only waiting to be asked. A leadership that gets itself re-elected is stronger than a leadership that merely lasts." } },
       "failure": { "effects": { "lead": false, "standing": -9, "popularity": -5, "credibilite": -2, "energie": -3 },
@@ -523,7 +523,7 @@ const EV_appareil = [
       "result": { "fr": "Vous expliquez qu'on ne se construit pas avec les déçus des autres. La formule est belle et vous coûtera un siège dans quatre ans.",
                   "en": "You explain that you do not build anything with other people's rejects. The line is a good one and it will cost you a seat in four years." } },
     { "label": { "fr": "Lui promettre plus que ce que vous pouvez tenir", "en": "Promise more than you can deliver" },
-      "effects": { "notoriete": 1, "popularity": 3, "reputation": -2, "strike": "menteur",
+      "effects": { "notoriete": 1, "reputation": -2, "strike": "menteur",
                    "landscape": { "self": 1.8, "scene": -1.6 } },
       "result": { "fr": "Un ministère, dites-vous, si tout se passe bien. Il vient, il le répète autour de lui, et il commence à compter les mois.",
                   "en": "A ministry, you say, if all goes well. They come over, they repeat it to everyone, and they start counting the months." } }
@@ -893,7 +893,7 @@ const EV_appareil = [
   },
   "choices": [
     { "label": { "fr": "Y aller et écouter trois heures sans parler", "en": "Go and listen for three hours without speaking" },
-      "effects": { "reputation": 3, "popularity": 3, "reseau": 2, "energie": -2, "standing": -2 },
+      "effects": { "reputation": 3, "reseau": 2, "energie": -2, "standing": -2 },
       "result": { "fr": "Vous restez jusqu'au vote des motions et vous repartez sans avoir pris le micro. C'est la seule chose qu'ils attendaient et personne ne vous le dira.",
                   "en": "You stay until the motions are voted and leave without taking the microphone. It is the one thing they were waiting for and nobody will tell you so." } },
     { "label": { "fr": "Y aller et leur demander leur soutien public", "en": "Go and ask them for a public endorsement" },
@@ -2032,7 +2032,7 @@ const EV_appareil = [
                     "en": "Your absence is noted by both sides on the same day. Not choosing is a choice, and it is the only one everybody despises." } } },
     { "label": { "fr": "Négocier un aménagement contre votre voix", "en": "Trade your vote for an amendment" },
       "when": { "minStanding": 52 },
-      "effects": { "reseau": 2, "standing": 4, "popularity": 3, "credibilite": 1, "reputation": -1 },
+      "effects": { "reseau": 2, "standing": 4, "credibilite": 1, "reputation": -1 },
       "result": { "fr": "Une ligne ajoutée au texte, qui ne change presque rien mais qui existe. Vous pourrez la montrer chez vous et l'oublier ici.",
                   "en": "One line added to the bill, which changes almost nothing but exists. You can show it at home and forget it here." } }
   ]

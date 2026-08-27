@@ -337,7 +337,7 @@ const EV_assemblee = [
       "result": { "fr": "Quarante circonscriptions à des gens qui vous doivent tout. C'est ainsi qu'on tient un parti pendant dix ans, et c'est ainsi qu'on perd les quarante circonscriptions au scrutin suivant.",
                   "en": "Forty constituencies to people who owe you everything. That is how you hold a party for ten years, and it is how you lose those forty seats at the next election." } },
     { "label": { "fr": "Investir les mieux placés, y compris vos adversaires internes", "en": "Nominate the strongest candidates, internal rivals included" },
-      "effects": { "reputation": 3, "credibilite": 2, "landscape": { "self": 1.4 }, "standing": -5, "popularity": 3 },
+      "effects": { "reputation": 3, "credibilite": 2, "landscape": { "self": 1.4 }, "standing": -5 },
       "result": { "fr": "Vous investissez {rival}, qui ne vous en sera pas reconnaissant{e} une seule seconde. Votre groupe sera plus grand et il vous appartiendra moins : les deux vont ensemble et on ne choisit qu'une fois.",
                   "en": "You nominate {rival}, who will not be grateful for a single second. Your group will be larger and it will belong to you less: the two go together and you choose only once." } },
     { "label": { "fr": "Garder trois circonscriptions en réserve pour négocier", "en": "Hold three seats back as bargaining chips" },
@@ -1028,7 +1028,7 @@ const EV_assemblee = [
                     "en": "The dinner leaks within forty-eight hours, with a photograph of the restaurant. In your group nobody calls it dialogue; they call it an MP having dinner with the government." } } },
 
     { "label": { "fr": "Tout refuser et le faire savoir au groupe", "en": "Refuse everything and tell the group so" },
-      "effects": { "standing": 8, "reputation": 2, "reseau": -1, "credibilite": -1, "popularity": 1 },
+      "effects": { "standing": 8, "reputation": 2, "reseau": -1, "credibilite": -1 },
       "result": { "fr": "Vous transmettez chaque demande au président du groupe sans y répondre vous-même. C'est irréprochable, cela vous prive de tout ce qu'on apprend dans ces rendez-vous, et votre groupe vous fait confiance pour longtemps.",
                   "en": "You pass every request to the group chair without answering any of them yourself. It is beyond reproach, it deprives you of everything those meetings teach, and your group will trust you for a long time." } }
   ]

@@ -353,7 +353,7 @@ const EV_nomination = [
                   "en": "You withdraw your motion and join the national executive. It is exactly what was expected of you, and exactly why nobody will fear you at the next congress." } },
 
     { "label": { "fr": "Déposer quand même, sans le compte", "en": "Table it anyway, short of the count" },
-      "effects": { "popularity": 5, "notoriete": 1, "standing": -7, "sangfroid": 1 },
+      "effects": { "popularity": 2, "notoriete": 1, "standing": -7, "sangfroid": 1 },
       "result": { "fr": "La motion est déclarée irrecevable en douze secondes par une commission des statuts qui n'a jamais autant travaillé. La presse en parle, ce qui était le seul objectif atteignable.",
                   "en": "The motion is ruled out of order in twelve seconds by a rules committee that has never worked so hard. The press covers it, which was the only achievable objective." } }
   ]
@@ -377,7 +377,7 @@ const EV_nomination = [
 
     { "label": { "fr": "Exiger un vote des adhérents, publiquement", "en": "Demand a members' ballot, in public" },
       "roll": { "base": 16, "stat": "eloquence", "plus": { "popularity": 0.05, "credibilite": 0.35 }, "dice": 16 },
-      "success": { "effects": { "popularity": 9, "standing": -4, "notoriete": 2, "reputation": 2, "credibilite": 1 },
+      "success": { "effects": { "popularity": 4, "appeal": { "self": 6 }, "standing": -4, "notoriete": 2, "reputation": 2, "credibilite": 1 },
         "result": { "fr": "Le vote a lieu. Vous le perdez de dix-huit points, et vous sortez du congrès comme le seul qui ait demandé aux adhérents leur avis. C'est une défaite qui se dépose à la banque.",
                     "en": "The ballot is held. You lose it by eighteen points, and you leave the congress as the only person who asked the members what they thought. That is a defeat you can bank." } },
       "failure": { "effects": { "standing": -9, "appeal": { "self": -3 }, "reputation": -1 },
@@ -409,7 +409,7 @@ const EV_nomination = [
 
     { "label": { "fr": "Dire tout haut qu'un candidat naturel, ça n'existe pas", "en": "Say out loud that there is no such thing as a natural candidate" },
       "roll": { "base": 16, "stat": "eloquence", "plus": { "popularity": 0.06, "sangfroid": 0.3 }, "dice": 16 },
-      "success": { "effects": { "popularity": 10, "notoriete": 2, "credibilite": 2, "standing": -8 },
+      "success": { "effects": { "popularity": 5, "appeal": { "self": 6 }, "notoriete": 2, "credibilite": 2, "standing": -8 },
         "result": { "fr": "La phrase est reprise partout et personne dans le parti ne peut la démentir sans se ridiculiser. Vous ne serez pas candidat cette fois, et tout le monde a compris que vous le serez.",
                     "en": "The line is quoted everywhere and nobody in the party can deny it without looking absurd. You will not be the candidate this time, and everybody has understood that you will be." } },
       "failure": { "effects": { "popularity": -5, "standing": -11, "reputation": -2 },

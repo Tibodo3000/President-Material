@@ -198,7 +198,7 @@ const EV_debuts = [
   },
   "choices": [
     { "label": { "fr": "Passer à temps partiel", "en": "Go part-time" },
-      "effects": { "money": -18000, "energie": 2, "standing": 6, "popularity": 3 },
+      "effects": { "money": -18000, "energie": 2, "standing": 6 },
       "result": { "fr": "Trois jours par semaine pour vivre, deux pour militer, et un compte en banque qui s'en aperçoit tout de suite.",
                   "en": "Three days a week to live on, two to campaign, and a bank account that notices immediately." } },
     { "label": { "fr": "Tenir les deux de front", "en": "Hold both at once" },
@@ -207,7 +207,7 @@ const EV_debuts = [
                   "en": "You sleep five hours a night for two years. Nobody will ever ask how you managed, which is just as well." } },
     { "label": { "fr": "Tout lâcher pour la politique", "en": "Drop everything for politics" },
       "when": { "minMoney": 40000 },
-      "effects": { "money": -30000, "energie": 1, "standing": 9, "reseau": 1, "popularity": 4 },
+      "effects": { "money": -30000, "energie": 1, "standing": 9, "reseau": 1 },
       "result": { "fr": "Vous démissionnez un vendredi. Vous n'avez plus de filet, ce qui rend les réunions du samedi beaucoup plus importantes.",
                   "en": "You resign on a Friday. You have no safety net any more, which makes Saturday meetings a great deal more important." } },
     { "label": { "fr": "Faire financer vos absences par le parti", "en": "Get the party to cover your absences" },
@@ -246,7 +246,7 @@ const EV_debuts = [
       "result": { "fr": "Onze samedis pour reprendre trois ans de cahier avec un homme de soixante-douze ans qui n'a jamais rien volé. L'écart venait des timbres, et il pleure quand on le trouve.",
                   "en": "Eleven Saturdays reconstructing three years of ledger with a man of seventy-two who never stole anything. The gap came from postage stamps, and he cries when they find it." } },
     { "label": { "fr": "Le signaler à la fédération", "en": "Report it to the federation" },
-      "effects": { "reputation": 3, "standing": -8, "reseau": -2, "popularity": 1 },
+      "effects": { "reputation": 3, "standing": -8, "reseau": -2 },
       "result": { "fr": "Une commission, un audit, une lettre. Il rend son écharpe et sa carte le même jour, et la section met six ans à s'en remettre.",
                   "en": "A committee, an audit, a letter. He hands back his sash and his membership card on the same day, and the branch takes six years to recover." } }
   ]
@@ -370,7 +370,7 @@ const EV_debuts = [
   },
   "choices": [
     { "label": { "fr": "Y aller et parler", "en": "Go, and speak" },
-      "effects": { "energie": -1, "standing": 8, "reputation": 2, "popularity": 2 },
+      "effects": { "energie": -1, "standing": 8, "reputation": 2 },
       "result": { "fr": "Quarante personnes dans une église froide, et vous qui racontez une histoire de 1978 qu'on vous avait rapportée. Toute la fédération l'apprend avant le week-end.",
                   "en": "Forty people in a cold church, and you telling a story from 1978 that somebody had passed on to you. The whole federation knows before the weekend." } },
     { "label": { "fr": "Envoyer une gerbe et un mot", "en": "Send flowers and a note" },

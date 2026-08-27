@@ -46,7 +46,7 @@ const EV_institutions = [
                     "en": "You are told the job is not up for negotiation. You take it anyway, and everyone saw that you tried." } } },
 
     { "label": { "fr": "Refuser : le fusible, ce sera un autre", "en": "Refuse: let somebody else be the fuse" },
-      "effects": { "credibilite": -2, "standing": -10, "popularity": 3, "sangfroid": 1, "reputation": 1 },
+      "effects": { "credibilite": -2, "standing": -10, "sangfroid": 1, "reputation": 1 },
       "result": { "fr": "Vous expliquez que vous serez plus utile ailleurs. Dans dix-huit mois, quand votre successeur sera brûlé, on se souviendra que vous aviez vu juste, et on ne vous rappellera pas.",
                   "en": "You explain you will be more use elsewhere. In eighteen months, when your successor is burnt out, people will remember you were right, and they will not call you back." } }
   ]
@@ -134,7 +134,7 @@ const EV_institutions = [
   "choices": [
     { "label": { "fr": "Les recevoir un par un à Matignon", "en": "See them one by one" },
       "roll": { "base": 15, "stat": "reseau", "plus": { "standing": 0.05, "charisme": 0.3 }, "dice": 16 },
-      "success": { "effects": { "credibilite": 3, "standing": 5, "energie": -3, "popularity": 2 },
+      "success": { "effects": { "credibilite": 3, "standing": 5, "energie": -3 },
         "result": { "fr": "Sept viennent, six repartent convaincus, et le septième obtient une sous-préfecture pour sa circonscription. La motion tombe de quatre voix.",
                     "en": "Seven come, six leave convinced, and the seventh gets a public office moved to his constituency. The motion falls by four votes." } },
       "failure": { "effects": { "credibilite": -4, "energie": -3, "popularity": -8, "standing": -12, "office": "none", "trait": "ancien_premier" },
@@ -380,7 +380,7 @@ const EV_institutions = [
       "result": { "fr": "Vous votez contre votre groupe et vous perdez la vice-présidence d'une commission dont vos électeurs ignorent l'existence. La direction du parti, elle, a compté votre vote.",
                   "en": "You vote against your group and lose the vice-chair of a committee your voters have never heard of. The party leadership, on the other hand, counted your vote." } },
     { "label": { "fr": "Suivre le groupe européen", "en": "Follow the European group" },
-      "effects": { "axis": {"world": -70}, "reseau": 2, "reputation": 3, "standing": -5, "eloquence": 1, "popularity": 5 },
+      "effects": { "axis": {"world": -70}, "reseau": 2, "reputation": 3, "standing": -5, "eloquence": 1, "popularity": 2 },
       "result": { "fr": "Vous votez avec vos collègues et vous expliquez pourquoi dans une tribune que trois personnes liront à Paris. Deux d'entre elles siègent au bureau politique.",
                   "en": "You vote with your colleagues and explain why in an op-ed three people will read at home. Two of them sit on the executive." } },
     { "label": { "fr": "Ne pas prendre part au vote et le faire savoir", "en": "Abstain, loudly" },
@@ -425,7 +425,7 @@ const EV_institutions = [
       "result": { "fr": "Un ministère sans caméras, avec un vrai budget et des décrets qui changent la vie de gens qui ne sauront jamais votre nom. Vous y survivrez à trois remaniements.",
                   "en": "A department with no cameras, a real budget and decrees that change the lives of people who will never learn your name. You will survive three reshuffles there." } },
     { "label": { "fr": "Refuser pour rester libre", "en": "Refuse, and stay free" },
-      "effects": { "standing": -12, "popularity": 6, "reputation": 2, "sangfroid": 1 },
+      "effects": { "standing": -12, "popularity": 2, "reputation": 2, "sangfroid": 1 },
       "result": { "fr": "Vous répondez que vous serez plus utile dehors. C'est ce que disent tous ceux qui n'ont pas été appelés, à ceci près que vous l'avez été.",
                   "en": "You answer that you will be more use outside. That is what everyone says when they have not been called, except that you were." } }
   ]
@@ -444,7 +444,7 @@ const EV_institutions = [
   "choices": [
     { "label": { "fr": "Défendre chaque ligne", "en": "Defend every line" },
       "roll": { "base": 16, "stat": "sangfroid", "plus": { "eloquence": 0.5, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "credibilite": +3, "standing": 6, "reputation": 2, "energie": -2, "popularity": 3 },
+      "success": { "effects": { "credibilite": +3, "standing": 6, "reputation": 2, "energie": -2 },
         "result": { "fr": "Vous sortez avec l'essentiel. Vos services l'apprennent à minuit et vous trouvent, pour la première fois, un vrai ministre.",
                     "en": "You come out with the essentials intact. Your officials hear about it at midnight and decide, for the first time, that you are a real minister." } },
       "failure": { "effects": { "credibilite": -2, "standing": -6, "energie": -2, "popularity": -4 },
@@ -462,7 +462,7 @@ const EV_institutions = [
     { "label": { "fr": "Menacer de démissionner sur-le-champ", "en": "Threaten to resign on the spot" },
       "when": { "trait": ["intrepide"] },
       "roll": { "base": 17, "stat": "sangfroid", "plus": { "popularity": 0.06, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "credibilite": +1, "standing": 12, "notoriete": 1, "popularity": 4 },
+      "success": { "effects": { "credibilite": +1, "standing": 12, "notoriete": 1 },
         "result": { "fr": "Vous posez votre lettre sur la table et vous vous levez. On vous rattrape avant la porte, et votre budget avec vous.",
                     "en": "You put your letter on the table and stand up. They catch you before the door, and your budget with you." } },
       "failure": { "effects": { "credibilite": -2, "office": "none", "standing": -10, "popularity": 3 },

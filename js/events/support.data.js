@@ -428,7 +428,7 @@ const EV_support = [
                     "en": "You come back exhausted and the region has not moved an inch. Meanwhile your own office was shut for three weeks and two hundred people found the door locked." } } },
     { "label": { "fr": "En envoyer la moitié et garder le reste", "en": "Send half and keep the rest" },
       "roll": { "chance": 0.7, "chanceBonus": [ { "when": { "personality": ["calculating"] }, "value": 0.15 } ] },
-      "success": { "effects": { "score": 3, "standing": 3, "popularity": 2, "energie": -1 },
+      "success": { "effects": { "score": 3, "standing": 3, "energie": -1 },
         "result": { "fr": "Vingt partent, vingt restent, et personne ne compte. C'est la seule décision raisonnable de la campagne et elle ne fera plaisir à aucun des deux groupes.",
                     "en": "Twenty go, twenty stay, and nobody counts. It is the only reasonable decision of the campaign and it will please neither group." } },
       "failure": { "effects": { "score": -1, "standing": -5, "energie": -1, "reputation": -1 },
