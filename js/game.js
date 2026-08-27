@@ -579,11 +579,10 @@ function formCoalition() {
   const ruling = rulingParty();
   if (!ruling) { game.coalition = []; return game.coalition; }
 
-  const pacte = ruling === game.party ? allyParty() : null;
   const bloc = [];
 
   Object.keys(PARTIES).forEach((key) => {
-    if (key === ruling || key === pacte) { bloc.push(key); return; }
+    if (key === ruling) { bloc.push(key); return; }
 
     const distance = ideologicalDistance(key, ruling);
     if (distance > NEIGHBOUR_DISTANCE) return;
@@ -597,11 +596,44 @@ function formCoalition() {
   return bloc;
 }
 
+/**
+ * CE QU'UN PACTE AJOUTE AU BLOC, ET DANS QUEL SENS.
+ *
+ * Un accord entre deux camps dont l'un gouverne EST un soutien au
+ * gouvernement, quel que soit celui des deux qui tient l'Élysée. La
+ * coalition ne connaissait qu'un sens : l'allié du joueur au pouvoir entrait
+ * dans le bloc, mais le joueur qui signait avec le camp au pouvoir n'y
+ * entrait pas. Un chef de parti pouvait donc s'allier au gouvernement et lire
+ * son propre parti dans l'opposition, sans étiquette de soutien, sans jamais
+ * voir une seule scène de majorité.
+ */
+function pactPartner(ruling) {
+  const allie = allyParty();
+  if (!ruling || !allie) return null;
+  if (ruling === game.party) return allie;
+  if (allie === ruling) return game.party;
+  return null;
+}
+
+/**
+ * Le bloc tel qu'il vote, aujourd'hui.
+ *
+ * La coalition se forme au soir d'une législative et tient jusqu'aux
+ * suivantes : c'est ce qui lui donne son inertie. Un pacte, lui, se signe
+ * n'importe quand et compte le jour où il est signé — il se pose donc
+ * PAR-DESSUS la coalition plutôt que dedans, et il s'en retire le jour où il
+ * est rompu. Ce qu'un camp a rejoint de lui-même, il le garde.
+ */
 function governmentBloc() {
   const ruling = rulingParty();
   if (!ruling || !game.assembly) return [];
-  if (!game.coalition || !game.coalition.includes(ruling)) return formCoalition();
-  return game.coalition;
+
+  const bloc = (!game.coalition || !game.coalition.includes(ruling))
+    ? formCoalition()
+    : game.coalition;
+
+  const pacte = pactPartner(ruling);
+  return pacte && !bloc.includes(pacte) ? bloc.concat(pacte) : bloc;
 }
 
 function governmentSeats() {
