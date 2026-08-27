@@ -295,6 +295,18 @@ const TRAIT_DATA = {
     "rejection": 0.05
   },
 
+  /*
+   * Il rapportait de la cote au parti dans deux camps et en coûtait dans deux
+   * autres : six chiffres pour dire une chose que le jeu dit déjà mieux
+   * ailleurs, et un atout qui se choisissait en regardant son étiquette. Un
+   * appareil de parti, aujourd'hui, ne compte plus ses cadres là-dessus — il
+   * les compte au nombre de fédérations qu'ils tiennent.
+   *
+   * Ce qui reste vrai se lit un seul dimanche, celui du second tour, et se
+   * dit comme pour "femme" : une part de l'électorat ne franchira pas le pas
+   * et n'expliquera jamais pourquoi. Quatre points, un peu moins qu'une
+   * femme, très loin de ce que coûte une mise en examen.
+   */
   "homosexuel": {
     "family": "physique",
     "kind": "asset",
@@ -306,14 +318,7 @@ const TRAIT_DATA = {
       "en": "A part of your life that politics treats in turn as a detail, an argument and a problem, depending who is talking and what year it is."
     },
     "stats": { "sangfroid": 1 },
-    "partyTarget": {
-      "radical_left": { "standing": 4 },
-      "socdem": { "standing": 2 },
-      "centrists": {},
-      "liberals": {},
-      "conservatives": { "standing": -6, "popularity": -2 },
-      "identitarians": { "standing": -12, "popularity": -5 }
-    }
+    "rejection": 0.04
   },
 
   "intrepide": {
