@@ -113,6 +113,62 @@ const EV_chaines = [
 },
 
 
+/* ==========================================================================
+   LES COMPTES DE CAMPAGNE — se déclenche si la campagne a été payée
+   ==========================================================================
+   Programmée par auditCampaignAccounts() au dépouillement, avec une chance
+   qui monte avec ce que la campagne a coûté. Elle arrive quelques tours plus
+   tard, quand il n'y a plus rien à en tirer : c'est le principe même d'une
+   dette. Répétable, parce qu'une carrière compte plusieurs campagnes et que
+   chacune a son compte.
+   ========================================================================== */
+
+{
+  "id": "comptes_campagne",
+  "delay": [2, 7],
+  "weight": 0,
+  "repeatable": true,
+  "tag": { "fr": "Comptes de campagne", "en": "Campaign accounts" },
+  "text": {
+    "fr": "La commission des comptes de campagne a fini son travail. Elle ne conteste pas le total, elle conteste quatre lignes, et elle demande les pièces avant la fin du mois.",
+    "en": "The campaign accounts commission has finished its work. It does not dispute the total; it disputes four lines, and it wants the receipts before the end of the month."
+  },
+  "choices": [
+    { "label": { "fr": "Fournir les pièces et régulariser", "en": "Provide the receipts and put it right" },
+      "roll": { "base": 13, "stat": "credibilite", "plus": { "sangfroid": 0.3 }, "dice": 16,
+                "bonus": [ { "when": { "legal": 1 }, "value": 3 },
+                           { "when": { "legal": 2 }, "value": 4 } ] },
+      "success": { "effects": { "money": -40000, "popularity": -3, "standing": -2 },
+        "result": { "fr": "Quatre lignes, quatre factures, un courrier de deux pages. Le compte est approuvé avec observations, et les observations tiennent en une phrase que personne ne lira.",
+                    "en": "Four lines, four invoices, a two-page letter. The account is approved with observations, and the observations fit in one sentence nobody will read." } },
+      "failure": { "effects": { "money": -120000, "popularity": -9, "standing": -7, "reputation": -2 },
+        "result": { "fr": "Deux factures manquent et une troisième porte une date impossible. Le compte est rejeté : le remboursement public tombe, la somme reste à votre charge, et le rejet, lui, se publie.",
+                    "en": "Two invoices are missing and a third carries an impossible date. The account is rejected: the public reimbursement goes, the sum stays yours, and the rejection is published." } } },
+    { "label": { "fr": "Confier le dossier à vos avocats et ne rien dire", "en": "Hand it to your lawyers and say nothing" },
+      "when": { "legal": 1 },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "legal": 2 }, "value": 0.18 },
+                                                { "when": { "minMoney": 500000 }, "value": 0.1 } ] },
+      "success": { "effects": { "money": -70000, "popularity": -2 },
+        "result": { "fr": "Le dossier part chez des gens dont c'est le métier et revient six semaines plus tard, réglé. Vous n'avez pas eu à en parler une seule fois en public.",
+                    "en": "The file goes to people whose job this is and comes back six weeks later, settled. You never had to speak about it once in public." } },
+      "failure": { "effects": { "money": -70000, "popularity": -11, "standing": -6, "reputation": -2,
+                                "flags": { "dirtyMoney": true }, "chain": "enquete_ouverte" },
+        "result": { "fr": "Le silence de vos avocats est repris comme un aveu, et la commission transmet au parquet, ce qu'elle fait quand on ne lui répond pas.",
+                    "en": "Your lawyers' silence is read as a confession, and the commission passes the file to the prosecutor, which is what it does when nobody answers it." } } },
+    { "label": { "fr": "Dénoncer une commission qui fait de la politique", "en": "Denounce a commission playing politics" },
+      "effects": { "notoriete": 2, "popularity": -7, "standing": 3, "reputation": -2,
+                   "flags": { "dirtyMoney": true } },
+      "result": { "fr": "Vos soutiens trouvent la réponse courageuse. Les quatre lignes, elles, sont toujours là, et maintenant tout le monde connaît leur existence.",
+                  "en": "Your supporters find the answer brave. The four lines are still there, and now everybody knows they exist." } },
+    { "label": { "fr": "Payer de votre poche et solder immédiatement", "en": "Pay out of your own pocket and settle at once" },
+      "when": { "minMoney": 200000 },
+      "effects": { "money": -160000, "popularity": -1, "reputation": 1, "standing": -3 },
+      "result": { "fr": "Vous réglez la totalité en un virement, ce qui éteint le dossier et confirme exactement ce qu'on disait de vous : que vous pouvez.",
+                  "en": "You settle the whole thing in one transfer, which closes the file and confirms exactly what people said about you: that you can." } }
+  ]
+},
+
+
 {
   "id": "patrimoine_declare",
   "delay": [4, 14],

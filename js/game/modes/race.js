@@ -369,6 +369,7 @@ function raceNext() {
 }
 
 function raceDone() {
+  auditCampaignAccounts(game, RACE_ACCOUNTS);
   game.race = null;
   game.card = null;
   if (!game.ended) advanceTurn();

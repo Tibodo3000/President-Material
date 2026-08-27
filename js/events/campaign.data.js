@@ -71,9 +71,14 @@ const EV_campaign = [
                   "en": "The whole party applauds. The country had already changed channel." } },
     { "label": { "fr": "Remplir la salle avec des cars payés", "en": "Fill the hall with bussed-in crowds" },
       "when": { "minMoney": 120000 },
-      "effects": { "poll": 4, "money": -90000, "notoriete": 1, "reputation": -1 },
-      "result": { "fr": "Les images sont spectaculaires. Un journaliste comptera les cars sur le parking et en fera un papier.",
-                  "en": "The pictures are spectacular. A reporter will count the coaches in the car park and write a piece about it." } },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "comms": 2 }, "value": 0.15 },
+                                                { "when": { "stat": { "reseau": { "min": 12 } } }, "value": 0.12 } ] },
+      "success": { "effects": { "poll": 4, "money": -90000, "notoriete": 1, "reputation": -1 },
+        "result": { "fr": "Les images sont spectaculaires et personne ne pose la question ce soir-là. La ligne restera dans les comptes, sous un intitulé prudent.",
+                    "en": "The pictures are spectacular and nobody asks the question that evening. The line will stay in the accounts, under a careful heading." } },
+      "failure": { "effects": { "poll": -1, "money": -90000, "popularity": -4, "reputation": -2 },
+        "result": { "fr": "Un journaliste compte les cars sur le parking, relève deux plaques et appelle le loueur. Ce n'est plus votre discours qui passe au journal, c'est le parking.",
+                    "en": "A reporter counts the coaches in the car park, notes two number plates and rings the hire firm. It is no longer your speech on the news, it is the car park." } } },
     { "label": { "fr": "Annoncer une mesure que rien ne finance", "en": "Announce a measure nothing pays for" },
       "effects": { "poll": 6, "popularity": 7, "reputation": -2, "standing": -4, "strike": "menteur" },
       "result": { "fr": "La salle explose. Vos économistes apprennent la nouvelle en même temps que la presse, et se taisent.",
@@ -124,9 +129,16 @@ const EV_campaign = [
   },
   "choices": [
     { "label": { "fr": "Puiser dans votre fortune personnelle", "en": "Dip into your personal fortune" },
-      "effects": { "money": -250000, "poll": 5 },
-      "result": { "fr": "Vos affiches couvrent le pays jusqu'au dernier jour.",
-                  "en": "Your posters cover the country until the final day." } },
+      "when": { "minMoney": 250000 },
+      "roll": { "chance": 0.55, "chanceBonus": [ { "when": { "comms": 2 }, "value": 0.15 },
+                                                 { "when": { "background": ["business"] }, "value": 0.12 },
+                                                 { "when": { "origin": ["modest", "middle"] }, "value": 0.1 } ] },
+      "success": { "effects": { "money": -250000, "poll": 5, "reputation": -1 },
+        "result": { "fr": "Vos affiches couvrent le pays jusqu'au dernier jour. On dira que vous y croyez assez pour y mettre le vôtre, et pour une fois ce sera vrai.",
+                    "en": "Your posters cover the country until the final day. People will say you believe in it enough to put your own money in, and for once that will be true." } },
+      "failure": { "effects": { "money": -250000, "poll": -2, "popularity": -5, "reputation": -2 },
+        "result": { "fr": "Le pays apprend le montant avant d'avoir vu les affiches. Pendant six jours, la campagne parle de ce que coûte une campagne, et de qui peut se la payer.",
+                    "en": "The country learns the figure before it has seen the posters. For six days the campaign is about what a campaign costs, and about who can afford one." } } },
     { "label": { "fr": "Lancer un appel aux dons militants", "en": "Call for grassroots donations" },
       "roll": { "stat": "charisme", "base": 12, "dice": 16 },
       "success": { "effects": { "money": 60000, "poll": 3, "standing": 7 },
@@ -144,6 +156,40 @@ const EV_campaign = [
       "failure": { "effects": { "poll": -2, "reputation": -2 },
         "result": { "fr": "Un donateur parle à la presse. Le financement devient un sujet.",
                     "en": "One donor talks to the press. The funding becomes the story." } } }
+  ]
+},
+
+{
+  "id": "c_comptes",
+  /* LA DETTE SE VOIT AVANT D'ÊTRE DUE. Une campagne payée se solde après le
+     vote, dans la chaîne "comptes_campagne", et une conséquence qui tombe
+     sans avoir été annoncée n'est pas une conséquence, c'est un piège. Cette
+     scène est l'avertissement : elle ne sort que pour celui qui a déjà
+     beaucoup dépensé, elle sort d'autant plus qu'il a dépensé, et elle lui
+     laisse deux façons de réduire la note et une de l'aggraver. */
+  "moment": 2,
+  "weight": 2,
+  "when": { "minCampaignSpend": 250000 },
+  "weightBonus": [ { "when": { "minCampaignSpend": 450000 }, "value": 4 } ],
+  "tag": { "fr": "Le mandataire", "en": "The treasurer" },
+  "text": {
+    "fr": "Votre mandataire financier pose le relevé sur la table et ne dit rien. Quatre lignes sont surlignées. La commission examinera tout cela après le vote, quand vous n'aurez plus rien à en tirer et plus rien à y changer.",
+    "en": "Your campaign treasurer puts the statement on the table and says nothing. Four lines are highlighted. The commission will look at all this after the vote, when there is nothing left to gain from it and nothing left to change."
+  },
+  "choices": [
+    { "label": { "fr": "Faire reprendre le compte par un cabinet", "en": "Have a firm redo the accounts" },
+      "when": { "minMoney": 80000 },
+      "effects": { "money": -60000, "energie": -1, "flags": { "comptesRelus": true } },
+      "result": { "fr": "Trois jours de travail, chaque ligne rattachée à une facture, et une note de dix pages qui explique le reste. Ce n'est pas de la triche, c'est de la comptabilité, et toute la différence tient dans cette note.",
+                  "en": "Three days of work, every line matched to an invoice, and a ten-page note explaining the rest. It is not cheating, it is accounting, and the whole difference is in that note." } },
+    { "label": { "fr": "Couper l'affichage et rentrer dans les clous", "en": "Cut the advertising and stay inside the limit" },
+      "effects": { "poll": -3, "standing": -3, "flags": { "comptesRelus": true } },
+      "result": { "fr": "Deux mille panneaux décommandés à onze jours du vote. Votre directeur de campagne parle de sabotage, votre mandataire de plafond légal, et les deux ont raison.",
+                  "en": "Two thousand billboards cancelled eleven days out. Your campaign director calls it sabotage, your treasurer calls it the legal ceiling, and both are right." } },
+    { "label": { "fr": "Ne rien changer, on verra après le vote", "en": "Change nothing, we will see after the vote" },
+      "effects": { "energie": 1, "flags": { "comptesForces": true } },
+      "result": { "fr": "Le relevé retourne dans le classeur et la campagne continue exactement comme avant. Votre mandataire signera quand même, et il vous fera remarquer qu'il signe.",
+                  "en": "The statement goes back in the folder and the campaign carries on exactly as before. Your treasurer will sign anyway, and he will point out that he is signing." } }
   ]
 },
 
@@ -199,9 +245,14 @@ const EV_campaign = [
                   "en": "Thousands of hands shaken. The pictures are good, the effect is slow." } },
     { "label": { "fr": "Acheter la campagne en ligne", "en": "Buy the campaign online" },
       "when": { "minMoney": 200000 },
-      "effects": { "poll": 5, "money": -180000, "notoriete": 2, "reputation": -1, "energie": 1 },
-      "result": { "fr": "Des vidéos ciblées, découpées par âge et par code postal. Vous ne saurez jamais lesquelles ont marché.",
-                  "en": "Targeted videos, cut by age group and postcode. You will never know which ones worked." } },
+      "roll": { "chance": 0.58, "chanceBonus": [ { "when": { "comms": 2 }, "value": 0.18 },
+                                                 { "when": { "background": ["comms"] }, "value": 0.14 } ] },
+      "success": { "effects": { "poll": 5, "money": -180000, "notoriete": 2, "reputation": -1, "energie": 1 },
+        "result": { "fr": "Des vidéos ciblées, découpées par âge et par code postal. Vous ne saurez jamais lesquelles ont marché, et le sondage, lui, monte.",
+                    "en": "Targeted videos, cut by age group and postcode. You will never know which ones worked, and the poll goes up all the same." } },
+      "failure": { "effects": { "poll": -1, "money": -180000, "notoriete": 1, "reputation": -2, "energie": 1 },
+        "result": { "fr": "L'agence a acheté large et vite. Deux vidéos sortent avec le mauvais chiffre, une troisième s'affiche sous une vidéo qu'il ne fallait pas, et c'est celle-là qui circule.",
+                    "en": "The agency bought wide and fast. Two videos go out with the wrong figure, a third runs under a video it should not have, and that is the one that travels." } } },
     { "label": { "fr": "Dormir trois jours et préparer le débat", "en": "Sleep for three days and prepare the debate" },
       "effects": { "poll": -2, "energie": 3, "sangfroid": 1, "eloquence": 1 },
       "result": { "fr": "Vos équipes trouvent l'idée absurde. Vous arrivez au dernier débat reposé, ce qui ne s'était jamais vu.",
@@ -227,9 +278,13 @@ const EV_campaign = [
                   "en": "The commentators praise the seriousness. Your voters feel short-changed." } },
     { "label": { "fr": "Publier un chiffrage écrit par un cabinet ami", "en": "Publish costings written by a friendly firm" },
       "when": { "minMoney": 100000 },
-      "effects": { "poll": 3, "money": -80000, "eloquence": 1, "reputation": -1 },
-      "result": { "fr": "Quatre-vingt-douze pages que personne ne lira, et un tableau que tout le monde citera.",
-                  "en": "Ninety-two pages nobody will read, and one table everybody will quote." } },
+      "roll": { "base": 14, "stat": "credibilite", "plus": { "reseau": 0.3 }, "dice": 16 },
+      "success": { "effects": { "poll": 3, "money": -80000, "eloquence": 1, "reputation": -1 },
+        "result": { "fr": "Quatre-vingt-douze pages que personne ne lira, et un tableau que tout le monde citera.",
+                    "en": "Ninety-two pages nobody will read, and one table everybody will quote." } },
+      "failure": { "effects": { "poll": -3, "money": -80000, "credibilite": -2, "reputation": -2 },
+        "result": { "fr": "Une économiste démonte le tableau à l'antenne en quatre minutes, puis rappelle qui a payé les quatre-vingt-douze pages. Les deux informations partent ensemble.",
+                    "en": "An economist takes the table apart on air in four minutes, then reminds everyone who paid for the ninety-two pages. The two facts travel together." } } },
     { "label": { "fr": "Expliquer qu'on financera par la croissance", "en": "Explain that growth will pay for it" },
       "effects": { "axis": {"economy": 50}, "poll": 2, "popularity": 6, "reputation": -2, "standing": 2 },
       "result": { "fr": "L'argument a servi à tous vos prédécesseurs, dans les deux camps, et il fonctionne encore.",
@@ -263,9 +318,14 @@ const EV_campaign = [
                   "en": "You explain sample weighting for eleven minutes. People remember the number." } },
     { "label": { "fr": "Commander votre propre sondage", "en": "Commission your own poll" },
       "when": { "minMoney": 80000 },
-      "effects": { "poll": 3, "money": -60000, "reseau": 1, "reputation": -1 },
-      "result": { "fr": "Les questions sont formulées avec soin. Votre sondage vous donne gagnant, ce qui étonne peu de monde.",
-                  "en": "The questions are carefully worded. Your poll has you winning, which surprises very few people." } }
+      "roll": { "chance": 0.55, "chanceBonus": [ { "when": { "comms": 2 }, "value": 0.16 },
+                                                 { "when": { "background": ["journalism", "comms"] }, "value": 0.12 } ] },
+      "success": { "effects": { "poll": 3, "money": -60000, "reseau": 1, "reputation": -1 },
+        "result": { "fr": "Les questions sont formulées avec soin. Votre sondage vous donne gagnant, ce qui étonne peu de monde et se reprend partout.",
+                    "en": "The questions are carefully worded. Your poll has you winning, which surprises very few people and is picked up everywhere." } },
+      "failure": { "effects": { "poll": -2, "money": -60000, "credibilite": -1, "reputation": -2 },
+        "result": { "fr": "La commande est publique, comme toutes les commandes. Deux chaînes citent votre sondage en précisant qui l'a payé, et la précision vaut réponse.",
+                    "en": "The commission is public, as all commissions are. Two channels quote your poll while noting who paid for it, and the note serves as the answer." } } }
   ]
 },
 
@@ -384,9 +444,14 @@ const EV_campaign = [
                   "en": "You gain three days of advantage and a reputation for coldness." } },
     { "label": { "fr": "Financer les secours sur vos fonds de campagne", "en": "Fund the relief effort from campaign money" },
       "when": { "minMoney": 150000 },
-      "effects": { "poll": 3, "money": -120000, "reputation": 2, "popularity": 5, "standing": -2 },
-      "result": { "fr": "Le chèque est réel, la photo aussi. On vous reprochera surtout la photo.",
-                  "en": "The cheque is real; so is the photo. What people will hold against you is mostly the photo." } },
+      "roll": { "chance": 0.62, "chanceBonus": [ { "when": { "personality": ["principled"] }, "value": 0.12 },
+                                                 { "when": { "comms": 1 }, "value": 0.1 } ] },
+      "success": { "effects": { "poll": 3, "money": -120000, "reputation": 2, "popularity": 5, "standing": -2 },
+        "result": { "fr": "Le chèque est réel, la photo aussi. On vous reprochera surtout la photo, et on gardera le chèque.",
+                    "en": "The cheque is real; so is the photo. What people will hold against you is mostly the photo, and the cheque is what they will keep." } },
+      "failure": { "effects": { "poll": -2, "money": -120000, "popularity": -4, "reputation": -2, "standing": -2 },
+        "result": { "fr": "On ne retient que la photo. Le maire de la commune sinistrée dit à l'antenne qu'il aurait préféré recevoir l'argent sans le photographe, et il a raison devant tout le monde.",
+                    "en": "Only the photo is remembered. The mayor of the flooded town says on air that he would have preferred the money without the photographer, and he is right in front of everybody." } } },
     { "label": { "fr": "Accuser le gouvernement d'impréparation", "en": "Blame the government for being unprepared" },
       "effects": { "axis": "self", "poll": 2, "notoriete": 2, "popularity": 6, "reputation": -2, "standing": 4 },
       "result": { "fr": "Vous parlez de responsabilité pendant que les secours travaillent. Une partie du pays trouve que c'est le moment, l'autre non.",
@@ -433,9 +498,14 @@ const EV_campaign = [
                     "en": "You are reminded the filter also existed in the years it suited you. The sequence runs for four days and is about nothing but you." } } },
     { "label": { "fr": "Payer trois équipes pour ratisser le pays", "en": "Pay three teams to comb the country" },
       "when": { "minMoney": 150000 },
-      "effects": { "money": -120000, "poll": 3, "energie": 1, "reputation": -1 },
-      "result": { "fr": "Quinze salariés, six semaines, et les cinq cents signatures déposées avec quatre jours d'avance. La ligne apparaîtra dans vos comptes de campagne sous un intitulé prudent.",
-                  "en": "Fifteen staff, six weeks, and the five hundred signatures filed four days early. The line will appear in your campaign accounts under a careful heading." } }
+      "roll": { "chance": 0.65, "chanceBonus": [ { "when": { "stat": { "reseau": { "min": 12 } } }, "value": 0.15 },
+                                                 { "when": { "position": ["maire"] }, "value": 0.12 } ] },
+      "success": { "effects": { "money": -120000, "poll": 3, "energie": 1, "reputation": -1 },
+        "result": { "fr": "Quinze salariés, six semaines, et les cinq cents signatures déposées avec quatre jours d'avance. La ligne apparaîtra dans vos comptes de campagne sous un intitulé prudent.",
+                    "en": "Fifteen staff, six weeks, and the five hundred signatures filed four days early. The line will appear in your campaign accounts under a careful heading." } },
+      "failure": { "effects": { "money": -120000, "poll": -2, "energie": 1, "reputation": -2 },
+        "result": { "fr": "Les équipes arrivent avec un argumentaire et repartent avec des refus. Un maire de trois cents habitants explique à la radio qu'on lui a proposé de l'aider à remplir le formulaire, et le mot proposé fait le tour.",
+                    "en": "The teams arrive with a script and leave with refusals. A mayor of three hundred souls explains on the radio that he was offered help filling in the form, and the word offered goes round." } } }
   ]
 },
 

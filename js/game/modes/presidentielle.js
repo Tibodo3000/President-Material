@@ -599,6 +599,9 @@ function renderCampaignCard(host, card) {
  */
 function campaignDone() {
   const won = Boolean(game.ended);
+  // On solde le compte avant de fermer la campagne : c'est le dernier moment
+  // où l'on sait ce qu'elle a coûté.
+  auditCampaignAccounts(game, CAMPAIGN_ACCOUNTS);
   game.campaign = null;
   game.card = won ? { kind: "end" } : null;
   if (!won) advanceTurn();

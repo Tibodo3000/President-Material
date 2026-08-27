@@ -1304,6 +1304,78 @@ function pay(state, amount) {
   state.money = Math.max(0, state.money + amount);
 }
 
+/* ==========================================================================
+   CE QU'UNE CAMPAGNE A COÛTÉ, ET QUI LE COMPTE
+   ==========================================================================
+   L'argent achetait des points de sondage à prix fixe et sans risque : une
+   salle remplie de cars, un chiffrage écrit par un cabinet ami, un sondage
+   commandé chez soi. Le choix payant était donc toujours le bon, et il n'y
+   avait rien à arbitrer. Deux corrections, et elles vont ensemble.
+
+   La première est dans les cartes : ce qu'on paie est un ESSAI, pas un
+   résultat. L'argent part dans les deux branches, y compris celle où le
+   journaliste compte les cars sur le parking.
+
+   La seconde est ici. Une campagne se solde, et le solde se lit après le
+   vote. On additionne ce qui sort pendant la campagne, et au-delà de ce
+   qu'un compte de campagne absorbe sans qu'on le regarde, la commission
+   demande à voir les pièces. Le joueur ne perd donc pas au moment où il
+   dépense, ce qui serait une punition : il prend une dette qui se présente
+   plus tard, quand la campagne est finie et qu'il n'a plus rien à en tirer.
+   ========================================================================== */
+
+/**
+ * Ce qui sort pendant une campagne s'inscrit sur son compte. On ne trie pas
+ * les dépenses : tout ce qui part entre l'entrée en campagne et le
+ * dépouillement est de l'argent de campagne, et c'est très exactement ce que
+ * la commission dirait.
+ */
+function noteCampaignSpend(s, amount) {
+  if (!(amount > 0)) return;
+  const compte = s.campaign || s.race;
+  if (compte) compte.spent = (compte.spent || 0) + amount;
+}
+
+/**
+ * Le plancher, c'est ce qu'un compte absorbe sans qu'on lève la tête. Le
+ * plafond, c'est le montant au-delà duquel on ne passe plus. Entre les deux,
+ * la probabilité monte tout droit : deux options payantes dans une
+ * présidentielle ne se voient pas, quatre se voient, six se voient de loin.
+ *
+ * Les avocats à l'année comptent, comme pour tout le reste : c'est à cela
+ * qu'ils servent, et cela donne une raison de plus de tenir la ligne
+ * juridique du budget.
+ */
+const CAMPAIGN_ACCOUNTS = { floor: 200000, full: 700000 };
+const RACE_ACCOUNTS = { floor: 30000, full: 90000 };
+
+function accountsRisk(s, spent, seuils) {
+  const excedent = spent - seuils.floor;
+  if (excedent <= 0) return 0;
+  const p = Math.min(0.8, (excedent / (seuils.full - seuils.floor)) * 0.8);
+  return p * (1 - investProtect(s));
+}
+
+/**
+ * Le soir du dépouillement, on ferme le compte. Deux drapeaux le déplacent :
+ * une campagne dont les comptes ont été repris tient beaucoup mieux, une
+ * campagne dont on a décidé de voir plus tard tient moins bien.
+ */
+function auditCampaignAccounts(s, seuils) {
+  const compte = s.campaign || s.race;
+  if (!compte || !compte.spent) return;
+
+  let risque = accountsRisk(s, compte.spent, seuils);
+  if (s.flags.comptesRelus) risque *= 0.35;
+  if (s.flags.comptesForces) risque *= 1.5;
+
+  s.flags.comptesRelus = false;
+  s.flags.comptesForces = false;
+
+  if (pendingChains(s).some((entry) => entry.id === "comptes_campagne")) return;
+  if (Math.random() < risque) scheduleChain(s, "comptes_campagne");
+}
+
 function randInt(max) {
   return Math.floor(Math.random() * max);
 }
@@ -2080,6 +2152,14 @@ function eventMatches(ev, s) {
   if (w.minShare !== undefined && (s.landscape[s.party] || 0) < w.minShare) return false;
   if (w.maxShare !== undefined && (s.landscape[s.party] || 0) > w.maxShare) return false;
 
+  /* CE QUE LA CAMPAGNE A DÉJÀ COÛTÉ, en euros sortis depuis son ouverture.
+     C'est ce qui permet à une scène de ne s'adresser qu'à celui qui a payé
+     sa campagne, et de le prévenir pendant qu'il peut encore corriger. */
+  if (w.minCampaignSpend !== undefined) {
+    const compte = s.campaign || s.race;
+    if (!compte || (compte.spent || 0) < w.minCampaignSpend) return false;
+  }
+
   // LE CAMP D'À CÔTÉ GOUVERNE. C'est la situation qui ouvre Matignon à
   // quelqu'un qui n'est pas du camp du président : un gouvernement qui n'a
   // pas la majorité tout seul va la chercher chez son voisin le moins
@@ -2318,7 +2398,10 @@ function applyEffects(effects, s, soften) {
     if (key === "money") {
       const before = s.money;
       pay(s, value);
-      if (s.money !== before) changes.push({ kind: "money", delta: s.money - before });
+      if (s.money !== before) {
+        if (value < 0) noteCampaignSpend(s, before - s.money);
+        changes.push({ kind: "money", delta: s.money - before });
+      }
       return;
     }
     // L'avantage pris ou perdu dans une campagne ordinaire. On ne l'affiche
