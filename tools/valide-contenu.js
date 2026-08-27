@@ -79,7 +79,7 @@ const CASTS = ["opponent", "leader", "ruling", "neighbour", "camp", "camp_senior
 const WHEN_KEYS = new Set(["party", "position", "origin", "background", "personality", "minAge", "maxAge",
   "minTurn", "maxTurn", "minPopularity", "maxPopularity", "minStanding", "maxStanding", "minMoney", "maxMoney",
   "minGeneral", "maxGeneral", "minDecline", "maxDecline", "minElectionsWon", "minElectionsLost",
-  "stat", "flag", "trait", "anyTrait", "notTrait", "ruling", "allied", "partyLead", "minShare", "maxShare", "minCampaignSpend", "rulingClose",
+  "stat", "flag", "trait", "anyTrait", "notTrait", "ruling", "allied", "partyLead", "minShare", "maxShare", "minCampaignSpend", "yearEnd", "rulingClose",
   "belowPeak", "legal", "comms", "majority", "minApproval", "maxApproval", "inCoalition", "firstGroup", "pivot",
   "minSeats", "maxSeats", "dissolved", "outshinePresident", "foeIncumbent", "foeParty", "foeFar", "minorClose",
   "election", "race"]);

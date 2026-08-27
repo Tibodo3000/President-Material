@@ -668,4 +668,127 @@ const EV_argent = [
                   "en": "He comes back delighted with three useful contacts. Technically, you were not there." } }
   ]
 }
+,
+
+/* ==========================================================================
+   L'ARGENT QUI DORT
+   ==========================================================================
+   Tout ce paquet racontait comment on gagne de l'argent qu'on n'aurait pas
+   dû gagner, et comment on se fait prendre. Rien ne racontait l'autre moitié
+   du sujet : ce qu'on fait d'un compte plein. Un héritier de la grande
+   bourgeoisie commence la partie avec trois millions et n'avait, pendant
+   quarante ans de carrière, aucune raison d'y toucher — l'argent restait une
+   clé qui ouvrait des options ailleurs, jamais une décision en soi.
+
+   Ces scènes-là ne sortent que pour ceux qui ont de quoi. Elles proposent
+   toutes de convertir de l'argent en autre chose, et aucune ne le fait
+   gratuitement : un capital qui devient du réseau, de la réputation ou du
+   rendement se voit, et ce qui se voit se paie.
+   ========================================================================== */
+
+{
+  "id": "argent_qui_dort",
+  "weight": 2,
+  "when": { "minMoney": 700000, "yearEnd": true },
+  "weightBonus": [ { "when": { "minMoney": 2000000 }, "value": 2 } ],
+  "tag": { "fr": "Fin d'année", "en": "Year end" },
+  "text": {
+    "fr": "Décembre. Votre conseiller vous rappelle, pour la troisième fois cette année, que l'argent qui dort sur un compte courant ne fait rien pour personne, à commencer par vous. Il a préparé trois pages et il attend une réponse avant le 31.",
+    "en": "December. Your adviser reminds you, for the third time this year, that money asleep in a current account does nothing for anybody, starting with you. He has prepared three pages and wants an answer before the thirty-first."
+  },
+  "choices": [
+    { "label": { "fr": "Privatiser un restaurant et inviter du beau monde", "en": "Take over a restaurant and invite the right people" },
+      "when": { "minMoney": 700000 },
+      "roll": { "chance": 0.62, "chanceBonus": [ { "when": { "stat": { "reseau": { "min": 12 } } }, "value": 0.15 },
+                                                 { "when": { "stat": { "charisme": { "min": 13 } } }, "value": 0.12 },
+                                                 { "when": { "origin": ["bourgeois", "dynasty"] }, "value": 0.1 } ] },
+      "success": { "effects": { "money": -45000, "reseau": 2, "standing": 3, "notoriete": 1 },
+        "result": { "fr": "Vingt-deux couverts, une salle fermée, aucun téléphone sur les tables. Il ne se décide rien ce soir-là et tout devient possible pendant les six mois qui suivent.",
+                    "en": "Twenty-two covers, a closed room, no telephones on the tables. Nothing is decided that evening and everything becomes possible for the next six months." } },
+      "failure": { "effects": { "money": -45000, "popularity": -4, "reputation": -2, "standing": 1 },
+        "result": { "fr": "Quelqu'un photographie la salle depuis le trottoir et la légende s'écrit toute seule. On comptera les bouteilles à l'image, et le chiffre sera faux, et il circulera quand même.",
+                    "en": "Somebody photographs the room from the pavement and the caption writes itself. People will count the bottles in the picture, and the number will be wrong, and it will travel anyway." } } },
+    { "label": { "fr": "Placer sur des actions à fort rendement", "en": "Put it into high-yield shares" },
+      "when": { "minMoney": 700000 },
+      "roll": { "chance": 0.55, "chanceBonus": [ { "when": { "background": ["business"] }, "value": 0.18 },
+                                                 { "when": { "minMoney": 3000000 }, "value": 0.1 } ] },
+      "success": { "effects": { "money": 190000, "reputation": -1 },
+        "result": { "fr": "Le portefeuille rend en un an ce qu'un député gagne en deux, et il le rendra encore l'année prochaine sans que vous ayez à vous lever. C'est la première inégalité et vous êtes du bon côté.",
+                    "en": "The portfolio returns in one year what a member of parliament earns in two, and it will do it again next year without you getting out of bed. It is the first inequality and you are on the right side of it." } },
+      "failure": { "effects": { "money": -240000, "sangfroid": 1 },
+        "result": { "fr": "Le secteur décroche en mars et votre conseiller emploie le mot correction, qui veut dire que l'argent est parti. Vous apprenez à ne plus ouvrir le relevé le matin.",
+                    "en": "The sector drops in March and your adviser uses the word correction, which means the money has gone. You learn to stop opening the statement in the morning." } } },
+    { "label": { "fr": "Donner à une œuvre, et le faire savoir", "en": "Give to a charity, and make sure it is known" },
+      "when": { "minMoney": 700000 },
+      "roll": { "chance": 0.6, "chanceBonus": [ { "when": { "comms": 2 }, "value": 0.15 },
+                                                { "when": { "personality": ["principled"] }, "value": 0.12 } ] },
+      "success": { "effects": { "money": -150000, "reputation": 2, "popularity": 5, "standing": -1 },
+        "result": { "fr": "Le don est réel, la maraude aussi, et la photo est prise à hauteur d'homme par quelqu'un qui sait faire. Personne ne vous croit désintéressé et tout le monde trouve que c'est mieux que rien.",
+                    "en": "The gift is real, so is the soup run, and the photograph is taken at eye level by somebody who knows how. Nobody thinks you are selfless and everybody agrees it beats nothing." } },
+      "failure": { "effects": { "money": -150000, "popularity": -3, "reputation": -1 },
+        "result": { "fr": "Le communiqué sort avant le virement, d'une heure. Une heure suffit : c'est le communiqué qu'on retient, et la directrice de l'association passe sa semaine à répondre à des questions qui ne la concernent pas.",
+                    "en": "The press release goes out an hour before the transfer. An hour is enough: it is the release that people remember, and the charity's director spends her week answering questions that are none of her business." } } },
+    { "label": { "fr": "Ne rien faire, l'argent ne vous a jamais gêné", "en": "Do nothing; the money has never bothered you" },
+      "effects": { "energie": 1 },
+      "result": { "fr": "Vous refermez les trois pages et vous les rangez. L'argent dort, il rapporte ce que rapporte l'argent qui dort, et il figurera à la ligne près dans votre prochaine déclaration de patrimoine.",
+                  "en": "You close the three pages and put them away. The money sleeps, it earns what sleeping money earns, and it will appear to the euro in your next declaration of assets." } }
+  ]
+},
+
+{
+  "id": "permanence_achetee",
+  "weight": 2,
+  "when": { "minMoney": 500000, "position": ["maire", "depute", "euro"] },
+  "tag": { "fr": "La permanence", "en": "The office" },
+  "text": {
+    "fr": "L'ancienne mercerie de la rue principale est en vente depuis huit mois. Votre équipe vous en parle chaque semaine : vitrine sur la rue, deux étages, et le prix a baissé deux fois.",
+    "en": "The old haberdasher's on the main street has been for sale for eight months. Your team raises it every week: a window on the street, two floors, and the price has come down twice."
+  },
+  "choices": [
+    { "label": { "fr": "L'acheter et payer deux permanents", "en": "Buy it and pay two staffers" },
+      "when": { "minMoney": 500000 },
+      "effects": { "money": -280000, "standing": 6, "reseau": 2, "appeal": { "self": 3 }, "energie": -1 },
+      "result": { "fr": "Une adresse, une sonnette, quelqu'un derrière la porte du mardi au samedi. Ce n'est pas de la politique, c'est de l'immobilier, et cela vaut trois campagnes.",
+                  "en": "An address, a doorbell, somebody behind the door from Tuesday to Saturday. It is not politics, it is property, and it is worth three campaigns." } },
+    { "label": { "fr": "Louer une salle deux soirs par semaine", "en": "Rent a room two evenings a week" },
+      "effects": { "money": -35000, "standing": 2, "appeal": { "self": 1 } },
+      "result": { "fr": "La salle des fêtes le mardi, l'arrière-salle du café le jeudi. On vous trouve si l'on sait où chercher, ce qui écarte à peu près tout le monde.",
+                  "en": "The village hall on Tuesday, the back room of the café on Thursday. People can find you if they know where to look, which rules out very nearly everybody." } },
+    { "label": { "fr": "Garder l'argent, le mandat ne dure pas", "en": "Keep the money; the mandate will not last" },
+      "effects": { "standing": -3, "reputation": 1 },
+      "result": { "fr": "Vous expliquez à votre équipe qu'on n'achète pas un local pour un mandat qui peut s'arrêter dans trois ans. Ils comprennent l'argument et retiennent que vous avez prévu de perdre.",
+                  "en": "You explain to your team that one does not buy premises for a mandate that may end in three years. They take the point, and they remember that you have planned to lose." } }
+  ]
+},
+
+{
+  "id": "fondation",
+  "weight": 2,
+  "when": { "minMoney": 1800000, "minTurn": 12 },
+  "tag": { "fr": "La fondation", "en": "The foundation" },
+  "text": {
+    "fr": "Trois universitaires vous proposent de financer une fondation à votre nom : des notes, des colloques, deux chercheurs à plein temps. Ils ont un budget, un statut juridique et un logo. Il ne manque que l'argent, et il ne manque que le vôtre.",
+    "en": "Three academics propose that you fund a foundation in your name: papers, conferences, two full-time researchers. They have a budget, a legal status and a logo. All that is missing is the money, and the only money missing is yours."
+  },
+  "choices": [
+    { "label": { "fr": "Financer la fondation en entier", "en": "Fund the foundation in full" },
+      "when": { "minMoney": 1800000 },
+      "roll": { "chance": 0.58, "chanceBonus": [ { "when": { "background": ["academia", "civil"] }, "value": 0.18 },
+                                                 { "when": { "stat": { "credibilite": { "min": 13 } } }, "value": 0.14 } ] },
+      "success": { "effects": { "money": -700000, "credibilite": 2, "notoriete": 2, "reseau": 2, "reputation": 1 },
+        "result": { "fr": "La première note sort en avril, la deuxième est citée par un ministre en juin, et la troisième est écrite par quelqu'un qui n'est pas d'accord avec vous. C'est celle-là qui fait la réputation de la maison.",
+                    "en": "The first paper comes out in April, the second is quoted by a minister in June, and the third is written by somebody who disagrees with you. That is the one that makes the house's name." } },
+      "failure": { "effects": { "money": -700000, "popularity": -4, "reputation": -2, "notoriete": 1 },
+        "result": { "fr": "Un hebdomadaire compte les salariés, les compare à ceux de votre cabinet, et emploie le mot antichambre. La fondation publie trois notes en deux ans et n'en dément aucune.",
+                    "en": "A weekly counts the staff, compares them with your own office, and uses the word antechamber. The foundation publishes three papers in two years and denies none of it." } } },
+    { "label": { "fr": "Financer une chaire, et ne pas y mettre votre nom", "en": "Fund a chair, and keep your name off it" },
+      "effects": { "money": -350000, "credibilite": 2, "reseau": 1, "standing": -2 },
+      "result": { "fr": "La chaire porte le nom d'une économiste morte en 1991. Personne ne saura jamais que vous l'avez payée, ce qui était l'idée et reste, six mois plus tard, un peu frustrant.",
+                  "en": "The chair is named after an economist who died in 1991. Nobody will ever know you paid for it, which was the point and remains, six months later, faintly frustrating." } },
+    { "label": { "fr": "Refuser : une fondation, c'est un cabinet noir", "en": "Refuse: a foundation is a shadow office" },
+      "effects": { "reputation": 1, "reseau": -1 },
+      "result": { "fr": "Vous leur dites que vous savez très bien à quoi cela sert, et que c'est justement le problème. Ils financeront la fondation de quelqu'un d'autre, et vous lirez ses notes.",
+                  "en": "You tell them you know perfectly well what it is for, and that this is precisely the problem. They will fund somebody else's foundation, and you will read its papers." } }
+  ]
+}
 ];

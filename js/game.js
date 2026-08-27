@@ -2788,9 +2788,17 @@ function sansTrace(list) {
   return list.filter((ev) => !laisseUneTrace(ev));
 }
 
-/** Un temps mort, en évitant celui du tour précédent. */
+/**
+ * Un temps mort, en évitant celui du tour précédent.
+ *
+ * Le repli prenait tout ce qui portait "repeatable", ce qui confondait deux
+ * choses différentes : pouvoir se revivre, et être un temps mort. Une suite
+ * d'affaire répétable — les comptes de campagne se refont à chaque campagne —
+ * tombait donc dans le repli et revenait toute seule, sans campagne derrière
+ * elle. Les temps morts se déclarent maintenant par "quiet".
+ */
 function quietEvent() {
-  const quiet = EVENTS.filter((ev) => ev.repeatable && eventMatches(ev, game));
+  const quiet = EVENTS.filter((ev) => ev.quiet && eventMatches(ev, game));
   const fresh = quiet.filter((ev) => ev.id !== game.lastEventId);
   const pool = fresh.length ? fresh : quiet;
   return pool.length ? pool[randInt(pool.length)] : EVENTS[0];

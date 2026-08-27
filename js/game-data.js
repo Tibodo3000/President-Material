@@ -2002,6 +2002,15 @@ function eventMatches(ev, s) {
         frise.filter((e) => e.kind === "election" && !e.won).length < w.minElectionsLost) return false;
   }
 
+  /* LA FIN DE L'ANNÉE. Quatre tours font une année, et le dernier est celui
+     où l'on fait ses comptes : ce qu'on donne avant le 31 décembre, ce qu'on
+     place, ce qu'on invite. Une scène qui parle d'argent qui dort n'a de sens
+     qu'à ce moment-là, et elle sonnerait faux au printemps. */
+  if (w.yearEnd !== undefined) {
+    const dernier = (s.turn % TURNS_PER_YEAR) === TURNS_PER_YEAR - 1;
+    if (dernier !== w.yearEnd) return false;
+  }
+
   if (w.stat) {
     for (const [key, range] of Object.entries(w.stat)) {
       const value = s.stats[key];

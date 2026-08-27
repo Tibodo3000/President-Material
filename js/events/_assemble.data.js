@@ -20,6 +20,9 @@
  *   "weightBonus": [ { "when": { ... }, "value": 4 } ],
  *                                       // ce poids, mais selon la situation
  *   "once": true,                       // ne se produit qu'une fois par partie
+ *   "repeatable": true,                 // peut se revivre dans une carrière
+ *   "quiet": true,                      // temps mort : le repli quand il n'y
+ *                                       // a plus rien de neuf à jouer
  *   "cast": "opponent",                 // qui l'événement met en scène
  *   "moment": 2,                        // sa place dans une campagne (voir plus bas)
  *   "required": true,                   // scène de campagne qui tombe toujours
@@ -134,6 +137,14 @@
  *                                                 le pays, en points
  *   "maxShare": 15                                le même, par le haut : ce
  *                                                 qui n'arrive qu'aux petits
+ *   "minCampaignSpend": 250000                    ce que la campagne en cours
+ *                                                 a déjà coûté, en euros.
+ *                                                 Une campagne se solde après
+ *                                                 le vote : voir
+ *                                                 auditCampaignAccounts()
+ *   "yearEnd": true                               le dernier tour de l'année,
+ *                                                 celui où l'on fait ses
+ *                                                 comptes
  *   "rulingClose": true                           un camp VOISIN gouverne
  *                                                 (proche idéologiquement, et
  *                                                 ce n'est pas le vôtre)

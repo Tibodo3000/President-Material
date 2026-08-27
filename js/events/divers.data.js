@@ -654,10 +654,13 @@ const EV_divers = [
 /* ==========================================================================
    13. TEMPS MORTS
    ==========================================================================
-   Ce sont les seuls événements qui peuvent revenir plusieurs fois dans une
-   partie ("repeatable"), et ils ne sortent jamais au tirage ordinaire
-   ("weight": 0). Le moteur ne les joue que lorsqu'il n'a plus rien de neuf
-   à proposer, en fin de carrière longue. Une politique, ce sont aussi des
+   Ils peuvent revenir plusieurs fois dans une partie ("repeatable"), ils ne
+   sortent jamais au tirage ordinaire ("weight": 0), et ce sont les seuls que
+   le moteur joue quand il n'a plus rien de neuf à proposer ("quiet"). Cette
+   troisième marque a l'air redondante et ne l'est pas : une suite d'affaire
+   peut elle aussi être répétable et de poids nul, et sans "quiet" elle
+   tombait dans le repli — une carrière longue voyait alors revenir une carte
+   de comptes de campagne tous les cinq tours, sans campagne derrière elle. Une politique, ce sont aussi des
    semestres où il ne se passe rien, et où il faut quand même choisir quoi
    faire de son temps.
    ========================================================================== */
@@ -666,6 +669,7 @@ const EV_divers = [
   "id": "semestre_calme",
   "weight": 0,
   "repeatable": true,
+  "quiet": true,
   "tag": { "fr": "Entre deux", "en": "In between" },
   "text": {
     "fr": "Six mois sans échéance, sans crise et sans caméra. Le genre de période où les carrières se préparent ou s'endorment.",
@@ -692,6 +696,7 @@ const EV_divers = [
   "id": "courrier_permanence",
   "weight": 0,
   "repeatable": true,
+  "quiet": true,
   "tag": { "fr": "Permanence", "en": "Constituency office" },
   "text": {
     "fr": "La pile de courrier a doublé depuis le mois dernier. Des dossiers de logement, des pensions bloquées, une école qui ferme.",
@@ -714,6 +719,7 @@ const EV_divers = [
   "id": "inauguration",
   "weight": 0,
   "repeatable": true,
+  "quiet": true,
   "tag": { "fr": "Agenda", "en": "Diary" },
   "text": {
     "fr": "Une salle des fêtes, un ruban, deux cents personnes et un buffet. Votre attachée de presse vous jure que ce genre de choses finit par compter.",
@@ -736,6 +742,7 @@ const EV_divers = [
   "id": "note_interne",
   "weight": 0,
   "repeatable": true,
+  "quiet": true,
   "tag": { "fr": "Appareil", "en": "The machine" },
   "text": {
     "fr": "Une note de six pages circule dans les instances. Elle ne dit rien de précis mais tout le monde y cherche son nom.",
