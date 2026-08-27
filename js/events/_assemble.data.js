@@ -72,8 +72,12 @@
  *
  * Deux castings n'existent que pendant une présidentielle, où le champ de
  * candidats est connu et où l'on ne parle plus de n'importe qui :
- *   "minor"        le plus petit du premier tour. On ne propose pas le même
- *                  marché au favori et à celui qui plafonne à cinq pour cent.
+ *   "minor"        l'appoint : le plus petit des VOISINS, parmi ceux qui sont
+ *                  derrière vous au premier tour. On ne propose pas le même
+ *                  marché au favori et à celui qui ne verra pas le second
+ *                  tour, et on ne le propose pas à un camp qui ne vous parle
+ *                  pas. Peut ne désigner personne : une scène qui en dépend
+ *                  porte "when": { "minorClose": true }.
  *   "eliminated"   le plus gros des battus du premier tour, dont les voix
  *                  décident du second. Paquet "runoff" seulement.
  * Sans "cast", une scène de premier tour parle de celui qui est devant dans
@@ -119,6 +123,13 @@
  *   "rulingClose": true                           un camp VOISIN gouverne
  *                                                 (proche idéologiquement, et
  *                                                 ce n'est pas le vôtre)
+ *   "minorClose": true                            il existe un appoint : un
+ *                                                 candidat plus petit que
+ *                                                 vous et assez proche pour
+ *                                                 qu'un accord se signe.
+ *                                                 Présidentielle seulement,
+ *                                                 et elle va avec
+ *                                                 "cast": "minor"
  *
  *   OÙ L'ON EST ASSIS DANS L'HÉMICYCLE. "ruling" ne dit que l'Élysée ; ces
  *   quatre-là disent le reste, et elles se combinent.

@@ -2013,6 +2013,20 @@ function eventMatches(ev, s) {
     }
   }
 
+  /* ------------------------------------------------------------------------
+     Y A-T-IL UN APPOINT ?
+     ------------------------------------------------------------------------
+     "minorClose" demande qu'il existe, dans le champ de la présidentielle, un
+     candidat plus petit que vous et assez proche pour qu'un accord se signe.
+     Sans elle, la scène du pacte sortait contre le plus petit du champ, d'où
+     qu'il vienne, et racontait une alliance entre deux camps qui ne se
+     parlent pas. Elle ne vaut que pendant une campagne, où le champ existe.
+     ---------------------------------------------------------------------- */
+  if (w.minorClose !== undefined) {
+    const appoint = typeof campaignMinor === "function" ? campaignMinor() : null;
+    if (Boolean(appoint) !== w.minorClose) return false;
+  }
+
   // Le poids de votre camp dans le pays, en points d'intentions de vote.
   if (w.minShare !== undefined && (s.landscape[s.party] || 0) < w.minShare) return false;
 

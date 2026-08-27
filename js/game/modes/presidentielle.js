@@ -187,15 +187,30 @@ function campaignOpponent() {
 }
 
 /**
- * Le plus petit du champ. On ne propose pas le même marché au favori et à
- * celui qui plafonne à cinq pour cent : les scènes qui parlent d'un appoint
- * portent "cast": "minor".
+ * L'APPOINT : le plus petit d'à côté.
+ *
+ * On ne propose pas le même marché au favori et à celui qui ne verra pas le
+ * second tour — mais on ne le propose pas non plus à n'importe qui. Cette
+ * fonction prenait le plus petit du champ, quel qu'il soit, et le pacte de
+ * campagne se signait donc entre la droite identitaire et les sociaux
+ * démocrates, présentés dans la foulée comme le camp d'à côté. On cherche
+ * désormais le plus petit DES VOISINS, et seulement parmi ceux qui sont
+ * derrière vous : c'est la seule configuration où l'accord se raconte sans
+ * faire rire personne. Renvoie null s'il n'y en a pas, et la scène qui en
+ * dépend porte alors "when": { "minorClose": true }.
  */
 function campaignMinor() {
-  const others = game.campaign.field.filter((c) => !c.isPlayer && c.name);
-  if (!others.length) return null;
+  if (!game.campaign || !game.campaign.field) return null;
 
-  return campaignFigure(others.reduce((bas, c) => (c.share < bas.share ? c : bas), others[0]));
+  const me = game.campaign.field.find((c) => c.isPlayer);
+  if (!me) return null;
+
+  const appoints = game.campaign.field.filter((c) =>
+    !c.isPlayer && c.name && c.share < me.share &&
+    ideologicalDistance(c.party, game.party) <= NEIGHBOUR_DISTANCE);
+  if (!appoints.length) return null;
+
+  return campaignFigure(appoints.reduce((bas, c) => (c.share < bas.share ? c : bas), appoints[0]));
 }
 
 /**

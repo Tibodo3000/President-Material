@@ -599,12 +599,12 @@ const EV_campaign = [
 {
   "id": "c_pacte",
   "cast": "minor",
-  "when": { "allied": false },
+  "when": { "allied": false, "minorClose": true },
   "moment": 4,
   "tag": { "fr": "Le pacte", "en": "The pact" },
   "text": {
-    "fr": "{rival} dirige un parti voisin qui plafonne à cinq pour cent et le sait. {Il} vous propose un marché : plus une attaque d'ici dimanche, un appel à voter pour vous au second tour, et vous reprenez trois de ses mesures dans votre programme.",
-    "en": "{rival} leads a neighbouring party stuck at five per cent and knows it. {He} offers a deal: no more attacks before Sunday, an endorsement in the runoff, and you take three of {his} policies into your manifesto."
+    "fr": "{rival} dirige le camp d'à côté, plus petit que le vôtre, et {il} sait avant tout le monde qu'{il} ne verra pas le second tour. {Il} vous propose un marché : plus une attaque d'ici dimanche, un appel à voter pour vous au second tour, et vous reprenez trois de ses mesures dans votre programme.",
+    "en": "{rival} leads the camp next door, smaller than yours, and knows before anybody else that {he} will not reach the runoff. {He} offers a deal: no more attacks before Sunday, an endorsement in the runoff, and you take three of {his} policies into your manifesto."
   },
   "choices": [
     { "label": { "fr": "Signer le pacte", "en": "Sign the pact" },
