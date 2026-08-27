@@ -241,8 +241,7 @@ function renderLandscape() {
               (p.name === presidentName() && !p.isPlayer
                 ? ' <span class="force-tag is-president">' + t("force_president") + "</span>"
                 : "") + "</span>" +
-            '<span class="force-role">' + t("pos_" + p.position) +
-              (p.lead ? " · " + t("pos_chef") : "") +
+            '<span class="force-role">' + positionTitle(p.position, p.lead) +
               " · " + Math.floor(p.age) + " " + t("age_short") + "</span>" +
             '<span class="force-pop">' + Math.round(p.popularity) + "</span>" +
           "</div>"

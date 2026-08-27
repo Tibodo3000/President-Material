@@ -146,6 +146,29 @@ function leadsParty(s) {
   return Boolean(s && s.partyLead);
 }
 
+/**
+ * LE TITRE QU'ON PORTE, EN UNE LIGNE.
+ *
+ * La direction se cumule avec un mandat — on ne quitte pas l'Assemblée en
+ * prenant son parti, et la fiche doit le montrer. Elle ne se cumule pas avec
+ * une marche d'APPAREIL : la fiche affichait « Cadre du parti · Chef du
+ * parti », soit deux fois la même maison, et aurait affiché « Militant ·
+ * Chef du parti », qui n'est pas un cumul mais une contradiction. La
+ * direction contient le rang d'appareil ; un chef sans mandat est un chef,
+ * et rien d'autre.
+ *
+ * Rien ne change dans l'état du jeu : la case reste ce qu'elle est, elle
+ * continue de peser dans l'exposition, le rang et le budget. Elle cesse
+ * seulement de s'écrire derrière un titre qui la dit déjà.
+ */
+const APPAREIL_RUNGS = ["militant", "cadre", "chef"];
+
+function positionTitle(position, lead) {
+  if (!lead) return t("pos_" + position);
+  if (!position || APPAREIL_RUNGS.includes(position)) return t("pos_chef");
+  return t("pos_" + position) + " · " + t("pos_chef");
+}
+
 /* Les indemnités, le train de vie et les postes de dépense sont dans
    js/budget.data.js. */
 

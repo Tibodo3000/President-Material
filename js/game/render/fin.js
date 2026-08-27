@@ -253,7 +253,7 @@ function renderEnd(host) {
 
   const sommet = game.ended.type === "victory"
     ? t("pos_president")
-    : t("pos_" + game.peakPosition) + (game.peakLead ? " · " + t("pos_chef") : "");
+    : positionTitle(game.peakPosition, game.peakLead);
 
   const stat = (valeur, libelle) => (
     '<div class="end-stat"><strong>' + valeur + "</strong><span>" + libelle + "</span></div>"

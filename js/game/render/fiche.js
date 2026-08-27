@@ -108,7 +108,7 @@ function renderStatus() {
   // La fonction, et la maison si on la tient. Le joueur qui prend son parti
   // doit voir, sur sa propre fiche, qu'il est toujours député.
   document.getElementById("sheet-meta-2").textContent =
-    t("pos_" + game.position) + (leadsParty(game) ? " · " + t("pos_chef") : "");
+    positionTitle(game.position, leadsParty(game));
 
   // Les deux jauges de carrière, en tête de fiche.
   /* TROIS LECTURES, PAS UNE.
