@@ -17,6 +17,8 @@
  * {
  *   "id": "identifiant_unique",
  *   "weight": 2,                        // poids de tirage (défaut 2)
+ *   "weightBonus": [ { "when": { ... }, "value": 4 } ],
+ *                                       // ce poids, mais selon la situation
  *   "once": true,                       // ne se produit qu'une fois par partie
  *   "cast": "opponent",                 // qui l'événement met en scène
  *   "moment": 2,                        // sa place dans une campagne (voir plus bas)
@@ -43,6 +45,16 @@
  * Un couple ferme le créneau des deux côtés, pour ce qui n'a de sens qu'au
  * début : "moment": [6, 4] se joue entre six et quatre temps de la fin, et
  * les cinq cents signatures ne se ramassent donc pas la veille du vote.
+ *
+ * POIDS VARIABLE ("weightBonus") — une scène est rare ou courante, et la
+ * plupart le sont pareillement pour tout le monde. Certaines non : les cinq
+ * cents signatures sont une formalité pour un camp qui pèse vingt-cinq pour
+ * cent et un mur pour celui qui en pèse huit. "weightBonus" s'écrit comme
+ * "chanceBonus", une liste de conditions et de valeurs qui s'additionnent au
+ * poids de base. C'est fait pour rendre une scène PROBABLE là où elle
+ * raconte quelque chose, pas pour la rendre certaine : gardez un poids de
+ * base non nul, sinon la condition devient un "when" déguisé, et écrivez-le
+ * franchement en "when" si c'est ce que vous voulez.
  *
  * SCÈNE OBLIGATOIRE ("required") — une présidentielle sans grand débat
  * n'existe pas, et on ne va pas confier cela au tirage. Une scène marquée
@@ -120,6 +132,8 @@
  *   "allied": false                               vous avez un pacte en cours
  *   "minShare": 18                                le poids de votre camp dans
  *                                                 le pays, en points
+ *   "maxShare": 15                                le même, par le haut : ce
+ *                                                 qui n'arrive qu'aux petits
  *   "rulingClose": true                           un camp VOISIN gouverne
  *                                                 (proche idéologiquement, et
  *                                                 ce n'est pas le vôtre)

@@ -2749,7 +2749,7 @@ function drawEvent() {
 
   const pool = [];
   EVENTS.forEach((ev) => {
-    const weight = ev.weight === undefined ? 2 : ev.weight;
+    const weight = sceneWeight(ev, game);
     if (weight <= 0) return;
     if (game.lastEventId === ev.id) return;
     if (!eventMatches(ev, game)) return;

@@ -1840,6 +1840,32 @@ const STAT_KEYS = ["charisme", "eloquence", "energie", "sangfroid", "reseau", "n
 /* ---------- Conditions ---------- */
 
 /** Un événement est-il jouable dans l'état actuel de la partie ? */
+/**
+ * LE POIDS D'UNE SCÈNE PEUT DÉPENDRE DE LA SITUATION.
+ *
+ * Un poids fixe suffit à la plupart des cartes : une scène est rare ou elle
+ * est courante, et elle l'est pareillement pour tout le monde. Certaines ne
+ * marchent pas comme ça. Les cinq cents signatures sont une formalité pour
+ * un camp qui pèse vingt-cinq pour cent et un mur pour celui qui en pèse
+ * huit : la même scène doit être rare chez l'un et probable chez l'autre,
+ * sans jamais devenir impossible ni obligatoire pour personne.
+ *
+ * "weightBonus" s'écrit comme "chanceBonus", qu'il reprend mot pour mot :
+ * une liste de conditions et de valeurs, qui s'additionnent.
+ *
+ *   "weight": 1,
+ *   "weightBonus": [ { "when": { "maxShare": 15 }, "value": 4 } ]
+ */
+function sceneWeight(ev, s) {
+  let weight = ev.weight === undefined ? 2 : ev.weight;
+  if (ev.weightBonus) {
+    ev.weightBonus.forEach((b) => {
+      if (!b.when || eventMatches({ when: b.when }, s)) weight += b.value;
+    });
+  }
+  return Math.max(0, weight);
+}
+
 function eventMatches(ev, s) {
   const w = ev.when;
 
@@ -2052,6 +2078,7 @@ function eventMatches(ev, s) {
 
   // Le poids de votre camp dans le pays, en points d'intentions de vote.
   if (w.minShare !== undefined && (s.landscape[s.party] || 0) < w.minShare) return false;
+  if (w.maxShare !== undefined && (s.landscape[s.party] || 0) > w.maxShare) return false;
 
   // LE CAMP D'À CÔTÉ GOUVERNE. C'est la situation qui ouvre Matignon à
   // quelqu'un qui n'est pas du camp du président : un gouvernement qui n'a

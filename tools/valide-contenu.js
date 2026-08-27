@@ -79,7 +79,7 @@ const CASTS = ["opponent", "leader", "ruling", "neighbour", "camp", "camp_senior
 const WHEN_KEYS = new Set(["party", "position", "origin", "background", "personality", "minAge", "maxAge",
   "minTurn", "maxTurn", "minPopularity", "maxPopularity", "minStanding", "maxStanding", "minMoney", "maxMoney",
   "minGeneral", "maxGeneral", "minDecline", "maxDecline", "minElectionsWon", "minElectionsLost",
-  "stat", "flag", "trait", "anyTrait", "notTrait", "ruling", "allied", "partyLead", "minShare", "rulingClose",
+  "stat", "flag", "trait", "anyTrait", "notTrait", "ruling", "allied", "partyLead", "minShare", "maxShare", "rulingClose",
   "belowPeak", "legal", "comms", "majority", "minApproval", "maxApproval", "inCoalition", "firstGroup", "pivot",
   "minSeats", "maxSeats", "dissolved", "outshinePresident", "foeIncumbent", "foeParty", "foeFar", "minorClose",
   "election", "race"]);
@@ -197,6 +197,16 @@ for (const [deck, list] of Object.entries(DECKS)) {
     if (e.decline !== undefined) {
       if (![1, 2, 3].includes(e.decline)) say(deck, e.id, "temps du corps invalide « " + e.decline + " »");
       if (e.weight !== 0) say(deck, e.id, "scène de fin de carrière tirable au hasard (weight doit valoir 0)");
+      if (e.weightBonus) say(deck, e.id, "scène de fin de carrière avec « weightBonus » : elle redeviendrait tirable");
+    }
+    /* Un poids qui dépend de la situation : même écriture que "chanceBonus". */
+    if (e.weightBonus !== undefined) {
+      if (!Array.isArray(e.weightBonus)) say(deck, e.id, "« weightBonus » doit être une liste");
+      else e.weightBonus.forEach((b, i) => {
+        const w = "weightBonus " + (i + 1);
+        if (typeof b.value !== "number") say(deck, e.id, w + " sans valeur numérique");
+        checkWhen(deck, e.id, b.when, w);
+      });
     }
     checkBilingual(deck, e.id, e.text, "texte", true);
     checkBilingual(deck, e.id, e.tag, "étiquette", false);

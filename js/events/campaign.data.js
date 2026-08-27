@@ -396,8 +396,19 @@ const EV_campaign = [
 
 {
   "id": "c_parrainages",
-  "moment": [6, 4],
-  "weight": 3,
+  /* LES SIGNATURES SE RAMASSENT AVANT, PAS PENDANT. La scène s'ouvrait sur
+     trois temps de campagne et tombait donc en plein milieu, longtemps après
+     la date limite dont elle parle. Elle ne se joue plus qu'au premier temps,
+     celui où l'on n'est pas encore certain d'être candidat.
+
+     Et elle ne se joue pas pour tout le monde de la même façon : cinq cents
+     maires, c'est une formalité pour un camp qui pèse vingt-cinq pour cent et
+     un mur pour celui qui en pèse huit. Rare par défaut, probable quand le
+     rapport de force est contre vous, jamais certaine ni impossible. */
+  "moment": [6, 6],
+  "weight": 1,
+  "weightBonus": [ { "when": { "maxShare": 15 }, "value": 4 },
+                   { "when": { "maxShare": 9 }, "value": 6 } ],
   "tag": { "fr": "Les signatures", "en": "The signatures" },
   "text": {
     "fr": "Cinq cents signatures de maires, et le compteur affiche quatre cent douze à trois semaines de la date limite. Ceux qui manquent ne vous doivent rien et savent très exactement ce qu'ils valent.",

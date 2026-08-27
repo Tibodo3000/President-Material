@@ -248,7 +248,7 @@ function pickCampaignScene(deck, state, steps) {
   const plancher = dates.length ? Math.max(...dates) : null;
 
   const eligible = deck.filter((ev) => {
-    const weight = ev.weight === undefined ? 2 : ev.weight;
+    const weight = sceneWeight(ev, game);
     if (weight <= 0 || used.includes(ev.id)) return false;
     if (!momentFits(ev, state, steps)) return false;
     if (plancher !== null && momentOf(ev) !== null && momentOf(ev) < plancher) return false;
@@ -260,7 +260,7 @@ function pickCampaignScene(deck, state, steps) {
 
   const pool = [];
   choices.forEach((ev) => {
-    const weight = ev.weight === undefined ? 2 : ev.weight;
+    const weight = sceneWeight(ev, game);
     for (let i = 0; i < weight; i++) pool.push(ev);
   });
 
