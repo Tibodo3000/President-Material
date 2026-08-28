@@ -100,6 +100,10 @@ State is handed between pages through `localStorage`, not a router or framework.
 
 ## The wiki
 
+0. **[guidelines.md](guidelines.md)** — **Start here.** How to work in this repo: pull
+   `main` first, read the wiki before writing code, keep files from turning into god
+   files (and how to measure that), what to verify before committing, and what to update
+   in the wiki afterwards.
 1. **[architecture.md](architecture.md)** — Layering, script load order, the page-to-page
    handoff, the shape of the game `state` object, and the localStorage keys.
 2. **[game-loop.md](game-loop.md)** — What happens each turn, how a card is drawn and
