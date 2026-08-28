@@ -18,7 +18,7 @@ depends on the ones below it.
 ├────────────────────────────────────────────────────────────────┤
 │  CONTROLLERS      create.js · party.js · tirage.js · game.js   │  ← touch the DOM
 ├────────────────────────────────────────────────────────────────┤
-│  RULES / CALC     data.js · game-data.js                       │  ← pure functions
+│  RULES / CALC     data.js · js/game/*.js  (the seven modules)  │  ← pure functions
 ├────────────────────────────────────────────────────────────────┤
 │  BALANCE          balance.js  (the 107 tuning knobs)           │  ← numbers only
 ├────────────────────────────────────────────────────────────────┤
@@ -73,7 +73,13 @@ traits.data.js     → TRAIT_DATA
 budget.data.js     → BUDGET_DATA
 endings.data.js    → ENDING_DATA
 events/*.data.js   → EV_*, then _assemble.data.js → EVENT_DATA
-game-data.js       → the loop's rules + event interpreter
+game/carriere.js   → the ladder, the calendar, the two gauges, energy, the score
+game/corps.js      → health, decline, the accident, mortality, forced withdrawal
+game/traits.js     → the traits engine (strikes, gains, per-turn risk)
+game/argent.js     → investments, income, expenses, campaign accounts, wealth
+game/opinion.js    → the six electorates, standing, credibility, bump/statScore/pay
+game/urnes.js      → the polls, the campaign drift, the runoff transfer
+game/interprete.js → the event interpreter — MUST come after _assemble.data.js
 game/registry.js   → MODES = {} — must precede every mode file
 game/render/*.js   → the HTML producers (order-free)
 game/modes/*.js    → each one writes its entry into MODES on load
@@ -116,6 +122,45 @@ stay in `data.js` where the checker and the editor read them), and the plumbing 
 keys, gender marks, chip families). The test is simple: a constant belongs in `balance.js`
 if its value could be different without anything breaking — only the game would play
 differently.
+
+---
+
+## The rules (`js/game/*.js`)
+
+The loop's rules used to be one 2 888-line file, `game-data.js`. It held ten unrelated
+subjects and nobody could name it in one sentence. It is now seven modules, each with
+a subject you can say out loud. Load order among them does not matter — with **one
+exception**, called out below.
+
+| File | Holds |
+|---|---|
+| [carriere.js](../js/game/carriere.js) | where you are, what you have to keep going, and what it will be worth: the office ladder, the party leadership that *cumulates* with the office, the electoral calendar, the two gauges, energy, and the posterity score |
+| [corps.js](../js/game/corps.js) | health, decline, the accident, mortality, forced withdrawal. Every number here is written **per year** and converted at the last moment |
+| [traits.js](../js/game/traits.js) | the traits engine: gains, losses, strikes that only stick on a repeat, what a trait pulls on the gauges, what it rolls each turn |
+| [argent.js](../js/game/argent.js) | investments and what they protect, income and expenses, what a campaign cost and who comes to count it, the wealth that sleeps. **Named `argent`, not `budget`**, because [render/budget.js](../js/game/render/budget.js) draws the budget and this one computes it |
+| [opinion.js](../js/game/opinion.js) | the six electorates and everything read off them, standing, credibility — plus the shared vocabulary `bump`, `statScore`, `pay`, `randInt`, called 65 times from the rest of the game |
+| [urnes.js](../js/game/urnes.js) | the first-round poll, the presidential race you are not in, the campaign drift, and the runoff transfer computed on ideological distance |
+| [interprete.js](../js/game/interprete.js) | the event schema, end to end: the `when` conditions, the texts and their gender agreement, the choices offered and their energy price, the dice roll, the effects, the follow-ups |
+
+**`interprete.js` is the one with an order constraint**: it reads `EVENT_DATA` at load
+time (`const EVENTS = EVENT_DATA.events`), so it must come after
+`events/_assemble.data.js`. The other six only call each other at runtime.
+
+**It stays whole on purpose.** At ~1 100 lines it is the biggest file of the seven, and
+splitting it into conditions / texts / effects / choices was considered and rejected:
+it is the file people read when they *write content*, and it describes one event from
+the `when` that lets a scene appear to the follow-up a choice schedules. Four files
+would mean opening four files to understand one card. The real lever on its size is not
+a split — it is turning `eventMatches` (53 `when` keys) and `applyEffects` (~20 effect
+branches) into two registries. That is axis B4 of [Roadmap.md](Roadmap.md).
+
+**Two things they do that the layering does not sanction**, and they are named rather
+than hidden. `applyEffects` calls `setOffice`, `switchParty`, `moveShare`,
+`ensureGovernment` and a dozen more that live in [game.js](../js/game.js) — the layer
+*above*. Two of those calls admit it with a `typeof x === "function"` guard. And
+`tools/valide-contenu.js` reads `GENDER_MARKS` out of `interprete.js` **as text**, by
+regex, so it can check content without booting a DOM: move that table and you repoint
+the tool.
 
 ---
 

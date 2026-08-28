@@ -137,7 +137,7 @@
   <script src="js/endings.data.js"></script>
   <!-- Événements, éclatés par thème puis assemblés dans EVENT_DATA.
        Tous les EV_* doivent être chargés avant _assemble.data.js, qui les
-       concatène, lui-même avant game-data.js qui lit EVENT_DATA. -->
+       concatène, lui-même avant js/game/interprete.js qui lit EVENT_DATA. -->
   <script src="js/events/debuts.data.js"></script>
   <script src="js/events/medias.data.js"></script>
   <script src="js/events/argent.data.js"></script>
@@ -159,7 +159,13 @@
   <script src="js/events/aside.data.js"></script>
   <script src="js/events/races.data.js"></script>
   <script src="js/events/_assemble.data.js"></script>
-  <script src="js/game-data.js"></script>
+  <script src="js/game/carriere.js"></script>
+  <script src="js/game/corps.js"></script>
+  <script src="js/game/traits.js"></script>
+  <script src="js/game/argent.js"></script>
+  <script src="js/game/opinion.js"></script>
+  <script src="js/game/urnes.js"></script>
+  <script src="js/game/interprete.js"></script>
   <!-- Les temps forts. registry.js cree MODES ; chaque mode s'y inscrit au
        chargement, donc tous AVANT game.js, qui ne le lit qu'a l'execution. -->
   <script src="js/game/registry.js"></script>

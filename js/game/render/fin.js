@@ -14,7 +14,7 @@
  *
  *   LE RÉCIT     le titre et le texte de la fin, comme avant.
  *   LA NOTE      cinq lignes qui disent ce que le manuel retiendra, et le
- *                rang qui en découle (careerScore, dans js/game-data.js).
+ *                rang qui en découle (careerScore, dans js/game/carriere.js).
  *   LA FRISE     tout ce qu'on a été, année par année, reconstruit depuis
  *                game.career — la liste que le moteur tient au fil de la
  *                partie et qui, elle, ne se tronque jamais.

@@ -34,7 +34,7 @@ campagne — plaire à sa base *ou* élargir — et le rend chiffré.
   la distance à `partyAxes(party)`.
 - Les **attentes des électeurs** peuvent dériver du `landscape` (le centre de
   gravité du pays) et de l'électorat visé au second tour — le même calcul que
-  `rejectionRate()` / `runoff()` dans [game-data.js](../js/game-data.js).
+  `rejectionRate()` / `runoff()` dans [urnes.js](../js/game/urnes.js).
 - Trois retours ⇒ trois jauges/effets : **cote au parti** (`standing`),
   **popularité** (`popularity`), et un nouveau curseur de **ferveur militante**
   (qui jouerait sur le report de voix et la mobilisation au premier tour).
@@ -160,7 +160,7 @@ qui s'ignorent.
   `bruxelles`, `gouvernement`, `corps`…). Les quatre decks (`campaign`,
   `nomination`, `races`) peuvent devenir leurs propres fichiers du même coup.
 - Rien ne change pour le moteur : `const EVENTS = EVENT_DATA.events` (dans
-  [game-data.js](../js/game-data.js)) continue de tout lire, une fois le registre
+  [interprete.js](../js/game/interprete.js)) continue de tout lire, une fois le registre
   rempli.
 
 ---
@@ -190,7 +190,7 @@ laisse un événement sans choix inconditionnel.
   **exporte le JSON** prêt à coller (ou à télécharger).
 - Elle peut **valider en connaissant les vocabulaires réels**, tous disponibles
   dans les données : les stats (`STAT_KEYS` dans
-  [game-data.js](../js/game-data.js)), les partis (`PARTIES`), les positions
+  [interprete.js](../js/game/interprete.js)), les partis (`PARTIES`), les positions
   (`LADDER`), les traits (`TRAIT_DATA`). Plus de faute de frappe sur un `trait`
   ou un `party`.
 - Contrôles utiles : au moins un choix sans `when`, chaque texte présent en `fr`
@@ -212,7 +212,7 @@ constitutionnelle**, etc.).
 **Pourquoi.** Le calendrier actuel est une **fonction modulo pure** :
 `electionAtTurn(turn)` renvoie l'élection dont `turn % cycle === offset`
 ([game.js](../js/game.js)), à partir de la table `ELECTIONS`
-([game-data.js](../js/game-data.js)). Les périodes sont déjà à peu près justes
+([carriere.js](../js/game/carriere.js)). Les périodes sont déjà à peu près justes
 (2 tours = 1 an, donc `cycle 10` = 5 ans, `cycle 12` = 6 ans), mais **rien ne peut
 les altérer** : une dissolution ne peut pas avancer les législatives, une réforme
 ne peut pas changer une durée de mandat. Le calendrier est une horloge qu'aucun
@@ -450,10 +450,14 @@ bénéfice — et c'est bien dans cet ordre que ça s'est fait.
     fichier se charge en premier**. Attention, `let`/`const` de premier niveau ne
     sont pas posés sur `window` — ils restent visibles des scripts suivants, mais
     pas des précédents.
-  - une **constante dérivée d'un autre fichier** est évaluée au chargement. Il y
-    en a exactement une aujourd'hui : `COALITION_DISTANCE = NEIGHBOUR_DISTANCE / 2`
-    (l. 427, lit `game-data.js`). Règle : une constante reste dans le fichier qui
-    la lit, et tout dérivé se charge après sa source.
+  - une **constante dérivée d'un autre fichier** est évaluée au chargement.
+    `COALITION_DISTANCE = NEIGHBOUR_DISTANCE / 2` en est une, mais les deux vivent
+    désormais dans [balance.js](../js/balance.js) (l. 367 et 394) : la contrainte est
+    interne au fichier. La seule qui traverse encore deux fichiers est
+    `const EVENTS = EVENT_DATA.events` en tête de
+    [interprete.js](../js/game/interprete.js), qui doit donc se charger après
+    `events/_assemble.data.js`. Règle : une constante reste dans le fichier qui la
+    lit, et tout dérivé se charge après sa source.
 - **Le format de sauvegarde ne bouge pas.** `pm-game` contient l'état entier ; le
   découpage ne doit toucher ni la forme de l'état ni les migrations de `init()`.
   Une partie en cours doit survivre au refactor — c'est le premier test.
@@ -476,20 +480,51 @@ bénéfice — et c'est bien dans cet ordre que ça s'est fait.
   « The three special modes » de [game-loop.md](game-loop.md), qui décrit déjà ce
   découpage — le code se contentera de rattraper la documentation.
 
-## 10. Les deux fichiers qui restent gros : `game.js` et `game-data.js`
+## 10. Le fichier qui reste gros : `game.js`
 
-**L'idée.** Après l'idée n°9, deux fichiers dépassent encore les deux mille lignes :
-[`game.js`](../js/game.js) (3 102) et [`game-data.js`](../js/game-data.js) (2 096).
-Cette piste dit **ce qu'il y a dedans, mesuré**, ce qui peut en sortir proprement, et
-— tout aussi utile — **ce qu'il ne faut surtout pas en sortir**.
+> **ÉTAT — l'axe B est fait, sauf B4. `game-data.js` n'existe plus.** Ses 2 888
+> lignes sont sept modules `js/game/*.js` :
+>
+> | | total | code | comm. | vides |
+> |---|---|---|---|---|
+> | `carriere.js` | 581 | 185 | 328 | 68 |
+> | `corps.js` | 134 | 38 | 81 | 15 |
+> | `traits.js` | 201 | 94 | 81 | 26 |
+> | `argent.js` | 294 | 109 | 146 | 39 |
+> | `opinion.js` | 386 | 167 | 166 | 53 |
+> | `urnes.js` | 266 | 117 | 108 | 41 |
+> | `interprete.js` | 1 107 | 543 | 443 | 121 |
+> | **total** | **2 969** | **1 253** | **1 353** | **363** |
+>
+> **Les 1 253 lignes de code sont exactement celles de `game-data.js`.** C'est le
+> contrôle qui dit que le découpage n'a rien réécrit : seuls les sept en-têtes se
+> sont ajoutés (+88 lignes de commentaire). Une trace de 200 carrières identique à
+> l'octet près dit la même chose côté comportement.
+>
+> **Il reste B4** — les deux registres, section B ci-dessous — et **tout l'axe A**,
+> `game.js`, qui n'a pas bougé et qui est désormais le seul fichier du dépôt
+> au-dessus de deux mille lignes.
+
+**L'idée.** Après l'idée n°9, deux fichiers dépassaient encore les deux mille
+lignes : [`game.js`](../js/game.js) et `game-data.js`. Cette piste dit **ce qu'il y a
+dedans, mesuré**, ce qui peut en sortir proprement, et — tout aussi utile — **ce
+qu'il ne faut surtout pas en sortir**. Le second est découpé (voir l'état ci-dessus),
+le premier attend.
 
 **D'abord une correction d'échelle.** Ces fichiers ne sont pas ce que leur nombre de
 lignes laisse croire :
 
 | | total | code | commentaires | vides |
 |---|---|---|---|---|
-| `game.js` | 3 102 | **1 524** (49 %) | 1 211 (**39 %**) | 367 |
-| `game-data.js` | 2 096 | **902** (43 %) | 932 (**44 %**) | 262 |
+| `game.js` — à l'écriture de cette piste | 3 102 | **1 524** (49 %) | 1 211 (**39 %**) | 367 |
+| `game.js` — aujourd'hui | 3 584 | **1 701** (47 %) | 1 428 (**40 %**) | 455 |
+| `game-data.js` — à l'écriture de cette piste | 2 096 | **902** (43 %) | 932 (**44 %**) | 262 |
+| `game-data.js` — juste avant le découpage | 2 888 | **1 253** (43 %) | 1 265 (**44 %**) | 370 |
+
+*Le rapport n'a jamais bougé, ni d'un fichier à l'autre ni d'une année sur l'autre :
+**environ 45 % de commentaire partout**. Ce qui a bougé, c'est la taille — `game.js` a
+pris 482 lignes depuis que cette piste a été écrite, dont 177 de code, sans que rien
+n'en soit jamais sorti.*
 
 C'est la convention maison — « chaque règle est commentée avec sa *raison* » — et elle
 est tenue partout. Aucune fonction n'est monstrueuse côté `game.js` : la plus grosse
@@ -536,7 +571,9 @@ autres forment l'interface publique du moteur.
 | A5 | `js/game/carriere.js` + `urnes.js` | le calendrier et l'échelle des fonctions ; puis les maths d'un scrutin et ce que vaut un résultat | 320 + 670 | le plus lourd, la plus grosse surface publique (`playerStake` : 8 appels) — **en dernier** |
 | A6 | `MODES.event` | faire de la carte ordinaire un mode comme les autres | 50 | `renderCard()` devient un aiguillage pur, sans dernier cas particulier |
 
-Tout fait, `game.js` tomberait à **~880 lignes dont ~430 de code** : l'état et
+Tout fait, `game.js` tomberait à **~880 lignes dont ~430 de code** — chiffre calculé
+sur les 3 102 lignes d'alors ; il en fait 3 584, donc le reste serait d'autant plus
+gros et l'inventaire des axes A1 à A6 est à refaire avant de s'y mettre. L'état et
 `newGame`, le tour de jeu, les deux aiguillages, le démarrage. Là, c'est un moteur.
 
 **Ce qu'il ne faut pas sortir** : `advanceTurn`, `enterElection`, `renderCard`,
@@ -568,6 +605,39 @@ B1 et B2 sont des extractions mécaniques : chacune n'appelle qu'**une** fois en
 d'elle-même. B3 est le plus gros bloc cohérent du projet — c'est lui qui lit le schéma
 d'événement, et c'est celui que lisent les gens qui écrivent du contenu.
 
+**✅ FAIT — les trois, plus quatre.** B1, B2 et B3 sont sortis tels que décrits. Comme
+les trois ne vidaient pas le fichier (il serait resté ~1 300 lignes de carrière, de
+corps, d'opinion et de scrutins), quatre modules de plus les accompagnent, ce qui fait
+sept — la limite que cette même piste fixe plus bas.
+
+| Module | ≈ lignes | |
+|---|---|---|
+| `js/game/carriere.js` | 581 | l'échelle, la direction du parti, le calendrier, les deux jauges, l'énergie, la note de postérité |
+| `js/game/corps.js` | 134 | santé, déclin, accident, mortalité, retrait forcé |
+| `js/game/traits.js` | 201 | **B1**, tel quel |
+| `js/game/argent.js` | 294 | **B2**, tel quel — plus les comptes de campagne et la fortune qui dort |
+| `js/game/opinion.js` | 386 | les six électorats, la stature, la crédibilité, et le vocabulaire partagé |
+| `js/game/urnes.js` | 266 | sondages, dérive de campagne, géométrie des partis, second tour |
+| `js/game/interprete.js` | 1 107 | **B3**, d'un seul tenant |
+
+**Deux décisions valent d'être écrites.**
+
+*L'interprète n'a pas été coupé,* alors qu'un premier plan proposait de le fendre en
+quatre — conditions, textes, effets, choix. C'est exactement ce que cette section
+déconseille, et pour la bonne raison : il décrit un événement de bout en bout, et le
+couper obligerait à ouvrir quatre fichiers pour comprendre une carte. À 1 107 lignes il
+reste le plus gros des sept ; son levier est B4, pas un découpage de plus.
+
+*Le vocabulaire partagé n'a pas eu son fichier.* `bump`, `statScore`, `pay` et
+`randInt` sont mesurés ici à 0,3 de cohésion pour 65 appels externes. Quatre fonctions
+de six lignes ne méritent ni un module ni une ligne de plus dans `game.html` : elles
+sont dans `opinion.js`, où elles servent le plus, et l'en-tête du fichier dit que c'est
+un choix et pas une raison.
+
+**Ce que le harnais n'a pas prouvé.** La trace de 200 carrières est identique à
+l'octet près, donc le jeu n'a pas changé. Elle ne dit rien de l'endroit où le code a
+atterri — c'est l'angle mort annoncé plus bas, et il reste entier.
+
 **B4 — le vrai levier, et ce n'est pas un déplacement.** Les deux plus grosses
 fonctions de tout le projet sont des chaînes plates :
 
@@ -595,6 +665,15 @@ const CONDITIONS = {
 `applyEffects` se réduit alors à sa boucle et à la règle d'amorti ; `eventMatches` à un
 préambule (le `seen`, le `repeatable`) puis un `every`. Chaque effet et chaque condition
 devient une unité nommée, lisible seule, et **testable seule**.
+
+**B4 EST CE QUI RESTE DE CET AXE, et il a vieilli dans le mauvais sens.** Au moment
+du découpage, `eventMatches` teste **53 clefs** `when` et non 37, sur 270 lignes.
+Surtout, le même vocabulaire est écrit **trois fois** — dans l'interprète, dans
+`tools/valide-contenu.js` (l. 79) et dans `tools/editor.js` (l. 65) — et les trois
+ont déjà divergé : **l'éditeur ignore douze conditions** que le moteur sait faire
+(`yearEnd`, `minorClose`, `minCampaignSpend`, `minElectionsWon`, `minGeneral`…), qui
+sont donc inécrivables à l'éditeur, et le validateur en ignore deux. Un registre
+unique, lu par les trois, supprime la classe entière de ce problème.
 
 **C'est ce dont les idées n°7 et n°8 ont besoin.** Toutes deux proposent d'ajouter des
 effets (`"dissolution"`, `"reforme"`, `"climate"`) et des conditions
@@ -642,7 +721,7 @@ relire ce que chaque fichier contient après extraction. Le contrôle du glossai
 | 7 | Calendrier électoral dynamique | Gameplay + modèle de données | Moyen | Oui (échéancier mutable) |
 | 8 | Conjoncture nationale (events majeurs) | Gameplay | Élevé | Oui (couche de modificateurs) |
 | 9 | Éclater `game.js` (moteur / temps forts / rendu) ✅ | Organisation du code | Moyen | Non (refactor pur) |
-| 10 | Réduire `game.js` et `game-data.js` | Organisation du code + registres | Moyen | Non (refactor pur) |
+| 10 | Réduire `game.js` (axe B fait ✅ — `game-data.js` est sept modules ; restent B4 et tout l'axe A) | Organisation du code + registres | Moyen | Non (refactor pur) |
 
 Les trois pistes qui débloquent les autres : **n°5** (des fichiers d'événements
 maniables), **n°9** (un moteur qui accepte un temps fort de plus sans qu'on

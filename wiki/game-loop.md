@@ -2,7 +2,7 @@
 
 What actually happens each turn, how cards are drawn and resolved, and how the set
 pieces branch off. The engine is [game.js](../js/game.js); the interpreter it calls is
-in [game-data.js](../js/game-data.js); each set piece lives in its own file under
+in [interprete.js](../js/game/interprete.js); each set piece lives in its own file under
 [js/game/modes/](../js/game/modes/) and registers itself with the engine
 ([registry.js](../js/game/registry.js)).
 
@@ -10,7 +10,7 @@ in [game-data.js](../js/game-data.js); each set piece lives in its own file unde
 
 ## A turn = a season
 
-`4 turns = 1 year` (`TURNS_PER_YEAR`, in [game-data.js](../js/game-data.js)). The player
+`4 turns = 1 year` (`TURNS_PER_YEAR`, in [balance.js](../js/balance.js)). The player
 starts at age 30 (`START_AGE`) as a `militant`. Each turn presents **one card** on the
 right of `game.html`. The player reads it, makes a choice, sees the consequences, clicks
 continue — and the next turn advances.
@@ -129,7 +129,7 @@ A card without a band is an ordinary turn. That is the only thing the player nee
 before reading the card, and the date line below it drops back to being a discreet marker
 rather than a title.
 
-**Resolving a choice** goes through `resolveChoice()` ([game-data.js](../js/game-data.js)):
+**Resolving a choice** goes through `resolveChoice()` ([interprete.js](../js/game/interprete.js)):
 - If the choice has a `roll`, it rolls (`rollSucceeds`) and picks the `success` or
   `failure` branch; otherwise the choice *is* the branch.
 - A *lost gamble* gets softened by `investNerve()` (your press service cushions bad luck).
@@ -277,7 +277,7 @@ When the player leads their party at a presidential election, `startCampaign()` 
 (`shiftPoll`). Between steps, rivals also move (`driftCampaign`). One scene is marked
 `required` in the `campaign` deck: the big first-round debate always happens. Then:
 - `resolveFirstRound()` — you must finish in the top two, or you're out.
-- `startDuel()` — if you qualify, `runoff()` ([game-data.js](../js/game-data.js)) transfers
+- `startDuel()` — if you qualify, `runoff()` ([urnes.js](../js/game/urnes.js)) transfers
   eliminated candidates' votes right away, by ideological proximity minus each finalist's
   `rejectionRate`. This is where positioning is paid: a candidate who thrilled their base
   and scared everyone else leads round one and loses round two. The transfers are shown
@@ -364,7 +364,7 @@ stay unforeseeable once everything else is foretold.
 
 The engine knows only a handful of end *types* (`victory`, `retire`, `withdrawal`,
 `death`, `conviction`), set by writing `game.ended = { type }`. The **narrated** ending
-is then chosen by `resolveEnding()` ([game-data.js](../js/game-data.js)): it walks
+is then chosen by `resolveEnding()` ([carriere.js](../js/game/carriere.js)): it walks
 [endings.data.js](../js/endings.data.js) in order and picks the first entry whose `from`
 matches the type and whose `when` matches the final state. So the *same* victory reads
 differently depending on whether you arrived clean or with a slush fund behind you.
