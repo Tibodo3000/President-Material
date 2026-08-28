@@ -34,15 +34,6 @@ function axisPercent(value) {
   return (value + 100) / 2;
 }
 
-/**
- * Positionnement sur la carte, en étiquettes plutôt qu'en graphique.
- *
- * Chaque pôle marqué donne une étiquette avec son icône. Un axe sur lequel
- * le parti n'a pas de position n'apparaît pas du tout : l'absence est
- * l'information. On lit ainsi un parti comme une liste de positions
- * tenues, et la fiche de droite garde les jauges précises.
- */
-const NEUTRAL_THRESHOLD = 12;
 
 /** Une icône par pôle, en traits simples pour rester lisible à 13 pixels. */
 const AXIS_ICONS = {

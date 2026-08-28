@@ -2,12 +2,12 @@
  * President Material — moteur de la boucle de jeu (game.html).
  *
  * Un tour = une saison, quatre tours par an (TURNS_PER_YEAR, dans
- * js/game-data.js). À chaque tour : vieillissement, revenus, risque de
+ * js/balance.js). À chaque tour : vieillissement, revenus, risque de
  * décès, puis UNE carte à droite — une élection si le calendrier en prévoit
  * une, sinon un événement tiré au sort. Les rivaux évoluent en arrière-plan.
  *
- * Les données (échelle, événements, calendrier) sont dans js/game-data.js,
- * les chiffres de création dans js/data.js.
+ * Les règles sont dans js/game-data.js, les chiffres de création dans
+ * js/data.js, et TOUS LES RÉGLAGES D'ÉQUILIBRAGE dans js/balance.js.
  */
 
 const GAME_KEY = "pm-game";
@@ -32,18 +32,6 @@ function surnameOf(fullName) {
   return String(fullName).slice(String(fullName).indexOf(" ") + 1);
 }
 
-/**
- * Trois profils par parti, qui donnent au casting sa hiérarchie :
- *
- *   chef     celui qui dirige, installé, connu, souvent le plus âgé
- *   cadre    l'élu confirmé qui attend son tour
- *   espoir   le jeune qui monte, encore peu connu
- */
-const FIGURE_RANKS = {
-  chef:   { minAge: 22, spread: 18, position: "chef", floor: 6, notoriety: 6 },
-  cadre:  { minAge: 12, spread: 18, position: null,   floor: 4, notoriety: 3 },
-  espoir: { minAge: -2, spread: 13, position: null,   floor: 2, notoriety: 1 },
-};
 
 function makeFigure(partyKey, usedNames, rank) {
   const model = FIGURE_RANKS[rank] || FIGURE_RANKS.cadre;
@@ -240,8 +228,6 @@ function newGame(character) {
    et si son camp est en train de monter ou de s'effondrer.
    ========================================================================== */
 
-/** Un parti ne descend jamais tout à fait à zéro : il lui reste ses fidèles. */
-const LANDSCAPE_FLOOR = 1.5;
 
 /**
  * Le socle d'un parti : le niveau vers lequel il revient toujours quand plus
@@ -294,11 +280,7 @@ function naturalShare(key) {
   return game.baseline[key];
 }
 
-/** Vitesse à laquelle le socle suit ce que le parti pèse réellement. */
-const BASELINE_FOLLOW = 0.006;
 
-/** Ce que l'air du temps déplace tout seul, par tour. */
-const BASELINE_NOISE = 0.07;   // un tour deux fois plus court : bruit ÷ √2
 
 /**
  * LA VIE DU SOCLE. Beaucoup plus lent que la part elle-même : un parti ne se
@@ -326,16 +308,6 @@ function driftBaseline() {
  * divisé par √2 et non par 2 : c'est une marche au hasard, et c'est sa
  * variance annuelle qu'il faut conserver.
  */
-/**
- * Vitesse du rappel vers le socle, par tour.
- *
- * Elle était deux fois plus forte, et c'est ce qui rendait le tableau
- * illisible : un choc encaissé revenait à son point de départ en une dizaine
- * de tours, si bien que rien de ce qui arrivait dans la partie ne laissait de
- * trace. Le paysage doit garder la mémoire de ce qu'on lui fait, sinon il
- * n'est qu'un décor qui tremble.
- */
-const LANDSCAPE_PULL = 0.011;
 
 /** Répartition de départ, adossée à la difficulté des partis. */
 function initialLandscape(state) {
@@ -377,22 +349,7 @@ function rulingParty() {
    bouge plus jusqu'à la suivante.
    ========================================================================== */
 
-/** Ce que gouverner coûte par tour, et de plus en plus au second mandat. */
-const APPROVAL_WEAR = 0.65;
 
-/**
- * Vitesse de rappel vers la cote que mérite le parti au pouvoir, et amplitude
- * du bruit autour.
- *
- * Le premier réglage rappelait trop fort et secouait trop peu : mesurée sur
- * soixante-dix carrières, la cote tenait entre quarante-quatre et
- * cinquante-neuf neuf fois sur dix. Un gouvernement n'était jamais ni aimé ni
- * détesté, seulement tiède, et les scènes qui demandent un pouvoir aux abois
- * ne sortaient donc jamais. Un rappel plus lâche et un bruit plus large font
- * de vraies traversées du désert, et de vrais états de grâce.
- */
-const APPROVAL_PULL = 0.046;
-const APPROVAL_NOISE = 6.4;   // un tour deux fois plus court : bruit ÷ √2
 
 /**
  * La cote que vaudrait le gouvernement au vu de la seule force de son camp.
@@ -437,25 +394,8 @@ function driftApproval() {
    censure pas, et il ne changerait rien à une carrière.
    -------------------------------------------------------------------------- */
 
-const ASSEMBLY_SEATS = 577;
 
-/** La majorité absolue : deux cent quatre-vingt-neuf sièges. */
-const ASSEMBLY_MAJORITY = Math.floor(ASSEMBLY_SEATS / 2) + 1;
 
-/**
- * L'AMPLIFICATION DU SCRUTIN MAJORITAIRE.
- *
- * À 1,7, le premier parti plafonnait à trente pour cent des sièges et la
- * majorité absolue n'existait tout simplement pas : deux fois sur mille en
- * soixante-dix carrières. Or une Assemblée où personne ne peut jamais
- * gouverner seul n'est pas une Assemblée, c'est une impasse permanente.
- *
- * À 2,1, un camp qui domine nettement l'opinion sort avec une majorité, un
- * camp qui domine de peu sort avec une majorité relative, et un paysage
- * éclaté ne donne rien à personne. C'est le comportement du scrutin
- * majoritaire à deux tours.
- */
-const ASSEMBLY_POWER = 2.1;
 
 /**
  * LA VAGUE.
@@ -476,17 +416,6 @@ const ASSEMBLY_POWER = 2.1;
  * législative tombe un trimestre après la présidentielle, et elle couvre donc
  * la même chose : celle-là, et aucune dissolution ultérieure.
  */
-/*
- * Calibré en fabriquant deux cents législatives de confirmation par palier.
- * À 1,35, un camp de rupture à douze pour cent passe de cent sept à cent
- * trente-quatre sièges — un vrai groupe, pas une majorité ; à dix-huit, il
- * obtient la majorité absolue une fois sur sept ; à vingt-quatre, il l'a,
- * comme l'ont eue tous les présidents élus avec un camp large. Au-delà de
- * 1,7 la majorité absolue devenait automatique pour tout le monde, ce qui
- * n'est pas la Cinquième République, c'est un plébiscite.
- */
-const COATTAIL = 1.35;
-const COATTAIL_WINDOW = 2;
 
 /** Depuis combien de tours le président en exercice est en place. */
 function turnsSinceElection() {
@@ -528,27 +457,6 @@ function computeAssembly() {
   return sieges;
 }
 
-/**
- * LE BLOC QUI SOUTIENT LE GOUVERNEMENT.
- *
- * Un gouvernement ne gouverne jamais seul : une majorité présidentielle est
- * toujours une coalition, et les partis idéologiquement les plus proches
- * votent ses textes sans être de son parti. Sans cela, la majorité absolue
- * n'existait pas du tout, un pour cent des tours mesurés.
- *
- * ON RENVOIE LA LISTE, PAS UN NOMBRE PONDÉRÉ. Le premier réglage comptait
- * les voisins pour trois cinquièmes de leurs sièges : cela donnait un
- * gouvernement à trois cent soixante-dix-sept sièges alors qu'aucun parti
- * affiché n'en avait plus de cent soixante-neuf, et le joueur n'avait aucun
- * moyen de refaire l'addition. Une information qu'on ne peut pas vérifier
- * n'est pas une information. Le bloc est donc une liste de partis, ses
- * sièges s'additionnent exactement, et l'interface les nomme.
- *
- * En échange de cette franchise, on est plus exigeant sur qui en fait
- * partie : la moitié de la distance de voisinage, c'est-à-dire le camp
- * immédiatement adjacent, pas tout le côté de l'hémicycle.
- */
-const COALITION_DISTANCE = NEIGHBOUR_DISTANCE / 2;
 
 /**
  * QUI SOUTIENT, ÇA SE NÉGOCIE, ÇA NE SE DÉDUIT PAS.
@@ -691,22 +599,6 @@ function partyIsPivot(s) {
   return sieges + (game.assembly[state.party] || 0) >= ASSEMBLY_MAJORITY;
 }
 
-/**
- * LA CENSURE QUI ARRIVE SANS VOUS.
- *
- * Une dissolution ne pouvait tomber que par un choix du joueur, dans une
- * scène rare, sur un jet réussi : mesurée sur quatre-vingts carrières
- * entières, elle n'est jamais arrivée une seule fois. Un mécanisme qui
- * n'existe jamais n'existe pas.
- *
- * Un gouvernement très impopulaire et sans majorité absolue peut donc
- * désormais tomber tout seul, que le joueur soit député d'opposition,
- * ministre ou maire d'une ville moyenne qui l'apprend à la radio. C'est
- * ainsi que ces choses se passent : on est rarement celui qui compte les
- * voix. Le président dissout dans la foulée et le pays revote.
- */
-const CENSURE_APPROVAL = 26;
-const CENSURE_CHANCE = 0.055;
 
 function maybeCensure() {
   if (game.dissolution || !game.president) return;
@@ -795,12 +687,6 @@ function driftLandscape() {
    « moins 0,9 point par tour ».
    ========================================================================== */
 
-/**
- * Le mouvement qu'il faut avoir accumulé pour qu'on en parle. Deux points et
- * demi : au-dessus, le tableau bougeait sans que le journal l'explique jamais
- * ; en dessous, on commenterait le bruit.
- */
-const LANDSCAPE_STORY = 2.5;
 
 function reportLandscape() {
   if (!game.landscapeMarks) game.landscapeMarks = { ...game.landscape };
@@ -1069,11 +955,7 @@ function nextElection() {
    rend utile, puisqu'on a le temps de les changer.
    ========================================================================== */
 
-/** Combien d'échéances on montre. Quatre couvrent trois à cinq ans. */
-const CALENDAR_LENGTH = 4;
 
-/** Jusqu'où on cherche. Deux cycles complets suffisent toujours. */
-const CALENDAR_HORIZON = 52;
 
 function electionCalendar() {
   const suite = [];
@@ -1110,12 +992,6 @@ function horizonLabel(turns) {
  * Ce que cette élection propose au joueur selon sa fonction actuelle.
  * Renvoie null si elle ne le concerne pas (elle se joue alors sans lui).
  */
-/**
- * La cote au parti à partir de laquelle un cadre prend une tête de liste
- * municipale plutôt qu'une place sur celle d'un autre. En dessous, on fait
- * le nombre ; au-dessus, on porte la ville.
- */
-const CADRE_MAYOR_STANDING = 50;
 
 function playerStake(electionId) {
   const pos = game.position;
@@ -1339,26 +1215,6 @@ function partyWind() {
   return share - average;
 }
 
-/**
- * LA PART DE HASARD D'UNE SOIRÉE ÉLECTORALE.
- *
- * Elle valait Math.random() * 12 : une bande plate de douze points, où
- * toutes les fortunes étaient également probables. Douze points, quand le
- * rapport de force en déplaçait trente-neuf à lui seul, ne laissaient
- * aucune place au doute : mesuré scrutin par scrutin, on passait de zéro
- * pour cent de victoires à cent en franchissant cinq points de paysage. Ce
- * n'étaient pas des courbes, c'étaient des falaises, et le joueur n'a jamais
- * vu une élection se jouer de peu.
- *
- * Trois tirages moyennés font une cloche : les soirées ordinaires se
- * ressemblent, les surprises existent et restent rares, ce qui est
- * exactement le comportement d'un scrutin. La moyenne reste à six points,
- * de sorte qu'aucun seuil du jeu n'a besoin d'être retouché ; c'est
- * seulement l'écart-type qui passe de trois et demi à six, et la zone où le
- * résultat est réellement incertain qui passe de six points à vingt.
- */
-const LUCK_MEAN = 6;
-const LUCK_SPREAD = 36;
 
 function electionLuck() {
   // Trois dés moyennés : une cloche entre −0,5 et +0,5, écart-type 1/6.
@@ -1366,56 +1222,7 @@ function electionLuck() {
   return LUCK_MEAN + cloche * LUCK_SPREAD;
 }
 
-/**
- * LE POIDS DU RAPPORT DE FORCE, SCRUTIN PAR SCRUTIN.
- *
- * Le coefficient dit combien de points de score vaut UN point de part
- * nationale au-dessus de la moyenne. Il valait 0,35 aux municipales et 2,6
- * aux européennes : passer de dix à vingt-cinq pour cent dans le pays
- * rapportait cinq points sur un scrutin et trente-neuf sur l'autre. Le
- * premier ne se sentait pas, le second écrasait tout le reste et
- * transformait l'élection en interrupteur.
- *
- * Les quatre coefficients sont désormais du même ordre de grandeur, et
- * classés comme ils doivent l'être : plus le scrutin est national, plus
- * l'étiquette pèse. Passer de dix à vingt-cinq pour cent vaut vingt-deux
- * points aux européennes, dix-huit aux législatives, dix aux municipales.
- * Cela déplace toujours une élection ; cela ne la décide plus tout seul.
- *
- * LE CONGRÈS GARDE SON SIGNE NÉGATIF, et ce n'est pas un oubli : on n'y
- * vote pas dans le pays mais entre militants, et un parti qui s'effondre
- * cherche un visage neuf quand un parti qui gagne garde le sien. La
- * magnitude passe seulement de 0,25 à 0,15, pour que ce soit une couleur et
- * non un verrou.
- */
-const PARTY_WEIGHT = {
-  municipales: 0.7,
-  legislatives: 1.2,
-  europeennes: 1.5,
-  congres: -0.15,
-};
 
-/**
- * L'AVANTAGE DU SORTANT.
- *
- * Un sortant a son nom sur les panneaux depuis six ans, un bilan à montrer
- * et une machine locale qui a déjà gagné une fois. Le moteur lui donnait
- * l'inverse : un seuil PLUS HAUT que celui d'un challenger, soixante-huit
- * contre quarante-six pour un siège de député, compensé seulement par de
- * meilleures statistiques. Et une défaite en défense se paie au tarif
- * majoré, effets négatifs multipliés par 1,4, mandat perdu. Défendre était
- * donc le mauvais côté du pari, ce qui est l'exact contraire de la vie
- * politique réelle, où l'on bat très rarement un sortant.
- *
- * L'avantage est fort là où l'on vote pour quelqu'un qu'on croise au
- * marché, faible là où l'on vote pour une étiquette qu'on ne connaît pas.
- */
-const INCUMBENT_EDGE = {
-  municipales: 14,
-  legislatives: 9,
-  europeennes: 4,
-  congres: 6,
-};
 
 function electionScore(electionId, stake) {
   return electionBase(electionId, stake) + electionLuck();
@@ -1427,25 +1234,6 @@ function electionScore(electionId, stake) {
  * montrer un nombre : les jauges sont des abstractions, elles ne se récitent
  * pas.
  */
-/* CHAQUE SCRUTIN NE LIT PAS LE MÊME PAYS.
-   Les trois formules multipliaient game.popularity, c'est-à-dire la moyenne
-   des six électorats. Deux conséquences. On ne faisait aucune différence
-   entre une municipale, qui se gagne en mobilisant les siens dans une ville
-   qu'on connaît, et une européenne, où l'on vote pour une étiquette : le même
-   nombre servait aux deux. Et depuis que l'opinion des autres électorats
-   s'accumule au lieu d'être rappelée, cette moyenne a baissé de neuf points —
-   les scrutins ordinaires sont donc devenus plus durs sans que personne ne
-   l'ait décidé, de cinquante-deux à quarante et un pour cent de victoires.
-
-   On dose donc, scrutin par scrutin, la part de ce que pense votre camp et la
-   part de ce que pensent les autres. Plus le scrutin est local et incarné,
-   plus votre base pèse ; plus il est national et anonyme, plus ce sont les
-   autres qui décident. */
-const ELECTION_BASE_WEIGHT = {
-  municipales: 0.62,   // on y vote pour quelqu'un qu'on croise au marché
-  legislatives: 0.50,  // une étiquette, mais dans une circonscription
-  europeennes: 0.28,   // une étiquette, et rien d'autre
-};
 
 function electionAppeal(electionId) {
   const w = ELECTION_BASE_WEIGHT[electionId];
@@ -1510,7 +1298,6 @@ function electionBase(electionId, stake) {
    à franchir s'effondre pour tout le monde.
    -------------------------------------------------------------------------- */
 
-const MAX_TERMS = 2;
 
 function incumbentTermLimited() {
   return game.presidentTerms >= MAX_TERMS;
@@ -1601,20 +1388,6 @@ function setPresident(who) {
    pas président contre son propre parti, on le devient avec lui.
    -------------------------------------------------------------------------- */
 
-/*
- * CE QU'UN CANDIDAT PEUT FAIRE DE SON PARTI.
- *
- * La fourchette allait de 0,65 à 1,6 : un très bon candidat multipliait sa
- * base par plus du double de ce qu'un mauvais en tirait, et le rapport de
- * force ne décidait donc plus rien. On voyait gagner des candidats de partis
- * à douze pour cent, ce qui n'arrive pas.
- *
- * Resserrée, elle laisse encore un excellent candidat sur-performer nettement
- * son étiquette — c'est le sujet du jeu — sans lui permettre d'effacer un
- * écart de dix points dans le pays.
- */
-const PULL_MIN = 0.72;
-const PULL_MAX = 1.34;
 
 function clampPull(value) {
   return Math.max(PULL_MIN, Math.min(PULL_MAX, value));
@@ -1717,29 +1490,12 @@ function rememberMoment(ev, state) {
    La vie des figures
    ========================================================================== */
 
-/* Une carrière politique finit toujours par s'arrêter : l'âge, ou les sondages. */
-const RETIRE_AGE = 73;
-const RETIRE_POPULARITY = 15;
 
 /**
  * Chaque tour, les figures vieillissent, montent, s'usent. Celle qui dirige
  * déjà son parti ne grimpe plus : elle défend sa place, et sa popularité
  * s'érode si son camp gouverne.
  */
-/**
- * LE GOUVERNEMENT.
- *
- * Le jeu parlait de ministres partout — les événements, les fins, l'échelle
- * de carrière — mais aucune ligne de code n'en nommait jamais un. Le camp au
- * pouvoir gouvernait avec des députés et un chef de parti, et le joueur ne
- * croisait un ministre que dans le miroir.
- *
- * Le camp qui gouverne a donc un Premier ministre et deux ou trois ministres,
- * pris chez ses élus les plus en vue. Quand il perd le pouvoir, ils rendent
- * les clés : on ne retombe pas sur un mandat qu'on n'a pas gagné, ils
- * redeviennent des cadres de leur parti.
- */
-const GOVERNMENT_SIZE = 3;
 
 /* --------------------------------------------------------------------------
    LE GOUVERNEMENT NE VOUS VOYAIT PAS.
@@ -1760,8 +1516,6 @@ const GOVERNMENT_SIZE = 3;
    dans les deux tours, et le joueur garde le droit de refuser.
    -------------------------------------------------------------------------- */
 
-/** La cote minimale en dessous de laquelle l'Élysée ne pense pas à vous. */
-const GOVERNMENT_CALL_STANDING = 50;
 
 /**
  * Le joueur est-il plus populaire que le président de son propre camp ?
@@ -2086,8 +1840,6 @@ function setScene(ev) {
    signer un pacte qui se paiera au second tour.
    ========================================================================== */
 
-/** Chance, à chaque tour, qu'un ralliement se produise quelque part. */
-const DEFECTION_CHANCE = 0.055;
 
 /**
  * Ce qu'un ralliement déplace, en points d'intentions de vote. Une figure
@@ -2220,21 +1972,6 @@ function setAlliance(s, key) {
   return key;
 }
 
-/**
- * LE PARTI VOUS DONNE UN BUREAU.
- *
- * Entre le militant qui colle des affiches et l'élu qui a des électeurs, il y
- * a tous ceux qui font tourner la machine sans jamais passer devant un
- * bulletin. On y entre par la cote au parti, jamais par les urnes, et on en
- * sort quand l'appareil se désintéresse de vous.
- *
- * Cette marche sert deux fois : elle donne un début de carrière à qui
- * travaille l'appareil avant d'affronter le pays, et elle recueille les
- * battus, qui autrement se réveillaient maires d'une ville qu'ils avaient
- * quittée pour se présenter ailleurs.
- */
-const CADRE_IN = 35;
-const CADRE_OUT = 18;
 
 function promoteWithinParty() {
   if (game.position === "militant" && game.standing >= CADRE_IN) {
@@ -2436,18 +2173,6 @@ function enterElection(electionId) {
    partie qu'on n'a pas jouée.
    -------------------------------------------------------------------------- */
 
-/**
- * LA DETTE DE FATIGUE.
- *
- * On ne s'épuise pas sur une nuit blanche, on s'épuise en enchaînant des
- * années sans marge. Elle monte à chaque saison passée à sec, elle
- * redescend dès qu'on a de quoi souffler, et c'est elle qui fait tomber la
- * marque puis, à la fin, le retrait. Se ménager la fait disparaître : il n'y
- * a rien d'irréversible tant qu'on s'arrête à temps.
- */
-const STRAIN_LOW = 3;      // à ce niveau ou en dessous, on creuse
-const STRAIN_REST = 7;     // à ce niveau ou au-dessus, on se refait
-const STRAIN_STRIKE = 10;  // tous les dix points, le corps envoie un signe
 
 function wearOut() {
   if (game.stats.energie <= STRAIN_LOW) game.strain = (game.strain || 0) + 1;
@@ -2475,12 +2200,6 @@ function wearOut() {
       });
 }
 
-/* La dette se compte en tours, et un tour vaut désormais une saison : les
-   deux seuils sont doublés pour que ce soit toujours le même nombre d'années
-   à sec qui casse quelqu'un. La probabilité, elle, est divisée. */
-const BURNOUT_STRAIN = 28;
-const BURNOUT_ENERGY = 2;
-const BURNOUT_CHANCE = 0.07;
 
 /* ==========================================================================
    LE CORPS PRÉVIENT, ET IL PRÉVIENT SUR UNE CARTE
@@ -2513,11 +2232,7 @@ const BURNOUT_CHANCE = 0.07;
    le reste est annoncé.
    ========================================================================== */
 
-/** Au-delà, le corps n'a plus rien à ajouter. */
-const DECLINE_MAX = 3;
 
-/** À partir de ce niveau de dette de fatigue, le corps commence à parler. */
-const STRAIN_TALKS = BURNOUT_STRAIN / 2;
 
 /**
  * La probabilité, PAR AN, qu'un signe tombe. Elle vaut à peu près trois fois
@@ -2549,23 +2264,6 @@ function declineRate(s) {
   return p;
 }
 
-/**
- * L'ÂGE OÙ LE COMPTE À REBOURS PEUT COMMENCER.
- *
- * Le premier signe est ouvert à tout le monde : une carrière menée à vide
- * s'annonce à trente-cinq ans comme à soixante-dix, et c'est très bien. Les
- * deux suivants, non. Mesuré sur trois cents carrières, le premier réglage
- * faisait parler le corps à cinquante-trois ans en médiane et à trente-trois
- * pour le dixième le plus pressé, si bien qu'un joueur atteignait le dernier
- * temps avant même d'avoir une fonction — et les portes de sortie s'ouvraient
- * avec lui.
- *
- * Passé le premier signe, il faut donc l'âge, ou la rupture. Quelqu'un de
- * jeune qui s'épuise est prévenu ; il ne descend l'escalier que s'il continue
- * jusqu'à ce que la dette de fatigue atteigne le point de rupture, ce qui est
- * exactement ce que raconte le burnout et ce qui doit rester possible.
- */
-const DECLINE_AGE = 58;
 
 function declineAllowed(etage) {
   if (etage <= 1) return true;
@@ -3038,25 +2736,6 @@ function moodFor(electionId, stake, bonus) {
  * fait — voir CREDIBILITY_BY_OFFICE — jamais d'une soirée électorale.
  */
 
-/**
- * LES SIX FAÇONS DE RACONTER UNE SOIRÉE, ET RIEN D'AUTRE.
- *
- * Les paliers ne portent plus que le TEXTE. Ils portaient aussi les chiffres,
- * et cela produisait des marches que rien ne justifiait : un point de marge
- * de plus faisait passer la cote de moins deux à moins six, deux soirées que
- * le joueur lisait à l'identique ne coûtaient pas la même chose, et le palier
- * franchi d'un cheveu décidait de tout.
- */
-const ELECTION_OUTCOMES = [
-  { min: 12,   key: "large" },
-  { min: 0,    key: "win" },
-  // Perdu sur le fil : on devient le prochain, et tout le monde le sait.
-  { min: -3,   key: "narrow" },
-  // Battu, mais avec un score que personne n'attendait.
-  { min: -8,   key: "honorable" },
-  { min: -18,  key: "loss" },
-  { min: -1e9, key: "rout" },
-];
 
 function outcomeFor(marge) {
   return ELECTION_OUTCOMES.find((o) => marge >= o.min);
@@ -3083,18 +2762,7 @@ function outcomeFor(marge) {
    table continue aurait rendu six points de cote à une défaite d'un dixième
    de point.
    ========================================================================== */
-const OUTCOME_WON = [
-  { marge: 30, standing: 10, image: 8 },
-  { marge: 12, standing:  9, image: 7 },
-  { marge:  0, standing:  7, image: 5 },
-];
 
-const OUTCOME_LOST = [
-  { marge:  -3, standing:   2, image:   4 },
-  { marge:  -8, standing:  -2, image:   1 },
-  { marge: -18, standing:  -6, image:  -4 },
-  { marge: -35, standing: -12, image: -10 },
-];
 
 function interpolateCurve(courbe, x) {
   if (x >= courbe[0].marge) return courbe[0];
@@ -3114,57 +2782,13 @@ function interpolateCurve(courbe, x) {
   return bas;
 }
 
-/**
- * CE QUE LE SCRUTIN PÈSE, ET QUI LE REGARDE.
- *
- *   image — combien la soirée déplace ce que le pays pense de vous. Un
- *           congrès de parti ne déplace presque rien : personne ne le
- *           regarde, et la direction qu'on y prend se voit toute seule.
- *
- *   echo  — jusqu'où la nouvelle sort de votre camp, et c'est la correction
- *           la plus importante du lot. Le moteur appliquait le résultat aux
- *           six électorats du même montant : un siège européen perdu coûtait
- *           dix-huit points d'opinion À LA GAUCHE RADICALE, qui n'en a rien
- *           su et qui, l'aurait-elle su, ne vous en aurait pas voulu. Une
- *           soirée électorale se joue devant les siens ; les autres
- *           l'apprennent au mieux par le titre du lendemain, et d'autant
- *           moins qu'ils sont loin de vous.
- */
-const ELECTION_WEIGHT = {
-  municipales:  { image: 1,   echo: 0.15 },  // une ville, et le pays n'en saura rien
-  legislatives: { image: 1,   echo: 0.4  },  // une circonscription, un soir national
-  europeennes:  { image: 0.8, echo: 0.3  },  // national, et personne ne regarde
-  congres:      { image: 0.3, echo: 0.1  },  // une affaire de famille
-};
 
 function electionWeight(electionId) {
   return ELECTION_WEIGHT[electionId] || ELECTION_WEIGHT.legislatives;
 }
 
-/** Le scrutin d'où vient un poste, quand on n'a que le poste sous la main. */
-const TARGET_ELECTION = {
-  conseiller: "municipales", maire: "municipales", euro: "europeennes",
-  depute: "legislatives", chef: "congres",
-};
 
-/**
- * CE QU'UN POSTE PÈSE, LE SOIR OÙ IL SE GAGNE OU SE PERD. Un siège de
- * conseiller municipal se donne à qui le demande ; la direction du parti se
- * compte au mandat près et se raconte pendant vingt ans. Le moteur facturait
- * les deux au même tarif.
- */
-const OUTCOME_STAKE = {
-  conseiller: 0.5, euro: 0.8, maire: 1, depute: 1.15, chef: 1.2,
-};
 
-/**
- * UNE SOIRÉE NE FAIT PAS UNE CARRIÈRE. Trois facteurs qui se multiplient
- * finissent par se rencontrer tous ensemble : un congrès pris à
- * contre-pronostic valait dix-sept points de cote d'un coup, une déroute
- * annoncée gagnante en coûtait vingt-deux. Le garde-fou est asymétrique
- * parce que la politique l'est : on tombe plus vite qu'on ne monte.
- */
-const OUTCOME_CAP = { gain: 13, perte: -15 };
 
 /**
  * L'ÉCART ENTRE CE QU'ON VOUS PROMETTAIT ET CE QUE VOUS AVEZ FAIT.
@@ -3191,19 +2815,6 @@ function expectationFactor(attendu, won) {
   return won ? 1 - promesse * 0.25 : 1 + promesse * 0.35;
 }
 
-/**
- * LE SCORE QU'ON VOUS COMPTE, À MI-CHEMIN ENTRE CELUI QUE VOUS AVEZ FAIT ET
- * CELUI QU'IL FALLAIT FAIRE.
- *
- * Ni l'un ni l'autre seul ne convient. Le score brut punit celui qu'on a
- * envoyé se battre dans un désert et récompense celui à qui l'on a donné une
- * ville acquise. L'écart brut, lui, rend une déroute à quatre pour cent
- * entièrement gratuite dès lors que personne n'y croyait, ce qui n'est pas
- * vrai non plus : un chiffre pareil se cite pendant des années.
- *
- * On coupe la poire en deux, et le facteur d'attente fait le reste.
- */
-const DECEPTION_MIX = 0.5;
 
 function outcomeGap(marge, attendu) {
   return marge - (attendu === undefined ? 0 : attendu) * DECEPTION_MIX;

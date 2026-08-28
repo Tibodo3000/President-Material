@@ -7,7 +7,7 @@ shape of the state that flows through it all.
 
 ## The layering
 
-The codebase is built in six layers, from inert data up to the DOM. Each layer only
+The codebase is built in seven layers, from inert numbers up to the DOM. Each layer only
 depends on the ones below it.
 
 ```
@@ -19,6 +19,8 @@ depends on the ones below it.
 │  CONTROLLERS      create.js · party.js · tirage.js · game.js   │  ← touch the DOM
 ├────────────────────────────────────────────────────────────────┤
 │  RULES / CALC     data.js · game-data.js                       │  ← pure functions
+├────────────────────────────────────────────────────────────────┤
+│  BALANCE          balance.js  (the 107 tuning knobs)           │  ← numbers only
 ├────────────────────────────────────────────────────────────────┤
 │  CONTENT (DATA)   *.data.js                                    │  ← strict JSON shape
 ├────────────────────────────────────────────────────────────────┤
@@ -64,6 +66,7 @@ was loaded before it. Each page's `<script>` tags encode its dependency chain.
 **game.html** (the full stack):
 ```
 script.js          → translations, t(), L()
+balance.js         → the 107 tuning constants — MUST come before data.js
 names.data.js      → NAME_DATA
 data.js            → BASE_STATS, PARTIES, computeStats(), the draw…
 traits.data.js     → TRAIT_DATA
@@ -89,12 +92,30 @@ Two rules govern where a mode file may sit:
 Everything else is order-free: `function` declarations hoist within their file, and
 every cross-file call happens at runtime, once the page is fully loaded.
 
-The creation pages load a subset: `script.js`, `names.data.js`, `traits.data.js`,
-`data.js`, then their own controller. `party.html` and `tirage.html` are the same set
-with a different final controller.
+The creation pages load a subset: `script.js`, `balance.js`, `names.data.js`,
+`traits.data.js`, `data.js`, then their own controller. `party.html` and
+`tirage.html` are the same set with a different final controller.
 
 > If you add a data file, wire it into the `<script>` list of every page that needs it,
 > **before** the code that reads it.
+
+### `balance.js` loads first, and that is not decoration
+
+Every tuning constant in the game lives in [balance.js](../js/balance.js) — 107 of them,
+gathered from ten files. It holds numbers and nothing else: no function, no rule, no DOM.
+
+It must load **before `data.js`**, because four of its constants are evaluated from
+another at load time (`YEARS_PER_TURN`, `ASSEMBLY_MAJORITY`, `COALITION_DISTANCE`,
+`STRAIN_TALKS`), so order *inside* the file matters too. All four pages and the event
+editor load it in second position, right after `script.js`.
+
+What is **not** in it, deliberately: the vocabulary (`LADDER`, `STAT_KEYS`, `ELECTIONS`,
+`MANDATES` — renaming a word there breaks the content that names it), the character-creation
+tables (`BASE_STATS`, `STAT_MODIFIERS`, `MONEY`, `PARTIES`, `FIT_LEVELS`, `DRAW_MIX`, which
+stay in `data.js` where the checker and the editor read them), and the plumbing (storage
+keys, gender marks, chip families). The test is simple: a constant belongs in `balance.js`
+if its value could be different without anything breaking — only the game would play
+differently.
 
 ---
 

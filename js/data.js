@@ -1,9 +1,12 @@
 /*
  * President Material — données et règles du jeu.
  *
- * Ce fichier ne touche pas au DOM : il contient les chiffres, les tables et
- * les fonctions de calcul, partagés par la création de personnage
+ * Ce fichier ne touche pas au DOM : il contient les tables de création de
+ * personnage et les fonctions de calcul, partagées par la création
  * (create.html) et le choix du parti (party.html).
+ *
+ * Les réglages d'équilibrage — l'échelle des statistiques comprise — sont
+ * dans js/balance.js, qui se charge avant celui-ci.
  *
  * Statistiques personnelles : charisme, eloquence, energie, sangfroid
  * Statistiques externes     : reseau, notoriete, reputation, credibilite
@@ -39,8 +42,6 @@ const BASE_STATS = {
   credibilite: 6,
 };
 
-const STAT_MIN = 0;
-const STAT_MAX = 20;
 
 /**
  * Modificateurs de statistiques appliqués par chaque choix.

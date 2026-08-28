@@ -33,13 +33,6 @@
  * joueur pendant toute la partie : rien n'est caché, la campagne commence là
  * où le pays en est.
  */
-/**
- * L'ADHÉSION N'EST PAS UN BULLETIN. On ne convertit jamais en voix tout ce
- * qu'un électorat pense de bien de vous : il a son propre candidat, ses
- * habitudes et son abstention. Le coefficient ramène la somme des adhésions
- * sur l'échelle d'un premier tour, où l'on gagne à vingt-cinq pour cent.
- */
-const PRESIDENTIAL_CONVERSION = 0.45;
 
 /**
  * CE QUE LE CANDIDAT AJOUTE À SON CAMP.

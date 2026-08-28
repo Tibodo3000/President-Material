@@ -37,7 +37,7 @@ const ROOT = process.argv[2] || path.join(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "game.html"), "utf8");
 const order = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)]
   .map((m) => m[1])
-  .filter((f) => /\.data\.js$|\/(script|data)\.js$/.test(f));
+  .filter((f) => /\.data\.js$|\/(script|data|balance)\.js$/.test(f));
 
 const ctx = vm.createContext({
   window: {}, document: { addEventListener() {} },

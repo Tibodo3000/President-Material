@@ -328,8 +328,6 @@ function unlockReasons(when) {
   return parts;
 }
 
-/** En dessous d'une chance sur quatre, on prévient. */
-const RISKY_CHANCE = 0.25;
 
 /**
  * Un bouton de choix. Les choix conditionnels portent une marque et la raison

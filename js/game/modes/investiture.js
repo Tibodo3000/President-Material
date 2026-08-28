@@ -61,17 +61,6 @@ function drawNomination(electionId) {
 }
 
 /** Le parti refuse-t-il l'investiture faute de cote suffisante ? */
-/**
- * À QUELLE DISTANCE ON EST ENCORE UN CANDIDAT.
- *
- * Le refus d'investiture tombait sur tout le monde, tout le temps : une
- * militante de trente et un ans se voyait annoncer, au deuxième congrès de
- * sa carrière, qu'elle n'aurait pas la direction du parti — qu'elle n'avait
- * jamais demandée. On ne refuse une investiture qu'à quelqu'un qui était dans
- * la course. Au-delà de cet écart, le scrutin se joue sans vous, comme
- * n'importe quelle élection qui ne vous concerne pas.
- */
-const NOMINATION_REACH = 18;
 
 function inTheRunning(stake) {
   // Un sortant est toujours dans la course pour son propre siège, si bas
@@ -118,56 +107,10 @@ function lobbyGain(s) {
    chose qui reste.
    ========================================================================== */
 
-/** L'écart au seuil en dessous duquel une dissidence n'est pas grotesque. */
-const REBEL_REACH = 12;
 
-/**
- * CE QUE COÛTE DE SE PRÉSENTER SANS L'INVESTITURE.
- *
- * Le handicap est la machine qui manque : pas de fichier, pas de colleurs
- * d'affiches, pas un élu du coin pour se montrer à côté de vous. Il pèse sur
- * le scrutin comme pèserait une campagne mal menée.
- *
- * La note, elle, tombe au dépouillement et pas au départ. La présenter avant
- * rendait le bouton inutile : on part déjà sous le seuil d'investiture, lui
- * retirer encore douze points de cote avant le vote rendait le scrutin
- * imperdable pour l'appareil. « La direction fait payer quoi qu'il arrive »
- * veut dire après le résultat, pas à la place du résultat.
- *
- * Et gagner rachète une partie de l'affront, parce qu'on ne discute pas avec
- * quelqu'un qui vient de gagner. Perdre coûte le double : c'est ce qui fait
- * de la dissidence un pari et non une option gratuite.
- *
- * Le handicap a été calé sur la fenêtre, pas choisi à vue. À moins sept, on
- * ne gagnait plus du tout dès neuf points d'écart : la porte s'ouvrait sur
- * une défaite certaine, ce qui est pire que de ne pas l'ouvrir. À moins
- * quatre, le pari se tient d'un bout à l'autre de la fenêtre, mesuré sur
- * cinq cents congrès par point d'écart :
- *
- *   écart au seuil    2     4     6     8    10    12
- *   victoires        76%   63%   49%   35%   22%   12%
- */
-const REBEL_HANDICAP = -4;
 
-/*
- * ON NE PART PAS EN DISSIDENCE PARCE QU'ON EST VEXÉ.
- *
- * La porte n'était gardée que par l'écart de cote au parti : n'importe quel
- * élu à peu près bien noté pouvait affronter sa propre machine, ce qui est le
- * geste le plus rare et le plus coûteux de la vie politique. On ne le tente
- * que dans un cas : quand le pays est avec vous et que le parti ne l'est pas.
- *
- * Le seuil est haut à dessein. Mesurée sur huit mille tours, la note médiane
- * d'une carrière est de quarante-trois, et soixante-huit n'est dépassé que
- * dans les six pour cent de tours les plus favorables. (Le seuil valait
- * soixante-deux sur l'ancienne lecture, nationale : c'est le même percentile,
- * pas un durcissement — voir reachWeights.)
- */
-const REBEL_POPULARITY = 68;
 
-const REBEL_COST_WON = -6;
 
-const REBEL_COST_LOST = -16;
 
 function rebelGap(card) {
   // La carte porte le poste visé et le mandat éventuellement défendu : de

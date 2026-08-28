@@ -29,15 +29,12 @@
    on ne fait pas élire un candidat en collant des affiches, on l'aide.
    ========================================================================== */
 
-const SUPPORT_STEPS = 3;
 
 /** Ajoute une phrase à un texte bilingue sans le dupliquer des deux côtés. */
 function ajouterSuite(texte, suite) {
   return { fr: texte.fr + suite.fr, en: texte.en + suite.en };
 }
 
-/** Ce qu'un point de soutien vaut en points d'intentions de vote. */
-const SUPPORT_WEIGHT = 0.55;
 
 /**
  * LE CHAMP D'UNE PRÉSIDENTIELLE QU'ON NE DISPUTE PAS.
