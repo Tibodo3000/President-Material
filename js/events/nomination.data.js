@@ -1,4 +1,4 @@
-/* Généré — ne pas éditer à la main. */
+/* Un paquet d'événements. Le schéma est en tête de js/events/_assemble.data.js. */
 const EV_nomination = [
 
 /* ==========================================================================
