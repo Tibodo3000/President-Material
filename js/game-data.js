@@ -1,51 +1,31 @@
 /*
  * President Material — données de la boucle de jeu (game.html).
  *
- * Ce fichier contient tout ce qui se règle : l'échelle de carrière, le
- * calendrier électoral, les deux jauges de carrière, la fin de carrière
- * (fatigue, retrait forcé, mortalité) et surtout les ÉVÉNEMENTS. Le
- * moteur est dans js/game.js.
+ * Ce fichier contient les RÈGLES de la boucle : l'échelle de carrière, le
+ * calendrier électoral, les deux jauges, la fin de carrière (fatigue,
+ * retrait forcé, mortalité) et l'interpréteur d'ÉVÉNEMENTS. Le moteur est
+ * dans js/game.js.
+ *
+ * LES CHIFFRES QUE CES RÈGLES LISENT SONT DANS js/balance.js, et nulle part
+ * ailleurs. Ce fichier dit comment une jauge dérive ; balance.js dit de
+ * combien.
  *
  * Les textes des événements vivent ici, à côté de leurs effets : un
  * événement est un tout. Chaque texte est un objet { fr, en } lu par L().
  */
 
 /* ==========================================================================
-   Constantes de carrière
-   ========================================================================== */
-
-/** Tout le monde entre en politique à trente ans. Un tour = une saison. */
-const START_AGE = 30;
-
-/* ==========================================================================
-   UN TOUR VAUT UNE SAISON
+   TOUT CE QUI SE COMPTE EN TOURS PASSE PAR ICI
    ==========================================================================
-   Il en valait deux : six mois, deux tours par an. Le calendrier électoral
-   français en tombe cinq par quinquennat, et cinq échéances réparties sur dix
-   tours mangeaient un tour sur deux. Mesuré sur soixante carrières entières,
-   52 % des tours étaient un scrutin — la moitié d'une vie politique passée à
-   voter — et une carrière ne jouait que quarante événements ordinaires sur
-   les deux cent cinquante que le jeu contient. Le reste n'était pas coupé, il
-   était noyé : on ne le voyait jamais parce qu'il n'y avait pas de place
-   entre deux campagnes.
+   Ce qui se mesure par an — une indemnité, une probabilité de mort, une
+   dérive de jauge — est écrit par an et divisé par TURNS_PER_YEAR au moment
+   de l'appliquer. Ce qui se compte en délais — un cycle électoral, la suite
+   d'une affaire — est écrit en tours, et vaut donc des trimestres.
 
-   Découper l'année en quatre ne change rien au calendrier — on vote toujours
-   autant de fois par décennie — mais cela double le nombre de tours qui
-   séparent deux scrutins. C'est la seule façon de faire exister ce qu'il y a
-   entre les élections, qui est le sujet du jeu.
-
-   TOUT CE QUI SE COMPTE EN TOURS PASSE PAR ICI. Ce qui se mesure par an —
-   une indemnité, une probabilité de mort, une dérive de jauge — est écrit
-   par an et divisé par TURNS_PER_YEAR au moment de l'appliquer. Ce qui se
-   compte en délais — un cycle électoral, la suite d'une affaire — est écrit
-   en tours, et vaut donc désormais des trimestres.
+   Le pourquoi de ce découpage est avec la constante, dans js/balance.js.
    ========================================================================== */
 
-/** Quatre tours par an : printemps, été, automne, hiver. */
-const TURNS_PER_YEAR = 4;
 
-/** Ce qu'un tour vaut en années. Tout ce qui est écrit « par an » passe par là. */
-const YEARS_PER_TURN = 1 / TURNS_PER_YEAR;
 
 /**
  * L'échelle des fonctions, du bas vers le haut. La présidence est la fin.
@@ -86,19 +66,6 @@ const YEARS_PER_TURN = 1 / TURNS_PER_YEAR;
  */
 const LADDER = ["militant", "cadre", "conseiller", "maire", "euro", "depute", "ministre", "premier"];
 
-/**
- * OÙ L'ON TOMBE QUAND ON PERD.
- *
- * Nulle part, et c'est tout le problème. Le moteur faisait reculer d'un cran
- * dans l'échelle : un député battu redevenait maire d'une ville qu'il avait
- * quittée pour se présenter, et un chef de parti désavoué se réveillait
- * député sans avoir été élu nulle part. Le jeu inventait des mandats.
- *
- * Un mandat perdu est perdu. Reste ce que le parti veut bien vous garder :
- * un poste d'appareil si vous pesez encore, la carte de militant sinon. On
- * ne reprend une fonction qu'en la regagnant dans les urnes.
- */
-const NO_OFFICE_STANDING = 30;
 
 function officeAfterDefeat(s) {
   // Diriger le parti EST un poste d'appareil : on ne redevient pas simple
@@ -138,8 +105,6 @@ function officeAfterDefeat(s) {
    comble la différence, et non un cadeau.
    ========================================================================== */
 
-const LEAD_EXPOSURE = 12;
-const LEAD_RANK = 4;
 
 /** Le joueur dirige-t-il son parti ? */
 function leadsParty(s) {
@@ -239,35 +204,7 @@ const ELECTIONS = [
    ========================================================================== */
 
 /** Vitesse de convergence vers la cible, par an. */
-/*
- * ON RÈGLE UNE DÉRIVE PAR AN, JAMAIS PAR TOUR.
- *
- * Elle valait 0,28 quand un tour faisait six mois. Un tour vaut une saison :
- * l'année contient deux fois plus de tours, et une vitesse laissée telle
- * quelle ferait fondre en dix-huit mois ce qui mettait trois ans à s'user.
- * Les deux chiffres sont donc repris pour qu'une année entière fasse
- * exactement le même chemin qu'avant — 1 − √0,72 et 1 − √0,83.
- *
- * CE QUE CELA COÛTE, ET C'EST VOULU. Ce qui fait monter une jauge, ce sont
- * les événements, et il y en a un par tour : leur apport par an a doublé lui
- * aussi, pendant que le rappel par an, lui, n'a pas bougé. Le niveau
- * d'équilibre d'une jauge monte donc. Mesuré sur soixante carrières, la
- * popularité de pointe passe de 63 à 75 et l'Élysée tombe plus souvent. C'est
- * un réglage d'équilibrage à reprendre à part, pas une raison de fausser la
- * durée d'un tour.
- */
-const DRIFT = 0.15;
 
-/**
- * ON REDESCEND MOINS VITE QU'ON NE MONTE.
- *
- * Le retour vers la cible se faisait à la même vitesse dans les deux sens :
- * une jauge portée trente points au-dessus de son niveau naturel en perdait
- * huit au tour suivant, sans que rien ne l'annonce ni ne l'explique. Ce
- * qu'on a gagné doit s'user, pas fondre — sinon aucun coup d'éclat ne vaut
- * la peine et le joueur a le sentiment de vider un seau percé.
- */
-const DRIFT_DOWN = 0.09;   // même conversion : 1 − √0,83
 
 /**
  * Exposition publique liée à la fonction : un maire est plus vu qu'un
@@ -275,19 +212,7 @@ const DRIFT_DOWN = 0.09;   // même conversion : 1 − √0,83
  * important, la fonction est invisible, et c'est bien pour cela qu'on y
  * envoie les gens dont on veut se débarrasser.
  */
-/* La clé "chef" sert encore : les figures du jeu, elles, n'ont qu'une case et
-   la direction de leur parti EST leur fonction. Le joueur, lui, passe par
-   exposureOf() et rankOf(), qui savent additionner. */
-const POSITION_EXPOSURE = {
-  militant: 0, cadre: 3, conseiller: 4, maire: 10, euro: 8, depute: 14,
-  ministre: 28, chef: 22, premier: 40,
-};
 
-/** Poids interne de la fonction dans l'appareil du parti. */
-const POSITION_RANK = {
-  militant: 0, cadre: 2, conseiller: 1, maire: 3, euro: 2, depute: 4,
-  ministre: 5, chef: 7, premier: 6,
-};
 
 /** Ce que le joueur expose : sa fonction, plus la direction s'il l'a. */
 function exposureOf(s) {
@@ -340,61 +265,8 @@ function standingTarget(s) {
   );
 }
 
-/**
- * Cote minimale exigée par le parti pour vous investir. En dessous, on ne
- * vous laisse pas concourir : il faut d'abord travailler l'appareil.
- *
- * La direction du parti et l'investiture présidentielle sont les deux verrous
- * qui comptent : on ne devient pas candidat à l'Élysée parce qu'on est aimé
- * du pays, mais parce que l'appareil n'a pas trouvé mieux.
- */
-const NOMINATION_THRESHOLD = {
-  conseiller: 22,
-  maire: 36,
-  euro: 30,
-  depute: 48,
-  chef: 71,
-  president: 64,
-};
 
-/**
- * LA PRIME AU SORTANT. On ne réinvestit pas un sortant comme on investit un
- * inconnu : il a le fichier, les militants et six ans de photos avec eux, et
- * lui refuser l'investiture c'est reconnaître qu'on s'est trompé la dernière
- * fois. L'appareil ne le fait que lorsqu'il n'a plus le choix.
- *
- * Elle ne vaut que pour les mandats. La direction du parti n'a pas de
- * sortant : c'est justement le poste qu'on prend à quelqu'un.
- */
-const INCUMBENT_DISCOUNT = 12;
 
-/**
- * LA PRIME AU SIÈGE QU'ON OCCUPE DÉJÀ.
- *
- * L'appareil n'écoute pas de la même façon celui qui demande à entrer et
- * celui qui est déjà dans la pièce. Un conseiller municipal qui veut la tête
- * de liste ne quémande pas une faveur : il siège, il a le fichier de la
- * fédération, et le lui refuser oblige à expliquer pourquoi devant les mêmes
- * militants qui l'ont élu six ans plus tôt.
- *
- * Le moteur ne connaissait que la prime au SORTANT, qui ne joue que pour son
- * propre siège. Mesuré sur cent cinquante carrières, cela donnait ceci : un
- * cadre du parti SANS AUCUN MANDAT obtenait la tête de liste municipale sans
- * qu'un seul militant ait à se prononcer (cent cinq offres, zéro refus),
- * pendant que le conseiller sortant de la même ville se la voyait refuser une
- * fois sur deux — sa cote médiane au moment du scrutin valait très exactement
- * le seuil, trente-six contre trente-six.
- *
- * Et une municipale revient tous les six ans. Un refus ne coûte pas un tour,
- * il coûte un mandat entier : c'est le scrutin du jeu où le mur fait le plus
- * mal, et c'était celui où il était le plus haut.
- *
- * La prime vaut moins que celle du sortant : défendre son siège reste plus
- * facile que d'en prendre un, même celui d'à côté.
- */
-const SEATED_CLAIM = {
-  maire: { from: "conseiller", discount: 9 },
-};
 
 /**
  * Ce que l'appareil demande VRAIMENT, une fois retirées les deux primes. Tout
@@ -457,17 +329,6 @@ function bodySpoke(state) {
   return (state.decline || 0) > 0;
 }
 
-/**
- * Ce que pèse ce qui a déjà été dit. Un premier signe entrouvre la porte, le
- * troisième la tient grande ouverte : on ne meurt pas d'un avertissement, on
- * meurt de les avoir tous ignorés.
- *
- * Le deuxième temps vaut à peu près ce que valait le risque avant que cet
- * arc n'existe. C'est le point de calage : une carrière qui va au bout de ce
- * que le corps a à lui dire se termine à peu près quand elle se terminait,
- * et une carrière qui s'arrête au premier signe gagne des années.
- */
-const DECLINE_WEIGHT = [0, 0.5, 1.2, 2.0];
 
 function declineWeight(state) {
   return DECLINE_WEIGHT[Math.min(state.decline || 0, DECLINE_WEIGHT.length - 1)];
@@ -889,19 +750,6 @@ function bump(state, stat, delta) {
   state.stats[stat] = Math.max(STAT_MIN, Math.min(STAT_MAX, state.stats[stat] + delta));
 }
 
-/**
- * Les statistiques se lisent sur vingt ; les formules du jeu, les seuils des
- * élections et les difficultés écrites dans les événements ont été calibrés
- * sur dix. On convertit donc à l'entrée de chaque calcul.
- *
- * Le facteur n'est pas exactement un demi, et c'est voulu. Les événements
- * donnent les mêmes points qu'avant sur une échelle deux fois plus grande :
- * une carrière entière ne sature donc plus le plafond, elle s'arrête vers
- * douze ou quinze. Sans correction, le personnage serait deux fois plus
- * faible qu'avant à mi-parcours ; avec elle, il vaut la même chose, et il
- * reste de la place pour ce que les traits apportent.
- */
-const STAT_SCALE = 0.58;
 
 function statScore(s, key) {
   return s.stats[key] * STAT_SCALE;
@@ -918,22 +766,6 @@ function statScore(s, key) {
  *      rapportent. Les mauvaises, elles, coûtent toujours plein tarif.
  *   2. AMORTI. Certains traits (le téflon) encaissent une part des coups.
  */
-/*
- * LE FILTRE PARTISAN.
- *
- * Un effet sans position touchait les six électorats du montant exact, si bien
- * que la moindre bonne nouvelle affichait six fois le même chiffre dans la
- * déclinaison. Ce n'est pas ainsi qu'une opinion se forme : les vôtres
- * accueillent mieux ce que vous faites de bien et vous pardonnent davantage ce
- * que vous faites de mal, et le camp d'en face fait l'inverse. C'est le
- * mécanisme le mieux établi de l'opinion, et il ne demandait qu'à être écrit.
- *
- * Le penchant est volontairement léger : il ne remplace pas un positionnement,
- * il évite seulement qu'une scène neutre produise six colonnes identiques. À
- * 0,3, un effet de huit points vaut neuf chez vous et six chez celui qui est
- * le plus loin.
- */
-const APPEAL_TILT = 0.3;
 
 function bumpPop(state, delta) {
   if (state.appeal) {
@@ -968,49 +800,8 @@ function bumpPop(state, delta) {
  * commence donc avec très précisément le crédit qu'il avait avant, réparti
  * au lieu d'être uniforme.
  */
-/*
- * L'ECART STRUCTUREL entre votre camp et les autres, avant tout choix. A 26,
- * les six electorats tenaient dans onze points et la base depassait a peine
- * le camp voisin : apres une carriere entiere on lisait 62 / 59 / 56 / 56 /
- * 54 / 51, c'est-a-dire six fois le meme chiffre. Un parti qui vous a investi
- * vous accorde beaucoup plus que celui d'en face, et cela doit se voir.
- */
-const APPEAL_SPREAD = 46;
 
-/*
- * LA FORME S'EFFACE BEAUCOUP PLUS LENTEMENT QUE LE NIVEAU.
- *
- * La derive ramenait chaque electorat vers sa cible au rythme ordinaire des
- * jauges (DRIFT, 0,28 par tour) : ce qu'un choix avait creuse etait comble en
- * trois ou quatre tours, et le positionnement ne laissait aucune trace. Or
- * c'est exactement l'inverse qu'on veut dire — un electorat tient un dossier
- * sur vous, et il s'en souvient.
- *
- * On separe donc les deux mouvements. La MOYENNE suit la cible au rythme
- * habituel, ce qui laisse la popularite d'ensemble se comporter exactement
- * comme avant. Les ECARTS a cette moyenne, eux, ne se resorbent qu'a 0,06 par
- * tour : une reputation de clivage met une quinzaine d'annees a s'effacer, et
- * ne s'efface jamais tout a fait tant qu'on continue.
- */
-const APPEAL_SHAPE_DRIFT = 0.06;
 
-/*
- * CE QUI RAPPELLE LES AUTRES ÉLECTORATS VERS LEUR CIBLE. Volontairement bas :
- * c'est lui qui décide si l'opinion des autres est un acquis de naissance ou
- * une accumulation de vos actes. Balayé sur cent cinquante carrières :
- *
- *   rappel   étendue des six   popularité   victoires
- *    0,08         25,5            37,7         27 %
- *    0,04         28,6            34,2         17 %
- *    0,02         30,4            31,9         11 %
- *
- * 0,04 donne trois points d'étendue de plus que 0,08 et ramène le taux de
- * victoire présidentielle sur sa référence historique, dix-sept pour cent,
- * sans qu'on ait à toucher au coefficient de conversion. La popularité
- * d'ensemble baisse à trente-quatre : c'est sans importance depuis que les
- * élections lisent les six électorats et non plus la moyenne.
- */
-const OTHERS_PULL = 0.02;
 
 /**
  * LE NIVEAU NATUREL DE CHAQUE ÉLECTORAT.
@@ -1115,34 +906,7 @@ function generalPopularity(s) {
   return total ? somme / total : s.popularity;
 }
 
-/**
- * TOUS LES ÉLECTORATS NE COMPTENT PAS PAREIL POUR VOUS.
- *
- * La note affichée était la moyenne des six, pondérée par la TAILLE de chaque
- * électorat et rien d'autre. C'est la bonne façon de mesurer ce que le pays
- * pense de vous ; c'est la mauvaise façon de mesurer ce que vous valez. Un
- * député de la droite identitaire adoré des siens à soixante-dix-sept et
- * refusé des libéraux à vingt-cinq lisait quarante-trois, un nombre dans
- * lequel il ne se reconnaissait pas et qui était surtout composé de gens qui
- * ne voteront jamais pour lui, quoi qu'il fasse.
- *
- * La note pèse donc ce qui vous concerne : LES VÔTRES D'ABORD, et pour les
- * deux tiers — c'est d'eux que viennent les militants, les investitures, les
- * primaires et le socle des voix. Les autres ensuite, à proportion de ce
- * qu'ils pèsent dans le pays ET de ce qui les sépare de vous : le camp voisin
- * est celui qu'on peut convaincre, celui d'en face est un décor.
- *
- * ATTENTION : cette pondération ne sert QU'À LA NOTE. Les élections ne
- * l'utilisent pas — un bulletin ne pèse pas plus parce qu'il vient d'un camp
- * ami, et electionAppeal() continue de doser base et général à la taille (voir
- * nationalPopularity, qui garde l'ancienne lecture pour tout ce qui se compare
- * au pays ou aux rivaux).
- */
-const POPULARITY_FOCUS = 0.66;
 
-/* De combien l'attention retombe avec la distance idéologique. À 3, le camp
-   voisin pèse environ huit fois celui d'en face, à taille égale. */
-const REACH_FALLOFF = 3;
 
 function reachWeights(s) {
   const poids = {};
@@ -1239,15 +1003,6 @@ function bumpAppeal(s, key, delta) {
  * choix clivant rapporte donc moins en agrégat qu'un choix consensuel de même
  * ampleur, et c'est exactement l'arbitrage qu'on cherche à créer.
  */
-/*
- * Où passe la ligne entre ceux que le geste rapproche et ceux qu'il éloigne.
- * Elle était à 0,42, c'est-à-dire en dessous de toutes les affinités que
- * produisent les six partis du jeu : une position très à gauche faisait
- * gagner un point à l'électorat identitaire, ce qui est le contraire de ce
- * qu'on voulait écrire. Les distances réelles entre camps vont de 0,10 à
- * 0,55, donc les affinités de 0,45 à 0,90 : la ligne passe au milieu.
- */
-const AXIS_NEUTRAL = 0.68;
 
 /**
  * « DONNER À LA BASE CE QU'ELLE ATTEND » N'A PAS DE COORDONNÉES FIXES.
@@ -1394,24 +1149,8 @@ function anyRival(state) {
    campagne, avec un sondage affiché qui bouge à chaque décision.
    ========================================================================== */
 
-const CAMPAIGN_STEPS = 6;
 
-/** Les temps de l'entre-deux-tours : deux scènes, puis le débat. */
-const RUNOFF_STEPS = 3;
 
-/**
- * Ce qu'un point d'effet vaut dans un second tour. Moins qu'au premier, et
- * c'est tout le sujet : à ce stade il ne reste plus d'électeurs neufs, rien
- * que des gens qui ont déjà voté pour quelqu'un d'autre. Un débat gagné vaut
- * deux ou trois points, pas dix, et deux ou trois points suffisent.
- *
- * Le premier réglage valait 0,55, et trois temps d'entre-deux-tours joués
- * sans risque rendaient cinq points : on renversait un 47-53 en choisissant
- * systématiquement l'option prudente, ce qui vide la séquence de son sens.
- * À 0,40, la campagne pèse ce qu'elle doit peser : elle décide un second
- * tour serré et n'en sauve aucun qui était perdu.
- */
-const RUNOFF_WEIGHT = 0.40;
 
 /**
  * Déplace la part du joueur dans le sondage et redistribue le reste.
@@ -1606,40 +1345,7 @@ function payEnergy(s, cost) {
    cartes.
    ========================================================================== */
 
-/*
- * OÙ LA CRÉDIBILITÉ EST LUE, pour qui voudra la régler à la main. Neuf
- * endroits, et rien d'autre :
- *
- *   js/data.js        BASE_STATS.credibilite       le niveau de départ
- *                     STAT_MODIFIERS               origine et parcours
- *   js/game-data.js   standingTarget()             × 1.1   l'appareil
- *                     popularityTarget()           × 0.35  le pays
- *                     rejectionRate()              × 0.014 le second tour
- *   js/game.js        electionBase() législatives  × 0.7
- *                     electionBase() congrès       × 0.9
- *                     playerPull()                 ÷ 42    le premier tour
- *                     figurePull()                 ÷ 24    celle des rivaux
- *                     makeFigure()                 la stature des rivaux
- *
- * Plus la table ci-dessous, qui fait l'essentiel du travail : c'est elle qui
- * décide de la stature qu'une carrière atteint sans rien faire de spécial,
- * et credibilityTarget() juste en dessous, qui y ajoute la direction du parti.
- */
-const CREDIBILITY_BY_OFFICE = {
-  militant: 3, cadre: 6, conseiller: 6, maire: 10,
-  euro: 8, depute: 12, ministre: 16, chef: 15, premier: 19,
-};
 
-/**
- * CE QUE LA DIRECTION DU PARTI VAUT EN STATURE. Elle vaut à elle seule ce
- * qu'elle valait quand elle était une marche de l'échelle : quinze. On ne
- * l'additionne pas à la fonction — un député qui prend son parti ne devient
- * pas plus présidentiable qu'un chef de parti ordinaire — on prend le plus
- * haut des deux. Au-dessus, seuls un ministère ou Matignon ajoutent quelque
- * chose, parce que c'est là qu'on est vu en train de gouverner.
- */
-const CREDIBILITY_LEAD = 15;
-const CREDIBILITY_LEAD_BONUS = 3;
 
 function credibilityTarget(s) {
   const office = CREDIBILITY_BY_OFFICE[s.position];
@@ -1649,8 +1355,6 @@ function credibilityTarget(s) {
     (office > CREDIBILITY_LEAD ? CREDIBILITY_LEAD_BONUS : 0);
 }
 
-/** Marge au-dessus de la fonction qu'on peut tenir grâce à ses seuls choix. */
-const CREDIBILITY_OVERSHOOT = 4;
 
 function credibilityDrift(s) {
   if (s.turn % (TURNS_PER_YEAR * 2) !== 0) return;
@@ -2653,14 +2357,16 @@ function availableChoices(ev, s) {
 
 /**
  * Ce qu'un choix coûte en énergie, au pire. Un jet coûte ce que coûte sa
- * branche la plus chère : on choisit avant de savoir laquelle sortira.
+ * branche la plus chère : on choisit avant de savoir laquelle sortira, et
+ * une débâcle coûte plus qu'un échec ordinaire.
  */
 function energyCost(choice) {
   const cout = (branche) => {
     const e = branche && branche.effects && branche.effects.energie;
     return e < 0 ? -e : 0;
   };
-  return Math.max(cout(choice), cout(choice.success), cout(choice.failure));
+  return Math.max(cout(choice), cout(choice.success), cout(choice.failure),
+    cout(choice.triumph), cout(choice.debacle));
 }
 
 /* ---------- Jets de dés ---------- */
@@ -2760,6 +2466,61 @@ function rollSucceeds(roll, s) {
   return rollScore(roll, s) >= rollTarget(roll);
 }
 
+/* ---------- Coups critiques et débâcles ----------
+   ==========================================================================
+   Le premier jet dit le SORT : ça passe ou ça casse. Un second, tiré
+   ensuite, dit la SÉVÉRITÉ : on peut réussir et on peut réussir fort, rater
+   et sombrer. Il n'a lieu que si la scène a écrit la branche extrême ; une
+   partie sans contenu critique consomme exactement l'aléa d'avant.
+
+   CE QUI LE PILOTE, c'est la valeur des attributs que le jet met déjà en
+   jeu. On ne les redemande pas à l'auteur : « les attributs impliqués dans
+   la scène », le jet les a nommés. La compétence transforme donc ses
+   réussites et limite ses dégâts, l'incompétence fait l'inverse.
+
+   PAS DE RÉGLAGE PAR ÉVÉNEMENT. Une constante pour tout le jeu, et c'est
+   tout : un curseur par choix rendrait chaque scène à équilibrer à la main,
+   ce qui est précisément ce qu'on ne veut pas.
+   ========================================================================== */
+
+
+/**
+ * La qualité du personnage sur les attributs du jet, ramenée entre 0 et 1 :
+ * la statistique principale à poids 1, puis les appoints à leur poids.
+ *
+ * L'argent d'un « plus » est ignoré : il aide à réussir, il ne dit rien de
+ * ce dont on est capable. La fatigue non plus n'entre pas ici — elle fait
+ * rater, elle ne rend pas maladroit (voir fatigueMalus).
+ *
+ * Un jet à probabilité fixe ne nomme aucun attribut : sa sévérité est un
+ * pur coup de dé, et c'est honnête. Pour qu'une scène ait un critique piloté
+ * par le personnage, il faut l'écrire en score composite.
+ */
+function rollQuality(roll, s) {
+  let somme = 0;
+  let poids = 0;
+  const ajoute = (valeur, part) => { somme += valeur * part; poids += part; };
+
+  if (roll.stat) ajoute(s.stats[roll.stat] / STAT_MAX, 1);
+
+  if (roll.plus) {
+    Object.entries(roll.plus).forEach(([key, weight]) => {
+      if (key === "popularity") ajoute(nationalPopularity(s) / 100, weight);
+      else if (key === "standing") ajoute(s.standing / 100, weight);
+      else if (STAT_KEYS.includes(key)) ajoute(s.stats[key] / STAT_MAX, weight);
+    });
+  }
+
+  if (!poids) return 0.5;
+  return Math.max(0, Math.min(1, somme / poids));
+}
+
+/** La probabilité que le sort déjà connu bascule dans son extrême. */
+function critChance(roll, s, won) {
+  const q = rollQuality(roll, s);
+  return CRIT_MAX * (won ? q : 1 - q);
+}
+
 /**
  * Regroupe les variations d'une même chose, pour n'afficher qu'une pastille
  * par statistique même quand plusieurs blocs d'effets s'additionnent.
@@ -2790,13 +2551,24 @@ function mergeChanges(changes) {
  * d'être décoratif.
  */
 function resolveChoice(choice, s) {
-  const branch = !choice.roll
-    ? choice
-    : (rollSucceeds(choice.roll, s) ? choice.success : choice.failure);
+  let won = null;
+  let branch = choice;
+
+  if (choice.roll) {
+    won = rollSucceeds(choice.roll, s);
+    branch = won ? choice.success : choice.failure;
+
+    // LA SÉVÉRITÉ, une fois le sort connu. Le second tirage n'a lieu que si
+    // la scène a quelque chose à dire de plus : sans branche extrême écrite,
+    // pas de tirage du tout.
+    const extreme = won ? choice.triumph : choice.debacle;
+    if (extreme && Math.random() < critChance(choice.roll, s, won)) branch = extreme;
+  }
 
   // Seul un pari perdu s'amortit. Un choix sûr assumé n'a rien à amortir :
-  // on savait ce qu'on faisait.
-  const soften = choice.roll && branch === choice.failure ? investNerve(s) : 0;
+  // on savait ce qu'on faisait. C'est le SORT qui commande, pas la branche :
+  // une débâcle est un échec, et c'est même là que l'amorti compte le plus.
+  const soften = won === false ? investNerve(s) : 0;
 
   let changes = applyEffects(branch.effects, s, soften);
 
@@ -2810,7 +2582,7 @@ function resolveChoice(choice, s) {
     text: fillText(branch.result, s),
     log: fillBoth(branch.result, s),
     changes: mergeChanges(changes),
-    won: choice.roll ? branch === choice.success : null,
+    won,
   };
 }
 
@@ -2832,12 +2604,7 @@ function markSeen(ev, s) {
    conséquence à la décision, et c'est exactement ce qu'on cherche.
    ========================================================================== */
 
-/** Délai par défaut quand un maillon n'en déclare pas : de six mois à un an. */
-const DEFAULT_CHAIN_DELAY = [2, 4];
 
-/** Au-delà (sept ans), une suite dont les conditions ne sont jamais réunies
-    est oubliée. */
-const CHAIN_PATIENCE = 28;
 
 function pendingChains(s) {
   return s.pending || (s.pending = []);
@@ -2918,8 +2685,6 @@ function applyTraitTurn(s) {
    enquête qu'on ne passe pas toujours.
    ========================================================================== */
 
-/** Ce qu'une carrière d'élu explique sans faire sourire personne. */
-const WEALTH_EXPLAINABLE = 400000;
 
 /**
  * Probabilité PAR AN qu'on regarde vos comptes de près. wealthAttention() la
@@ -2963,20 +2728,12 @@ function wealthAttention(s) {
    et perd le second, ce qui est exactement ce qui doit pouvoir arriver.
    ========================================================================== */
 
-/** Positionnement du camp au pouvoir, qui n'a pas de parti dans le jeu. */
-const NEUTRAL_AXES = { social: 5, world: -15, economy: 25, power: 5 };
 
 function partyAxes(key) {
   return key && PARTIES[key] ? PARTIES[key].axes : NEUTRAL_AXES;
 }
 
 /** Distance idéologique entre deux partis, de 0 (identiques) à 1 (opposés). */
-/**
- * En dessous de cette distance, deux partis sont voisins : ils peuvent se
- * détester en public et avoir besoin l'un de l'autre en privé. Calé pour que
- * chaque camp ait un ou deux voisins, jamais quatre.
- */
-const NEIGHBOUR_DISTANCE = 0.26;
 
 function ideologicalDistance(a, b) {
   const A = partyAxes(a);

@@ -17,10 +17,11 @@ what the rules are, and how to add content without touching engine code.
 - **No build, no server, no dependencies.** Pure HTML/CSS/vanilla JS. You open
   `index.html` by double-clicking it. That single constraint explains almost every
   design decision (e.g. why data files are `.js` and not `.json`).
-- **Data is separated from logic.** Content lives in `*.data.js` files as strict
-  JSON-shaped objects. The rules that *read* that content live in a few calculation
-  files. The engine is isolated in `game.js`; everything that produces HTML lives in
-  `js/game/render/`; and each **set piece** of the game — a presidential campaign, an
+- **Data is separated from logic, and numbers from both.** Content lives in `*.data.js`
+  files as strict JSON-shaped objects; every balancing knob lives in
+  [balance.js](../js/balance.js) and nowhere else. The rules that *read* both live in a
+  few calculation files. The engine is isolated in `game.js`; everything that produces
+  HTML lives in `js/game/render/`; and each **set piece** of the game — a presidential campaign, an
   ordinary race, a primary, a refused nomination — owns a file in `js/game/modes/`
   that registers itself with the engine.
 - **Adding content requires no code.** New events, traits, parties, endings, names,
@@ -64,9 +65,10 @@ State is handed between pages through `localStorage`, not a router or framework.
 | [js/budget.data.js](../js/budget.data.js) | Salaries, lifestyle, and the adjustable spending tiers |
 | [js/names.data.js](../js/names.data.js) | Name pools for the random name generator |
 
-### Rules / calculation (logic that reads the data; no DOM in `data.js`)
+### Balance & rules (numbers, then the logic that reads them; no DOM in either)
 | File | Contains |
 |------|----------|
+| [js/balance.js](../js/balance.js) | **Every tuning constant in the game** — 107 of them, and nothing else. Scale, pace, gauge drift, opinion spread, election weights, result curves, fatigue, criticals. Loads first, before `data.js`. This is the file you open to rebalance |
 | [js/data.js](../js/data.js) | Shared by creation pages: stats, money, parties, fit, name gen, the draw, the character sheet |
 | [js/game-data.js](../js/game-data.js) | The rules of the loop: ladder, calendar, gauge targets, traits engine, budget engine, event interpreter, elections math, endings resolver |
 

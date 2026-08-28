@@ -18,21 +18,7 @@
  * resolveElectionRun s'en sert aussi.
  */
 
-/** Combien de temps dure une campagne, selon ce qui se joue. */
-const RACE_STEPS = {
-  municipales: 2,
-  congres: 2,
-  europeennes: 2,
-  legislatives: 3,
-};
 
-/**
- * On ne fait pas campagne pour soi quand on brigue un siège de conseiller :
- * on est sur la liste de quelqu'un d'autre, on colle des affiches à son nom
- * et on découvre son propre score le dimanche soir. Un seul temps suffit à
- * raconter ça ; deux en faisaient une campagne personnelle qu'elle n'est pas.
- */
-const RACE_STEPS_BY_TARGET = { conseiller: 1 };
 
 function raceSteps(electionId, target) {
   const cible = target || (game.race && game.race.stake && game.race.stake.target);
@@ -111,37 +97,7 @@ function raceMood() {
    ordinaire, ou l'imprenable qu'on prend pour se faire un nom.
    ========================================================================== */
 
-/** La cote au parti à partir de laquelle on choisit son terrain. */
-const SEAT_CHOICE_STANDING = 55;
 
-/*
- * DEUX NOMBRES PAR TERRAIN, ET LE SECOND EST LE PLUS IMPORTANT.
- *
- * `threshold` déplace la barre. `wind` dit CE QUE LE TERRAIN DOIT AU VENT
- * NATIONAL, et c'est là que se jouait tout le problème : le terrain ne
- * pesait que neuf ou onze points sur une marge que le rapport de force et le
- * dé déplacent de trente. Mesuré sur cent cinquante carrières, un bastion se
- * gagnait cinquante-quatre fois sur cent — un pile ou face — pendant que la
- * carte promettait « gagné d'avance, on vous offre le siège ».
- *
- * Or un bastion n'est pas un siège un peu plus facile : c'est un siège où le
- * rapport de force national ne s'applique pas. C'est même sa définition — il
- * tient quand le camp s'effondre partout ailleurs, et le jeu l'écrit déjà à
- * propos des maires sortants. Il est donc ABRITÉ du vent, et le prix de
- * l'abri est de ne pas profiter des bonnes années non plus.
- *
- * L'imprenable fait l'inverse, et c'est ce qui en fait un pari plutôt qu'une
- * punition : le vent y souffle PLUS FORT qu'ailleurs. Une circonscription
- * qu'on ne gagne jamais est exactement celle qui bascule le jour où le pays
- * bascule. On la perd huit fois sur dix ; les deux autres fois, c'est qu'il
- * se passait quelque chose dans le pays, et le joueur pouvait le lire dans le
- * rapport de force avant de choisir.
- */
-const SEAT_KINDS = {
-  bastion:    { threshold: -4, wind: 0.3 },
-  ordinaire:  { threshold: 0,   wind: 1 },
-  imprenable: { threshold: 4,  wind: 1.6 },
-};
 
 /**
  * Le choix n'est proposé que pour une conquête, sur un scrutin où l'on est
@@ -150,27 +106,6 @@ const SEAT_KINDS = {
  */
 const SEAT_ELECTIONS = ["municipales", "legislatives", "europeennes"];
 
-/**
- * IMPRENABLE VEUT DIRE IMPRENABLE.
- *
- * Le décalage de seuil déplaçait les probabilités, il ne garantissait rien :
- * une imprenable mettait quand même le joueur en tête du premier sondage une
- * fois sur dix — et une fois sur trois quand le camp était haut dans le pays.
- * Un mot qui est vrai neuf fois sur dix n'est pas un mot, c'est une tendance.
- *
- * Or ON CHOISIT LA CIRCONSCRIPTION, PAS LE CANDIDAT. Le secrétaire général ne
- * pose pas un handicap sur quelqu'un : il ouvre un dossier et il en sort une
- * ville qui correspond à l'étiquette. Si le candidat est excellent et le camp
- * haut, il prend simplement une ville plus dure — l'imprenable existe pour
- * tout le monde, il suffit de la chercher un peu plus loin.
- *
- * Le terrain garantit donc une MARGE DE DÉPART, celle que le joueur lit sur le
- * premier sondage : devant dans un bastion, derrière dans une imprenable,
- * toujours. Le décalage de seuil reste par-dessous et continue de faire le
- * gros du travail les mauvaises années ; la garantie ne fait que refuser les
- * cas où l'étiquette aurait menti.
- */
-const SEAT_EDGE = { bastion: 10, imprenable: -14 };
 
 function seatThreshold(electionId, stake, kind) {
   const terrain = SEAT_KINDS[kind] || SEAT_KINDS.ordinaire;

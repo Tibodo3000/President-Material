@@ -25,24 +25,8 @@
    soutenir, et l'un comme l'autre se paie.
    ========================================================================== */
 
-/*
- * Trois tours, soit neuf mois avant le scrutin : c'est l'ordre de grandeur
- * réel (octobre 2011 pour avril 2012, novembre 2016 pour avril 2017), et
- * c'est surtout le seul décalage qui ne tombe sur aucune autre échéance —
- * voir la discipline d'offsets dans ELECTIONS. À deux tours, la primaire
- * mangeait une municipale de temps en temps.
- */
-const PRIMARY_LEAD = 3;
 
 /** La cote au parti en dessous de laquelle on ne concourt même pas. */
-/*
- * Elle était à 42, à la portée de presque toutes les carrières : le joueur
- * disputait trois à quatre présidentielles par partie et finissait par en
- * gagner une. L'Élysée tombait dans plus d'un quart des parties, contre trois
- * pour cent avant que la primaire n'existe. Une candidature à la présidence
- * doit rester le sommet d'une carrière, pas un rendez-vous quinquennal.
- */
-const PRIMARY_FLOOR = 58;
 
 /*
  * COMBIEN DE FOIS ON SE PRÉSENTE : AUTANT QUE LE PARTI VOUS PRÉSENTE.

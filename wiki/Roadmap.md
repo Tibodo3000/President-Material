@@ -476,6 +476,157 @@ bénéfice — et c'est bien dans cet ordre que ça s'est fait.
   « The three special modes » de [game-loop.md](game-loop.md), qui décrit déjà ce
   découpage — le code se contentera de rattraper la documentation.
 
+## 10. Les deux fichiers qui restent gros : `game.js` et `game-data.js`
+
+**L'idée.** Après l'idée n°9, deux fichiers dépassent encore les deux mille lignes :
+[`game.js`](../js/game.js) (3 102) et [`game-data.js`](../js/game-data.js) (2 096).
+Cette piste dit **ce qu'il y a dedans, mesuré**, ce qui peut en sortir proprement, et
+— tout aussi utile — **ce qu'il ne faut surtout pas en sortir**.
+
+**D'abord une correction d'échelle.** Ces fichiers ne sont pas ce que leur nombre de
+lignes laisse croire :
+
+| | total | code | commentaires | vides |
+|---|---|---|---|---|
+| `game.js` | 3 102 | **1 524** (49 %) | 1 211 (**39 %**) | 367 |
+| `game-data.js` | 2 096 | **902** (43 %) | 932 (**44 %**) | 262 |
+
+C'est la convention maison — « chaque règle est commentée avec sa *raison* » — et elle
+est tenue partout. Aucune fonction n'est monstrueuse côté `game.js` : la plus grosse
+fait 61 lignes de code (`newGame`), puis `advanceTurn` 56. Le problème n'est donc pas
+la complexité locale, c'est **le nombre de responsabilités par fichier**.
+
+---
+
+### A. `game.js` — le moteur
+
+**Ce que dit le graphe d'appels.** Le découpage n'a pas été choisi à l'esthétique : on
+a compté, pour chaque groupe de sections, les appels qui restent chez lui et ceux qui
+en sortent.
+
+| groupe | code | appels internes | sortants | cohésion |
+|---|---|---|---|---|
+| **le pays** (paysage, cote, Assemblée) | 259 | **32** | 5 | **6,4** |
+| la carrière (calendrier, seuils) | 219 | 13 | 7 | 1,9 |
+| le tour de jeu | 194 | 13 | 13 | 1,0 |
+| les figures (rivaux, défections) | 266 | 10 | 19 | 0,5 |
+| la résolution des scrutins | 198 | 4 | **18** | 0,2 |
+
+Trois conclusions, et elles ne se devinaient pas :
+
+1. **« Le pays » est un vrai module** — 32 appels chez lui contre 5 dehors. Il modélise
+   le pays indépendamment de la carrière du joueur.
+2. **« La résolution des scrutins » n'est pas un module** : 12 de ses 18 appels sortants
+   vont vers « la carrière ». Les séparer serait une erreur ; c'est une seule chose.
+3. **Le tour de jeu est à 1:1, et doit le rester.** Son travail *est* d'appeler tout le
+   monde. Un orchestrateur faiblement couplé serait un orchestrateur cassé.
+
+Autre mesure utile : **53 des 102 fonctions ne sont jamais appelées depuis `modes/` ni
+`render/`** (724 lignes de code). C'est la surface réellement extractible ; les 49
+autres forment l'interface publique du moteur.
+
+**Les axes, par rapport bénéfice / risque.**
+
+| # | Module | Contenu | ≈ lignes | Pourquoi |
+|---|---|---|---|---|
+| A1 | `js/game/pays.js` | paysage, dérive, éditorial, cote du gouvernement, les 577 sièges, coalition, majorité, censure | 630 | cohésion 6,4, surface publique étroite — **à faire en premier** |
+| A2 | `js/game/migrations.js` | le bloc `if (saved) {…}` de `init()` : 29 rétro-compatibilités et leurs commentaires | 103 | de l'archéologie, pas du moteur ; **sans risque** |
+| A3 | le journal | `addLog`, `fillMarks`, `logText` | 40 | appelés **26 fois** de l'extérieur depuis le milieu de « Tour de jeu » : tout module qui écrit une ligne dépend nominalement du tour |
+| A4 | `js/game/figures.js` | rivaux, gouvernement, mise en scène, défections, alliances | 483 | cohésion faible (0,5) mais unité conceptuelle forte et surface publique minuscule |
+| A5 | `js/game/carriere.js` + `urnes.js` | le calendrier et l'échelle des fonctions ; puis les maths d'un scrutin et ce que vaut un résultat | 320 + 670 | le plus lourd, la plus grosse surface publique (`playerStake` : 8 appels) — **en dernier** |
+| A6 | `MODES.event` | faire de la carte ordinaire un mode comme les autres | 50 | `renderCard()` devient un aiguillage pur, sans dernier cas particulier |
+
+Tout fait, `game.js` tomberait à **~880 lignes dont ~430 de code** : l'état et
+`newGame`, le tour de jeu, les deux aiguillages, le démarrage. Là, c'est un moteur.
+
+**Ce qu'il ne faut pas sortir** : `advanceTurn`, `enterElection`, `renderCard`,
+`handleClick`, `newGame`. Ils touchent à tout parce que c'est leur métier ; les
+déplacer rendrait le point d'entrée introuvable.
+
+---
+
+### B. `game-data.js` — les règles et l'interprète
+
+Même mesure, et elle est plus tranchée : deux groupes sont presque parfaitement isolés,
+un troisième est énorme.
+
+| groupe | code | internes | sortants | cohésion |
+|---|---|---|---|---|
+| **les traits** | 83 | 18 | **1** | **18,0** |
+| **le budget** | 72 | 16 | **1** | **16,0** |
+| **l'interprète d'événements** | 377 | 22 | 22 | 1,0 |
+| les axes idéologiques + second tour | 63 | 3 | 2 | 1,5 |
+| le vocabulaire partagé (`bump`, `statScore`, `pay`, `randInt`) | 24 | 1 | 3 | 0,3 — mais **65 appels externes** |
+
+| # | Module | Contenu | ≈ lignes |
+|---|---|---|---|
+| B1 | `js/game/traits.js` | le moteur des traits : ajout, retrait, écarts (`strikes`), effets sur les jauges | 166 |
+| B2 | `js/game/argent.js` | investissements, revenus, dépenses, `applyBudget` (nom distinct de `render/budget.js`, qui dessine) | 156 |
+| B3 | `js/game/interprete.js` | conditions `when`, textes et accord en genre, effets, jets de dés, `resolveChoice`, `markSeen` | 755 |
+
+B1 et B2 sont des extractions mécaniques : chacune n'appelle qu'**une** fois en dehors
+d'elle-même. B3 est le plus gros bloc cohérent du projet — c'est lui qui lit le schéma
+d'événement, et c'est celui que lisent les gens qui écrivent du contenu.
+
+**B4 — le vrai levier, et ce n'est pas un déplacement.** Les deux plus grosses
+fonctions de tout le projet sont des chaînes plates :
+
+- `applyEffects` — **148 lignes de code, 19 branches** `if (key === "popularity")`,
+  `"money"`, `"trait"`, `"landscape"`, `"office"`, `"chain"`…
+- `eventMatches` — **79 lignes, 37 clés** `when` testées à la file (`party`, `position`,
+  `minAge`, `pivot`, `inCoalition`, `maxApproval`…)
+
+Ce sont deux registres qui s'ignorent, exactement comme `renderCard()` et
+`handleClick()` avant l'idée n°9 :
+
+```js
+const EFFETS = {
+  popularity: (s, v) => …,
+  trait:      (s, v) => …,
+  landscape:  (s, v) => …,
+};
+
+const CONDITIONS = {
+  party:  (s, v) => v.includes(s.party),
+  minAge: (s, v) => s.age >= v,
+};
+```
+
+`applyEffects` se réduit alors à sa boucle et à la règle d'amorti ; `eventMatches` à un
+préambule (le `seen`, le `repeatable`) puis un `every`. Chaque effet et chaque condition
+devient une unité nommée, lisible seule, et **testable seule**.
+
+**C'est ce dont les idées n°7 et n°8 ont besoin.** Toutes deux proposent d'ajouter des
+effets (`"dissolution"`, `"reforme"`, `"climate"`) et des conditions
+(`"beforeElection"`, `"climate"`). Avec un registre, c'est une entrée. Sans, c'est une
+branche de plus dans une fonction de cent cinquante lignes que personne ne veut
+toucher. Bénéfice supplémentaire : l'éditeur d'événements (idée n°6) pourrait lire ces
+tables au lieu de redéclarer le vocabulaire de son côté.
+
+---
+
+### Ce qu'il ne faut pas faire, et pourquoi
+
+**Ne pas déplacer les commentaires vers le wiki.** C'est la tentation évidente — 2 143
+lignes de commentaire sur les deux fichiers, on « gagnerait » 41 % sans bouger une
+fonction. Ce serait détruire ce que ce projet a de plus rare : le *pourquoi* est à côté
+du code, pas dans un document qui dérivera dès la première session. À proscrire.
+
+**Ne pas découper au-delà de l'utile.** Sans modules ES, aucune frontière n'est
+imposée : rien n'empêchera `pays.js` d'appeler dans `urnes.js`, et chaque fichier ajoute
+une ligne à tenir dans [game.html](../game.html). Passé six ou sept modules par couche,
+on n'organise plus, on éparpille. Si l'objectif est le confort de navigation, **A1, A2,
+A3 et B4 suffisent** ; le reste ne se fait que si le fichier gêne encore après.
+
+**Ne rien faire sans le harnais.** [`tools/regression.js`](../tools/regression.js) rend
+ces chantiers sûrs — mais il a un angle mort, découvert à l'étape 2 de l'idée n°9 : il
+prouve que le jeu n'a pas changé, **pas que le code a atterri au bon endroit**. Une
+fonction déplacée dans le mauvais fichier passe la trace ET l'inventaire. Il faut donc
+relire ce que chaque fichier contient après extraction. Le contrôle du glossaire
+(chaque symbole cité est-il dans le fichier annoncé ?) est ce qui l'a rattrapé.
+
+---
+
 ---
 
 ## Vue d'ensemble
@@ -491,6 +642,7 @@ bénéfice — et c'est bien dans cet ordre que ça s'est fait.
 | 7 | Calendrier électoral dynamique | Gameplay + modèle de données | Moyen | Oui (échéancier mutable) |
 | 8 | Conjoncture nationale (events majeurs) | Gameplay | Élevé | Oui (couche de modificateurs) |
 | 9 | Éclater `game.js` (moteur / temps forts / rendu) ✅ | Organisation du code | Moyen | Non (refactor pur) |
+| 10 | Réduire `game.js` et `game-data.js` | Organisation du code + registres | Moyen | Non (refactor pur) |
 
 Les trois pistes qui débloquent les autres : **n°5** (des fichiers d'événements
 maniables), **n°9** (un moteur qui accepte un temps fort de plus sans qu'on
@@ -502,3 +654,11 @@ calendrier bousculé par une dissolution rebat les cartes, et le programme se ju
 à l'aune de ce que le pays attend au moment où il vote. Les deux premières
 passent d'ailleurs par le registre de modes de la n°9 : une phase « programme »
 et une pré-campagne sont des temps forts, pas des rustines dans `startCampaign()`.
+
+Et elles passent aussi par **la n°10**, pour la même raison. Les n°7 et n°8 ajoutent
+toutes deux des effets (`dissolution`, `reforme`, `climate`) et des conditions
+(`beforeElection`, `climate`) : avec les registres proposés pour `applyEffects` et
+`eventMatches`, c'est une entrée de table ; sans eux, c'est une branche de plus dans
+une fonction de cent cinquante lignes. **Le schéma se répète à chaque fois :
+l'énumération en dur est le vrai frein, et la remplacer par un registre est ce qui
+débloque la suite.**

@@ -497,6 +497,21 @@ function rollEditor(choice) {
   }
   return h("div", { class: "branch" }, h("div", { class: "bt-title" }, "roll", helpIcon("roll") || ""), seg, body);
 }
+/* LES DEUX EXTRÊMES. Facultatives : une scène n'en écrit une que si elle a
+   quelque chose de plus à dire qu'un succès ou un échec ordinaire. Tant
+   qu'elle est absente, le moteur ne tire même pas le dé de sévérité. */
+function extremeEditor(choice, key, label) {
+  if (!choice[key]) {
+    return h("button", { class: "mini fadd", onclick: struct(() => {
+      choice[key] = { effects: {}, result: { fr: "", en: "" } };
+    }) }, "+ " + label);
+  }
+  return h("div", { class: "branch" },
+    h("div", { class: "bt-title" }, key + " · " + label,
+      h("button", { class: "mini rm", style: "float:right", onclick: struct(() => { delete choice[key]; }) }, "×")),
+    branchEditor(choice[key]));
+}
+
 function choiceEditor(choice, i, choices) {
   if (!choice.label) choice.label = { fr: "", en: "" };
   const hasRoll = !!choice.roll;
@@ -505,7 +520,7 @@ function choiceEditor(choice, i, choices) {
     h("button", { class: "mini", title: "Descendre", onclick: struct(() => { if (i < choices.length - 1)[choices[i + 1], choices[i]] = [choices[i], choices[i + 1]]; }) }, "↓"),
     h("button", { class: "mini rm", onclick: struct(() => { choices.splice(i, 1); }) }, "Supprimer"));
   const toggle = h("div", { class: "seg" },
-    h("button", { class: hasRoll ? "" : "on", onclick: struct(() => { if (hasRoll) { delete choice.roll; delete choice.success; delete choice.failure; choice.result = choice.result || { fr: "", en: "" }; choice.effects = choice.effects || {}; } }) }, "effet certain"),
+    h("button", { class: hasRoll ? "" : "on", onclick: struct(() => { if (hasRoll) { delete choice.roll; delete choice.success; delete choice.failure; delete choice.triumph; delete choice.debacle; choice.result = choice.result || { fr: "", en: "" }; choice.effects = choice.effects || {}; } }) }, "effet certain"),
     h("button", { class: hasRoll ? "on" : "", onclick: struct(() => { if (!hasRoll) { choice.roll = { base: 12, stat: STAT_KEYS[0] }; choice.success = { effects: {}, result: { fr: "", en: "" } }; choice.failure = { effects: {}, result: { fr: "", en: "" } }; delete choice.effects; delete choice.result; } }) }, "jet (roll)"));
   const body = h("div", {}, frow("label", "label", biText(choice.label)), frow("when", "whenChoice", whenEditor(choice, "when")), frow("type", null, toggle));
   if (hasRoll) {
@@ -513,7 +528,9 @@ function choiceEditor(choice, i, choices) {
     if (!choice.failure) choice.failure = { effects: {}, result: { fr: "", en: "" } };
     body.append(rollEditor(choice),
       h("div", { class: "branch" }, h("div", { class: "bt-title" }, "success", helpIcon("effects") || ""), branchEditor(choice.success)),
-      h("div", { class: "branch" }, h("div", { class: "bt-title" }, "failure"), branchEditor(choice.failure)));
+      h("div", { class: "branch" }, h("div", { class: "bt-title" }, "failure"), branchEditor(choice.failure)),
+      extremeEditor(choice, "triumph", "coup critique"),
+      extremeEditor(choice, "debacle", "débâcle"));
   } else body.append(branchEditor(choice));
   return h("div", { class: "card" }, head, body);
 }
@@ -618,7 +635,8 @@ function validateEvent(ev) {
       const r = c.roll;
       if (r.chance === undefined && !STAT_KEYS.includes(r.stat)) out.push(["error", "roll : stat inconnue ou chance manquante (" + at + ")"]);
       if (!c.success || !c.failure) out.push(["error", "roll : success et failure requis (" + at + ")"]);
-      [["success", c.success], ["failure", c.failure]].forEach(([br, b]) => {
+      [["success", c.success], ["failure", c.failure],
+       ["triumph", c.triumph], ["debacle", c.debacle]].forEach(([br, b]) => {
         if (!b) return;
         if (!isText(b.result)) out.push(["error", "result fr/en manquant (" + at + " / " + br + ")"]);
         else if (!filled(b.result)) out.push(["warn", "result vide (" + at + " / " + br + ")"]);
@@ -628,6 +646,8 @@ function validateEvent(ev) {
       (r.bonus || []).forEach((b, j) => checkWhen(b.when, at + ".roll.bonus[" + j + "]", out));
       (r.chanceBonus || []).forEach((b, j) => checkWhen(b.when, at + ".roll.chanceBonus[" + j + "]", out));
     } else {
+      ["triumph", "debacle"].forEach((k) => c[k] && out.push(["error",
+        "branche <code>" + k + "</code> sur un choix sans jet : elle ne jouera jamais (" + at + ")"]));
       if (!isText(c.result)) out.push(["error", "result fr/en manquant (" + at + ")"]);
       else if (!filled(c.result)) out.push(["warn", "result vide (" + at + ")"]);
       checkEffects(c.effects, at, out);
@@ -750,7 +770,8 @@ function renderPreview(obj) {
     const box = h("div", { class: "pv" }, el("div", "lang", lang), el("p", "txt", fillMarks((obj.text && obj.text[lang]) || "", lang)));
     (obj.choices || []).forEach((c) => {
       const ch = h("div", { class: "ch" }, el("div", "lbl", "▸ " + fillMarks((c.label && c.label[lang]) || "", lang)));
-      (c.roll ? [["✓", c.success], ["✗", c.failure]] : [["", c]]).forEach(([mk, b]) => {
+      (c.roll ? [["✓", c.success], ["✗", c.failure], ["✓✓", c.triumph], ["✗✗", c.debacle]]
+        : [["", c]]).forEach(([mk, b]) => {
         if (!b) return;
         const fx = fxSummary(b.effects); if (fx) ch.appendChild(el("div", "fx", mk + " " + fx));
         // La déclinaison ne se lit qu'une fois : elle ne dépend pas de la langue.

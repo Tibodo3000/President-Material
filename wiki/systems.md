@@ -408,6 +408,55 @@ pass. Lawyers reduce both.
 
 ---
 
+## Criticals — the second roll, on severity
+
+The roll decides the **fate**: it passes or it does not. A second draw, taken afterwards,
+can decide the **severity**: you can succeed, and you can succeed loudly. A choice may
+carry two optional branches, `triumph` and `debacle`, alongside `success` and `failure`
+(see [content-authoring.md](content-authoring.md)).
+
+What drives it is **the value of the attributes the roll already puts in play** — the
+author never names them twice. `rollQuality(roll, s)` averages them onto 0–1: the main
+`stat` at weight 1, then each `plus` entry at its own weight, stats over `STAT_MAX`,
+`popularity` and `standing` over 100.
+
+```
+q = Σ(weight × normalised attribute) / Σ(weight)
+success → triumph  with probability CRIT_MAX × q
+failure → debacle  with probability CRIT_MAX × (1 − q)
+```
+
+`CRIT_MAX = 0.15`. Competence therefore turns its successes *and* limits its damage; the
+reverse holds for incompetence. Measured over 20 000 draws on `matinale`:
+
+| stats | `q` | of successes, triumphs | of failures, debacles |
+|---|---|---|---|
+| 4/20 | 0.21 | 3 % | **12 %** |
+| 10/20 | 0.50 | 7.5 % | 7.5 % |
+| 14/20 | 0.70 | 10.5 % | 4.5 % |
+| 18/20 | 0.89 | **13.5 %** | 2 % |
+
+Three deliberate choices:
+
+- **The money in a `plus` is ignored.** It helps you succeed; it says nothing about what
+  you are capable of.
+- **Fatigue does not enter.** It already makes you fail (`fatigueMalus`) — counting it
+  twice would contradict the rule that tiredness makes you *miss*, not fumble.
+- **No per-event knob.** One constant for the whole game: a slider per choice would put
+  every scene back on the balancing table, which is what this design is avoiding.
+
+A fixed-`chance` roll names no attribute, so `q` falls back to 0.5 and severity is a
+plain coin — honest, and stated in the authoring guide.
+
+**The draw only happens if the branch is written.** A scene without `triumph`/`debacle`
+consumes exactly the randomness it consumed before the feature existed, which is what
+lets `tools/regression.js` prove the engine is inert at rest.
+
+An `investNerve` cushion applies to a `debacle` exactly as it does to a `failure` — the
+fate commands, not the branch, and a debacle is where that budget line matters most.
+
+---
+
 ## Chains (delayed follow-ups)
 
 A scandal doesn't break the turn after the facts. An event can `chain: "some_id"` to

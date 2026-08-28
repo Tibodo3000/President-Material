@@ -199,6 +199,17 @@
  *       "success": { "effects": {...}, "result": {...} },
  *       "failure": { "effects": {...}, "result": {...} } }
  *
+ *   COUP CRITIQUE ET DÉBÂCLE — deux branches facultatives, de même forme.
+ *   Un second tirage, après que le sort est connu, peut faire basculer une
+ *   réussite en "triumph" ou un échec en "debacle". Sa probabilité suit la
+ *   valeur des attributs que le jet met déjà en jeu : la compétence
+ *   transforme ses réussites et limite ses dégâts. On ne les écrit que
+ *   lorsqu'on a quelque chose de plus à dire ; sans branche, pas de tirage.
+ *     { "label": {...}, "roll": {...},
+ *       "success": {...}, "failure": {...},
+ *       "triumph": { "effects": {...}, "result": {...} },
+ *       "debacle": { "effects": {...}, "result": {...} } }
+ *
  *   Ou probabilité fixe, ajustable selon la situation :
  *     { "label": {...},
  *       "roll": { "chance": 0.5,
