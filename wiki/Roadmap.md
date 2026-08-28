@@ -480,31 +480,51 @@ bénéfice — et c'est bien dans cet ordre que ça s'est fait.
   « The three special modes » de [game-loop.md](game-loop.md), qui décrit déjà ce
   découpage — le code se contentera de rattraper la documentation.
 
-## 10. Les deux fichiers qui restent gros : `game.js` et `game-data.js`
+## 10. Le fichier qui reste gros : `game.js`
 
 > **ÉTAT — l'axe B est fait, sauf B4. `game-data.js` n'existe plus.** Ses 2 888
-> lignes sont sept modules `js/game/*.js` : `carriere` (581), `corps` (134),
-> `traits` (201), `argent` (294), `opinion` (386), `urnes` (266), `interprete`
-> (1 107). Déplacement pur, vérifié par une trace de 200 carrières identique à
-> l'octet près. **Il reste B4** — les deux registres — et **tout l'axe A**,
-> `game.js`, qui n'a pas bougé. Le détail est dans la section B ci-dessous.
+> lignes sont sept modules `js/game/*.js` :
+>
+> | | total | code | comm. | vides |
+> |---|---|---|---|---|
+> | `carriere.js` | 581 | 185 | 328 | 68 |
+> | `corps.js` | 134 | 38 | 81 | 15 |
+> | `traits.js` | 201 | 94 | 81 | 26 |
+> | `argent.js` | 294 | 109 | 146 | 39 |
+> | `opinion.js` | 386 | 167 | 166 | 53 |
+> | `urnes.js` | 266 | 117 | 108 | 41 |
+> | `interprete.js` | 1 107 | 543 | 443 | 121 |
+> | **total** | **2 969** | **1 253** | **1 353** | **363** |
+>
+> **Les 1 253 lignes de code sont exactement celles de `game-data.js`.** C'est le
+> contrôle qui dit que le découpage n'a rien réécrit : seuls les sept en-têtes se
+> sont ajoutés (+88 lignes de commentaire). Une trace de 200 carrières identique à
+> l'octet près dit la même chose côté comportement.
+>
+> **Il reste B4** — les deux registres, section B ci-dessous — et **tout l'axe A**,
+> `game.js`, qui n'a pas bougé et qui est désormais le seul fichier du dépôt
+> au-dessus de deux mille lignes.
 
-**L'idée.** Après l'idée n°9, deux fichiers dépassent encore les deux mille lignes :
-[`game.js`](../js/game.js) (3 102) et `game-data.js` (2 096, aujourd’hui découpé).
-Cette piste dit **ce qu'il y a dedans, mesuré**, ce qui peut en sortir proprement, et
-— tout aussi utile — **ce qu'il ne faut surtout pas en sortir**.
+**L'idée.** Après l'idée n°9, deux fichiers dépassaient encore les deux mille
+lignes : [`game.js`](../js/game.js) et `game-data.js`. Cette piste dit **ce qu'il y a
+dedans, mesuré**, ce qui peut en sortir proprement, et — tout aussi utile — **ce
+qu'il ne faut surtout pas en sortir**. Le second est découpé (voir l'état ci-dessus),
+le premier attend.
 
 **D'abord une correction d'échelle.** Ces fichiers ne sont pas ce que leur nombre de
 lignes laisse croire :
 
 | | total | code | commentaires | vides |
 |---|---|---|---|---|
-| `game.js` | 3 102 | **1 524** (49 %) | 1 211 (**39 %**) | 367 |
-| `game-data.js` | 2 096 | **902** (43 %) | 932 (**44 %**) | 262 |
+| `game.js` — à l'écriture de cette piste | 3 102 | **1 524** (49 %) | 1 211 (**39 %**) | 367 |
+| `game.js` — aujourd'hui | 3 584 | **1 701** (47 %) | 1 428 (**40 %**) | 455 |
+| `game-data.js` — à l'écriture de cette piste | 2 096 | **902** (43 %) | 932 (**44 %**) | 262 |
+| `game-data.js` — juste avant le découpage | 2 888 | **1 253** (43 %) | 1 265 (**44 %**) | 370 |
 
-*(Mesures d'époque. Au moment du découpage, `game-data.js` était monté à 2 888
-lignes — 1 253 de code, 1 265 de commentaire, 370 vides. Le rapport n'a pas bougé :
-la moitié du fichier était de la prose, et c'est la convention, pas du gras.)*
+*Le rapport n'a jamais bougé, ni d'un fichier à l'autre ni d'une année sur l'autre :
+**environ 45 % de commentaire partout**. Ce qui a bougé, c'est la taille — `game.js` a
+pris 482 lignes depuis que cette piste a été écrite, dont 177 de code, sans que rien
+n'en soit jamais sorti.*
 
 C'est la convention maison — « chaque règle est commentée avec sa *raison* » — et elle
 est tenue partout. Aucune fonction n'est monstrueuse côté `game.js` : la plus grosse
@@ -551,7 +571,9 @@ autres forment l'interface publique du moteur.
 | A5 | `js/game/carriere.js` + `urnes.js` | le calendrier et l'échelle des fonctions ; puis les maths d'un scrutin et ce que vaut un résultat | 320 + 670 | le plus lourd, la plus grosse surface publique (`playerStake` : 8 appels) — **en dernier** |
 | A6 | `MODES.event` | faire de la carte ordinaire un mode comme les autres | 50 | `renderCard()` devient un aiguillage pur, sans dernier cas particulier |
 
-Tout fait, `game.js` tomberait à **~880 lignes dont ~430 de code** : l'état et
+Tout fait, `game.js` tomberait à **~880 lignes dont ~430 de code** — chiffre calculé
+sur les 3 102 lignes d'alors ; il en fait 3 584, donc le reste serait d'autant plus
+gros et l'inventaire des axes A1 à A6 est à refaire avant de s'y mettre. L'état et
 `newGame`, le tour de jeu, les deux aiguillages, le démarrage. Là, c'est un moteur.
 
 **Ce qu'il ne faut pas sortir** : `advanceTurn`, `enterElection`, `renderCard`,
@@ -699,7 +721,7 @@ relire ce que chaque fichier contient après extraction. Le contrôle du glossai
 | 7 | Calendrier électoral dynamique | Gameplay + modèle de données | Moyen | Oui (échéancier mutable) |
 | 8 | Conjoncture nationale (events majeurs) | Gameplay | Élevé | Oui (couche de modificateurs) |
 | 9 | Éclater `game.js` (moteur / temps forts / rendu) ✅ | Organisation du code | Moyen | Non (refactor pur) |
-| 10 | Réduire `game.js` et `game-data.js` (B fait ✅, reste B4 + tout l'axe A) | Organisation du code + registres | Moyen | Non (refactor pur) |
+| 10 | Réduire `game.js` (axe B fait ✅ — `game-data.js` est sept modules ; restent B4 et tout l'axe A) | Organisation du code + registres | Moyen | Non (refactor pur) |
 
 Les trois pistes qui débloquent les autres : **n°5** (des fichiers d'événements
 maniables), **n°9** (un moteur qui accepte un temps fort de plus sans qu'on
