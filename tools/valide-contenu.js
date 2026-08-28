@@ -95,7 +95,8 @@ const APPEAL_TARGETS = ["self", "others", ...PARTIES];
 const FLAGS = new Set(keysFrom("flag_"));
 Object.values(DECKS).flat().forEach((e) => {
   if (!e || !e.choices) return;
-  e.choices.forEach((c) => [c.effects, c.success && c.success.effects, c.failure && c.failure.effects]
+  e.choices.forEach((c) => [c.effects, c.success && c.success.effects, c.failure && c.failure.effects,
+    c.triumph && c.triumph.effects, c.debacle && c.debacle.effects]
     .forEach((fx) => fx && fx.flags && Object.keys(fx.flags).forEach((k) => FLAGS.add(k))));
 });
 /* Ceux que le moteur pose lui-même, hors événements. */
@@ -220,7 +221,14 @@ for (const [deck, list] of Object.entries(DECKS)) {
         });
       };
 
-      if (!c.roll) return branch(c, "certain");
+      // Une branche extrême sans jet ne se déclenchera jamais : elle ne casse
+      // rien, elle ne joue simplement pas. C'est le genre de contenu mort que
+      // ce fichier existe pour attraper.
+      if (!c.roll) {
+        ["triumph", "debacle"].forEach((name) => c[name] &&
+          say(deck, e.id, w + " branche « " + name + " » sur un choix sans jet : elle ne jouera jamais"));
+        return branch(c, "certain");
+      }
 
       if (c.roll.chance === undefined && c.roll.base === undefined && c.roll.difficulty === undefined)
         say(deck, e.id, w + " jet sans seuil ni probabilité");
@@ -233,6 +241,10 @@ for (const [deck, list] of Object.entries(DECKS)) {
         checkWhen(deck, e.id, b.when, w + " bonus"));
       branch(c.success, "success");
       branch(c.failure, "failure");
+      // Les deux extrêmes sont facultatives : on ne les vérifie que si elles
+      // sont là, sinon toute scène ordinaire serait signalée comme incomplète.
+      if (c.triumph) branch(c.triumph, "triumph");
+      if (c.debacle) branch(c.debacle, "debacle");
     });
   });
 }

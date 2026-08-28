@@ -2287,14 +2287,16 @@ function availableChoices(ev, s) {
 
 /**
  * Ce qu'un choix coûte en énergie, au pire. Un jet coûte ce que coûte sa
- * branche la plus chère : on choisit avant de savoir laquelle sortira.
+ * branche la plus chère : on choisit avant de savoir laquelle sortira, et
+ * une débâcle coûte plus qu'un échec ordinaire.
  */
 function energyCost(choice) {
   const cout = (branche) => {
     const e = branche && branche.effects && branche.effects.energie;
     return e < 0 ? -e : 0;
   };
-  return Math.max(cout(choice), cout(choice.success), cout(choice.failure));
+  return Math.max(cout(choice), cout(choice.success), cout(choice.failure),
+    cout(choice.triumph), cout(choice.debacle));
 }
 
 /* ---------- Jets de dés ---------- */
@@ -2394,6 +2396,63 @@ function rollSucceeds(roll, s) {
   return rollScore(roll, s) >= rollTarget(roll);
 }
 
+/* ---------- Coups critiques et débâcles ----------
+   ==========================================================================
+   Le premier jet dit le SORT : ça passe ou ça casse. Un second, tiré
+   ensuite, dit la SÉVÉRITÉ : on peut réussir et on peut réussir fort, rater
+   et sombrer. Il n'a lieu que si la scène a écrit la branche extrême ; une
+   partie sans contenu critique consomme exactement l'aléa d'avant.
+
+   CE QUI LE PILOTE, c'est la valeur des attributs que le jet met déjà en
+   jeu. On ne les redemande pas à l'auteur : « les attributs impliqués dans
+   la scène », le jet les a nommés. La compétence transforme donc ses
+   réussites et limite ses dégâts, l'incompétence fait l'inverse.
+
+   PAS DE RÉGLAGE PAR ÉVÉNEMENT. Une constante pour tout le jeu, et c'est
+   tout : un curseur par choix rendrait chaque scène à équilibrer à la main,
+   ce qui est précisément ce qu'on ne veut pas.
+   ========================================================================== */
+
+/** Part maximale des réussites (ou des échecs) qui bascule dans l'extrême. */
+const CRIT_MAX = 0.15;
+
+/**
+ * La qualité du personnage sur les attributs du jet, ramenée entre 0 et 1 :
+ * la statistique principale à poids 1, puis les appoints à leur poids.
+ *
+ * L'argent d'un « plus » est ignoré : il aide à réussir, il ne dit rien de
+ * ce dont on est capable. La fatigue non plus n'entre pas ici — elle fait
+ * rater, elle ne rend pas maladroit (voir fatigueMalus).
+ *
+ * Un jet à probabilité fixe ne nomme aucun attribut : sa sévérité est un
+ * pur coup de dé, et c'est honnête. Pour qu'une scène ait un critique piloté
+ * par le personnage, il faut l'écrire en score composite.
+ */
+function rollQuality(roll, s) {
+  let somme = 0;
+  let poids = 0;
+  const ajoute = (valeur, part) => { somme += valeur * part; poids += part; };
+
+  if (roll.stat) ajoute(s.stats[roll.stat] / STAT_MAX, 1);
+
+  if (roll.plus) {
+    Object.entries(roll.plus).forEach(([key, weight]) => {
+      if (key === "popularity") ajoute(nationalPopularity(s) / 100, weight);
+      else if (key === "standing") ajoute(s.standing / 100, weight);
+      else if (STAT_KEYS.includes(key)) ajoute(s.stats[key] / STAT_MAX, weight);
+    });
+  }
+
+  if (!poids) return 0.5;
+  return Math.max(0, Math.min(1, somme / poids));
+}
+
+/** La probabilité que le sort déjà connu bascule dans son extrême. */
+function critChance(roll, s, won) {
+  const q = rollQuality(roll, s);
+  return CRIT_MAX * (won ? q : 1 - q);
+}
+
 /**
  * Regroupe les variations d'une même chose, pour n'afficher qu'une pastille
  * par statistique même quand plusieurs blocs d'effets s'additionnent.
@@ -2424,13 +2483,24 @@ function mergeChanges(changes) {
  * d'être décoratif.
  */
 function resolveChoice(choice, s) {
-  const branch = !choice.roll
-    ? choice
-    : (rollSucceeds(choice.roll, s) ? choice.success : choice.failure);
+  let won = null;
+  let branch = choice;
+
+  if (choice.roll) {
+    won = rollSucceeds(choice.roll, s);
+    branch = won ? choice.success : choice.failure;
+
+    // LA SÉVÉRITÉ, une fois le sort connu. Le second tirage n'a lieu que si
+    // la scène a quelque chose à dire de plus : sans branche extrême écrite,
+    // pas de tirage du tout.
+    const extreme = won ? choice.triumph : choice.debacle;
+    if (extreme && Math.random() < critChance(choice.roll, s, won)) branch = extreme;
+  }
 
   // Seul un pari perdu s'amortit. Un choix sûr assumé n'a rien à amortir :
-  // on savait ce qu'on faisait.
-  const soften = choice.roll && branch === choice.failure ? investNerve(s) : 0;
+  // on savait ce qu'on faisait. C'est le SORT qui commande, pas la branche :
+  // une débâcle est un échec, et c'est même là que l'amorti compte le plus.
+  const soften = won === false ? investNerve(s) : 0;
 
   let changes = applyEffects(branch.effects, s, soften);
 
@@ -2444,7 +2514,7 @@ function resolveChoice(choice, s) {
     text: fillText(branch.result, s),
     log: fillBoth(branch.result, s),
     changes: mergeChanges(changes),
-    won: choice.roll ? branch === choice.success : null,
+    won,
   };
 }
 

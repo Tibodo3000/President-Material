@@ -178,6 +178,52 @@ leadership and does not care about the mandate.
 "roll": { "chance": 0.5, "chanceBonus": [ { "when": { "minStanding": 60 }, "value": 0.2 } ] }
 ```
 
+### `triumph` / `debacle` — when a roll goes further than it had to
+
+Two **optional** branches, same shape as `success` and `failure`. Once the roll has said
+whether it passes, a second draw can push a success into a `triumph` or a failure into a
+`debacle`.
+
+```jsonc
+"success": { "effects": {...}, "result": {...} },
+"failure": { "effects": {...}, "result": {...} },
+"triumph": { "effects": {...}, "result": {...} },   // optional
+"debacle": { "effects": {...}, "result": {...} }    // optional
+```
+
+The second draw reads **the attributes the roll already names** — you never declare them
+twice. Competence turns its successes and limits its damage; the reverse for
+incompetence. See *Criticals* in [systems.md](systems.md) for the formula. A roll written
+as a fixed `chance` names no attribute, so its severity is pure luck (7.5 % either way):
+if you want a character-driven critical, write the scene as a composite score.
+
+**Write one only when you have something more to say.** No branch, no draw — a scene
+without them behaves exactly as it always has, down to the random sequence. Do not
+retrofit: aim for the twenty or forty scenes where a catastrophe or a moment is worth
+staging, and leave the rest alone.
+
+**The rule that keeps balancing readable: a critical does not change the nature of the
+effect, it adds a named consequence.** Keep the numbers close to the ordinary branch —
+×1.3, no more — and put the payload in something durable: a `trait`, a `strike`, a
+`chain`, a `flag`. A debacle that costs three more points of popularity is not worth
+writing; one that costs two more *and* opens a case is.
+
+```jsonc
+"failure": { "effects": { "reputation": -1, "popularity": -9, "standing": -4 },
+             "result": {...} },
+"debacle": { "effects": { "reputation": -1, "popularity": -12, "standing": -5,
+                          "strike": "menteur" },                 // ← le vrai contenu
+             "result": {...} }
+```
+
+**The exception is the campaign decks** (`campaign`, `runoff`, `support`, `races`). A
+campaign has no *later* for a chain to land in, so there the extreme is honestly a bigger
+`poll` or `score` swing plus its prose — which is the one thing that still matters when
+the game may end in three scenes.
+
+A `triumph` or a `debacle` on a choice **without a `roll`** never fires.
+`node tools/valide-contenu.js` reports it.
+
 A branch may also carry `effectsIf: [ { "when": {...}, "effects": {...} } ]` — extra
 effects that apply only in some situations (an arrangement passes unnoticed for a
 calculator, ruins someone with an integrity reputation).

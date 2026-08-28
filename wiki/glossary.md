@@ -60,7 +60,9 @@ lives. Filenames link to the file — search the function name inside to land on
 | `fillText`, `fillBoth`, `fillGender`, `fillMarks`, `scenePresentation` | Text placeholder resolution |
 | `applyEffects(effects, s, soften)` | Apply an `effects` block; returns real changes |
 | `availableChoices`, `rollScore`, `rollBase`, `rollChance`, `rollSucceeds` | Choice rolls |
-| `resolveChoice(choice, s)` | Roll → branch → effects → result + log |
+| `rollQuality(roll, s)` | The character on the attributes the roll names, 0–1 |
+| `critChance(roll, s, won)` | Odds the known fate tips into `triumph` / `debacle` |
+| `resolveChoice(choice, s)` | Roll → branch (→ severity) → effects → result + log |
 | `mergeChanges`, `markSeen` | Chip de-duplication; once-tracking |
 | `scheduleChain`, `dueChain`, `CHAIN_PATIENCE` | Delayed follow-ups |
 | `applyTraitTurn`, `wealthAttention`, `wealthRisk`, `WEALTH_EXPLAINABLE` | Per-turn trait/money risk |
