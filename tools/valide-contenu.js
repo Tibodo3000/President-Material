@@ -49,11 +49,11 @@ for (const f of order) {
 }
 const read = (name) => { try { return vm.runInContext(name, ctx); } catch { return undefined; } };
 
-/* GENDER_MARKS vit dans js/game-data.js, que l'on ne charge pas ici : le
+/* GENDER_MARKS vit dans js/game/interprete.js, que l'on ne charge pas ici : le
    moteur entier réclamerait un DOM. On lit donc la table dans le fichier,
    pour que ce contrôle suive le jour où quelqu'un ajoute une marque. */
 function genderMarks() {
-  const src = fs.readFileSync(path.join(ROOT, "js/game-data.js"), "utf8");
+  const src = fs.readFileSync(path.join(ROOT, "js/game/interprete.js"), "utf8");
   const bloc = /const GENDER_MARKS = \{([\s\S]*?)\n\};/.exec(src);
   if (!bloc) return [];
   return [...bloc[1].matchAll(/^\s*([A-Za-z_][A-Za-z0-9_]*):/gm)].map((m) => m[1]);

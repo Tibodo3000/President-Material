@@ -6,7 +6,8 @@
  * décès, puis UNE carte à droite — une élection si le calendrier en prévoit
  * une, sinon un événement tiré au sort. Les rivaux évoluent en arrière-plan.
  *
- * Les règles sont dans js/game-data.js, les chiffres de création dans
+ * Les règles sont dans les sept modules js/game/*.js — carriere, corps,
+ * traits, argent, opinion, urnes, interprete —, les chiffres de création dans
  * js/data.js, et TOUS LES RÉGLAGES D'ÉQUILIBRAGE dans js/balance.js.
  */
 
@@ -147,7 +148,7 @@ function newGame(character) {
     peakPopularity: 0,    // le sommet, pas la fin : l'écran de fin lit les deux
     peakStanding: 0,
     // La direction du parti ne se range pas dans "position" : elle se cumule
-    // avec elle. Voir LA DIRECTION DU PARTI dans js/game-data.js.
+    // avec elle. Voir LA DIRECTION DU PARTI dans js/game/carriere.js.
     partyLead: false,
     peakLead: false,
     flags: {},
@@ -163,7 +164,7 @@ function newGame(character) {
     pending: [],       // suites programmées, avec le tour où elles tombent
     // La vérité de l'opinion vit dans appeal, six électorats ; popularity en
     // est la moyenne pondérée, recalculée par syncPopularity(). Voir
-    // « LA POPULARITÉ N'EST PAS UN NOMBRE, C'EST SIX » dans js/game-data.js.
+    // « LA POPULARITÉ N'EST PAS UN NOMBRE, C'EST SIX » dans js/game/opinion.js.
     appeal: null,
     popularity: 0,
     standing: 0,
@@ -2247,7 +2248,7 @@ function enterElection(electionId) {
    la statistique était bornée, le retrait forcé ne commençait qu'à
    soixante-deux ans, et forcer ne coûtait donc rien à qui avait le temps.
 
-   La dette de fatigue (voir payEnergy dans js/game-data.js) a désormais un
+   La dette de fatigue (voir payEnergy dans js/game/carriere.js) a désormais un
    terme. Passé un certain seuil, et seulement si l'on est encore à sec, le
    corps s'arrête. Il prévient une fois : on a une saison pour lever le pied,
    et lever le pied suffit vraiment, puisque la dette se résorbe dès qu'on a
@@ -2305,7 +2306,7 @@ function wearOut() {
 
    ET LES FINS N'EXISTENT QU'APRÈS. Le retrait forcé et la mort par la santé
    ne sont plus possibles tant que le corps n'a rien dit (voir
-   deathProbability et withdrawalProbability dans js/game-data.js), et leur
+   deathProbability et withdrawalProbability dans js/game/corps.js), et leur
    probabilité monte avec le nombre de signes déjà donnés.
 
    UNE SEULE EXCEPTION, ET ELLE EST VOULUE : l'accident. Il ne prévient

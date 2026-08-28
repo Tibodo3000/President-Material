@@ -292,7 +292,7 @@ const NEUTRAL_AXES = { social: 5, world: -15, economy: 25, power: 5 };
  *
  *   js/data.js        BASE_STATS.credibilite       le niveau de départ
  *                     STAT_MODIFIERS               origine et parcours
- *   js/game-data.js   standingTarget()             × 1.1   l'appareil
+ *   js/game/carriere.js   standingTarget()             × 1.1   l'appareil
  *                     popularityTarget()           × 0.35  le pays
  *                     rejectionRate()              × 0.014 le second tour
  *   js/game.js        electionBase() législatives  × 0.7

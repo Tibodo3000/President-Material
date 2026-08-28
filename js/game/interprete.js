@@ -1,19 +1,30 @@
 /*
- * President Material — données de la boucle de jeu (game.html).
+ * President Material — L'INTERPRÈTE D'ÉVÉNEMENTS.
  *
- * Ce fichier contient les RÈGLES de la boucle : l'échelle de carrière, le
- * calendrier électoral, les deux jauges, la fin de carrière (fatigue,
- * retrait forcé, mortalité) et l'interpréteur d'ÉVÉNEMENTS. Le moteur est
- * dans js/game.js.
+ * Le fichier que lisent les gens qui écrivent du contenu, et c'est pour cela
+ * qu'il reste d'un seul tenant. Il lit le schéma d'un événement de bout en
+ * bout : les conditions d'un "when" qui décident si une scène peut sortir, les
+ * textes et leur accord en genre, les choix effectivement offerts et leur prix
+ * en énergie, le jet de dés qui départage un pari, les effets appliqués puis
+ * mesurés après coup, et les suites qu'un choix programme pour plus tard.
  *
- * LES CHIFFRES QUE CES RÈGLES LISENT SONT DANS js/balance.js, et nulle part
- * ailleurs. Ce fichier dit comment une jauge dérive ; balance.js dit de
- * combien.
+ * CE FICHIER LIT EVENT_DATA AU CHARGEMENT. C'est le seul des sept à avoir une
+ * contrainte d'ordre : il doit venir après js/events/_assemble.data.js.
  *
- * Les textes des événements vivent ici, à côté de leurs effets : un
- * événement est un tout. Chaque texte est un objet { fr, en } lu par L().
+ * GENDER_MARKS EST LU DE L'EXTÉRIEUR. tools/valide-contenu.js va chercher la
+ * table ici, en texte, pour contrôler le contenu sans charger le moteur.
+ * Déplacer la table, c'est repointer l'outil.
+ *
+ * DEUX CHAÎNES PLATES L'OCCUPENT AUX DEUX TIERS : eventMatches, cinquante-
+ * trois clefs "when" testées à la file, et applyEffects, une vingtaine de
+ * branches. Ce sont deux registres qui s'ignorent. Les écrire comme tels est
+ * l'axe B4 de wiki/Roadmap.md, et c'est ce qui permettrait à tools/editor.js
+ * et tools/valide-contenu.js de lire ce vocabulaire au lieu de le redéclarer
+ * chacun de son côté — les trois listes ont déjà divergé de douze entrées.
+ *
+ * Il remonte aussi plus haut que sa couche : applyEffects appelle setOffice,
+ * switchParty, moveShare, ensureGovernment… qui vivent dans js/game.js.
  */
-
 /* ==========================================================================
    Interpréteur d'événements
    ==========================================================================
