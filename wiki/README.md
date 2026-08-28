@@ -70,7 +70,13 @@ State is handed between pages through `localStorage`, not a router or framework.
 |------|----------|
 | [js/balance.js](../js/balance.js) | **Every tuning constant in the game** — 107 of them, and nothing else. Scale, pace, gauge drift, opinion spread, election weights, result curves, fatigue, criticals. Loads first, before `data.js`. This is the file you open to rebalance |
 | [js/data.js](../js/data.js) | Shared by creation pages: stats, money, parties, fit, name gen, the draw, the character sheet |
-| [js/game-data.js](../js/game-data.js) | The rules of the loop: ladder, calendar, gauge targets, traits engine, budget engine, event interpreter, elections math, endings resolver |
+| [js/game/carriere.js](../js/game/carriere.js) | The ladder, the party leadership that cumulates with it, the electoral calendar, the two gauge targets, energy, and the posterity score |
+| [js/game/corps.js](../js/game/corps.js) | Health, decline, the accident, mortality, forced withdrawal. Written per year, converted to turns at the last moment |
+| [js/game/traits.js](../js/game/traits.js) | The traits engine: gains, losses, strikes, what a trait pulls on the gauges, what it rolls each turn |
+| [js/game/argent.js](../js/game/argent.js) | Investments and what they protect, income and expenses, campaign accounts, the wealth that sleeps. Named `argent` so it is never confused with `render/budget.js`, which draws it |
+| [js/game/opinion.js](../js/game/opinion.js) | The six electorates and everything read off them, standing, credibility — plus the shared `bump`, `statScore`, `pay`, `randInt` |
+| [js/game/urnes.js](../js/game/urnes.js) | The polls, the campaign drift, party geometry, and the runoff transfer |
+| [js/game/interprete.js](../js/game/interprete.js) | The event interpreter, whole: `when` conditions, texts and gender agreement, choices and their energy price, dice rolls, effects, follow-ups. The file you read to write content |
 
 ### Engine & controllers
 | File | Contains |

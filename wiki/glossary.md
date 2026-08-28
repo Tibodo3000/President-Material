@@ -29,7 +29,7 @@ lives. Filenames link to the file — search the function name inside to land on
 | `saveCharacter`, `loadCharacter` | `pm-character` persistence |
 | `buildStatRows`, `renderCharacterSheet` | The shared right-hand sheet (DOM) |
 
-## Loop rules & interpreter — [game-data.js](../js/game-data.js)
+## The career — [js/game/carriere.js](../js/game/carriere.js)
 | Symbol | What it does |
 |--------|--------------|
 | `START_AGE`, `LADDER` | Age 30; the office ladder (the party leadership is *not* on it) |
@@ -40,36 +40,73 @@ lives. Filenames link to the file — search the function name inside to land on
 | `DRIFT`, `driftToward`* | Gauge convergence rate (*`driftToward` is in game.js) |
 | `popularityTarget`, `standingTarget` | Stat-derived gauge targets |
 | `NOMINATION_THRESHOLD`, `INCUMBENT_DISCOUNT`, `SEATED_CLAIM`, `nominationNeed` | Standing gates for candidacy, and the two discounts that lower them |
+| `energyCeiling`, `recoverEnergy`, `payEnergy` | The energy ceiling, what a season gives back, and the residual overdraft |
+| `wearOut`, `burnout`, `STRAIN_*`, `BURNOUT_*` | Strain, the `epuise` mark, and the career that stops (game.js) |
+| `careerScore`, `rankFor`, `SCORE_*` | What a finished career is worth, line by line, and the rank it earns |
+| `resolveEnding` | Pick the narrated ending from final state |
+
+## The body — [js/game/corps.js](../js/game/corps.js)
+| Symbol | What it does |
+|--------|--------------|
 | `deathProbability`, `withdrawalProbability` | End-of-career risk by age/health, gated on `bodySpoke` |
+| `bodySpoke`, `declineWeight`, `DECLINE_WEIGHT`* | What has already been said, and what it opens (*the table is in balance.js) |
+| `accidentProbability` | The one exit the body never announces |
 | `declineRate`, `bodyWarning`, `scheduleDecline`, `declineAllowed` | The body's three warnings, on cards (game.js) |
-| `bodySpoke`, `declineWeight`, `DECLINE_WEIGHT` | What has already been said, and what it opens (game-data.js) |
-| `STAT_SCALE`, `statScore` | The 0–20 → 0–10 conversion used by every formula |
-| `bump`, `bumpPop`, `bumpStanding`, `pay` | Bounded mutators (diminishing returns, soften) |
-| `overallPopularity`, `nationalPopularity`, `reachWeights`, `noteTarget` | The two readings of the six electorates: the note the player sees (own camp two-thirds, then by proximity) and the national average everything comparative uses |
+
+## Traits — [js/game/traits.js](../js/game/traits.js)
+| Symbol | What it does |
+|--------|--------------|
 | `traitsOf`, `hasTrait`, `addTrait`, `removeTrait`, `applyTraitStats` | Trait bookkeeping |
 | `addStrike`, `strikesNeeded`, `traitAllowed`, `partyHistory` | The strikes system |
 | `traitTarget`, `traitSoften`, `traitSum` | What worn traits contribute |
+| `applyTraitTurn` | The per-turn roll: hidden income, and the risk a trait carries |
+
+## Money — [js/game/argent.js](../js/game/argent.js)
+| Symbol | What it does |
+|--------|--------------|
 | `investments`, `investSpec`, `setInvestment` | Budget-post state |
 | `annualIncome`, `annualExpenses`, `annualBalance`, `applyBudget` | The semester ledger |
 | `investHold`, `investProtect`, `investNerve` | What spending buys |
-| `energyCeiling`, `recoverEnergy`, `fatigueMalus` | The energy system |
-| `energyCost`, `payEnergy` | What a choice costs, and the residual overdraft |
-| `wearOut`, `burnout`, `STRAIN_*`, `BURNOUT_*` | Strain, the `epuise` mark, and the career that stops (game.js) |
+| `noteCampaignSpend`, `accountsRisk`, `auditCampaignAccounts` | What a campaign cost, and who comes to count it |
+| `wealthAttention`, `wealthRisk`, `WEALTH_EXPLAINABLE` | The wealth that sleeps, and what it eventually asks you to explain |
+
+## Opinion — [js/game/opinion.js](../js/game/opinion.js)
+| Symbol | What it does |
+|--------|--------------|
+| `STAT_SCALE`*, `statScore` | The 0–20 → 0–10 conversion used by every formula (*the constant is in balance.js) |
+| `bump`, `bumpPop`, `bumpStanding`, `pay`, `randInt` | The shared mutators — bounded, with diminishing returns and soften. Called 65 times from the rest of the game |
+| `overallPopularity`, `nationalPopularity`, `reachWeights`, `noteTarget` | The two readings of the six electorates: the note the player sees (own camp two-thirds, then by proximity) and the national average everything comparative uses |
+| `bumpAppeal`, `syncPopularity`, `applyPositionedPopularity` | Moving one electorate, and what it does to the rest |
 | `credibilityDrift`, `credibilityTarget`, `CREDIBILITY_BY_OFFICE`, `CREDIBILITY_LEAD` | Stature from office and from the party leadership |
-| `eventMatches(ev, s)` | Evaluate a `when` block — the core condition engine |
-| `fillText`, `fillBoth`, `fillGender`, `fillMarks`, `scenePresentation` | Text placeholder resolution |
+
+## The ballot boxes — [js/game/urnes.js](../js/game/urnes.js)
+| Symbol | What it does |
+|--------|--------------|
+| `ideologicalDistance`, `NEIGHBOUR_DISTANCE`, `partyAxes` | Party geometry |
+| `rejectionRate`, `runoff` | The second-round math |
+| `shiftPoll`, `driftCampaign`, `CAMPAIGN_STEPS` | Presidential poll movement |
+| `shiftSupport`, `driftSupport`, `shiftRunoff`, `driftRunoff` | The race you are not in, and the duel |
+
+## The event interpreter — [js/game/interprete.js](../js/game/interprete.js)
+
+One file on purpose: it describes an event from end to end, and it is the file people
+read when they write content. Splitting it would mean opening four files to understand
+one card.
+
+| Symbol | What it does |
+|--------|--------------|
+| `eventMatches(ev, s)` | Evaluate a `when` block — the core condition engine, 53 keys |
+| `sceneWeight(ev, s)` | How likely a scene is, and how the situation can change that |
+| `fillText`, `fillBoth`, `fillGender`, `fillMarks`*, `scenePresentation` | Text placeholder resolution (*`fillMarks` is in game.js) |
+| `GENDER_MARKS` | The agreement marks. **Read as text by `tools/valide-contenu.js`** — move the table and you repoint the tool |
 | `applyEffects(effects, s, soften)` | Apply an `effects` block; returns real changes |
-| `availableChoices`, `rollScore`, `rollBase`, `rollChance`, `rollSucceeds` | Choice rolls |
+| `availableChoices`, `energyCost`, `fatigueMalus` | Which choices are actually offered, and what they cost |
+| `rollScore`, `rollBase`, `rollChance`, `rollSucceeds` | Choice rolls |
 | `rollQuality(roll, s)` | The character on the attributes the roll names, 0–1 |
 | `critChance(roll, s, won)` | Odds the known fate tips into `triumph` / `debacle` |
 | `resolveChoice(choice, s)` | Roll → branch (→ severity) → effects → result + log |
 | `mergeChanges`, `markSeen` | Chip de-duplication; once-tracking |
 | `scheduleChain`, `dueChain`, `CHAIN_PATIENCE` | Delayed follow-ups |
-| `applyTraitTurn`, `wealthAttention`, `wealthRisk`, `WEALTH_EXPLAINABLE` | Per-turn trait/money risk |
-| `ideologicalDistance`, `NEIGHBOUR_DISTANCE`, `partyAxes` | Party geometry |
-| `rejectionRate`, `runoff` | The second-round math |
-| `shiftPoll`, `driftCampaign`, `CAMPAIGN_STEPS` | Presidential poll movement |
-| `resolveEnding` | Pick the narrated ending from final state |
 
 ## The engine — [game.js](../js/game.js)
 
@@ -178,9 +215,9 @@ never names them. See *The set pieces* in [architecture.md](architecture.md).
 
 | I want to change… | Go to |
 |-------------------|-------|
-| A number a player sees (salary, cost, threshold) | the relevant `*.data.js`, or the named const in [game-data.js](../js/game-data.js) |
+| A number a player sees (salary, cost, threshold) | [balance.js](../js/balance.js) first — every tuning constant is there — otherwise the relevant `*.data.js` |
 | How hard an election is | `playerStake` thresholds + `electionBase` in [game.js](../js/game.js) |
-| What a stat/gauge is worth | `popularityTarget`/`standingTarget` and `STAT_SCALE` in [game-data.js](../js/game-data.js) |
+| What a stat/gauge is worth | `popularityTarget`/`standingTarget` in [carriere.js](../js/game/carriere.js), `statScore` in [opinion.js](../js/game/opinion.js), `STAT_SCALE` in [balance.js](../js/balance.js) |
 | The turn order | `advanceTurn()` in [game.js](../js/game.js) |
 | A UI string | `translations` in [script.js](../js/script.js) (static) or the content file (prose) |
 | Party colors | `--p-*` vars in [style.css](../css/style.css) |

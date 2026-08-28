@@ -1,8 +1,9 @@
 # Game systems (the rules)
 
-The actual mechanics and how their numbers are calibrated. Most of this lives in
-[game-data.js](../js/game-data.js), with the creation-side numbers in
-[data.js](../js/data.js).
+The actual mechanics and how their numbers are calibrated. Most of this lives in the
+seven rule modules under [js/game/](../js/game/) — `carriere`, `corps`, `traits`,
+`argent`, `opinion`, `urnes`, `interprete` — with every tuning constant in
+[balance.js](../js/balance.js) and the creation-side numbers in [data.js](../js/data.js).
 
 ---
 
@@ -28,7 +29,7 @@ The four external stats are deliberately distinct (see the long note atop
 Stats are stored on a 0–20 scale, but all the game's formulas, election thresholds, and
 event difficulties were calibrated on a 0–10 scale. So they're converted at the point of
 use by `statScore(s, key) = s.stats[key] * STAT_SCALE`, with `STAT_SCALE = 0.58`
-([game-data.js](../js/game-data.js)). The factor is deliberately *not* 0.5: it keeps a
+([balance.js](../js/balance.js); `statScore` itself is in [opinion.js](../js/game/opinion.js)). The factor is deliberately *not* 0.5: it keeps a
 full career from saturating the ceiling while preserving the old point values. **When you
 read a formula, remember most stat references go through `statScore`, not the raw value.**
 
@@ -116,7 +117,7 @@ had none. Once empty, you said yes to everything for free, and the one resource 
 asks you to manage became an unlimited overdraft: zero was the best position in the game,
 which is the exact opposite of what it is meant to say.
 
-`availableChoices()` ([game-data.js](../js/game-data.js)) therefore **removes any choice
+`availableChoices()` ([interprete.js](../js/game/interprete.js)) therefore **removes any choice
 you cannot afford**. The gating cost is `energyCost(choice)` — the *worst* branch of a
 roll, since you choose before you know which one comes out, and a choice must never be able
 to end in an overdraft. A safety net keeps the cheapest option when everything is too
@@ -169,7 +170,7 @@ it is fair.
 | `bodyWarning()` | called once a turn, before the exits. It never ends anything: it schedules a scene |
 | `scheduleDecline()` | picks an unplayed scene of the next stage from [declin.data.js](../js/events/declin.data.js) and schedules it like any chain. `state.decline` rises when the card is actually **drawn** — you are not warned by a scene you never read |
 | `declineAllowed()` | stage 1 is open to anyone (a thirty-five-year-old running on empty gets a scare); stages 2 and 3 need `DECLINE_AGE` (58) **or** strain at rupture |
-| `DECLINE_WEIGHT` `[0, .5, 1.2, 2]` (game-data.js) | what the exits are worth at each stage. Stage 2 is about what the risk was before this arc existed: that is the calibration point |
+| `DECLINE_WEIGHT` `[0, .5, 1.2, 2]` (balance.js) | what the exits are worth at each stage. Stage 2 is about what the risk was before this arc existed: that is the calibration point |
 
 `bodySpoke()` gates both exits. `withdrawalProbability` returns 0 until the body has
 spoken; `deathProbability` keeps only its **accident** term — rare, flat with age, and
@@ -192,7 +193,7 @@ choice rather than a random punishment.
 
 ## Credibility drift — stature comes from office
 
-`credibilityDrift` ([game-data.js](../js/game-data.js)): every 2 years, credibility drifts
+`credibilityDrift` ([opinion.js](../js/game/opinion.js)): every 2 years, credibility drifts
 toward `CREDIBILITY_BY_OFFICE[position]`. It rises to reach your office's level, and
 erodes if you sit well above it — but never all the way back down (`CREDIBILITY_OVERSHOOT`
 = 4 points of earned stature stick). Two terms as a councillor will never make you
@@ -204,7 +205,7 @@ credibility is read, for anyone tuning it by hand.
 ## Traits & strikes
 
 Traits are durable marks (definitions in [traits.data.js](../js/traits.data.js), engine in
-[game-data.js](../js/game-data.js)). Unlike stats, you either have one or you don't.
+[traits.js](../js/game/traits.js)). Unlike stats, you either have one or you don't.
 A trait can modify stats (applied on gain, reclaimed on loss), shift gauge *targets*
 (`target` / party-specific `partyTarget`), change the energy ceiling, add second-round
 `rejection`, soften bad news, produce hidden `income`, carry a per-turn `risk`, `block`
@@ -226,7 +227,7 @@ Families, in sheet display order (`TRAIT_FAMILIES`): `caractere`, `physique`, `t
 
 ## The career ladder & offices
 
-`LADDER` ([game-data.js](../js/game-data.js)):
+`LADDER` ([carriere.js](../js/game/carriere.js)):
 ```
 militant → cadre → conseiller → maire → euro → depute → ministre → premier → (president)
 ```
@@ -283,7 +284,7 @@ a base somewhere.
 career peak remembers it separately in `state.peakLead`. `state.position` keeps holding the
 office, and the two are displayed together on the sheet ("Député · Chef du parti").
 
-What it adds, on top of whatever the office already gives (`game-data.js`):
+What it adds, on top of whatever the office already gives (`carriere.js`):
 
 | | Value | Read by |
 |---|---|---|
