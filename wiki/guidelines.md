@@ -11,7 +11,10 @@ person can still find things.
 
 ## 1. Before you touch anything
 
-**Get back on `main` and pull. Every session, first command, no exceptions.**
+**Get up to date before you write a line. Every session, no exceptions.** Which command
+depends on whether you already have work in progress.
+
+**Starting something new** — get back on `main` and pull:
 
 ```bash
 git checkout main && git pull
@@ -23,7 +26,32 @@ Then branch. `main` is for pulling, not for working:
 git checkout -b what-you-are-doing
 ```
 
-Skipping the pull is how you spend an afternoon fixing a file someone already fixed, or
+**Picking up work you already started** — you have commits, or uncommitted changes, on a
+branch. **Do not go through `main`**: you would only have to come back, and switching
+branches with a dirty tree is how you lose an afternoon's work. Stay where you are and
+replay your commits on top of what has landed since:
+
+```bash
+git pull --rebase
+```
+
+Rebase rather than merge, so your branch keeps reading as a straight line of your own
+commits rather than growing a merge bubble for every sync.
+
+Two things that will bite you here:
+
+- **Rebase refuses on a dirty tree** (`rebase.autoStash` is not set in this repo). Commit
+  or `git stash` first, rebase, then `git stash pop`.
+- **A branch you have never pushed has no upstream**, so `git pull --rebase` stops with
+  *"There is no tracking information for the current branch"*. That is not a failure — it
+  means nothing remote can have moved under you. What you may still want is whatever
+  landed on `main`:
+
+```bash
+git pull --rebase origin main
+```
+
+Skipping all this is how you spend an afternoon fixing a file someone already fixed, or
 rewriting a decision that is already written down somewhere.
 
 **Then read the wiki.** Not all of it — the page that covers what you are about to do:
