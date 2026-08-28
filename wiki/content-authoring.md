@@ -234,7 +234,7 @@ calculator, ruins someone with an integrity reputation).
 "popularity" / "standing"                       // gauge deltas, clamped 0..100
 "axis": { "social": -70, "economy": -40 }       // WHERE the choice stands (see below)
 "axis": "self"                                  // …or simply: where your own camp stands
-"appeal": { "socdem": 6, "conservatives": -4 }  // one electorate at a time, by hand
+"appeal": { "scene": -8, "self": 6 }            // one electorate at a time, by hand
 "money": 80000                                  // euros
 "poll": 5           // presidential campaign only — moves voting intentions
 "score": 4          // ordinary race only — moves the hidden campaign advantage
@@ -255,6 +255,29 @@ calculator, ruins someone with an integrity reputation).
 "join": "scene"                                 // switch parties
 "alliance": "scene"   or   null                 // sign / break a pact
 "end": "conviction"                             // end the game with this type
+```
+
+### Who reacts, not just by how much
+
+Three ways to write an opinion move, and the scene decides which one:
+
+| The scene | Write | Because |
+|---|---|---|
+| has no side — a gaffe, a good broadcast, a scandal, a disaster handled well | `popularity` alone | the country reacts as one, which is what a bare number says |
+| takes a **position** — the economy, order, the nation, Europe | `popularity` + `axis` | the six electorates judge it from where they stand |
+| **targets somebody** — a camp refused, a leader humiliated, a government censured, an ally dropped | `popularity` + `appeal` | the camp you aimed at cannot applaud |
+
+**The third line is the one that gets forgotten, and a bare `popularity` there says the
+opposite of the scene's own text.** A flat gain is spread over all six electorates *and
+tilted towards the ones closest to you* (`APPEAL_TILT`), so "I refused an alliance with the
+hard left" written as `"popularity": 9` warms the hard left most of all. Refusing a pact,
+telling the country what a rival demanded behind closed doors, bringing down a government
+you sat in, crossing the floor: all of them need the camp on the other end named.
+
+```jsonc
+// Runoff: you say on air what the eliminated candidate asked for.
+"effects": { "poll": 5, "popularity": 7, "standing": 8,
+             "appeal": { "scene": -11 } }      // his voters heard it too
 ```
 
 ### Positioning — `axis`, and the sign trap
@@ -288,19 +311,47 @@ the arbitration the split exists to create.
 
 ### Aiming at an electorate rather than a position
 
-`"appeal"` names electorates directly, and takes two keywords so you never have to hardcode
-the player's camp: **`self`** is their own electorate, **`others`** every one but theirs.
+`"appeal"` names electorates directly. **Its targets are the ones `landscape` already
+uses** — there is only one vocabulary to remember:
+
+| Target | Whose opinion moves |
+|---|---|
+| `self` | your own electorate |
+| `scene` | the camp of the figure the card put on stage (`cast`) |
+| `ruling` | the camp that holds the presidency |
+| `ally` | the camp you have a pact with |
+| a party key | that camp, spelled out |
+| `others` | every electorate but yours (`appeal` only — it means nothing for a landscape) |
+
+A target that does not exist in this game (no ally, nobody on stage) does nothing, exactly
+as in `landscape`, and the scene plays anyway.
 
 ```jsonc
 "appeal": { "self": 7, "others": -2 }   // mobilise your base, and nobody else
 "appeal": { "self": -11 }               // only your own voters punish you for this
+"appeal": { "scene": -8 }               // the camp you just went after
+"appeal": { "self": -13, "ruling": 6 }  // you took a job in their government
 ```
 
-Use it for the two cases the axes cannot express. **Corridor scenes** — a federation dinner,
-a signature traded, a committee — which the country never hears about: those belong to `self`
-alone, and a national popularity move there is simply wrong. And **scenes whose own text
-names the camp**: if the label says *"mobilise your base and nobody else"*, the effect had
-better do exactly that.
+**Effects apply in the order they are written**, which matters exactly twice: an `appeal` on
+`ally` goes *before* the `"alliance": null` that breaks the pact, and an `appeal` on `self`
+after a `"join"` means the camp you have just joined (write `scene` instead and the order
+stops mattering).
+
+Use it for the three cases the axes cannot express. **Corridor scenes** — a federation
+dinner, a signature traded, a committee — which the country never hears about: those belong
+to `self` alone, and a national popularity move there is simply wrong. **Scenes whose own
+text names the camp**: if the label says *"mobilise your base and nobody else"*, the effect
+had better do exactly that. And **scenes aimed at somebody**, where the gesture is not
+ideological at all but personal: you humiliated a leader, you refused a hand, you broke a
+word. Nothing in the axes says that; `scene` does.
+
+**Scale.** Five points with one electorate are worth about one point of national average.
+Your own camp is two thirds of the gauge on the sheet (`POPULARITY_FOCUS`), so `self: -8`
+is felt immediately and `scene: -8` mostly shows up on the day it decides a runoff.
+
+`node tools/audit-popularite.js` reads the whole content and lists the choices that gain
+popularity flat while the same effects damage a named camp. It should print nothing.
 
 ### Rolls: the branches may disagree, and usually should
 

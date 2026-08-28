@@ -97,7 +97,7 @@ EFFECT_SPEC.landscape = {t:"nummap",v:LANDSCAPE_TARGETS};
 EFFECT_SPEC.office = {t:"select",v:OFFICE_LIST}; EFFECT_SPEC.join = {t:"select",v:LANDSCAPE_TARGETS};
 EFFECT_SPEC.alliance = {t:"select",v:ALLIANCE_TARGETS}; EFFECT_SPEC.end = {t:"select",v:END_TYPES};
 EFFECT_SPEC.axis = {t:"axis"};
-EFFECT_SPEC.appeal = {t:"nummap",v:["self","others",...PARTY_KEYS]};
+EFFECT_SPEC.appeal = {t:"nummap",v:["self","others","scene","ruling","ally",...PARTY_KEYS]};
 
 const HELP = {
   id:"Identifiant unique (lettres, chiffres, _). Clé pour les chaînes et le suivi « déjà vu ».",
@@ -153,7 +153,7 @@ const FX_HELP = {
   popularity:"Jauge de popularité (0-100).", standing:"Cote au parti (0-100).", money:"Argent (€).",
   poll:"Sondage présidentiel.", score:"Avantage de campagne locale.",
   axis:"Où se situe le choix (−100 à +100). Avec « popularity », le moteur répartit la réaction entre les six électorats.",
-  appeal:"Réaction écrite à la main, électorat par électorat.",
+  appeal:"Réaction écrite à la main, électorat par électorat. Cibles : self, others, scene (le camp de la figure en scène), ruling, ally, ou un parti.",
   approval:"Cote du gouvernement (0-100).", dissolve:"Le président dissout : législatives au tour suivant.",
   lead:"Donne (true) ou retire (false) la direction du parti. Le mandat ne bouge pas.",
 };
@@ -711,6 +711,14 @@ function affinityL(pos, k) {
   return 1 - dec.reduce((s, x) => s + Math.abs(pos[x] - ax[x]), 0) / (dec.length * 200);
 }
 
+/* « scene », « ruling » et « ally » désignent un camp que la partie décide et
+   qu'aucun aperçu ne peut deviner : on le choisit à la main, à côté du sien. */
+function previewTarget(token, moi) {
+  if (token === "self") return moi;
+  if (token === "scene" || token === "ruling" || token === "ally") return previewScene;
+  return PARTY_KEYS.includes(token) ? token : null;
+}
+
 function appealPreview(fx, moi) {
   const out = {};
   PARTY_KEYS.forEach((k) => { out[k] = 0; });
@@ -718,7 +726,7 @@ function appealPreview(fx, moi) {
 
   if (typeof fx.popularity === "number") {
     if (fx.axis !== undefined) {
-      const pos = typeof fx.axis === "string" ? axesOfL(moi) : fx.axis;
+      const pos = typeof fx.axis === "string" ? axesOfL(previewTarget(fx.axis, moi) || moi) : fx.axis;
       PARTY_KEYS.forEach((k) => {
         out[k] += fx.popularity * ((affinityL(pos, k) - AXIS_NEUTRAL_L) / (1 - AXIS_NEUTRAL_L));
       });
@@ -730,9 +738,9 @@ function appealPreview(fx, moi) {
     }
   }
   if (fx.appeal) Object.entries(fx.appeal).forEach(([cible, v]) => {
-    if (cible === "self") out[moi] += v;
-    else if (cible === "others") PARTY_KEYS.forEach((k) => { if (k !== moi) out[k] += v; });
-    else if (out[cible] !== undefined) out[cible] += v;
+    if (cible === "others") return PARTY_KEYS.forEach((k) => { if (k !== moi) out[k] += v; });
+    const k = previewTarget(cible, moi);
+    if (k) out[k] += v;
   });
   return out;
 }
@@ -754,6 +762,8 @@ const el = (tag, cls, text) => { const e = h(tag, { class: cls }); e.textContent
    le filtre partisan en dépendent tous, donc la même scène ne donne pas les
    mêmes six chiffres selon qui la joue. */
 let previewParty = PARTY_KEYS[0];
+/* Et le camp d'en face, celui que « scene », « ruling » et « ally » visent. */
+let previewScene = PARTY_KEYS[PARTY_KEYS.length - 1];
 
 function renderPreview(obj) {
   const host = byId("preview"); host.innerHTML = "";
@@ -762,8 +772,12 @@ function renderPreview(obj) {
   const sel = h("select", { class: "fadd" }, ...PARTY_KEYS.map((k) => opt(k, trFR["party_" + k] || k)));
   sel.value = previewParty;
   sel.onchange = () => { previewParty = sel.value; renderPreview(obj); };
+  const face = h("select", { class: "fadd" }, ...PARTY_KEYS.map((k) => opt(k, trFR["party_" + k] || k)));
+  face.value = previewScene;
+  face.onchange = () => { previewScene = face.value; renderPreview(obj); };
   host.appendChild(h("div", { class: "elec-head" },
     h("span", {}, "Vu depuis le camp"), sel,
+    h("span", {}, "en face"), face,
     h("span", { class: "elec-note" }, "effet plein tarif, hors rendements décroissants")));
 
   ["fr", "en"].forEach((lang) => {

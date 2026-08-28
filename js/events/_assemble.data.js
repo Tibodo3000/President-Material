@@ -240,6 +240,49 @@
  *                         coûte souvent, et c'est là qu'est l'arbitrage :
  *                         le coup d'éclat fait aimer, il ne fait pas sérieux.
  *   jauges       : "popularity", "standing"              (bornées 0-100)
+ *
+ *          QUI RÉAGIT, ET PAS SEULEMENT DE COMBIEN. "popularity" seul veut
+ *          dire « tout le monde pareil », et c'est ce qu'il faut pour la
+ *          plupart des scènes : une gaffe, un plateau réussi, une affaire.
+ *          Mais un geste qui vise un camp ne peut pas plaire à ce camp-là.
+ *          Refuser une alliance à la gauche radicale, humilier le chef du
+ *          camp qui gouverne, censurer son propre gouvernement : écrit en
+ *          popularité nue, cela fait monter la cote CHEZ CEUX QU'ON VIENT
+ *          DE VISER, et la scène dit alors le contraire de son propre texte.
+ *          Trois outils, dans cet ordre :
+ *
+ *          "axis"    le geste a un contenu politique (l'économie, l'ordre,
+ *                    la nation) : voir plus bas, le moteur répartit tout seul.
+ *          "appeal"  le geste vise quelqu'un : { "scene": -8 } dit que
+ *                    l'électorat de la figure mise en scène ne pardonne pas,
+ *                    { "self": -7 } que ce sont les vôtres qui encaissent.
+ *          "popularity" nue : le reste, c'est-à-dire l'immense majorité.
+ *
+ *          La nue et la visée se combinent : "popularity": 7 avec
+ *          "appeal": { "scene": -11 } se lit « le pays approuve, son camp
+ *          à lui ne le lui pardonnera pas », et c'est exactement ce que la
+ *          scène raconte.
+ *
+ *   "axis": { "social": -70, "economy": -40 }            OÙ SE SITUE LE GESTE.
+ *          Le moteur en tire la réaction des six électorats, depuis la
+ *          distance entre cette position et la leur, sur les seuls axes
+ *          déclarés. ATTENTION AU SIGNE : avec "axis", le nombre écrit dans
+ *          "popularity" est ce que gagnent CEUX QUI SONT D'ACCORD, il est
+ *          donc presque toujours positif, et le coût national sort du modèle
+ *          tout seul. "axis": "self" veut dire « là où mon camp se tient »,
+ *          et "ally", "scene", "ruling" ou une clef de parti se lisent de la
+ *          même façon.
+ *
+ *   "appeal": { "self": 7, "others": -2 }                UN ÉLECTORAT VISÉ.
+ *          Les cibles sont celles de "landscape" : "self" (le vôtre),
+ *          "scene" (celui de la figure mise en scène), "ruling", "ally", ou
+ *          une clef de parti, plus "others" qui vaut « tous sauf le mien ».
+ *          Une cible qui n'existe pas dans la partie ne fait rien. Cinq
+ *          points chez soi valent environ un point de moyenne nationale.
+ *          Les effets s'appliquent dans l'ordre où ils sont écrits : un
+ *          "appeal" sur "ally" se met AVANT le "alliance": null qui rompt le
+ *          pacte, sans quoi il ne vise plus personne.
+ *
  *   "money": 80000                                       en euros
  *   "poll": 5                                            campagne uniquement
  *   "flags": { "dirtyMoney": true }                      pose ou retire un drapeau
