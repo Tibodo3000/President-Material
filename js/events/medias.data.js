@@ -65,7 +65,7 @@ const EV_medias = [
       "result": { "fr": "L'orage passe. L'appareil apprécie qu'on sache éteindre un feu.",
                   "en": "The storm passes. The machine likes someone who can put a fire out." } },
     { "label": { "fr": "Assumer sans trembler", "en": "Stand by it" },
-      "effects": { "notoriete": 2, "reputation": -1, "popularity": 6, "standing": -9 },
+      "effects": { "axis": "self", "notoriete": 2, "reputation": -1, "popularity": 7, "standing": -9 },
       "result": { "fr": "La polémique enfle, votre nom circule. Le parti, lui, ne vous remercie pas.",
                   "en": "The row grows and so does your name. The party is not grateful." } },
     { "label": { "fr": "En remettre une couche", "en": "Double down, harder" },

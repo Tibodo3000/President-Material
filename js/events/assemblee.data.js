@@ -247,7 +247,7 @@ const EV_assemblee = [
       "result": { "fr": "Neuf mille amendements et trois nuits blanches par semaine. Vos militants adorent, le pays trouve que cela ressemble à une cour de récréation, et il a raison des deux côtés à la fois.",
                   "en": "Nine thousand amendments and three all-nighters a week. Your members love it, the country thinks it looks like a playground, and the country is right on both counts." } },
     { "label": { "fr": "Voter les textes que vous approuvez, et le dire", "en": "Vote for the bills you agree with, and say so" },
-      "effects": { "reputation": 3, "credibilite": 2, "popularity": 5, "standing": -9, "approval": 4 },
+      "effects": { "reputation": 3, "credibilite": 2, "popularity": 5, "standing": -9, "approval": 4, "appeal": { "self": -6 } },
       "result": { "fr": "Vous votez trois textes du gouvernement en six mois. Le pays appelle cela de la responsabilité, votre parti appelle cela autrement, et la deuxième réunion de groupe dure quatre heures.",
                   "en": "You vote for three government bills in six months. The country calls it responsibility, your party calls it something else, and the second group meeting runs to four hours." } }
   ]
@@ -310,7 +310,7 @@ const EV_assemblee = [
         "result": { "fr": "Réclamer en public ce qu'on n'a pas obtenu en privé, c'est annoncer qu'on n'a pas obtenu. On vous répond par un communiqué de deux lignes qui vous remercie encore.",
                     "en": "Demanding in public what you failed to get in private is announcing that you failed. They answer with a two-line statement thanking you again." } } },
     { "label": { "fr": "Sortir de la coalition, en plein budget", "en": "Walk out of the coalition, mid-budget" },
-      "effects": { "popularity": 8, "standing": -6, "approval": -11, "landscape": { "self": 1.4, "ruling": -1.2 }, "notoriete": 2 },
+      "effects": { "popularity": 8, "standing": -6, "approval": -11, "appeal": { "ruling": -6 }, "landscape": { "self": 1.4, "ruling": -1.2 }, "notoriete": 2 },
       "result": { "fr": "Vous partez au pire moment, ce qui est le seul moment où partir se remarque. Le gouvernement tiendra ou ne tiendra pas ; dans les deux cas, on saura que c'était vous.",
                   "en": "You leave at the worst possible moment, which is the only moment at which leaving is noticed. The government will hold or it will not; either way, everyone will know it was you." } },
     { "label": { "fr": "Continuer, et faire les comptes plus tard", "en": "Carry on, and settle up later" },
@@ -504,7 +504,7 @@ const EV_assemblee = [
       "result": { "fr": "Vingt-deux pour, dix-neuf contre, six abstentions. Vous avez évité la crise et vous avez montré au pays qu'aucune ligne ne sort plus de votre bureau.",
                   "en": "Twenty-two for, nineteen against, six abstentions. You have avoided the crisis and shown the country that no line comes out of your office any more." } },
     { "label": { "fr": "Rompre l'accord sur ce texte, et l'annoncer avant eux", "en": "Break the deal over this bill, and announce it first" },
-      "effects": { "alliance": null, "popularity": 9, "standing": 6, "approval": -12, "credibilite": -2,
+      "effects": { "alliance": null, "popularity": 8, "standing": 6, "approval": -12, "credibilite": -2, "appeal": { "scene": -7 },
                    "landscape": { "self": 1.4, "ruling": -1.4 }, "chain": "alliance_rupture" },
       "result": { "fr": "Vous rompez sur un texte plutôt que sur un poste, ce qui est la seule façon de rompre proprement. Le gouvernement l'apprend par une dépêche, et vos militants vous pardonnent tout le reste.",
                   "en": "You break over a bill rather than over a job, which is the only clean way to break. The government learns of it from a newswire, and your members forgive you everything else." } }
@@ -525,7 +525,7 @@ const EV_assemblee = [
   "choices": [
     { "label": { "fr": "Achever le gouvernement : voter la censure", "en": "Finish the government off: vote the censure" },
       "roll": { "base": 15, "stat": "reseau", "plus": { "eloquence": 0.35, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "dissolve": true, "notoriete": 3, "popularity": 12, "standing": 7, "approval": -12,
+      "success": { "effects": { "dissolve": true, "notoriete": 3, "popularity": 10, "standing": 7, "approval": -12, "appeal": { "scene": -8 },
                                 "landscape": { "self": 1.4 } },
         "result": { "fr": "La motion passe de six voix, dont les vôtres. On vous reprochera d'avoir renversé un gouvernement dont vous étiez ; on vous le reprochera longtemps et cela n'empêchera rien.",
                     "en": "The motion carries by six votes, yours among them. They will accuse you of bringing down a government you belonged to; they will keep saying it for years and it will change nothing." } },
@@ -626,7 +626,7 @@ const EV_assemblee = [
   "choices": [
     { "label": { "fr": "Viser un ministre, avec des pièces", "en": "Go after a minister, with documents" },
       "roll": { "base": 16, "stat": "sangfroid", "plus": { "eloquence": 0.4, "credibilite": 0.35 }, "dice": 16 },
-      "success": { "effects": { "notoriete": 3, "popularity": 11, "credibilite": 3, "approval": -9, "energie": -3,
+      "success": { "effects": { "notoriete": 3, "popularity": 10, "credibilite": 3, "approval": -9, "energie": -3, "appeal": { "ruling": -6 },
                                 "landscape": { "self": 1.2, "ruling": -1 } },
         "result": { "fr": "Deux heures d'audition retransmises en direct et un ministre qui se contredit à la quarante-septième minute. Le rapport ne servira à rien ; les deux heures serviront pendant dix ans.",
                     "en": "Two hours of hearings broadcast live and a minister who contradicts himself in the forty-seventh minute. The report will be useless; the two hours will be useful for a decade." } },
@@ -690,7 +690,7 @@ const EV_assemblee = [
   "choices": [
     { "label": { "fr": "La question qu'on ne peut pas préparer", "en": "The question nobody can prepare for" },
       "roll": { "base": 15, "stat": "eloquence", "plus": { "sangfroid": 0.45, "charisme": 0.3 }, "dice": 16 },
-      "success": { "effects": { "eloquence": 1, "notoriete": 3, "popularity": 10, "approval": -5, "standing": 3 },
+      "success": { "effects": { "eloquence": 1, "notoriete": 3, "popularity": 9, "approval": -5, "standing": 3, "appeal": { "ruling": -5 } },
         "result": { "fr": "Vous posez une question précise sur un chiffre précis et le ministre lit une fiche qui parle d'autre chose. Le silence de quatre secondes qui suit fera le tour des réseaux avant la fin de la séance.",
                     "en": "You ask a precise question about a precise figure and the minister reads out a briefing about something else. The four seconds of silence that follow will be everywhere before the sitting ends." } },
       "failure": { "effects": { "popularity": -5, "credibilite": -2, "notoriete": 1 },
@@ -727,7 +727,7 @@ const EV_assemblee = [
       "result": { "fr": "Vous levez la main et vous regardez ailleurs. Un journaliste local ressortira votre profession de foi dans quatre jours, et vous n'aurez rien à lui répondre qui tienne en une phrase.",
                   "en": "You raise your hand and look elsewhere. A local reporter will dig out your election address within four days, and you will have no answer that fits in one sentence." } },
     { "label": { "fr": "Voter contre, et l'assumer devant le groupe", "en": "Vote against, and own it in front of the group" },
-      "effects": { "reputation": 3, "credibilite": 2, "popularity": 7, "standing": -11, "approval": -5 },
+      "effects": { "reputation": 3, "credibilite": 2, "popularity": 7, "standing": -11, "approval": -5, "appeal": { "self": -6 } },
       "result": { "fr": "Le texte tombe de deux voix et tout le monde sait laquelle a manqué. On ne vous le dira jamais en face et on ne vous investira plus jamais nulle part sans y réfléchir.",
                   "en": "The bill falls by two votes and everybody knows which one was missing. Nobody will ever say it to your face and nobody will ever nominate you anywhere again without thinking twice." } },
     { "label": { "fr": "S'absenter de l'hémicycle ce jour-là", "en": "Be absent from the chamber that day" },
@@ -785,7 +785,7 @@ const EV_assemblee = [
   },
   "choices": [
     { "label": { "fr": "Voter la censure et faire tomber le gouvernement", "en": "Vote the censure and bring the government down" },
-      "effects": { "notoriete": 3, "popularity": 11, "standing": 6, "approval": -12, "dissolve": true,
+      "effects": { "notoriete": 3, "popularity": 10, "standing": 6, "approval": -12, "dissolve": true, "appeal": { "scene": -8 },
                    "landscape": { "self": 1.2, "ruling": -1.2 } },
       "result": { "fr": "Le gouvernement tombe dans la nuit et le président dissout au matin. Vous revoterez dans six semaines, et vous découvrirez alors si le pays vous savait gré de quelque chose.",
                   "en": "The government falls overnight and the president dissolves in the morning. You will vote again in six weeks, and you will find out then whether the country was grateful for anything." } },
@@ -963,7 +963,7 @@ const EV_assemblee = [
 
     { "label": { "fr": "Signer la motion de censure contre votre propre camp", "en": "Sign the censure motion against your own side" },
       "roll": { "base": 18, "stat": "sangfroid", "plus": { "popularity": 0.06 }, "dice": 16 },
-      "success": { "effects": { "popularity": 11, "notoriete": 3, "credibilite": 2, "standing": -14, "approval": -8, "reputation": 1 },
+      "success": { "effects": { "popularity": 10, "notoriete": 3, "credibilite": 2, "standing": -14, "approval": -8, "reputation": 1, "appeal": { "self": -8 } },
         "result": { "fr": "Sept députés de la majorité signent, et vous êtes le premier des sept. La motion tombe à douze voix, le gouvernement survit, et plus personne ne vous demandera jamais de faire de la figuration.",
                     "en": "Seven government members sign, and you are the first of the seven. The motion falls twelve votes short, the government survives, and nobody will ever again ask you to make up the numbers." } },
       "failure": { "effects": { "standing": -18, "popularity": -4, "trait": "traitre", "approval": 3 },

@@ -67,7 +67,7 @@ const EV_institutions = [
   },
   "choices": [
     { "label": { "fr": "Accepter et prévenir votre parti après", "en": "Accept, and tell your party afterwards" },
-      "effects": { "office": "premier", "notoriete": 4, "credibilite": 3, "popularity": 6, "standing": -16, "reputation": -2, "strike": "traitre" },
+      "effects": { "office": "premier", "notoriete": 4, "credibilite": 3, "popularity": 6, "standing": -16, "reputation": -2, "appeal": { "self": -10, "ruling": 6 }, "strike": "traitre" },
       "result": { "fr": "Le pays applaudit le sens de l'État, votre fédération parle de vente à la découpe. Les deux ont raison, et une seule des deux votera pour vous ensuite.",
                   "en": "The country applauds your sense of duty, your own federation calls it a sell-off. Both are right, and only one of them will vote for you afterwards." } },
 
@@ -455,7 +455,7 @@ const EV_institutions = [
       "result": { "fr": "Vous rendez l'argent contre une promesse de nomination et un déplacement présidentiel dans votre ancienne circonscription. Personne n'a rien vu passer.",
                   "en": "You hand back the money in exchange for a promised appointment and a presidential visit to your old constituency. Nothing was visible from outside." } },
     { "label": { "fr": "Faire fuiter les coupes dans la presse", "en": "Leak the cuts to the press" },
-      "effects": { "credibilite": -2, "notoriete": 1, "popularity": 7, "standing": -12, "reputation": -1,
+      "effects": { "credibilite": -2, "notoriete": 1, "popularity": 7, "standing": -12, "reputation": -1, "appeal": { "self": -6 },
                    "landscape": { "ruling": -1.2 } },
       "result": { "fr": "Les chiffres sortent le jeudi, attribués à un proche du dossier. Tout le monde sait que c'est vous, personne ne peut le prouver, et le ministère garde son budget.",
                   "en": "The figures come out on Thursday, sourced to someone close to the file. Everyone knows it was you, nobody can prove it, and the department keeps its budget." } },
@@ -487,7 +487,7 @@ const EV_institutions = [
       "result": { "fr": "Vous êtes bon, ce qui est le pire. La séquence servira d'archive contre vous pendant quinze ans.",
                   "en": "You are good, which is the worst part. The clip will be used against you as archive footage for fifteen years." } },
     { "label": { "fr": "Prendre vos distances en direct", "en": "Distance yourself on air" },
-      "effects": { "popularity": 8, "reputation": 2, "standing": -14, "notoriete": 1, "chain": "position_impopulaire" },
+      "effects": { "popularity": 8, "reputation": 2, "standing": -14, "notoriete": 1, "appeal": { "self": -7 }, "chain": "position_impopulaire" },
       "result": { "fr": "Vous dites que ce n'est pas votre choix. Matignon apprend la nouvelle en même temps que les auditeurs et le fait savoir avant midi.",
                   "en": "You say it was not your choice. The prime minister's office learns about it at the same time as the listeners and lets it be known before noon." } },
     { "label": { "fr": "Annuler et vous faire porter pâle", "en": "Cancel and call in sick" },
@@ -616,7 +616,7 @@ const EV_institutions = [
   },
   "choices": [
     { "label": { "fr": "Partir en publiant tout", "en": "Walk out and publish everything" },
-      "effects": { "office": "none", "popularity": 14, "notoriete": 2, "standing": -16, "reputation": 1,
+      "effects": { "office": "none", "popularity": 12, "notoriete": 2, "standing": -16, "reputation": 1, "appeal": { "ruling": -8 },
                    "landscape": { "self": 2, "ruling": -1.6 } },
       "result": { "fr": "Votre démission occupe trois jours de plateaux et vos notes deux semaines de presse. Vous ne remettrez plus jamais les pieds dans un gouvernement dirigé par ces gens-là.",
                   "en": "Your resignation fills three days of television and your notes two weeks of newsprint. You will never sit in a government run by these people again." } },

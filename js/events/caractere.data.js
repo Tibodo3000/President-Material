@@ -34,7 +34,7 @@ const EV_caractere = [
                   "en": "A colleague does a decent job. What the group notices is that you were not there." } },
     { "label": { "fr": "Monter, et transformer ça en meeting", "en": "Take the floor and turn it into a rally" },
       "when": { "personality": ["provocative"] },
-      "effects": { "notoriete": 3, "popularity": 9, "standing": -8, "energie": -1, "strike": "radical" },
+      "effects": { "axis": "self", "notoriete": 3, "popularity": 10, "standing": -8, "energie": -1, "strike": "radical" },
       "result": { "fr": "Le président de séance vous coupe le micro deux fois. La séquence dépasse le million de vues avant minuit.",
                   "en": "The speaker cuts your microphone twice. The clip passes a million views before midnight." } }
   ]
@@ -489,7 +489,7 @@ const EV_caractere = [
                   "en": "The next line is worse than the last. You exist, and your horizon narrows." } },
     { "label": { "fr": "Retourner l'accusation contre la presse", "en": "Turn the accusation back on the press" },
       "roll": { "base": 16, "stat": "charisme", "plus": { "eloquence": 0.4, "popularity": 0.03 }, "dice": 16 },
-      "success": { "effects": { "notoriete": 2, "popularity": 8, "standing": -3 },
+      "success": { "effects": { "axis": "self", "notoriete": 2, "popularity": 10, "standing": -3 },
         "result": { "fr": "Vous parlez de commentateurs coupés du pays. Une partie du pays approuve bruyamment.",
                     "en": "You talk about commentators cut off from the country. A part of the country loudly agrees." } },
       "failure": { "effects": { "popularity": -8, "reputation": -1, "standing": -4 },
