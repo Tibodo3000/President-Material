@@ -82,7 +82,7 @@ const WHEN_KEYS = new Set(["party", "position", "origin", "background", "persona
   "stat", "flag", "trait", "anyTrait", "notTrait", "ruling", "allied", "partyLead", "minShare", "maxShare", "minCampaignSpend", "yearEnd", "rulingClose",
   "belowPeak", "legal", "comms", "majority", "minApproval", "maxApproval", "inCoalition", "firstGroup", "pivot",
   "minSeats", "maxSeats", "dissolved", "outshinePresident", "foeIncumbent", "foeParty", "foeFar", "minorClose",
-  "election", "race"]);
+  "election", "race", "season"]);
 const FX_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "axis", "appeal", "money", "poll", "score",
   "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "approval", "dissolve",
   "join", "alliance", "end"]);
@@ -111,6 +111,9 @@ function checkWhen(deck, id, w, where) {
   if (!w) return;
   for (const k of Object.keys(w)) {
     if (!WHEN_KEYS.has(k)) { say(deck, id, where + " condition inconnue « " + k + " »"); continue; }
+    if (k === "season") [].concat(w[k]).forEach((x) =>
+      !["printemps", "ete", "automne", "hiver"].includes(x) &&
+      say(deck, id, where + " saison inconnue « " + x + " »"));
     const v = w[k];
     const list = Array.isArray(v) ? v : [v];
     const inVocab = (vocab, what) => list.forEach((x) =>

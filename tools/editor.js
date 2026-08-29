@@ -69,7 +69,7 @@ const WHEN_KEYS = new Set(["party","position","origin","background","personality
   // moteur et manquaient ici : l'éditeur signalait donc « condition inconnue »
   // sur des conditions parfaitement valides.
   "partyLead","majority","inCoalition","firstGroup","pivot","minSeats","maxSeats","outshinePresident","foeIncumbent","foeParty","foeFar",
-  "minApproval","maxApproval","dissolved","belowPeak"]);
+  "minApproval","maxApproval","dissolved","belowPeak","season"]);
 const ALL_IDS = {};
 for (const arr of Object.values(DECKS)) arr.forEach((e) => { ALL_IDS[e.id] = (ALL_IDS[e.id] || 0) + 1; });
 
@@ -86,6 +86,7 @@ const WHEN_SPEC = {
   foeIncumbent:{t:"bool"}, foeFar:{t:"bool"}, foeParty:{t:"multi",v:PARTY_KEYS},
   minSeats:{t:"num"}, maxSeats:{t:"num"}, minApproval:{t:"num"}, maxApproval:{t:"num"},
   dissolved:{t:"bool"}, belowPeak:{t:"bool"},
+  season:{t:"multi",v:["printemps","ete","automne","hiver"]},
 };
 const EFFECT_SPEC = {};
 STAT_KEYS.forEach((s) => EFFECT_SPEC[s] = {t:"num"});
@@ -144,6 +145,7 @@ const WHEN_HELP = {
   minApproval:"Cote du gouvernement min.", maxApproval:"Cote du gouvernement max.",
   dissolved:"Législatives anticipées après dissolution.",
   belowPeak:"La fonction actuelle est sous le sommet atteint.",
+  season:"La saison du tour. Pour ce qui n'arrive qu'à un moment de l'année : une sécheresse, une rentrée.",
 };
 const FX_HELP = {
   trait:"Ajoute un trait (applique ses points).", strike:"Un écart de plus vers une marque à récidive.",
