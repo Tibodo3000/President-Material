@@ -16,9 +16,11 @@
  *
  * CE QU'IL SAIT VOIR. Une seule chose, mais sans faux positif : un gain de
  * popularité nue dans un bloc d'effets qui, par ailleurs, prend des points au
- * paysage d'un camp nommé ("landscape" négatif sur scene, ruling ou ally) ou
- * signe, rompt, ou traverse. Le contenu déclare lui-même qui il vise ; il
- * suffit de vérifier que l'opinion suit.
+ * paysage d'un camp nommé ("landscape" négatif sur scene, ruling ou ally). Le
+ * contenu déclare lui-même qui il vise ; il suffit de vérifier que l'opinion
+ * suit. Signer un pacte, le rompre ou changer de camp ne sont pas comptés :
+ * le moteur s'en charge, et une scène qui l'écrirait en plus compterait deux
+ * fois.
  *
  * CE QU'IL SIGNALE SANS TRANCHER (option --relire). Les scènes où le pays
  * applaudit pendant que l'appareil encaisse : une popularité nue et une grosse
@@ -83,9 +85,15 @@ function blocs(choix) {
 
 const CAMPS = ["scene", "ruling", "ally"];
 const nue = (fx) => fx.popularity !== undefined && fx.axis === undefined && fx.appeal === undefined;
+/* SIGNER, ROMPRE ET TRAVERSER NE SONT PLUS DE LA COMPÉTENCE DU CONTENU : le
+   moteur déplace lui-même les électorats concernés (voir switchParty et
+   setAlliance), et une scène qui l'écrirait en plus compterait deux fois. Ne
+   reste ici que ce que le contenu seul peut savoir : un geste qui prend des
+   points de paysage à un camp nommé. */
 const viseUnCamp = (fx) => {
+  if (fx.alliance !== undefined || fx.join !== undefined) return false;
   const paysage = fx.landscape || {};
-  return CAMPS.some((c) => paysage[c] < 0) || fx.alliance !== undefined || fx.join !== undefined;
+  return CAMPS.some((c) => paysage[c] < 0);
 };
 
 const court = (s, n) => (s || "").replace(/\s+/g, " ").slice(0, n);
@@ -112,7 +120,6 @@ for (const [deck, scenes] of Object.entries(DECKS)) {
         if (fx.popularity > 0 && viseUnCamp(fx)) {
           fautes.push(ou + "\n    popularité nue +" + fx.popularity +
             " dans un geste qui vise un camp : " + JSON.stringify(fx.landscape || {}) +
-            (fx.alliance !== undefined ? " alliance" : "") + (fx.join !== undefined ? " join" : "") +
             "\n    " + dit);
         } else if (RELIRE && fx.popularity >= 5 && fx.standing <= -8) {
           relire.push(ou + "\n    popularité nue +" + fx.popularity + ", cote " + fx.standing +

@@ -770,15 +770,29 @@ function applyEffects(effects, s, soften) {
     }
     if (key === "join") {
       const party = landscapeTarget(s, value);
-      if (party && switchParty(s, party)) changes.push({ kind: "party", key: party });
+      if (!party) return;
+      // Le changement de camp secoue les six électorats (voir switchParty) :
+      // on mesure avant et après, sans quoi la conséquence la plus lourde du
+      // choix ne s'afficherait sur aucune pastille.
+      const avantPop = s.popularity;
+      const avantAppeal = s.appeal ? { ...s.appeal } : null;
+      if (switchParty(s, party)) {
+        changes.push({ kind: "party", key: party });
+        pushAppealChanges(changes, avantAppeal, s, avantPop);
+      }
       return;
     }
     if (key === "alliance") {
       const party = value === null ? null : landscapeTarget(s, value);
       const had = s.alliance ? s.alliance.party : null;
       if (party === had) return;
+      // Signer ou rompre déplace deux électorats (voir setAlliance) : on
+      // mesure autour, pour que la carte le montre comme le reste.
+      const avantPop = s.popularity;
+      const avantAppeal = s.appeal ? { ...s.appeal } : null;
       setAlliance(s, party);
       changes.push({ kind: "alliance", key: party || had, on: Boolean(party) });
+      pushAppealChanges(changes, avantAppeal, s, avantPop);
       return;
     }
     if (key === "chain") {

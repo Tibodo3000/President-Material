@@ -336,6 +336,50 @@ const CREDIBILITY_OVERSHOOT = 4;
 const LANDSCAPE_FLOOR = 1.5;
 
 /* --------------------------------------------------------------------------
+   CE QUE COÛTE UNE TRAHISON, LE JOUR MÊME
+   --------------------------------------------------------------------------
+   Changer de camp ne touchait pas un seul électorat. La cote au parti
+   s'écroulait, le trait de renégat tombait, le paysage se déplaçait, et les
+   gens qui votaient pour vous la veille continuaient de vous aimer autant.
+   C'est pourtant le geste que l'électorat pardonne le moins, et c'est celui
+   qu'il voit le mieux : il ne demande aucune explication et ne souffre aucune
+   nuance.
+
+   La dérive ne suffisait pas à le dire. Elle ramène chaque électorat vers une
+   cible calculée depuis le NOUVEAU parti, donc elle finit par y arriver, mais
+   au rythme d'une jauge : le camp qu'on venait de quitter mettait des années
+   à s'apercevoir qu'on était parti.
+   -------------------------------------------------------------------------- */
+
+/** Ce que le camp quitté retire, d'un coup, le jour du départ. */
+const DEFECTION_HOME = 22;
+
+/** Ce que le camp qui accueille accorde : on prend la recrue, pas l'homme. */
+const DEFECTION_WELCOME = 6;
+
+/** Et ce que les autres retirent, parce qu'une girouette se voit de loin. */
+const DEFECTION_OTHERS = 2;
+
+/* --------------------------------------------------------------------------
+   ET CE QUE VAUT UN PACTE, CHEZ CEUX QUI LE SIGNENT
+   --------------------------------------------------------------------------
+   Un accord entre deux camps rend le joueur fréquentable chez l'autre et
+   suspect chez les siens : c'est tout l'objet d'un pacte, et le moteur n'en
+   savait rien. Trois scènes sur seize le disaient à la main, les treize
+   autres ne disaient rien, si bien que la même signature déplaçait ou non
+   l'électorat de l'allié selon la carte qui l'avait proposée.
+   -------------------------------------------------------------------------- */
+
+/** Ce que l'électorat de l'allié accorde le jour de la signature. */
+const ALLIANCE_WARMTH = 7;
+
+/** Ce qu'en retirent les vôtres : il y a toujours des puristes. */
+const ALLIANCE_PURISTS = 3;
+
+/** Et ce que la rupture reprend chez celui qu'on lâche. */
+const ALLIANCE_BREAK = 7;
+
+/* --------------------------------------------------------------------------
    LE PAYS DANS LEQUEL ON OUVRE LA PARTIE, ET RIEN D'AUTRE
    --------------------------------------------------------------------------
    IL N'Y A PAS DE SOCLE. Un parti n'a pas de niveau naturel vers lequel le

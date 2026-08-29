@@ -2135,6 +2135,21 @@ function switchParty(s, key) {
   addTrait(s, "renegat");
   s.standing = clamp100(Math.min(s.standing, 30) + 6);
 
+  /* ET SIX ÉLECTORATS QUI L'APPRENNENT LE JOUR MÊME. Ceux qu'on laisse le
+     prennent de plein fouet, ceux qui accueillent prennent la recrue sans
+     prendre l'homme, et les autres notent qu'on peut partir. Sans cela, le
+     camp qu'on venait de quitter continuait de vous aimer autant, et le
+     joueur voyait sa cote au parti s'effondrer pendant que sa popularité ne
+     bougeait pas d'un dixième. */
+  if (s.appeal) {
+    bumpAppeal(s, from, -DEFECTION_HOME);
+    bumpAppeal(s, key, DEFECTION_WELCOME);
+    Object.keys(PARTIES).forEach((autre) => {
+      if (autre !== from && autre !== key) bumpAppeal(s, autre, -DEFECTION_OTHERS);
+    });
+    syncPopularity(s);
+  }
+
   moveShare(s, from, -2.5, "choice");
   moveShare(s, key, +2, "choice");
   ensureLeaders();
@@ -2153,6 +2168,8 @@ function setAlliance(s, key) {
     const broken = s.alliance;
     s.alliance = null;
     if (broken) {
+      // Celui qu'on lâche le prend pour lui, et ses électeurs aussi.
+      if (s.appeal) { bumpAppeal(s, broken.party, -ALLIANCE_BREAK); syncPopularity(s); }
       addLog({
         fr: "Le pacte avec {party_the:" + broken.party + "} est rompu. Chacun se retrouve seul, avec les mêmes électeurs à convaincre.",
         en: "The pact with {party_the:" + broken.party + "} is over. Both sides are alone again, with the same voters to win over.",
@@ -2163,6 +2180,15 @@ function setAlliance(s, key) {
 
   if (!PARTIES[key] || key === s.party) return null;
   s.alliance = { party: key, turn: s.turn };
+
+  /* UN PACTE VOUS REND FRÉQUENTABLE EN FACE ET SUSPECT CHEZ VOUS. C'est
+     exactement ce qu'on signe, et le moteur n'en tirait rien : l'électorat de
+     l'allié ne bougeait que si la scène avait pensé à l'écrire. */
+  if (s.appeal) {
+    bumpAppeal(s, key, ALLIANCE_WARMTH);
+    bumpAppeal(s, s.party, -ALLIANCE_PURISTS);
+    syncPopularity(s);
+  }
 
   addLog({
     fr: "Accord signé avec {party_the:" + key + "}. Les deux appareils annoncent une victoire, ce qui est toujours mauvais signe pour l'un des deux.",

@@ -504,7 +504,7 @@ const EV_assemblee = [
       "result": { "fr": "Vingt-deux pour, dix-neuf contre, six abstentions. Vous avez évité la crise et vous avez montré au pays qu'aucune ligne ne sort plus de votre bureau.",
                   "en": "Twenty-two for, nineteen against, six abstentions. You have avoided the crisis and shown the country that no line comes out of your office any more." } },
     { "label": { "fr": "Rompre l'accord sur ce texte, et l'annoncer avant eux", "en": "Break the deal over this bill, and announce it first" },
-      "effects": { "alliance": null, "popularity": 8, "standing": 6, "approval": -12, "credibilite": -2, "appeal": { "scene": -7 },
+      "effects": { "alliance": null, "popularity": 8, "standing": 6, "approval": -12, "credibilite": -2,
                    "landscape": { "self": 1.4, "ruling": -1.4 }, "chain": "alliance_rupture" },
       "result": { "fr": "Vous rompez sur un texte plutôt que sur un poste, ce qui est la seule façon de rompre proprement. Le gouvernement l'apprend par une dépêche, et vos militants vous pardonnent tout le reste.",
                   "en": "You break over a bill rather than over a job, which is the only clean way to break. The government learns of it from a newswire, and your members forgive you everything else." } }

@@ -379,7 +379,7 @@ const EV_runoff = [
     { "label": { "fr": "Accepter les soixante", "en": "Accept all sixty" },
       "roll": { "chance": 0.7 },
       "success": { "effects": { "poll": 7, "standing": -9, "landscape": { "self": -1.0, "ally": 0.8 },
-                                "alliance": "scene", "appeal": { "scene": 7 } },
+                                "alliance": "scene" },
         "result": { "fr": "L'appel à voter tombe le mardi et il est chaleureux, ce qui n'était pas prévu. Vous avez acheté dimanche avec soixante sièges que vous n'aurez pas en juin.",
                     "en": "The endorsement lands on the Tuesday and it is warm, which was not expected. You have bought Sunday with sixty seats you will not have in June." } },
       "failure": { "effects": { "poll": 2, "standing": -14, "reputation": -2,

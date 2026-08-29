@@ -551,7 +551,7 @@ const EV_appareil = [
       "result": { "fr": "Vous déclinez poliment et vous gardez le numéro. Une porte qu'on n'a pas claquée reste une porte.",
                   "en": "You decline politely and you keep the number. A door you did not slam is still a door." } },
     { "label": { "fr": "Traverser", "en": "Cross the floor" },
-      "effects": { "join": "scene", "notoriete": 2, "popularity": -2, "appeal": { "scene": 10 } },
+      "effects": { "join": "scene", "notoriete": 2 },
       "result": { "fr": "L'annonce est faite un jeudi, dans une salle louée pour l'occasion. Ceux qui vous ont formé regardent la retransmission sans un mot, et se souviendront de la date jusqu'à la fin.",
                   "en": "The announcement comes on a Thursday, in a room hired for the occasion. The people who trained you watch the feed in silence, and will remember the date for good." } },
     { "label": { "fr": "Faire monter les enchères des deux côtés", "en": "Run an auction between the two" },
@@ -609,7 +609,7 @@ const EV_appareil = [
   },
   "choices": [
     { "label": { "fr": "Rompre publiquement", "en": "Break it off publicly" },
-      "effects": { "appeal": { "ally": -8 }, "alliance": null, "popularity": 5, "standing": -3, "landscape": { "self": -0.8 } },
+      "effects": { "alliance": null, "popularity": 5, "standing": -3, "landscape": { "self": -0.8 } },
       "result": { "fr": "Vous reprenez votre liberté devant les caméras, ce qui est une belle façon de dire que vous n'avez plus personne derrière vous.",
                   "en": "You take back your freedom in front of the cameras, which is a fine way of saying there is nobody behind you any more." } },
     { "label": { "fr": "Encaisser et tenir l'accord", "en": "Take it and hold the deal together" },

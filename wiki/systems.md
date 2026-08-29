@@ -95,6 +95,29 @@ Targets (`popularityTarget`, `standingTarget`):
 impossible; bad news always costs full price. Some traits (téflon) absorb a share via
 `traitSoften`.
 
+### The three life events that move it without a scene
+
+Three structural moments change what electorates think of you, and none of them used to
+touch `appeal` at all. They are rules, not scenes, so they live in the engine and no event
+has to remember them.
+
+| Moment | What moves |
+|---|---|
+| **crossing the floor** (`switchParty`) | the camp you leave, at once: `DEFECTION_HOME` = −22. The camp taking you in: `DEFECTION_WELCOME` = +6, they take the recruit, not the man. Everybody else: −2, a weathervane is visible from a distance |
+| **signing a pact** (`setAlliance`) | the ally's electorate `ALLIANCE_WARMTH` = +7, your own base `ALLIANCE_PURISTS` = −3 |
+| **breaking it** | the camp you drop, `ALLIANCE_BREAK` = −7 |
+
+Defection was the loud one: the standing gauge collapsed, the `renegat` mark landed, the
+vote share moved, **and the people who had voted for you the day before went on liking you
+exactly as much**. Drift alone could not say it: it pulls each electorate toward a target
+computed from the *new* party, so it gets there eventually, at the speed of a gauge, and the
+camp you had just left took years to notice you had gone.
+
+Alliances had the opposite problem — three scenes out of sixteen wrote the reaction by hand
+and the other thirteen wrote nothing, so the same signature moved the ally's voters or not
+depending on which card had proposed it. Content no longer writes any of the three, and
+`tools/audit-popularite.js` stops asking for them: the engine would double-count.
+
 ### How a choice reaches the six
 
 Three ways in, and picking the wrong one is how a scene ends up contradicting its own text.
