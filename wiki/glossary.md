@@ -119,7 +119,7 @@ country, the career, the maths of an election, the turn, and the boot.
 | `init()` (bottom IIFE) | Boot: resume or start, backfill old saves, wire handlers |
 | **Rivals & landscape** | |
 | `makeFigure`, `figurePopularity`, `spawnFigure`, `FIGURE_RANKS` | The named figures |
-| `initialLandscape`, `openingAnchor`, `pickShare`, `driftLandscape`, `normalizeLandscape` | Vote-share model. The opening is drawn once; **there is no baseline and no pull**, only causes |
+| `initialLandscape`, `openingAnchor`, `leadingParty`, `driftLandscape`, `normalizeLandscape` | Vote-share model. The opening is drawn once; **there is no baseline and no pull**, only causes |
 | `COATTAIL`, `turnsSinceElection` | The wave a legislative gives the camp that just won the Élysée |
 | `moveShare`, `shiftLandscape`, `landscapeTarget` | Landscape mutation + effect targeting |
 | `figuresOf`, `leaderOf`, `figureOf`, `sortedLandscape` | Landscape queries |

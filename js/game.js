@@ -192,14 +192,25 @@ function newGame(character) {
   // ET LE PRÉSIDENT SORTANT NON PLUS. C'était le chef des centristes dans
   // toutes les parties, quelle que soit la tête du tableau : le pays pouvait
   // bien être tiré ailleurs, l'Élysée, lui, revenait toujours au même camp, et
-  // c'est la moitié de ce que le joueur voyait du rapport de force. Il se tire
-  // donc au sort parmi les camps, au prorata de ce qu'ils pèsent le premier
-  // jour : le plus gros l'emporte souvent, pas toujours, comme dans un pays.
-  const sortantParti = pickShare(state.landscape);
+  // c'est la moitié de ce que le joueur voyait du rapport de force.
+  //
+  // MAIS C'EST LA PREMIÈRE FORCE DU PAYS, PAS UN TIRAGE AU PRORATA. Tiré au
+  // sort, le sortant pouvait être le chef d'un camp à douze pour cent : le
+  // panneau du pouvoir ouvrait alors sur un président sans majorité et
+  // quatre-vingt-seize députés, au premier tour d'une partie neuve. Ce pays-là
+  // n'existe pas. On entre dans un pays où celui qui gouverne a gagné ; c'est
+  // la suite qui dira s'il tient.
+  const sortantParti = leadingParty(state.landscape);
   const sortant = rivals.find((r) => r.party === sortantParti && r.position === "chef") ||
     rivals.find((r) => r.party === sortantParti);
   state.president = { name: sortant.name, party: sortantParti };
   state.presidentTerms = 1;
+
+  // ET SA LÉGISLATIVE A SUIVI SON ÉLECTION. Sans cette date, les sièges du
+  // premier tour se répartissaient sans la vague (voir COATTAIL) : le sortant
+  // héritait d'une Assemblée d'élection ordinaire, c'est-à-dire de tout ce
+  // qu'une législative de confirmation n'est pas.
+  state.presidentSince = 0;
   // CE QUE LES PARTIS PESAIENT LE JOUR OÙ VOUS ÊTES ENTRÉ. C'est la seule
   // comparaison honnête à faire en fin de partie : ce qu'un camp vaut
   // aujourd'hui par rapport à ce qu'il valait quand vous êtes arrivé.
@@ -310,16 +321,9 @@ function initialLandscape() {
  * variance annuelle qu'il faut conserver.
  */
 
-/** Un camp tiré au sort, au prorata de ce qu'il pèse. */
-function pickShare(shares) {
-  const keys = Object.keys(shares);
-  const total = keys.reduce((sum, key) => sum + Math.max(0, shares[key]), 0);
-  let seuil = Math.random() * total;
-  for (const key of keys) {
-    seuil -= Math.max(0, shares[key]);
-    if (seuil <= 0) return key;
-  }
-  return keys[keys.length - 1];
+/** Le camp qui pèse le plus lourd dans un tableau. */
+function leadingParty(shares) {
+  return Object.keys(shares).reduce((a, b) => (shares[b] > shares[a] ? b : a));
 }
 
 function normalizeLandscape(shares) {

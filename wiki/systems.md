@@ -359,7 +359,7 @@ So the table now knows only **causes**, and one draw:
 | | |
 |---|---|
 | the opening | `initialLandscape()`, once, at `newGame`. `OPENING_ANCHOR − OPENING_TILT × difficulty` says what difficulty *tilts* on the first day (18 for the centrists, 9 for a rupture camp); `OPENING_SPREAD` says how far the country can be from that, log-normal and **identical for every camp**, because an era does not pick its favourites by how convenient they are. Never consulted again |
-| the sitting president | drawn with it, weighted by the opening shares (`pickShare`). It used to be the centrist leader in every single game: the country could be drawn anywhere, the Élysée always came back to the same camp, and that is half of what the player sees of the balance of power |
+| the sitting president | the leader of the country's **largest camp** (`leadingParty`), with `presidentSince = 0` so that the opening Assembly is their confirmation legislative. It used to be the centrist leader in every single game; then, briefly, a draw weighted by the opening shares, which opened new games on a president holding twelve per cent of the vote and ninety-six seats. A country is entered through somebody who won it |
 | governing | −0.22 a turn, and −0.25 more per term already served. Since nothing pulls anything back, this is now the main reason power is perishable |
 | figures | a popular figure lifts their camp, an unpopular one drags it |
 | the player | their national popularity times their exposure, on their own camp only |
@@ -390,10 +390,25 @@ Measured over 300 full careers, random pilot, at each step (29 August 2026):
 
 The last line is worth reading carefully, because it moved twice. Removing the pull alone
 took the random pilot from 9.3% to **17.0%**: the centrist wall was doing work, and it was
-the pull that held it up. Drawing the sitting president instead of handing it to the
+the pull that held it up. Handing the Élysée to the country's largest camp instead of to the
 centrists every game brought it back to 14.0% — because the centrists stopped being the camp
-that governs, and therefore erodes, in every single game. The two removals paid for each
+that governs, and therefore erodes, in every single game. The two changes paid for each
 other, and the level of the game is where it was.
+
+### The first turn has to hold together
+
+Measured over 150 new games at the very first turn: the president's camp holds a median
+**30.7% of the vote and 315 of the 577 seats**, the government bloc 363, and the majority is
+absolute in 71% of games and relative in the other 29%. Never none.
+
+That is the fix for a real opening screen: a centrist president, first term, ninety-six
+seats, and a caption explaining that the government survives only because the other side
+cannot agree. Two things produced it, and both are now closed. The president was drawn in
+proportion to the opening shares, so a camp at twelve per cent could hold the Élysée on day
+one. And `presidentSince` was never set at `newGame`, so `turnsSinceElection()` returned
+`Infinity` and the opening Assembly was computed **without the coattail** — an ordinary
+legislative for a president who had just been elected, which is the one thing a confirmation
+legislative is not.
 
 Lowering the incumbency erosion to buy difficulty back was measured and rejected: it returns
 two points of win rate and costs eleven points of lead changes, which is paying with exactly
