@@ -335,22 +335,31 @@ const CREDIBILITY_OVERSHOOT = 4;
 /** Un parti ne descend jamais tout à fait à zéro : il lui reste ses fidèles. */
 const LANDSCAPE_FLOOR = 1.5;
 
-/** Vitesse à laquelle le socle suit ce que le parti pèse réellement. */
-const BASELINE_FOLLOW = 0.006;
+/* --------------------------------------------------------------------------
+   LE PAYS DANS LEQUEL ON OUVRE LA PARTIE, ET RIEN D'AUTRE
+   --------------------------------------------------------------------------
+   IL N'Y A PAS DE SOCLE. Un parti n'a pas de niveau naturel vers lequel le
+   moteur le ramène : ce qu'il pèse est ce que la partie en a fait, et rien de
+   plus. Ce qui suit ne sert donc qu'une fois, au tout premier tour, pour dire
+   dans quel pays on entre. Ensuite, le tableau ne connaît plus que des causes
+   — gouverner use, une figure populaire tire, le joueur pèse, les événements
+   déplacent — et le hasard de l'époque.
 
-/** Ce que l'air du temps déplace tout seul, par tour. */
-const BASELINE_NOISE = 0.07;   // un tour deux fois plus court : bruit ÷ √2
+   Le tirage lui-même sépare deux choses. L'ANCRE dit ce que la difficulté d'un
+   parti penche le jour de l'ouverture : 18 pour les centristes, 9 pour un camp
+   de rupture. L'ÉCART dit à quel point le pays peut être ailleurs, et il est
+   le même pour tous les camps, en log-normal, parce qu'une époque ne choisit
+   pas ses favoris en fonction de leur commodité.
+   -------------------------------------------------------------------------- */
 
-/**
- * Vitesse du rappel vers le socle, par tour.
- *
- * Elle était deux fois plus forte, et c'est ce qui rendait le tableau
- * illisible : un choc encaissé revenait à son point de départ en une dizaine
- * de tours, si bien que rien de ce qui arrivait dans la partie ne laissait de
- * trace. Le paysage doit garder la mémoire de ce qu'on lui fait, sinon il
- * n'est qu'un décor qui tremble.
- */
-const LANDSCAPE_PULL = 0.011;
+/** Le haut de l'ancre d'ouverture, pour un parti de difficulté nulle. */
+const OPENING_ANCHOR = 21;
+
+/** Ce que chaque cran de difficulté retire à l'ancre d'ouverture. */
+const OPENING_TILT = 3;
+
+/** L'ampleur de l'écart d'une partie à l'autre, en log : 0,55 double environ. */
+const OPENING_SPREAD = 0.55;
 
 /**
  * Le mouvement qu'il faut avoir accumulé pour qu'on en parle. Deux points et

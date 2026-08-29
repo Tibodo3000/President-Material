@@ -32,7 +32,9 @@ actually knows, in both languages, and prints one line per problem.
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
-| `events` | Ordinary turns (259 events) | the full schema below |
+| `events` | Ordinary turns (284 events) | the full schema below |
+| ↳ *what the era does to people* | inside `events`, in [epoque.data.js](../js/events/epoque.data.js) | nothing new in the schema, one rule in the writing: **the satire aims at the machine handling the scene, never at the people it happens to**. Describe, do not comment: the exact figure, the exact hour, the name of the procedure. No option is clean |
+| ↳ *the player against their own camp* | inside `events`, in [arbitrages.data.js](../js/events/arbitrages.data.js) | nothing new in the schema, one rule in the writing: **every choice moves `landscape`, and never in the same direction as the career**. A choice that pays in standing *and* in vote share is not an arbitration, it is a reward, and it belongs in another file |
 | ↳ *end-of-career scenes* | inside `events`, in [declin.data.js](../js/events/declin.data.js) | `"decline": 1\|2\|3` marks which of the body's three warnings a scene is. `"weight": 0` is **required** — the engine schedules them itself (`scheduleDecline`), they must never come out of a random draw. Keep **one scene per stage with no `when` at all**: if none matched, nothing would be scheduled and the exits would stay shut forever |
 | `campaign` | The 6 steps before the first round, when the player runs (26) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
 | `runoff` | The 3 steps between the two rounds (12) | `poll` moves the head-to-head; `cast: "eliminated"` |
@@ -110,6 +112,9 @@ no longer drawn, it is scripted.
 "minStanding": 60,   "maxStanding": 30
 "minMoney": 200000,  "maxMoney": 5000
 "minDecline": 3, "maxDecline": 0     // how many times the body has spoken (0..3)
+"season": ["ete"]                      // "printemps" | "ete" | "automne" | "hiver"; a list is
+                                       //   an OR. A turn is a season and the year opens in
+                                       //   spring: a water table does not run dry in February
 "stat": { "notoriete": { "min": 6 }, "energie": { "max": 4 } }   // remember: 0..20 scale
 "flag": { "dirtyMoney": true, "onTrial": false }
 "trait": ["orateur","teflon"]          // ALL of these traits

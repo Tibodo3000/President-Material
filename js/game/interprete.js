@@ -36,6 +36,10 @@
    Ajouter un événement ne demande donc aucune ligne de code.
    ========================================================================== */
 
+/* Les quatre saisons, dans l'ordre où l'année les donne. La table d'affichage
+   vit dans js/game/render/fiche.js ; celle-ci est le vocabulaire du contenu. */
+const SEASONS = ["printemps", "ete", "automne", "hiver"];
+
 const EVENTS = EVENT_DATA.events;
 const CAMPAIGN_EVENTS = EVENT_DATA.campaign;
 
@@ -176,6 +180,15 @@ function eventMatches(ev, s) {
   if (w.yearEnd !== undefined) {
     const dernier = (s.turn % TURNS_PER_YEAR) === TURNS_PER_YEAR - 1;
     if (dernier !== w.yearEnd) return false;
+  }
+
+  /* LA SAISON, pour ce qui n'arrive qu'à un moment de l'année. Une nappe
+     phréatique ne se vide pas en février et une rentrée scolaire n'a pas lieu
+     en juin. L'année commence au printemps, comme le calendrier électoral.
+     "season": ["ete"], ou une liste pour plusieurs. */
+  if (w.season) {
+    const saison = SEASONS[s.turn % TURNS_PER_YEAR];
+    if (![].concat(w.season).includes(saison)) return false;
   }
 
   if (w.stat) {
