@@ -149,10 +149,19 @@ function rebellionButtons(card) {
   return html;
 }
 
-/** Le camp voisin le mieux placé pour vous accueillir. */
+/**
+ * Le camp voisin le mieux placé pour vous accueillir.
+ *
+ * PAS CELUI QU'ON A DÉJÀ QUITTÉ. Le bouton porte la mention « Définitif. On ne
+ * revient pas dans un parti qu'on a quitté », et le jeu proposait quand même
+ * d'y revenir : le refuge se choisissait sur la seule distance idéologique,
+ * qui ne se souvient de rien. Une porte claquée reste fermée.
+ */
 function rebelRefuge() {
+  const parcours = partyHistory(game);
   const voisins = Object.keys(PARTIES)
-    .filter((k) => k !== game.party && ideologicalDistance(k, game.party) <= NEIGHBOUR_DISTANCE)
+    .filter((k) => k !== game.party && !parcours.includes(k) &&
+                   ideologicalDistance(k, game.party) <= NEIGHBOUR_DISTANCE)
     .sort((a, b) => game.landscape[b] - game.landscape[a]);
   return voisins[0] || null;
 }

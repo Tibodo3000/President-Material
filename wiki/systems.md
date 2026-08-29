@@ -330,6 +330,20 @@ take a constituency away from anyone.
 `officeAfterDefeat()` also floors a leader at `cadre`: you do not go back to being a rank
 and file member of a party you chair.
 
+### A door you slam stays shut
+
+The dissidence button says, in both languages, *"Final. Nobody returns to a party they have
+left"*. Nothing enforced it: the refuge was picked on ideological distance alone, which
+remembers nothing, and the defection scene cast its figure among every camp but the current
+one. A career could therefore leave a party and be invited back into it two years later, by
+the very same button that had called the move final.
+
+`partyHistory(s)` already recorded every camp crossed. Three places now read it: `rebelRefuge()`
+(the neighbour offering shelter is never one you have left), `castFor()` (a scene that offers
+to cross the floor never stages a camp from your history), and `switchParty()` itself, which
+refuses the move outright — the last lock, so the rule holds whatever a future event says.
+Measured over 150 careers: 215 party changes, **zero** returns.
+
 ---
 
 ## The political landscape

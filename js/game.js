@@ -1949,9 +1949,24 @@ function pickByWeight(list) {
 }
 
 /** Le casting de la carte qui vient de sortir. */
+/**
+ * Une scène qui propose de traverser ne peut pas être jouée par un camp qu'on
+ * a déjà quitté : le jeu écrit « on ne revient pas dans un parti qu'on a
+ * quitté » et proposait ensuite d'y revenir, parce que le casting ne regarde
+ * que le parti actuel. On lit donc l'événement avant de tirer la figure.
+ */
+function offersDefection(ev) {
+  const bloc = (fx) => fx && (fx.join === "scene" || fx.join === "ally" || fx.join === "ruling");
+  return Boolean(ev && (ev.choices || []).some((c) =>
+    bloc(c.effects) ||
+    ["success", "failure", "triumph", "debacle"].some((b) => c[b] && bloc(c[b].effects))));
+}
+
 function castFor(ev) {
   const cast = ev && ev.cast;
-  const others = game.rivals.filter((r) => r.party !== game.party);
+  const parcours = offersDefection(ev) ? partyHistory(game) : [];
+  const others = game.rivals.filter((r) =>
+    r.party !== game.party && !parcours.includes(r.party));
 
   const camp = game.rivals.filter((r) => r.party === game.party);
 
@@ -2097,6 +2112,11 @@ function maybeDefection() {
  */
 function switchParty(s, key) {
   if (!key || !PARTIES[key] || key === s.party) return null;
+  // LE DERNIER VERROU. Le casting et le refuge du dissident écartent déjà les
+  // partis traversés ; celui-ci existe pour que la règle tienne quoi qu'on
+  // écrive plus tard dans un événement. Une carrière ne repasse pas deux fois
+  // par la même maison.
+  if (partyHistory(s).includes(key)) return null;
 
   const from = s.party;
   s.party = key;
