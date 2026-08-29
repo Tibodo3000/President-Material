@@ -57,7 +57,12 @@ const EV_institutions = [
   "id": "matignon_ouverture",
   "once": true,
   "weight": 6,
-  "when": { "ruling": false, "rulingClose": true, "position": ["depute", "ministre", "chef"],
+  // "pivot" EST LA SCÈNE ELLE-MÊME : le gouvernement n'a pas la majorité, et il
+  // l'aurait avec vos députés. Sans cette condition, l'émissaire venait
+  // proposer Matignon « en échange de vos voix » à un joueur dont le président
+  // disposait d'une majorité absolue, ce qui ne s'échange contre rien.
+  "when": { "ruling": false, "rulingClose": true, "pivot": true,
+            "position": ["depute", "ministre", "chef"],
             "minPopularity": 63, "minShare": 15, "minTurn": 32 },
   "tag": { "fr": "Matignon", "en": "The top job" },
   "text": {
