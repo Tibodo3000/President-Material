@@ -1,4 +1,4 @@
-/* Généré — ne pas éditer à la main. */
+/* Un paquet d'événements. Le schéma est en tête de js/events/_assemble.data.js. */
 const EV_campaign = [
 
 /* ==========================================================================
@@ -905,7 +905,7 @@ const EV_campaign = [
     { "label": { "fr": "Régler vos comptes avec votre propre camp", "en": "Settle scores with your own side" },
       "when": { "personality": ["provocative"] },
       "roll": { "base": 17, "stat": "eloquence", "plus": { "popularity": 0.05 }, "dice": 16 },
-      "success": { "effects": { "poll": 6, "popularity": 10, "notoriete": 3, "standing": -14,
+      "success": { "effects": { "poll": 6, "popularity": 9, "notoriete": 3, "standing": -14, "appeal": { "self": -8 },
                                 "landscape": { "self": -0.5 } },
         "result": { "fr": "Trois chapitres sur ceux qui vous ont barré la route, avec les dates et les salles. Le livre se vend comme un roman policier et personne dans la maison ne vous adressera plus la parole.",
                     "en": "Three chapters on the people who blocked your path, with the dates and the rooms. The book sells like a thriller and nobody in the house will speak to you again." } },

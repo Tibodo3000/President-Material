@@ -87,7 +87,7 @@ const FX_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "axis", "appeal
   "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "approval", "dissolve",
   "join", "alliance", "end"]);
 const LANDSCAPE_TARGETS = ["self", "scene", "ruling", "ally", ...PARTIES];
-const APPEAL_TARGETS = ["self", "others", ...PARTIES];
+const APPEAL_TARGETS = ["self", "others", "scene", "ruling", "ally", ...PARTIES];
 
 /* Les drapeaux connus : ceux qui ont une traduction, plus tous ceux qu'un
    effet pose quelque part. Un drapeau qu'aucun effet ne pose et qu'aucune

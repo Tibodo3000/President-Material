@@ -1,4 +1,4 @@
-/* Généré — ne pas éditer à la main. */
+/* Un paquet d'événements. Le schéma est en tête de js/events/_assemble.data.js. */
 const EV_partis = [
 
 
@@ -21,7 +21,7 @@ const EV_partis = [
       "result": { "fr": "L'image de vous face aux grilles devient un symbole, adoré et détesté.",
                   "en": "The image of you at the gates becomes a symbol, loved and hated." } },
     { "label": { "fr": "Dénoncer les violences des deux côtés", "en": "Condemn violence on all sides" },
-      "effects": { "reputation": 1, "reseau": -2, "standing": -15, "popularity": 10 },
+      "effects": { "reputation": 1, "reseau": -2, "standing": -15, "popularity": 8, "appeal": { "self": -9 } },
       "result": { "fr": "La base parle de trahison. Les plateaux vous trouvent raisonnable.",
                   "en": "The base calls it betrayal. The talk shows call you reasonable." } },
     { "label": { "fr": "Payer les avocats des interpellés", "en": "Pay for the detainees' lawyers" },
@@ -57,7 +57,7 @@ const EV_partis = [
       "result": { "fr": "Les images vous installent comme un chef de camp. Le pays fatigué, lui, vous en veut.",
                   "en": "The pictures install you as a leader of a side. The exhausted country resents you." } },
     { "label": { "fr": "Appeler à la négociation", "en": "Call for negotiation" },
-      "effects": { "landscape": { "self": 0.7 }, "eloquence": 1, "reputation": 1, "popularity": 9, "standing": -9 },
+      "effects": { "landscape": { "self": 0.7 }, "eloquence": 1, "reputation": 1, "popularity": 8, "standing": -9, "appeal": { "self": -6 } },
       "result": { "fr": "Vous jouez les médiateurs. Les deux camps vous soupçonnent de l'autre.",
                   "en": "You play mediator. Each side suspects you of belonging to the other." } },
     { "label": { "fr": "Loger et nourrir les grévistes", "en": "House and feed the strikers" },
@@ -129,11 +129,11 @@ const EV_partis = [
   },
   "choices": [
     { "label": { "fr": "Pousser à l'accord", "en": "Push for the deal" },
-      "effects": { "landscape": { "self": -1, "identitarians": 0.8 }, "reseau": 1, "reputation": -1, "standing": 11, "popularity": -10 },
+      "effects": { "landscape": { "self": -1, "identitarians": 0.8 }, "reseau": 1, "reputation": -1, "standing": 11, "popularity": -10, "appeal": { "identitarians": 7 } },
       "result": { "fr": "L'accord passe. Vous êtes désormais « quelqu'un qui compte ».",
                   "en": "The deal goes through. You are now “someone who matters”." } },
     { "label": { "fr": "Défendre l'indépendance", "en": "Defend independence" },
-      "effects": { "landscape": { "self": 1.2 }, "reputation": 2, "reseau": -1, "standing": -9, "popularity": 11 },
+      "effects": { "landscape": { "self": 1.2 }, "reputation": 2, "reseau": -1, "standing": -9, "popularity": 9, "appeal": { "identitarians": -9 } },
       "result": { "fr": "L'accord se fait sans vous. La pureté a un coût.",
                   "en": "The deal happens without you. Purity has a price." } },
     { "label": { "fr": "Négocier en secret et démentir en public", "en": "Negotiate in secret and deny it publicly" },
@@ -217,7 +217,7 @@ const EV_partis = [
       "result": { "fr": "« Le marché corrige. » Les salariés licenciés apprécient moyennement.",
                   "en": "“The market corrects itself.” The laid-off workers are unimpressed." } },
     { "label": { "fr": "Reconnaître une erreur", "en": "Admit a mistake" },
-      "effects": { "reputation": 2, "popularity": 12, "standing": -14 },
+      "effects": { "reputation": 2, "popularity": 10, "standing": -14, "appeal": { "self": -8 } },
       "result": { "fr": "L'aveu est rare en politique. Il vous coûte tout votre crédit interne.",
                   "en": "Such an admission is rare in politics. It costs you all your internal credit." } },
     { "label": { "fr": "Proposer une régulation ciblée", "en": "Propose targeted regulation" },
@@ -311,7 +311,7 @@ const EV_partis = [
   },
   "choices": [
     { "label": { "fr": "L'exclure immédiatement", "en": "Expel him immediately" },
-      "effects": { "reputation": 2, "popularity": 10, "standing": -13, "reseau": -1 },
+      "effects": { "reputation": 2, "popularity": 8, "standing": -13, "reseau": -1, "appeal": { "self": -8 } },
       "result": { "fr": "La fermeté est saluée dehors. Dedans, on parle de purge.",
                   "en": "The firmness is praised outside. Inside, they call it a purge." } },
     { "label": { "fr": "Minimiser l'affaire", "en": "Play it down" },

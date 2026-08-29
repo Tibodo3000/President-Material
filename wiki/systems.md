@@ -95,6 +95,27 @@ Targets (`popularityTarget`, `standingTarget`):
 impossible; bad news always costs full price. Some traits (téflon) absorb a share via
 `traitSoften`.
 
+### How a choice reaches the six
+
+Three ways in, and picking the wrong one is how a scene ends up contradicting its own text.
+
+| Effect | What the engine does | For |
+|---|---|---|
+| `popularity` alone | `bumpPop`: all six move by the same amount, **tilted towards the camps closest to yours** (`APPEAL_TILT = 0.3`, and it inverts for bad news, so your own side both cheers louder and forgives more) | scenes with no side: a gaffe, a broadcast, an affair, a disaster |
+| `popularity` + `axis` | `applyPositionedPopularity`: each electorate moves by its distance to the declared position, on the declared axes only. The number is what those who **agree** gain | scenes with a political content |
+| `appeal` | `bumpAppeal` on the named electorates only | scenes aimed at somebody, and corridor scenes only your own side hears about |
+
+`appeal` and `axis` share `landscape`'s target vocabulary — `self`, `scene` (the camp of
+the figure the card staged), `ruling`, `ally`, or a party key — resolved by
+`landscapeTarget()`, plus `others` for `appeal`. A target that does not exist in the game
+does nothing.
+
+**The tilt is why a targeted gesture cannot be written flat.** Refusing an alliance with the
+hard left, told as `"popularity": 9`, hands its biggest share to the electorate closest to
+you and a full share to the camp you just refused. `node tools/audit-popularite.js` looks
+for exactly that: a flat gain in an effects block that elsewhere takes vote share from a
+named camp, or signs, breaks or crosses. It should print nothing.
+
 ---
 
 ## Energy — the one spendable stat

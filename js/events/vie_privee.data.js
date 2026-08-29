@@ -1,4 +1,4 @@
-/* Généré — ne pas éditer à la main. */
+/* Un paquet d'événements. Le schéma est en tête de js/events/_assemble.data.js. */
 const EV_vie_privee = [
 
 
@@ -331,12 +331,12 @@ const EV_vie_privee = [
   },
   "choices": [
     { "label": { "fr": "Répondre sur le fond, sans relever", "en": "Answer on the substance, without acknowledging it" },
-      "effects": { "credibilite": +2, "reputation": 2, "sangfroid": 1, "popularity": 4, "landscape": { "self": 0.6, "scene": -0.6 } },
+      "effects": { "credibilite": +2, "reputation": 2, "sangfroid": 1, "popularity": 4, "appeal": { "scene": -3 }, "landscape": { "self": 0.6, "scene": -0.6 } },
       "result": { "fr": "Vous enchaînez comme si de rien n'était. Le silence qui suit sa phrase dure une seconde de trop, et c'est cette seconde-là qui tournera.",
                   "en": "You carry on as if nothing had happened. The silence after his line lasts a second too long, and that second is the clip that travels." } },
     { "label": { "fr": "Rendre le coup, plus fort", "en": "Hit back, harder" },
       "roll": { "base": 14, "stat": "eloquence", "plus": { "sangfroid": 0.4 }, "dice": 16 },
-      "success": { "effects": { "strike": "intrepide", "popularity": 8, "notoriete": 1, "landscape": { "self": 1.2, "scene": -1.2 } },
+      "success": { "effects": { "strike": "intrepide", "popularity": 7, "notoriete": 1, "appeal": { "scene": -6 }, "landscape": { "self": 1.2, "scene": -1.2 } },
         "result": { "fr": "Votre réponse est meilleure que sa pique et tout le monde le sait avant la fin de l'émission. Il ne recommencera pas avec vous.",
                     "en": "Your comeback is better than his jibe and everyone knows it before the programme ends. He will not try that with you again." } },
       "failure": { "effects": { "credibilite": -2, "strike": "intrepide", "popularity": -6, "reputation": -2, "landscape": { "scene": 0.8 } },
@@ -349,7 +349,7 @@ const EV_vie_privee = [
                   "en": "You did this for fifteen years in rooms harder than any political studio. The line lands in a second and a half, and it is his that gets forgotten." } },
     { "label": { "fr": "Prendre le pays à témoin", "en": "Take it to the country" },
       "when": { "anyTrait": ["ingrat", "obese", "lifting", "use"] },
-      "effects": { "popularity": 11, "reputation": 2, "standing": -4, "notoriete": 1,
+      "effects": { "popularity": 10, "reputation": 2, "standing": -4, "notoriete": 1, "appeal": { "scene": -4 },
                    "landscape": { "scene": -1.4 } },
       "result": { "fr": "Vous regardez la caméra et vous demandez combien de gens, chez eux, entendent ça toute leur vie. Le standard de la chaîne sature avant la fin du générique.",
                   "en": "You look into the camera and ask how many people at home hear that their whole lives. The channel's switchboard is jammed before the credits finish." } }

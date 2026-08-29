@@ -136,7 +136,7 @@ const EV_aside = [
   "choices": [
     { "label": { "fr": "Les attaquer frontalement sur leur programme", "en": "Attack them head-on over their programme" },
       "roll": { "base": 15, "stat": "eloquence", "plus": { "credibilite": 0.35 }, "dice": 16 },
-      "success": { "effects": { "popularity": 6, "standing": 6, "landscape": { "self": 0.8, "scene": -0.8 } },
+      "success": { "effects": { "popularity": 5, "standing": 6, "appeal": { "scene": -6 }, "landscape": { "self": 0.8, "scene": -0.8 } },
         "result": { "fr": "Vous démontez leur chiffrage ligne à ligne pendant quarante minutes devant deux cents personnes. Ils ne reviendront pas dans cette salle, et le marché redevient le vôtre.",
                     "en": "You take their costings apart line by line for forty minutes in front of two hundred people. They will not come back to that hall, and the market is yours again." } },
       "failure": { "effects": { "popularity": -7, "standing": -4, "landscape": { "self": -0.5, "scene": 0.6 } },

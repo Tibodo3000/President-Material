@@ -496,6 +496,34 @@ function fillBoth(obj, s) {
 /* ---------- Effets ---------- */
 
 /**
+ * QUI EST VISÉ QUAND UNE SCÈNE VISE QUELQU'UN.
+ *
+ * "appeal" nommait les électorats par leur clef, plus "self" et "others". Il
+ * manquait le seul mot dont les scènes ont vraiment besoin : CELUI D'EN
+ * FACE. Refuser une alliance à la gauche radicale, humilier le chef du camp
+ * qui gouverne, se faire adouber par le voisin, ce sont des gestes qui
+ * s'adressent à un camp précis, et ce camp change à chaque partie : on ne
+ * peut pas l'écrire en dur sans écrire six versions de la même scène.
+ *
+ * Le vocabulaire est donc exactement celui de "landscape", parce qu'il n'y a
+ * aucune raison d'en retenir deux : "self", "scene", "ruling", "ally", ou une
+ * clef de parti. "others" reste propre à l'opinion — il ne veut rien dire
+ * pour un rapport de force.
+ *
+ * Une cible qui n'existe pas dans la partie (pas d'allié, pas de figure en
+ * scène) ne fait rien, comme pour "landscape" : la scène joue quand même.
+ */
+function electoratesOf(s, token) {
+  if (token === "others") {
+    return Object.keys(PARTIES).filter((key) => key !== s.party);
+  }
+  const party = typeof landscapeTarget === "function"
+    ? landscapeTarget(s, token)
+    : (PARTIES[token] ? token : null);
+  return party ? [party] : [];
+}
+
+/**
  * Applique un bloc d'effets et renvoie la liste de ce qui a réellement bougé.
  *
  * On mesure les écarts après coup plutôt que de recopier les valeurs
@@ -549,17 +577,8 @@ function applyEffects(effects, s, soften) {
       if (!s.appeal) return;
       const before = s.popularity;
       const avant = { ...s.appeal };
-      // "self" vise votre propre électorat sans qu'on ait à nommer le camp :
-      // c'est ce qu'il faut pour une scène d'appareil, que le pays ne regarde
-      // pas. "others" vise tous les autres d'un coup.
       Object.entries(value).forEach(([cible, delta]) => {
-        if (cible === "self") return bumpAppeal(s, s.party, delta);
-        if (cible === "others") {
-          return Object.keys(PARTIES).forEach((k) => {
-            if (k !== s.party) bumpAppeal(s, k, delta);
-          });
-        }
-        bumpAppeal(s, cible, delta);
+        electoratesOf(s, cible).forEach((k) => bumpAppeal(s, k, delta));
       });
       syncPopularity(s);
       pushAppealChanges(changes, avant, s, before);

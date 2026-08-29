@@ -1,4 +1,4 @@
-/* Généré — ne pas éditer à la main. */
+/* Un paquet d'événements. Le schéma est en tête de js/events/_assemble.data.js. */
 const EV_rivaux = [
 
 
@@ -58,7 +58,7 @@ const EV_rivaux = [
   "choices": [
     { "label": { "fr": "Répondre par une formule cinglante", "en": "Fire back" },
       "roll": { "stat": "eloquence", "base": 13, "dice": 16 },
-      "success": { "effects": { "landscape": { "self": 0.8, "scene": -0.8 }, "notoriete": 2, "popularity": 11, "standing": 3 },
+      "success": { "effects": { "landscape": { "self": 0.8, "scene": -0.8 }, "notoriete": 2, "popularity": 9, "appeal": { "scene": -8 }, "standing": 3 },
         "result": { "fr": "Votre réplique fait le tour des rédactions. Match gagné.",
                     "en": "Your reply makes the rounds. Point won." } },
       "failure": { "effects": { "landscape": { "self": -0.7, "scene": 0.5 }, "reputation": -1, "popularity": -8, "standing": -3 },
@@ -91,7 +91,7 @@ const EV_rivaux = [
   },
   "choices": [
     { "label": { "fr": "Attaquer publiquement", "en": "Attack publicly" },
-      "effects": { "landscape": { "scene": -1 }, "notoriete": 1, "reputation": -1, "popularity": 4, "standing": -7 },
+      "effects": { "landscape": { "scene": -1 }, "notoriete": 1, "reputation": -1, "popularity": 4, "appeal": { "scene": -5 }, "standing": -7 },
       "result": { "fr": "Le coup porte. On retiendra aussi que c'est vous qui l'avez porté.",
                   "en": "The blow lands. People will also remember who threw it." } },
     { "label": { "fr": "Rester digne", "en": "Stay above it" },
@@ -106,7 +106,7 @@ const EV_rivaux = [
     { "label": { "fr": "Vérifier les faits avant tout le monde", "en": "Check the facts before anyone else" },
       "when": { "background": ["journalism"] },
       "roll": { "base": 13, "stat": "reseau", "plus": { "sangfroid": 0.4 }, "dice": 16 },
-      "success": { "effects": { "landscape": { "scene": -0.8, "self": 0.5 }, "notoriete": 2, "reputation": 2, "popularity": 8, "standing": 6 },
+      "success": { "effects": { "landscape": { "scene": -0.8, "self": 0.5 }, "notoriete": 2, "reputation": 2, "popularity": 7, "appeal": { "scene": -5 }, "standing": 6 },
         "result": { "fr": "L'affaire est plus grave que la presse ne le croit, et c'est vous qui le révélez.",
                     "en": "The story is worse than the press thinks, and you are the one who reveals it." } },
       "failure": { "effects": { "popularity": -4, "standing": -3 },

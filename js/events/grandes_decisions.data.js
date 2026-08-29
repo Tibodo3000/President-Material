@@ -1,4 +1,4 @@
-/* Généré — ne pas éditer à la main. */
+/* Un paquet d'événements. Le schéma est en tête de js/events/_assemble.data.js. */
 const EV_grandes_decisions = [
 
 
@@ -71,11 +71,11 @@ const EV_grandes_decisions = [
   },
   "choices": [
     { "label": { "fr": "Accepter, et rompre avec votre camp", "en": "Accept, and break with your own side" },
-      "effects": { "office": "ministre", "money": 60000, "reseau": 2, "notoriete": 2, "reputation": -2, "popularity": 11, "standing": -14, "trait": "renegat" },
+      "effects": { "office": "ministre", "money": 60000, "reseau": 2, "notoriete": 2, "reputation": -2, "popularity": 9, "standing": -14, "appeal": { "self": -13, "ruling": 6 }, "trait": "renegat" },
       "result": { "fr": "Vous entrez au gouvernement. Votre parti parle de trahison, le pays de courage. Vous tiendrez le poste tant que ce président tiendra le sien, pas un jour de plus.",
                   "en": "You join the government. Your party calls it betrayal; the country calls it courage. You will hold the job for exactly as long as this president holds theirs, and not a day longer." } },
     { "label": { "fr": "Refuser publiquement et bruyamment", "en": "Refuse loudly and publicly" },
-      "effects": { "strike": "intrepide", "reputation": 2, "notoriete": 1, "standing": 10, "popularity": -5, "money": -20000 },
+      "effects": { "strike": "intrepide", "reputation": 2, "notoriete": 1, "standing": 10, "popularity": -4, "appeal": { "self": 8 }, "money": -20000 },
       "result": { "fr": "Votre refus devient un argument de campagne pour les dix ans à venir.",
                   "en": "Your refusal becomes a campaign line for the next ten years." } },
     { "label": { "fr": "Négocier un soutien sans portefeuille", "en": "Negotiate support without a portfolio" },
@@ -92,7 +92,7 @@ const EV_grandes_decisions = [
     { "label": { "fr": "Exiger l'Intérieur, et rompre avec votre camp", "en": "Demand the Interior Ministry, and break with your own side" },
       "when": { "background": ["civil", "law"] },
       "roll": { "chance": 0.4, "chanceBonus": [ { "when": { "minStanding": 70 }, "value": 0.25 } ] },
-      "success": { "effects": { "office": "ministre", "reseau": 3, "notoriete": 2, "money": 60000, "popularity": 8, "standing": -10, "trait": "renegat" },
+      "success": { "effects": { "office": "ministre", "reseau": 3, "notoriete": 2, "money": 60000, "popularity": 7, "standing": -10, "appeal": { "self": -11, "ruling": 5 }, "trait": "renegat" },
         "result": { "fr": "Ils cèdent. Vous héritez du ministère qui fait et défait les carrières.",
                     "en": "They give in. You inherit the ministry that makes and breaks careers." } },
       "failure": { "effects": { "standing": -6, "notoriete": 1 },
@@ -209,7 +209,7 @@ const EV_grandes_decisions = [
       "result": { "fr": "L'émotion passe mieux que les idées. C'est ainsi.",
                   "en": "Emotion travels better than ideas. That is how it is." } },
     { "label": { "fr": "Attaquer le gouvernement pendant deux heures", "en": "Attack the government for two hours" },
-      "effects": { "notoriete": 2, "reputation": -1, "popularity": 4, "standing": 6 },
+      "effects": { "notoriete": 2, "reputation": -1, "appeal": { "self": 9 }, "standing": 6 },
       "result": { "fr": "Efficace et fatigant. Votre camp adore, les autres zappent.",
                   "en": "Effective and exhausting. Your camp loves it; everyone else switches over." } },
     { "label": { "fr": "Raconter votre milieu d'origine", "en": "Talk about where you come from" },

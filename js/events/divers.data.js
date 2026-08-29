@@ -1,4 +1,4 @@
-/* Généré — ne pas éditer à la main. */
+/* Un paquet d'événements. Le schéma est en tête de js/events/_assemble.data.js. */
 const EV_divers = [
 
 
@@ -402,7 +402,7 @@ const EV_divers = [
   },
   "choices": [
     { "label": { "fr": "Lâcher la phrase qui fâche", "en": "Say the line that will hurt" },
-      "effects": { "notoriete": 3, "reputation": -2, "popularity": 13, "standing": -9 },
+      "effects": { "axis": "self", "notoriete": 3, "reputation": -2, "popularity": 14, "standing": -9 },
       "result": { "fr": "Trois jours de polémique et votre nom dans toutes les bouches.",
                   "en": "Three days of outrage and your name in every mouth." } },
     { "label": { "fr": "Vous retenir, pour une fois", "en": "Hold back, for once" },
@@ -530,7 +530,7 @@ const EV_divers = [
       "result": { "fr": "L'appareil s'en souviendra. Vos électeurs aussi.",
                   "en": "The machine will remember. So will your voters." } },
     { "label": { "fr": "Voter contre, en conscience", "en": "Vote your conscience" },
-      "effects": { "reputation": 2, "reseau": -2, "popularity": 14, "standing": -18 },
+      "effects": { "reputation": 2, "reseau": -2, "popularity": 12, "standing": -18, "appeal": { "self": -7 } },
       "result": { "fr": "On vous traite de dissident. Sur les marchés, on vous serre la main.",
                   "en": "They call you a rebel. At the market, people shake your hand." } },
     { "label": { "fr": "Faire changer la consigne de vote", "en": "Get the whip changed" },

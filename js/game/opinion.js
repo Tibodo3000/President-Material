@@ -287,13 +287,21 @@ function bumpAppeal(s, key, delta) {
  * Certaines scènes proposent de se caler sur son propre camp, et la position
  * dépend alors de qui l'on est : la même phrase n'est pas au même endroit
  * selon qu'on la prononce à la gauche radicale ou chez les identitaires.
- * "axis": "self" prend donc les axes du parti du joueur, et "ally" ceux de
- * son allié — deux façons d'écrire « là où je suis » sans écrire de chiffres.
+ * "axis": "self" prend donc les axes du parti du joueur, "ally" ceux de son
+ * allié, "scene" ceux du camp que la carte met en scène : des façons d'écrire
+ * « là où je suis », ou « là où il est », sans écrire de chiffres. Prise avec
+ * un montant négatif, la dernière dit qu'on prend cette ligne-là de front.
  */
 function resolveAxis(position, s) {
-  if (position === "self") return partyAxes(s.party);
-  if (position === "ally") return partyAxes(allyParty ? allyParty() : null);
-  return position;
+  if (typeof position !== "string") return position;
+  // Le vocabulaire est celui de "landscape" et de "appeal" : self, ally,
+  // scene, ruling, ou une clef de parti. "scene" sert aux gestes qui se
+  // situent par rapport à quelqu'un plutôt que dans le vide — on épouse la
+  // ligne du camp d'en face, ou on la prend de front avec un montant négatif.
+  const party = typeof landscapeTarget === "function"
+    ? landscapeTarget(s, position)
+    : (position === "self" ? s.party : null);
+  return partyAxes(party);
 }
 
 function axisAffinity(position, partyKey) {
