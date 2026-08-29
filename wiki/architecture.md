@@ -300,7 +300,7 @@ Every rule reads and mutates it. Key fields:
   pending: [...],     // scheduled chain follow-ups: { id, turn, expires }
   popularity, standing,   // the two career gauges, 0..100
   rivals: [...],      // the political landscape's named figures (5 per party)
-  landscape: {},      // party → % vote share; landscapeBefore = last turn (for trends)
+  landscape: {},      // party → % vote share; landscapeTrail = the last four turns (for trends)
   assembly: {},       // party → seats, out of 577; fixed on each legislative night
   coalition: [...],   // the parties that vote the government's bills
   approval,           // the government's standing in the country, 0..100

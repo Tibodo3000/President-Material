@@ -170,7 +170,7 @@ function newGame(character) {
     standing: 0,
     rivals,               // une figure par parti
     landscape: {},        // rapport de force entre les partis, en pourcentage
-    landscapeBefore: {},  // le même, au tour précédent : sert aux tendances
+    landscapeTrail: [],   // les quatre derniers tours : sert aux tendances
     alliance: null,       // { party, turn } : le pacte en cours, s'il y en a un
     scene: null,          // la figure mise en scène par la carte affichée
     draw: null,           // le tirage de départ, pour la carte d'ouverture
@@ -215,6 +215,9 @@ function newGame(character) {
   // comparaison honnête à faire en fin de partie : ce qu'un camp vaut
   // aujourd'hui par rapport à ce qu'il valait quand vous êtes arrivé.
   state.startShares = { ...state.landscape };
+  // La première trace, pour que les flèches disent quelque chose dès la
+  // première année plutôt que de rester muettes quatre tours.
+  recordLandscape(state);
 
   // Le caractère est un trait, mais ses points sont déjà dans computeStats :
   // on l'inscrit sur la fiche sans les compter une seconde fois.
@@ -780,6 +783,37 @@ function moveShare(s, partyKey, amount) {
   s.landscape[partyKey] = Math.max(LANDSCAPE_FLOOR, before + amount);
   normalizeLandscape(s.landscape);
   return s.landscape[partyKey] - before;
+}
+
+/* ==========================================================================
+   CE QUI A BOUGÉ, ET SUR QUELLE DURÉE
+   ==========================================================================
+   Le panneau comparait le tableau du moment à CELUI DU TOUR PRÉCÉDENT, et le
+   cliché était pris au début du tour, c'est-à-dire APRÈS le choix qu'on
+   venait de faire. Un événement qui donnait deux points à un camp était donc
+   déjà dans la référence quand la flèche s'affichait : le joueur voyait le
+   frémissement du hasard et jamais la conséquence de sa propre décision, qui
+   était pourtant la seule chose qu'il avait faite.
+
+   La flèche se lit donc SUR UN AN, quatre tours, en gardant la trace de
+   chacun. Ce qu'un événement déplace reste visible quatre tours au lieu de
+   disparaître au suivant, la dérive lente cesse d'être noyée dans le bruit
+   d'un seul trimestre, et la référence ne dépend plus du moment où le cliché
+   est pris.
+   ========================================================================== */
+
+/** Enregistre le tableau du tour. Appelé une fois par tour, et à l'ouverture. */
+function recordLandscape(s) {
+  if (!s.landscapeTrail) s.landscapeTrail = [];
+  s.landscapeTrail.push({ ...s.landscape });
+  while (s.landscapeTrail.length > TURNS_PER_YEAR + 1) s.landscapeTrail.shift();
+}
+
+/** Ce que pesait un camp il y a un an, ou au plus loin dont on se souvienne. */
+function landscapeYearAgo(key) {
+  const trail = game.landscapeTrail;
+  if (!trail || !trail.length) return undefined;
+  return trail[0][key];
 }
 
 /** Fait bouger le paysage après un résultat : gagner déplace les lignes. */
@@ -2096,10 +2130,10 @@ function advanceTurn() {
   promoteWithinParty();
   evolveRivals();
 
-  // On garde le tableau du tour précédent : c'est lui qui permet d'afficher
-  // qui monte et qui descend, la seule information qui rende un paysage
-  // lisible d'un coup d'œil.
-  game.landscapeBefore = { ...game.landscape };
+  // On garde les quatre derniers tours du tableau : c'est ce qui permet
+  // d'afficher qui monte et qui descend, la seule information qui rende un
+  // paysage lisible d'un coup d'œil.
+  recordLandscape(game);
   driftLandscape();
   driftApproval();
   maybeCensure();
@@ -3475,7 +3509,7 @@ const BUILD = "2026-08-21 11:45";
     // pas.
     delete game.baseline;
     if (!game.landscape) game.landscape = initialLandscape();
-    if (!game.landscapeBefore) game.landscapeBefore = { ...game.landscape };
+    if (!game.landscapeTrail || !game.landscapeTrail.length) recordLandscape(game);
     if (game.alliance === undefined) game.alliance = null;
     if (game.scene === undefined) game.scene = null;
     // Une sauvegarde d'avant l'arc de fin de carrière n'a pas de compteur.

@@ -16,14 +16,17 @@
  * plus ancien.
  */
 
+/* La flèche se lit sur un an, et le panneau le dit : sans repère de durée,
+   « ▲2,1 » ne veut rien dire du tout. Voir recordLandscape() dans js/game.js. */
 function trendHTML(key) {
-  const before = game.landscapeBefore && game.landscapeBefore[key];
-  if (before === undefined) return "";
+  const avant = landscapeYearAgo(key);
+  if (avant === undefined) return "";
 
-  const delta = game.landscape[key] - before;
+  const delta = game.landscape[key] - avant;
   if (Math.abs(delta) < 0.5) return "";
 
-  return '<span class="force-trend ' + (delta > 0 ? "is-up" : "is-down") + '">' +
+  return '<span class="force-trend ' + (delta > 0 ? "is-up" : "is-down") +
+    '" title="' + t("force_trend_hint") + '">' +
     (delta > 0 ? "▲" : "▼") + Math.abs(delta).toFixed(1) + "</span>";
 }
 

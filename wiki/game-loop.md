@@ -56,7 +56,7 @@ credibilityDrift()     → stature drifts toward the level of your office
 driftGauges()          → popularity & standing slide toward their stat-based targets
 promoteWithinParty()   → militant↔cadre based on standing (the appareil job)
 evolveRivals()         → figures age, rise, retire; heirs spawn; leaders ensured
-landscapeBefore = {…}; driftLandscape()   → the national vote-share shifts
+recordLandscape(); driftLandscape()      → the national vote-share shifts
 ensureGovernment()     → the ruling camp gets a PM + ministers
 maybeDefection()       → someone may cross the floor
 applyTraitTurn()       → hidden income, per-trait risk rolls, wealth-attention rolls

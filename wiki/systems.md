@@ -339,7 +339,7 @@ game (`driftLandscape` in [game.js](../js/game.js)). Four forces move it: **incu
 erosion**, **popular figures** pulling their party up, **the player** (more so at exposed
 offices), and **random drift**. Events move it too, via the `landscape` effect, and they are
 the only force that anybody *decides*.
-`landscapeBefore` snapshots last turn so the UI can show ▲/▼ trends.
+`landscapeTrail` keeps the last four turns of the table, so the panel can show a ▲/▼ trend **over a year, events included**. It used to compare with the previous turn only, and the snapshot was taken at the top of the turn, i.e. *after* the choice just made: what an event moved was already inside the reference, so the player saw the quarter's random drift and never the consequence of their own decision.
 
 ### There is no baseline, and that is the design
 
