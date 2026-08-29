@@ -335,6 +335,36 @@ const CREDIBILITY_OVERSHOOT = 4;
 /** Un parti ne descend jamais tout à fait à zéro : il lui reste ses fidèles. */
 const LANDSCAPE_FLOOR = 1.5;
 
+/* --------------------------------------------------------------------------
+   LE PAYS DANS LEQUEL ON OUVRE LA PARTIE
+   --------------------------------------------------------------------------
+   Le socle de départ était « 28 moins cinq fois la difficulté », multiplié par
+   un facteur de 0,5 à 1,7. Multiplier l'écart-type par la moyenne est ce qui
+   condamnait les petits camps : un parti d'ancre 8 ne pouvait pas dépasser 18
+   quand un parti d'ancre 23 partait à 25. Mesuré sur vingt mille tirages, les
+   centristes ouvraient premiers dans 51 % des parties et les deux camps de
+   rupture dans 0 %.
+
+   Deux réglages séparés, donc. L'ANCRE dit ce que la difficulté d'un parti
+   penche, et elle est resserrée : de 18 pour les centristes à 9 pour les camps
+   de rupture, au lieu de 23 contre 8. L'ÉCART dit à quel point le pays peut
+   être ailleurs, et il est le même pour tous les camps, parce qu'une époque ne
+   choisit pas ses favoris en fonction de leur commodité.
+
+   Résultat mesuré : centristes premiers dans 34 % des parties, un camp de
+   rupture dans 10 %, et la difficulté penche toujours sans plus jamais
+   décider.
+   -------------------------------------------------------------------------- */
+
+/** Le haut de l'ancre, pour un parti de difficulté nulle. */
+const BASELINE_ANCHOR = 21;
+
+/** Ce que chaque cran de difficulté retire à l'ancre. */
+const BASELINE_TILT = 3;
+
+/** L'ampleur de l'écart d'une partie à l'autre, en log : 0,55 double environ. */
+const BASELINE_SPREAD = 0.55;
+
 /** Vitesse à laquelle le socle suit ce que le parti pèse réellement. */
 const BASELINE_FOLLOW = 0.006;
 

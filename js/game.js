@@ -275,19 +275,40 @@ function newGame(character) {
    qui manquait pour qu'une recomposition existe.
    ========================================================================== */
 
-/** Ce autour de quoi un parti se situe quand une partie s'ouvre. */
+/** Ce que la difficulté d'un parti penche, et rien de plus. */
+function baselineAnchor(key) {
+  return BASELINE_ANCHOR - PARTIES[key].difficulty * BASELINE_TILT;
+}
+
+/**
+ * Un tirage à peu près normal, centré, d'écart-type un. Trois uniformes
+ * suffisent : on ne fait pas de statistique ici, on tire un pays.
+ */
+function bellDraw() {
+  return (Math.random() + Math.random() + Math.random() - 1.5) * 2;
+}
+
+/**
+ * CE AUTOUR DE QUOI UN PARTI SE SITUE QUAND UNE PARTIE S'OUVRE.
+ *
+ * L'écart est MULTIPLICATIF ET LE MÊME POUR TOUS : chaque camp est multiplié
+ * par le même tirage, pas par une fraction de sa propre ancre. C'est toute la
+ * différence entre un pays qui peut être ailleurs et un pays qui ne peut
+ * qu'être plus ou moins lui-même. L'ancienne loi ajoutait le hasard en
+ * proportion de l'ancre : un camp de rupture n'avait pas assez de marge pour
+ * monter, et un camp de gouvernement en avait trop pour tomber.
+ */
 function initialBaseline() {
   const base = {};
   Object.keys(PARTIES).forEach((key) => {
-    const centre = 28 - PARTIES[key].difficulty * 5;
-    base[key] = Math.max(3, centre * (0.5 + Math.random() * 1.2) + (Math.random() - 0.35) * 7);
+    base[key] = Math.max(3, baselineAnchor(key) * Math.exp(bellDraw() * BASELINE_SPREAD));
   });
   return base;
 }
 
 /** Le socle du moment. Les vieilles sauvegardes n'en ont pas : on le rend. */
 function naturalShare(key) {
-  if (!game || !game.baseline) return 28 - PARTIES[key].difficulty * 5;
+  if (!game || !game.baseline) return baselineAnchor(key);
   return game.baseline[key];
 }
 
@@ -3449,7 +3470,7 @@ const BUILD = "2026-08-21 11:45";
     if (!game.baseline) {
       game.baseline = {};
       Object.keys(PARTIES).forEach((key) => {
-        game.baseline[key] = Math.max(3, (game.landscape && game.landscape[key]) || (28 - PARTIES[key].difficulty * 5));
+        game.baseline[key] = Math.max(3, (game.landscape && game.landscape[key]) || baselineAnchor(key));
       });
     }
     if (!game.landscape) game.landscape = initialLandscape(game);

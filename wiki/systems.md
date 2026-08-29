@@ -354,16 +354,40 @@ presidential elections.
 The baseline is now drawn at `newGame` (`initialBaseline`, stored in `state.baseline`) and
 **lives from there**. Difficulty still tilts it — a rupture camp opens low most of the time
 — but no longer decides: now and then the country is somewhere else. Then two slow springs
-answer each other: the share is pulled toward the baseline (`LANDSCAPE_PULL` 0.022), and the
-baseline slowly follows what the party actually does (`BASELINE_FOLLOW` 0.012, plus
+answer each other: the share is pulled toward the baseline (`LANDSCAPE_PULL`), and the
+baseline slowly follows what the party actually does (`BASELINE_FOLLOW`, plus
 `BASELINE_NOISE`). A spike falls back; ten years at the top re-anchor. That is what a
 realignment is, and it did not exist.
 
-Measured over 120–150 careers after the change: opening landscapes differ from game to game
-(conservatives, socdem or centrists lead depending on the draw), the country's largest party
-**changes during 46% of careers**, a rupture camp is the largest party at some point in
-**17%** of games and passes 20% in one game in five, and amplitudes peak between 15 and
-24 points depending on the party.
+### The draw itself: spread has to be separate from the anchor
+
+The first version of that draw still produced one country. It read
+`(28 − difficulty × 5) × (0.5 + random × 1.2)`, i.e. **it multiplied the spread by the
+anchor**: a camp anchored at 8 could not reach 18 while a camp anchored at 23 opened at 25.
+Over 20 000 draws the centrists opened first in **51%** of games and the two rupture camps
+in **0%**.
+
+So the two are now separate constants ([balance.js](../js/balance.js)). `BASELINE_ANCHOR`
+(21) minus `BASELINE_TILT` (3) per point of difficulty says what difficulty *tilts* — 18 for
+the centrists down to 9 for a rupture camp, instead of 23 against 8. `BASELINE_SPREAD`
+(0.55) says how far the country can be from that, as a log-normal factor **identical for
+every camp**, because an era does not pick its favourites by how convenient they are.
+
+Measured over 300 full careers, random pilot, before → after (29 August 2026):
+
+| | before | after |
+|---|---|---|
+| centrists lead at the opening | 51% | 33% |
+| turns spent led by the centrists | 39% | 27% |
+| a rupture camp leads at some point in the career | 3% / 7% | 18% / 17% |
+| a rupture camp passes 20% | 6% / 11% | 26% / 28% |
+| the largest party changes during the career | 81% | 70% |
+| win rate, random pilot, 300 careers | 14.0% | 15.3% |
+
+The last two lines are the price and the proof that it was worth paying: a wider opening
+spread means the leader is more often clearly ahead, so the lead changes hands slightly less
+often *inside* a game — while the games themselves stop being the same game. Difficulty
+still costs, and the overall win rate does not move.
 
 Rupture camps still win only ~1% of presidential elections. That is a different mechanism
 and a deliberate one: `rejectionRate` in the runoff is what stops them, which is the
