@@ -537,12 +537,12 @@ function careerScore(s) {
         parti laissé plus grand qu'on ne l'a trouvé est la seule chose qu'un
         appareil n'oublie jamais.
         On comparait au « socle », c'est-à-dire au niveau théorique vers
-        lequel le moteur rappelle chaque camp. C'était à la fois du jargon
+        lequel le moteur rappelait chaque camp. C'était à la fois du jargon
         interne affiché tel quel au joueur et la mauvaise référence : ce qui
         compte n'est pas l'écart à une valeur d'équilibre, c'est le chemin
-        parcouru pendant votre carrière. */
+        parcouru pendant votre carrière. Le socle n'existe d'ailleurs plus. */
   const depart = (s.startShares && s.startShares[s.party]) ||
-    (s.landscape && s.landscape[s.party]) || naturalShare(s.party);
+    (s.landscape && s.landscape[s.party]) || 0;
   const part = (s.landscape && s.landscape[s.party]) || depart;
   const ecart = part - depart;
   const maison = (s.peakStanding || 0) / 3 + ecart * 2.5;

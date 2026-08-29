@@ -336,51 +336,30 @@ const CREDIBILITY_OVERSHOOT = 4;
 const LANDSCAPE_FLOOR = 1.5;
 
 /* --------------------------------------------------------------------------
-   LE PAYS DANS LEQUEL ON OUVRE LA PARTIE
+   LE PAYS DANS LEQUEL ON OUVRE LA PARTIE, ET RIEN D'AUTRE
    --------------------------------------------------------------------------
-   Le socle de départ était « 28 moins cinq fois la difficulté », multiplié par
-   un facteur de 0,5 à 1,7. Multiplier l'écart-type par la moyenne est ce qui
-   condamnait les petits camps : un parti d'ancre 8 ne pouvait pas dépasser 18
-   quand un parti d'ancre 23 partait à 25. Mesuré sur vingt mille tirages, les
-   centristes ouvraient premiers dans 51 % des parties et les deux camps de
-   rupture dans 0 %.
+   IL N'Y A PAS DE SOCLE. Un parti n'a pas de niveau naturel vers lequel le
+   moteur le ramène : ce qu'il pèse est ce que la partie en a fait, et rien de
+   plus. Ce qui suit ne sert donc qu'une fois, au tout premier tour, pour dire
+   dans quel pays on entre. Ensuite, le tableau ne connaît plus que des causes
+   — gouverner use, une figure populaire tire, le joueur pèse, les événements
+   déplacent — et le hasard de l'époque.
 
-   Deux réglages séparés, donc. L'ANCRE dit ce que la difficulté d'un parti
-   penche, et elle est resserrée : de 18 pour les centristes à 9 pour les camps
-   de rupture, au lieu de 23 contre 8. L'ÉCART dit à quel point le pays peut
-   être ailleurs, et il est le même pour tous les camps, parce qu'une époque ne
-   choisit pas ses favoris en fonction de leur commodité.
-
-   Résultat mesuré : centristes premiers dans 34 % des parties, un camp de
-   rupture dans 10 %, et la difficulté penche toujours sans plus jamais
-   décider.
+   Le tirage lui-même sépare deux choses. L'ANCRE dit ce que la difficulté d'un
+   parti penche le jour de l'ouverture : 18 pour les centristes, 9 pour un camp
+   de rupture. L'ÉCART dit à quel point le pays peut être ailleurs, et il est
+   le même pour tous les camps, en log-normal, parce qu'une époque ne choisit
+   pas ses favoris en fonction de leur commodité.
    -------------------------------------------------------------------------- */
 
-/** Le haut de l'ancre, pour un parti de difficulté nulle. */
-const BASELINE_ANCHOR = 21;
+/** Le haut de l'ancre d'ouverture, pour un parti de difficulté nulle. */
+const OPENING_ANCHOR = 21;
 
-/** Ce que chaque cran de difficulté retire à l'ancre. */
-const BASELINE_TILT = 3;
+/** Ce que chaque cran de difficulté retire à l'ancre d'ouverture. */
+const OPENING_TILT = 3;
 
 /** L'ampleur de l'écart d'une partie à l'autre, en log : 0,55 double environ. */
-const BASELINE_SPREAD = 0.55;
-
-/** Vitesse à laquelle le socle suit ce que le parti pèse réellement. */
-const BASELINE_FOLLOW = 0.006;
-
-/** Ce que l'air du temps déplace tout seul, par tour. */
-const BASELINE_NOISE = 0.07;   // un tour deux fois plus court : bruit ÷ √2
-
-/**
- * Vitesse du rappel vers le socle, par tour.
- *
- * Elle était deux fois plus forte, et c'est ce qui rendait le tableau
- * illisible : un choc encaissé revenait à son point de départ en une dizaine
- * de tours, si bien que rien de ce qui arrivait dans la partie ne laissait de
- * trace. Le paysage doit garder la mémoire de ce qu'on lui fait, sinon il
- * n'est qu'un décor qui tremble.
- */
-const LANDSCAPE_PULL = 0.011;
+const OPENING_SPREAD = 0.55;
 
 /**
  * Le mouvement qu'il faut avoir accumulé pour qu'on en parle. Deux points et

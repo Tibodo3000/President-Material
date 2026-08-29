@@ -169,7 +169,6 @@ function newGame(character) {
     popularity: 0,
     standing: 0,
     rivals,               // une figure par parti
-    baseline: {},         // ce autour de quoi chaque parti se situe, et qui vit
     landscape: {},        // rapport de force entre les partis, en pourcentage
     landscapeBefore: {},  // le même, au tour précédent : sert aux tendances
     alliance: null,       // { party, turn } : le pacte en cours, s'il y en a un
@@ -187,14 +186,20 @@ function newGame(character) {
     card: null, // la carte affichée à droite : { kind, ... }
   };
 
-  // Le pays sort d'une décennie centriste : le président en exercice est le
-  // chef des centristes, il a un nom, et il en est à son premier mandat.
-  const sortant = rivals.find((r) => r.party === "centrists" && r.position === "chef");
-  state.president = { name: sortant.name, party: "centrists" };
-  state.presidentTerms = 1;
   // Le pays dans lequel on entre n'est pas le même d'une partie à l'autre.
-  state.baseline = initialBaseline();
-  state.landscape = initialLandscape(state);
+  state.landscape = initialLandscape();
+
+  // ET LE PRÉSIDENT SORTANT NON PLUS. C'était le chef des centristes dans
+  // toutes les parties, quelle que soit la tête du tableau : le pays pouvait
+  // bien être tiré ailleurs, l'Élysée, lui, revenait toujours au même camp, et
+  // c'est la moitié de ce que le joueur voyait du rapport de force. Il se tire
+  // donc au sort parmi les camps, au prorata de ce qu'ils pèsent le premier
+  // jour : le plus gros l'emporte souvent, pas toujours, comme dans un pays.
+  const sortantParti = pickShare(state.landscape);
+  const sortant = rivals.find((r) => r.party === sortantParti && r.position === "chef") ||
+    rivals.find((r) => r.party === sortantParti);
+  state.president = { name: sortant.name, party: sortantParti };
+  state.presidentTerms = 1;
   // CE QUE LES PARTIS PESAIENT LE JOUR OÙ VOUS ÊTES ENTRÉ. C'est la seule
   // comparaison honnête à faire en fin de partie : ce qu'un camp vaut
   // aujourd'hui par rapport à ce qu'il valait quand vous êtes arrivé.
@@ -240,44 +245,33 @@ function newGame(character) {
    ========================================================================== */
 
 
-/**
- * Le socle d'un parti : le niveau vers lequel il revient toujours quand plus
- * rien ne le pousse. Un grand parti de gouvernement remonte, un parti de
- * rupture redescend, et c'est ce qui donne son identité au paysage. Sans ce
- * rappel, quarante tours de hasard finissaient par rendre les six partis
- * interchangeables, et le choix du parti ne voulait plus rien dire.
- */
 /* ==========================================================================
-   LE SOCLE N'EST PAS UNE PROPRIÉTÉ DU PARTI, C'EST L'ÉTAT DU PAYS
+   LE RAPPORT DE FORCE N'A PAS DE SOCLE
    ==========================================================================
-   Il valait « 28 moins cinq fois la difficulté », c'est-à-dire un nombre
-   gravé dans le parti pour l'éternité. Deux conséquences, toutes les deux
-   mauvaises.
+   Il en a eu deux. D'abord un chiffre gravé dans le parti, « 28 moins cinq
+   fois la difficulté », vers lequel le moteur ramenait éternellement chacun :
+   toutes les parties commençaient pareil et rien ne pouvait se recomposer.
+   Puis un socle vivant, tiré au début et suivant lentement ce que le parti
+   faisait. C'était mieux et c'était encore un socle : un niveau de référence
+   auquel un camp appartenait, et vers lequel il revenait quoi qu'il arrive.
 
-   TOUTES LES PARTIES COMMENÇAIENT PAREIL. Les parts de départ étaient ce
-   socle plus zéro à huit points de hasard : les centristes ouvraient en tête
-   dans chaque partie, les camps de rupture fermaient la marche dans chaque
-   partie, et l'on entrait toujours dans le même pays.
+   IL N'Y EN A PLUS. Ce qu'un parti pèse est ce que la partie en a fait, et
+   rien d'autre ne le tire nulle part. Le tableau ne connaît donc que des
+   causes : gouverner use, et de plus en plus au second mandat ; une figure
+   populaire tire son camp ; le joueur pèse sur le sien à proportion de son
+   exposition ; un pacte profite aux deux signataires ; les événements
+   déplacent des points ; et l'époque fait le reste, par un bruit qui reste
+   plus petit que tout ce qui précède, pour que le mouvement reste causé.
 
-   ET RIEN NE POUVAIT SE RECOMPOSER. Le rappel ramenait éternellement chacun
-   à son chiffre : un camp porté à vingt pour cent pendant dix ans
-   redescendait à huit dès qu'on cessait de pousser. Mesurée sur cent vingt
-   carrières entières, l'amplitude d'un camp de rupture sur toute une vie
-   politique était de cinq points, et ces camps remportaient zéro pour cent
-   des présidentielles.
-
-   Le socle est donc tiré au début de partie et VIT ENSUITE. La difficulté
-   penche toujours — un camp de rupture part bas la plupart du temps — mais
-   elle ne décide plus : de temps en temps, le pays est ailleurs. Puis deux
-   ressorts lents se répondent : la part est rappelée vers le socle
-   (LANDSCAPE_PULL), et le socle suit lentement ce que le parti fait vraiment
-   (BASELINE_FOLLOW). Un pic retombe ; dix ans au sommet réancrent. C'est ce
-   qui manquait pour qu'une recomposition existe.
+   Ce qui se perd avec le socle, et qu'il faut assumer : un camp effondré ne
+   remonte plus tout seul. Il remonte s'il gouverne mal ailleurs, s'il trouve
+   une figure, ou si le joueur le porte. C'est le prix d'un pays qui n'a pas
+   de mémoire de ce qu'il est censé être.
    ========================================================================== */
 
-/** Ce que la difficulté d'un parti penche, et rien de plus. */
-function baselineAnchor(key) {
-  return BASELINE_ANCHOR - PARTIES[key].difficulty * BASELINE_TILT;
+/** Ce que la difficulté d'un parti penche le jour de l'ouverture. */
+function openingAnchor(key) {
+  return OPENING_ANCHOR - PARTIES[key].difficulty * OPENING_TILT;
 }
 
 /**
@@ -289,51 +283,26 @@ function bellDraw() {
 }
 
 /**
- * CE AUTOUR DE QUOI UN PARTI SE SITUE QUAND UNE PARTIE S'OUVRE.
+ * LE PAYS AU PREMIER TOUR. Tiré une fois, jamais consulté ensuite.
  *
  * L'écart est MULTIPLICATIF ET LE MÊME POUR TOUS : chaque camp est multiplié
  * par le même tirage, pas par une fraction de sa propre ancre. C'est toute la
  * différence entre un pays qui peut être ailleurs et un pays qui ne peut
- * qu'être plus ou moins lui-même. L'ancienne loi ajoutait le hasard en
- * proportion de l'ancre : un camp de rupture n'avait pas assez de marge pour
- * monter, et un camp de gouvernement en avait trop pour tomber.
+ * qu'être plus ou moins lui-même.
  */
-function initialBaseline() {
-  const base = {};
+function initialLandscape() {
+  const shares = {};
   Object.keys(PARTIES).forEach((key) => {
-    base[key] = Math.max(3, baselineAnchor(key) * Math.exp(bellDraw() * BASELINE_SPREAD));
+    shares[key] = Math.max(3, openingAnchor(key) * Math.exp(bellDraw() * OPENING_SPREAD));
   });
-  return base;
-}
-
-/** Le socle du moment. Les vieilles sauvegardes n'en ont pas : on le rend. */
-function naturalShare(key) {
-  if (!game || !game.baseline) return baselineAnchor(key);
-  return game.baseline[key];
-}
-
-
-
-/**
- * LA VIE DU SOCLE. Beaucoup plus lent que la part elle-même : un parti ne se
- * réancre pas sur un bon trimestre, il se réancre sur une décennie. C'est la
- * différence entre une vague et une recomposition.
- */
-function driftBaseline() {
-  Object.keys(game.baseline).forEach((key) => {
-    const part = game.landscape[key] || 0;
-    game.baseline[key] = Math.max(3,
-      game.baseline[key] +
-      (part - game.baseline[key]) * BASELINE_FOLLOW +
-      (Math.random() - 0.5) * BASELINE_NOISE);
-  });
+  return normalizeLandscape(shares);
 }
 
 /*
  * TOUT CE QUI SE DÉPLACE PAR TOUR EST DIVISÉ PAR DEUX.
  *
- * Le rappel ci-dessous, l'usure de ceux qui gouvernent, ce qu'une figure
- * populaire tire à son camp, ce qu'un pacte rapporte : ce sont des forces par
+ * L'usure de ceux qui gouvernent, ce qu'une figure populaire tire à son
+ * camp, ce qu'un pacte rapporte : ce sont des forces par
  * tour, et l'année en compte désormais quatre. Elles sont toutes reprises de
  * moitié, ce qui laisse le tableau à l'équilibre exactement où il était et
  * lui fait mettre le même nombre d'années à y aller. Le BRUIT, lui, est
@@ -341,14 +310,16 @@ function driftBaseline() {
  * variance annuelle qu'il faut conserver.
  */
 
-/** Répartition de départ, adossée à la difficulté des partis. */
-function initialLandscape(state) {
-  const base = (state && state.baseline) || initialBaseline();
-  const shares = {};
-  Object.keys(PARTIES).forEach((key) => {
-    shares[key] = Math.max(3, base[key] * (0.8 + Math.random() * 0.5));
-  });
-  return normalizeLandscape(shares);
+/** Un camp tiré au sort, au prorata de ce qu'il pèse. */
+function pickShare(shares) {
+  const keys = Object.keys(shares);
+  const total = keys.reduce((sum, key) => sum + Math.max(0, shares[key]), 0);
+  let seuil = Math.random() * total;
+  for (const key of keys) {
+    seuil -= Math.max(0, shares[key]);
+    if (seuil <= 0) return key;
+  }
+  return keys[keys.length - 1];
 }
 
 function normalizeLandscape(shares) {
@@ -689,10 +660,6 @@ function driftLandscape() {
   const ruling = rulingParty();
   const ally = allyParty();
 
-  // Le socle est exprimé sur la même échelle que le tableau une fois ramené
-  // à cent, sinon le rappel tirerait tout le monde dans le même sens.
-  const floor = Object.keys(PARTIES).reduce((sum, key) => sum + naturalShare(key), 0) / 100;
-
   Object.keys(game.landscape).forEach((key) => {
     // L'AIR DU TEMPS. Il valait 0,9, et le tableau ne bougeait plus : mesurée
     // sur cent vingt carrières entières, l'amplitude d'un parti sur toute une
@@ -702,12 +669,9 @@ function driftLandscape() {
     // mouvement doit rester causé, il ne doit pas être impossible.
     let move = (Math.random() - 0.5) * 1.15;
 
-    // Le rappel vers ce que le parti pèse naturellement dans le pays.
-    move += (naturalShare(key) / floor - game.landscape[key]) * LANDSCAPE_PULL;
-
     // GOUVERNER USE, ET DE PLUS EN PLUS. Un premier mandat s'entame
-    // doucement, un second se paie plein tarif : c'est ce qui fait respirer
-    // le tableau au lieu de le laisser figé sur ses socles.
+    // doucement, un second se paie plein tarif. Depuis qu'il n'y a plus de
+    // rappel, c'est la principale force qui rend le pouvoir périssable.
     if (key === ruling) move -= 0.22 + (game.presidentTerms - 1) * 0.25;
 
     // Une figure populaire tire son parti vers le haut.
@@ -733,7 +697,6 @@ function driftLandscape() {
   });
 
   normalizeLandscape(game.landscape);
-  driftBaseline();
   reportLandscape();
 }
 
@@ -3463,17 +3426,12 @@ const BUILD = "2026-08-21 11:45";
     }
 
     // Le paysage politique et les figures nommées sont arrivés après : une
-    // partie plus ancienne se les voit reconstruire au chargement.
-    // Une sauvegarde d'avant le socle vivant n'en a pas : on le pose sur ce
-    // que les partis valent aujourd'hui, pas sur ce qu'ils valaient en
-    // théorie. Le pays de cette partie-là est déjà ce qu'il est.
-    if (!game.baseline) {
-      game.baseline = {};
-      Object.keys(PARTIES).forEach((key) => {
-        game.baseline[key] = Math.max(3, (game.landscape && game.landscape[key]) || baselineAnchor(key));
-      });
-    }
-    if (!game.landscape) game.landscape = initialLandscape(game);
+    // partie plus ancienne se les voit reconstruire au chargement. Les
+    // sauvegardes du temps du socle en portent un : il ne sert plus à rien et
+    // il part, pour qu'aucune partie ne traîne un champ que le moteur ne lit
+    // pas.
+    delete game.baseline;
+    if (!game.landscape) game.landscape = initialLandscape();
     if (!game.landscapeBefore) game.landscapeBefore = { ...game.landscape };
     if (game.alliance === undefined) game.alliance = null;
     if (game.scene === undefined) game.scene = null;

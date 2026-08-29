@@ -337,61 +337,74 @@ and file member of a party you chair.
 `state.landscape` maps each party to a % vote share that lives and breathes the whole
 game (`driftLandscape` in [game.js](../js/game.js)). Four forces move it: **incumbency
 erosion**, **popular figures** pulling their party up, **the player** (more so at exposed
-offices), and **random drift**. Events move it too, via the `landscape` effect.
+offices), and **random drift**. Events move it too, via the `landscape` effect, and they are
+the only force that anybody *decides*.
 `landscapeBefore` snapshots last turn so the UI can show ▲/▼ trends.
 
-### The baseline is the state of the country, not a property of the party
+### There is no baseline, and that is the design
 
-`naturalShare()` used to return `28 − difficulty × 5` — a number carved into the party for
-all eternity. Two consequences, both bad. **Every game started the same**: opening shares
-were that floor plus 0–8 points of noise, so the centrists led in every single game and the
-rupture camps trailed in every single game. **And nothing could ever realign**: the pull
-dragged each party back to its number forever, so a camp carried to 20% for ten years fell
-back to 8% the moment you stopped pushing. Measured over 120 full careers, a rupture camp's
-amplitude across an entire political life was 5 points, and such camps won 0% of
-presidential elections.
+A party has **no natural level**. Nothing in the engine holds a number that a camp belongs
+to, and nothing pulls a camp back toward one. What a party weighs is what the game has made
+of it.
 
-The baseline is now drawn at `newGame` (`initialBaseline`, stored in `state.baseline`) and
-**lives from there**. Difficulty still tilts it — a rupture camp opens low most of the time
-— but no longer decides: now and then the country is somewhere else. Then two slow springs
-answer each other: the share is pulled toward the baseline (`LANDSCAPE_PULL`), and the
-baseline slowly follows what the party actually does (`BASELINE_FOLLOW`, plus
-`BASELINE_NOISE`). A spike falls back; ten years at the top re-anchor. That is what a
-realignment is, and it did not exist.
+That took two removals. The first was `naturalShare() = 28 − difficulty × 5`, a figure
+carved into the party for all eternity: every game opened in the same country and nothing
+could ever realign, because the pull dragged each camp back to its number forever. The
+second was the living baseline that replaced it, drawn at `newGame` and slowly following
+what the party did. Better, and still a baseline: a level a camp belonged to and returned to
+whatever happened.
 
-### The draw itself: spread has to be separate from the anchor
+So the table now knows only **causes**, and one draw:
 
-The first version of that draw still produced one country. It read
-`(28 − difficulty × 5) × (0.5 + random × 1.2)`, i.e. **it multiplied the spread by the
-anchor**: a camp anchored at 8 could not reach 18 while a camp anchored at 23 opened at 25.
-Over 20 000 draws the centrists opened first in **51%** of games and the two rupture camps
-in **0%**.
+| | |
+|---|---|
+| the opening | `initialLandscape()`, once, at `newGame`. `OPENING_ANCHOR − OPENING_TILT × difficulty` says what difficulty *tilts* on the first day (18 for the centrists, 9 for a rupture camp); `OPENING_SPREAD` says how far the country can be from that, log-normal and **identical for every camp**, because an era does not pick its favourites by how convenient they are. Never consulted again |
+| the sitting president | drawn with it, weighted by the opening shares (`pickShare`). It used to be the centrist leader in every single game: the country could be drawn anywhere, the Élysée always came back to the same camp, and that is half of what the player sees of the balance of power |
+| governing | −0.22 a turn, and −0.25 more per term already served. Since nothing pulls anything back, this is now the main reason power is perishable |
+| figures | a popular figure lifts their camp, an unpopular one drags it |
+| the player | their national popularity times their exposure, on their own camp only |
+| a pact | a small bonus to both signatories |
+| events | the `landscape` effect, 0.5 to 2.5 points, the only *decided* force |
+| the era | ±0.575 a turn of noise, deliberately smaller than any of the above so that movement stays caused |
 
-So the two are now separate constants ([balance.js](../js/balance.js)). `BASELINE_ANCHOR`
-(21) minus `BASELINE_TILT` (3) per point of difficulty says what difficulty *tilts* — 18 for
-the centrists down to 9 for a rupture camp, instead of 23 against 8. `BASELINE_SPREAD`
-(0.55) says how far the country can be from that, as a log-normal factor **identical for
-every camp**, because an era does not pick its favourites by how convenient they are.
+**What is lost with the baseline, and is accepted:** a camp that collapses does not come back
+on its own. It comes back if it governs badly elsewhere, if it finds a figure, or if the
+player carries it. That is the price of a country with no memory of what it is supposed to
+be. Measured over 300 careers, a camp ends under 4% in 7% of games and above 40% in 1%:
+collapses and landslides exist, they are rare, and they are stories.
 
-Measured over 300 full careers, random pilot, before → after (29 August 2026):
+Measured over 300 full careers, random pilot, at each step (29 August 2026):
 
-| | before | after |
-|---|---|---|
-| centrists lead at the opening | 51% | 33% |
-| turns spent led by the centrists | 39% | 27% |
-| a rupture camp leads at some point in the career | 3% / 7% | 18% / 17% |
-| a rupture camp passes 20% | 6% / 11% | 26% / 28% |
-| the largest party changes during the career | 81% | 70% |
-| win rate, random pilot, 300 careers | 14.0% | 15.3% |
+| | carved baseline | living baseline | no baseline |
+|---|---|---|---|
+| centrists lead at the opening | 51% | 33% | 36% |
+| turns spent led by the centrists | 39% | 27% | **32%** |
+| centrists lead at some point in the career | 79% | 51% | **62%** |
+| a rupture camp leads at some point | 3% / 7% | 18% / 17% | **20% / 15%** |
+| a rupture camp passes 20% | 6% / 11% | 26% / 28% | **29% / 29%** |
+| the largest party changes during the career | 81% | 70% | **77%** |
+| whole-career amplitude, median, big camps | 9–11 pts | 9–10 pts | **9.2–11.2 pts** |
+| whole-career amplitude, median, rupture camps | 6.4 pts | 6.3–6.8 pts | **7.5–7.6 pts** |
+| turns with a centrist president | 38% | 38% | **30%** |
+| win rate, random pilot | 14.0% | 9.3% | **14.0%** |
 
-The last two lines are the price and the proof that it was worth paying: a wider opening
-spread means the leader is more often clearly ahead, so the lead changes hands slightly less
-often *inside* a game — while the games themselves stop being the same game. Difficulty
-still costs, and the overall win rate does not move.
+The last line is worth reading carefully, because it moved twice. Removing the pull alone
+took the random pilot from 9.3% to **17.0%**: the centrist wall was doing work, and it was
+the pull that held it up. Drawing the sitting president instead of handing it to the
+centrists every game brought it back to 14.0% — because the centrists stopped being the camp
+that governs, and therefore erodes, in every single game. The two removals paid for each
+other, and the level of the game is where it was.
 
-Rupture camps still win only ~1% of presidential elections. That is a different mechanism
-and a deliberate one: `rejectionRate` in the runoff is what stops them, which is the
-*front républicain* doing its job.
+Lowering the incumbency erosion to buy difficulty back was measured and rejected: it returns
+two points of win rate and costs eleven points of lead changes, which is paying with exactly
+what the change was made to buy. If the global level has to come down, the lever is the
+nomination threshold, not the landscape.
+
+Rupture camps grew, and they still do not win often: they hold the Élysée in 6% and 5% of
+turns, against 20% to 30% for the governing camps, while now leading the polls in one career
+out of five. That gap is a different mechanism and a deliberate one: `rejectionRate` in the
+runoff is what stops them, which is the *front républicain* doing its job. Being the largest
+party and being electable are two different things, and the game is built on the difference.
 
 ### The player's hand on it
 
