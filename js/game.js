@@ -2212,6 +2212,21 @@ function enterElection(electionId) {
     return;
   }
 
+  // LE CONGRÈS SANS ENJEU NE SE RACONTE PAS AVEC LES SCÈNES DU PAYS. Le
+  // paquet "aside" décrit une échéance où l'on VOTE : des marchés, des
+  // tracts, une soirée électorale, une tête de liste, un soir de résultats.
+  // Aucune de ses douze scènes ne tient debout sous le bandeau d'un congrès,
+  // et le joueur a donc lu qu'un camp voisin distribuait ses tracts sur ses
+  // marchés un soir de réunion de militants. Un congrès qui se tient sans lui
+  // n'est pas une scène, c'est une nouvelle : la carte "info" existait pour
+  // ça et ne servait plus.
+  if (election.id === "congres" && !stake) {
+    const nouvelle = congressWithoutYou();
+    addLog(nouvelle);
+    game.card = { kind: "info", tagKey: "elec_congres", resultText: fillMarks(L(nouvelle)) };
+    return;
+  }
+
   if (!stake || (nominationBlocked(stake) && !inTheRunning(stake))) {
     game.card = startAside(election.id);
     return;
@@ -2655,14 +2670,38 @@ function standDown(stake) {
   return texte;
 }
 
+/** Le congrès qui se tient sans vous : une maison qui se donne un chef. */
+function congressWithoutYou() {
+  const chef = leaderOf(game.party);
+  if (!chef) {
+    return {
+      fr: "Le congrès de {party_the:" + game.party + "} se tient sans vous, et vous l'apprenez par le compte rendu.",
+      en: "The {party_the:" + game.party + "} congress is held without you, and you learn of it from the minutes.",
+    };
+  }
+  return {
+    fr: "Le congrès de {party_the:" + game.party + "} se tient sans vous. " + chef.name +
+        " en sort confirmé à la tête de la maison, et le communiqué parle d'un parti rassemblé.",
+    en: "The {party_the:" + game.party + "} congress is held without you. " + chef.name +
+        " comes out of it confirmed at the head of the house, and the statement speaks of a party united.",
+  };
+}
+
 /**
  * L'élection se joue sans le joueur. Elle n'est pas décorative pour autant :
  * elle donne un président à la République, et elle déplace le rapport de
  * force que le joueur retrouvera au moment de se présenter.
  */
 function backgroundElectionText(electionId) {
+  // LE CONGRÈS N'EST PAS UN SCRUTIN DU PAYS. On n'y interroge personne, aucun
+  // bulletin n'est imprimé, et il ne déplace pas d'un dixième les intentions
+  // de vote nationales : c'est une réunion de militants qui donne un chef à
+  // une maison. Il tombait pourtant dans la branche commune, avec un « camp
+  // vainqueur » tiré au sort et deux points de paysage à la clef.
+  if (electionId === "congres") return congressWithoutYou();
+
   if (electionId !== "presidentielle") {
-    // Législatives, municipales, congrès : le pays vote, le paysage bouge un peu.
+    // Législatives, municipales, européennes : le pays vote, le paysage bouge.
     const winner = weightedParty();
     shiftLandscape(winner, +2);
     return {
