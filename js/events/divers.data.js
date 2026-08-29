@@ -224,22 +224,22 @@ const EV_divers = [
   "when": { "maxPopularity": 45, "position": ["maire", "depute", "ministre", "chef"] },
   "tag": { "fr": "Traversée du désert", "en": "In the wilderness" },
   "text": {
-    "fr": "Les sondages sont catastrophiques. Vos propres amis évitent de se faire photographier avec vous.",
-    "en": "The polls are catastrophic. Your own friends avoid being photographed with you."
+    "fr": "Quatrième sondage de suite dans la même direction. On ne vous propose plus de plateau, on vous propose des duplex, et deux personnes qui vous doivent leur carrière ont trouvé un empêchement pour la photo de famille de samedi.",
+    "en": "The fourth poll in a row pointing the same way. Nobody offers you a studio any more, only remote links, and two people who owe you their careers have found a reason not to be in Saturday's group photograph."
   },
   "choices": [
     { "label": { "fr": "Un coup d'éclat, quitte à tout risquer", "en": "A dramatic gesture, whatever the risk" },
       "roll": { "stat": "charisme", "base": 14, "dice": 16 },
       "success": { "effects": { "notoriete": 2, "popularity": 18, "standing": -5 },
-        "result": { "fr": "Le pari fonctionne. On reparle de vous, autrement.",
-                    "en": "The gamble works. People talk about you again, differently." } },
+        "result": { "fr": "Vous annoncez quelque chose que personne n'attendait de vous, un lundi matin, sans prévenir votre propre équipe. On reparle de vous le soir même, et cette fois pour ce que vous dites.",
+                    "en": "You announce something nobody expected from you, on a Monday morning, without warning your own staff. People are talking about you again by the evening, and this time about what you said." } },
       "failure": { "effects": { "notoriete": 1, "popularity": -8, "standing": -10, "reputation": -1 },
-        "result": { "fr": "Le coup tombe à plat et confirme ce que tout le monde pensait.",
-                    "en": "The gesture falls flat and confirms what everyone already thought." } } },
+        "result": { "fr": "Trois rédactions envoient un stagiaire, aucune ne le passe au journal, et un éditorialiste écrit le mot désespoir. Un coup d'éclat qui rate ne vous ramène pas au point de départ, il vous met en dessous.",
+                    "en": "Three newsrooms send an intern, none of them runs it, and a commentator uses the word desperation. A dramatic gesture that fails does not put you back where you started, it puts you below it." } } },
     { "label": { "fr": "Se faire oublier et travailler", "en": "Go quiet and work" },
       "effects": { "energie": 1, "sangfroid": 1, "standing": 8, "popularity": -3 },
-      "result": { "fr": "Six mois de silence et de dossiers. Les tempêtes finissent par passer.",
-                  "en": "Six months of silence and paperwork. Storms do pass." } },
+      "result": { "fr": "Six mois sans une déclaration, deux rapports rendus dans les délais et quarante réunions de circonscription. Personne ne vous en félicitera, et c'est la seule chose qui n'a jamais raté personne.",
+                  "en": "Six months without a statement, two reports delivered on time and forty constituency meetings. Nobody will congratulate you for it, and it is the only thing that has never failed anybody." } },
     { "label": { "fr": "Changer toute votre communication", "en": "Change your entire communications team" },
       "when": { "minMoney": 80000 },
       "effects": { "money": -60000, "popularity": 6, "notoriete": 1, "reseau": -1, "standing": -2 },
@@ -254,18 +254,18 @@ const EV_divers = [
   "when": { "minPopularity": 74 },
   "tag": { "fr": "Favori", "en": "The favourite" },
   "text": {
-    "fr": "Tous les sondages vous donnent gagnant. C'est le moment où l'on commence à vous détester.",
-    "en": "Every poll has you winning. This is the moment when people start to dislike you."
+    "fr": "Tous les instituts vous donnent gagnant, deux magazines préparent une couverture et l'on commence à écrire votre nom sans votre fonction devant. C'est très exactement le moment où le pays se met à chercher ce qui cloche chez vous, et il trouve toujours.",
+    "en": "Every polling firm has you winning, two magazines are preparing covers, and people are starting to write your name without your title in front of it. This is precisely the moment when the country starts looking for what is wrong with you, and it always finds something."
   },
   "choices": [
     { "label": { "fr": "Rester humble en public", "en": "Stay humble in public" },
       "effects": { "reputation": 1, "sangfroid": 1, "popularity": 3, "standing": -4 },
-      "result": { "fr": "« Rien n'est joué. » La formule est fausse et indispensable.",
-                  "en": "“Nothing is decided yet.” The line is false and indispensable." } },
+      "result": { "fr": "« Rien n'est joué, et je me méfie des sondages. » Vous le dites quatorze fois en trois semaines avec le même air soucieux. La formule est fausse, tout le monde le sait, et l'abandonner coûterait beaucoup plus cher que de la répéter.",
+                  "en": "“Nothing is decided, and I distrust polls.” You say it fourteen times in three weeks with the same worried expression. The line is false, everybody knows it, and dropping it would cost far more than repeating it." } },
     { "label": { "fr": "Occuper le terrain comme un vainqueur", "en": "Act like the winner" },
       "effects": { "notoriete": 1, "popularity": -8, "standing": 8 },
-      "result": { "fr": "L'assurance impressionne les cadres et exaspère les électeurs.",
-                  "en": "The confidence impresses the officials and irritates the voters." } },
+      "result": { "fr": "Vous parlez au futur de l'indicatif pendant un mois entier. L'appareil trouve cela rassurant, les électeurs trouvent cela déjà vu, et les deux ont l'expérience pour eux.",
+                  "en": "You spend a month speaking in the future tense. The machine finds it reassuring, the voters find it familiar, and both have experience on their side." } },
     { "label": { "fr": "Composer votre gouvernement à l'avance", "en": "Draw up your government in advance" },
       "effects": { "reseau": 2, "standing": 9, "popularity": -7, "reputation": -1 },
       "result": { "fr": "La liste circule avant le vote. Ceux qui n'y sont pas s'en souviendront plus longtemps que ceux qui y sont.",
@@ -279,18 +279,18 @@ const EV_divers = [
   "when": { "minMoney": 1500000 },
   "tag": { "fr": "Fortune", "en": "Wealth" },
   "text": {
-    "fr": "Votre déclaration de patrimoine est publiée. Le chiffre circule plus vite que n'importe laquelle de vos idées.",
-    "en": "Your declaration of assets is published. The number travels faster than any of your ideas."
+    "fr": "La déclaration de patrimoine est publiée, comme la loi l'exige, et un compte la met en ligne sous forme d'image avec le total en gros caractères. Le chiffre est exact, il est légal, et il circule vingt fois plus vite que n'importe laquelle de vos idées.",
+    "en": "The declaration of assets is published, as the law requires, and an account puts it online as an image with the total in large type. The figure is accurate, it is lawful, and it travels twenty times faster than any of your ideas."
   },
   "choices": [
     { "label": { "fr": "Assumer votre réussite", "en": "Own your success" },
       "effects": { "sangfroid": 1, "standing": 8, "popularity": -9 },
-      "result": { "fr": "« Je n'ai pas à m'excuser. » C'est vrai, et ça ne s'entend pas bien.",
-                  "en": "“I have nothing to apologise for.” True, and it does not sound good." } },
+      "result": { "fr": "« Je n'ai pas à m'excuser d'avoir réussi. » La phrase est juridiquement irréprochable, moralement défendable, et elle est reprise seule, sans le reste de la réponse, par tout le monde et pour longtemps.",
+                  "en": "“I will not apologise for having done well.” The sentence is legally impeccable, morally defensible, and it is quoted on its own, without the rest of the answer, by everybody and for a long time." } },
     { "label": { "fr": "Reverser une part à une fondation", "en": "Give a share to a foundation" },
       "effects": { "money": -350000, "reputation": 2, "popularity": 12, "standing": -5 },
-      "result": { "fr": "Le geste est jugé sincère par les uns, calculé par les autres. Il marche.",
-                  "en": "Some call the gesture sincere, others calculated. It works." } },
+      "result": { "fr": "La fondation existe depuis deux ans, elle finance des internats, et le virement est réel. Les uns trouvent le geste sincère, les autres le trouvent calculé, et les deux ont raison, ce qui n'empêche pas les internats d'exister.",
+                  "en": "The foundation has existed for two years, it funds boarding places, and the transfer is real. Some find the gesture sincere, others find it calculated, and both are right, which does not stop the boarding places from existing." } },
     { "label": { "fr": "Expliquer que vous avez travaillé pour ça", "en": "Explain that you worked for it" },
       "effects": { "popularity": -4, "standing": 4, "charisme": 1, "reputation": -1 },
       "result": { "fr": "La phrase « je ne me suis pas levé tôt pour rien » restera. On vous la ressortira à chaque déclaration de patrimoine.",
@@ -304,19 +304,19 @@ const EV_divers = [
   "when": { "maxMoney": 25000 },
   "tag": { "fr": "Argent", "en": "Money" },
   "text": {
-    "fr": "Votre compte est vide et la campagne coûte. Votre banquier a cessé de rappeler.",
-    "en": "Your account is empty and campaigning costs money. Your bank manager has stopped calling back."
+    "fr": "Le compte de campagne est à sec à onze semaines du scrutin, la banque a refusé le découvert par courrier type, et votre mandataire financier vous demande, très poliment, comment on paie l'imprimeur vendredi.",
+    "en": "The campaign account is empty eleven weeks out, the bank has refused an overdraft in a form letter, and your finance agent is asking you, very politely, how the printer gets paid on Friday."
   },
   "choices": [
     { "label": { "fr": "Emprunter à un proche fortuné", "en": "Borrow from a wealthy friend" },
       "effects": { "money": 120000, "standing": 2, "flags": { "dirtyMoney": true } },
-      "result": { "fr": "Le prêt est amical, sans papier et sans intérêt. C'est exactement le problème.",
-                  "en": "The loan is friendly, undocumented and interest-free. That is exactly the problem." } },
+      "result": { "fr": "Un virement le mardi, une poignée de main le jeudi, aucun écrit nulle part. Le prêt est amical, sans intérêt et sans échéance, ce qui est exactement le problème : une dette sans date ne se rembourse jamais en argent.",
+                  "en": "A transfer on the Tuesday, a handshake on the Thursday, nothing in writing anywhere. The loan is friendly, interest-free and open-ended, which is exactly the problem: a debt with no date is never repaid in money." } },
     { "label": { "fr": "Faire campagne sans un sou", "en": "Campaign without a penny" },
       "when": { "stat": { "energie": { "min": 8 } } },
       "effects": { "energie": -2, "reputation": 2, "popularity": 6, "standing": -4 },
-      "result": { "fr": "Tracts photocopiés et salles municipales. On vous trouve authentique, et fauché.",
-                  "en": "Photocopied leaflets and municipal halls. People find you authentic, and broke." } },
+      "result": { "fr": "Tracts photocopiés au format brouillon, salles municipales prêtées et une voiture personnelle qui fait quatre mille kilomètres en six semaines. On vous trouve authentique, ce qui est le mot que le pays emploie pour dire fauché.",
+                  "en": "Leaflets photocopied in draft mode, borrowed municipal halls and a private car that does four thousand kilometres in six weeks. People find you authentic, which is the word the country uses for broke." } },
     { "label": { "fr": "Prendre une place dans un conseil d'administration", "en": "Take a seat on a company board" },
       "effects": { "money": 90000, "reseau": 2, "reputation": -2, "popularity": -6, "flags": { "dirtyMoney": true } },
       "result": { "fr": "Quatre réunions par an, un jeton de présence confortable et un conflit d'intérêts que personne ne relèvera avant longtemps.",
@@ -331,22 +331,22 @@ const EV_divers = [
   "when": { "origin": ["bourgeois", "dynasty"], "position": ["depute", "ministre", "chef"] },
   "tag": { "fr": "Origines", "en": "Origins" },
   "text": {
-    "fr": "En meeting, un homme vous lance que vous n'avez jamais travaillé de vos mains. La salle attend votre réponse.",
-    "en": "At a rally, a man tells you that you have never worked with your hands. The room waits for your answer."
+    "fr": "Fin de meeting, micro baladeur, et un homme d'une soixantaine d'années vous dit que vous n'avez jamais travaillé de vos mains et que cela s'entend dans tout ce que vous dites. Il n'est ni agressif ni militant, ce qui est le pire des cas, et la salle attend.",
+    "en": "The end of the rally, a roving microphone, and a man in his sixties tells you that you have never worked with your hands and that it can be heard in everything you say. He is neither aggressive nor an activist, which is the worst case, and the room waits."
   },
   "choices": [
     { "label": { "fr": "Reconnaître le privilège", "en": "Acknowledge the privilege" },
       "roll": { "stat": "sangfroid", "base": 12, "dice": 16 },
       "success": { "effects": { "reputation": 2, "popularity": 12 },
-        "result": { "fr": "« Vous avez raison. » Le silence puis les applaudissements font le tour du pays.",
-                    "en": "“You are right.” The silence, then the applause, travels the country." } },
+        "result": { "fr": "« Vous avez raison, et je ne vais pas vous raconter le contraire. » Vous ne rattrapez rien derrière, ce qui est le plus difficile. Le silence dure trois secondes, les applaudissements viennent du fond de la salle, et la séquence fait le tour du pays sans montage.",
+                    "en": "“You are right, and I am not going to pretend otherwise.” You add nothing to soften it, which is the hard part. The silence lasts three seconds, the applause starts at the back of the hall, and the clip goes round the country unedited." } },
       "failure": { "effects": { "popularity": -8, "reputation": -1 },
-        "result": { "fr": "Votre humilité sonne apprise. On vous trouve encore plus loin.",
-                    "en": "Your humility sounds rehearsed. You seem even further away." } } },
+        "result": { "fr": "Vous dites que vous avez conscience de votre chance, avec la voix qu'on prend pour dire ce genre de chose. Il répond que ce n'est pas la question, et il a raison, et tout le monde dans la salle le voit.",
+                    "en": "You say you are aware of your good fortune, in the voice people use for saying that sort of thing. He answers that this is not the question, and he is right, and everyone in the hall can see it." } } },
     { "label": { "fr": "Défendre votre parcours", "en": "Defend your record" },
       "effects": { "eloquence": 1, "standing": 9, "popularity": -7 },
-      "result": { "fr": "Vous récitez votre CV. Personne n'avait posé cette question.",
-                  "en": "You recite your CV. Nobody had asked that question." } },
+      "result": { "fr": "Vous listez vos stages, vos mandats et les deux étés passés en usine il y a trente ans. C'est vrai, c'est vérifiable, et personne dans la salle n'avait posé cette question.",
+                  "en": "You list your internships, your mandates and the two summers you spent in a factory thirty years ago. It is true, it is checkable, and nobody in the hall had asked that question." } },
     { "label": { "fr": "Passer la soirée au bar avec lui", "en": "Spend the evening at the bar with him" },
       "effects": { "popularity": 3, "energie": -2, "charisme": 1, "standing": -3 },
       "result": { "fr": "Deux heures de discussion et trois tournées. Il ne votera pas pour vous, mais il le dira à trente personnes.",
@@ -361,32 +361,32 @@ const EV_divers = [
   "when": { "background": ["academia", "civil", "law"], "position": ["depute", "ministre", "chef"] },
   "tag": { "fr": "Expertise", "en": "Expertise" },
   "text": {
-    "fr": "Une crise technique éclate dans votre domaine d'origine. Vous êtes le seul du plateau à comprendre le dossier.",
-    "en": "A technical crisis erupts in your original field. You are the only one on the panel who understands the file."
+    "fr": "Une crise éclate dans le domaine où vous avez passé quinze ans avant la politique. Sur le plateau, vous êtes le seul à savoir de quoi il s'agit, et le seul à savoir aussi que l'explication honnête prend huit minutes alors que le format en accorde deux.",
+    "en": "A crisis erupts in the field where you spent fifteen years before politics. On the panel you are the only one who knows what it is about, and also the only one who knows that the honest explanation takes eight minutes when the format allows two."
   },
   "choices": [
     { "label": { "fr": "Expliquer sérieusement", "en": "Explain it properly" },
       "effects": { "credibilite": +2, "eloquence": 1, "reputation": 2, "popularity": 9, "standing": 6, "energie": -1 },
-      "result": { "fr": "Dix minutes de pédagogie. La séquence tourne pendant des jours.",
-                  "en": "Ten minutes of real explanation. The clip circulates for days." } },
+      "result": { "fr": "Vous prenez les huit minutes, sans schéma et sans mépris, et le présentateur vous laisse aller au bout parce qu'il n'a rien de mieux. La séquence tourne pendant des jours, partagée par des gens qui commencent leur message par « enfin quelqu'un qui explique ».",
+                  "en": "You take the eight minutes, with no diagram and no condescension, and the presenter lets you finish because he has nothing better. The clip circulates for days, shared by people whose message begins “at last, somebody who explains”." } },
     { "label": { "fr": "Simplifier à l'extrême", "en": "Simplify brutally" },
       "effects": { "credibilite": -1, "notoriete": 2, "reputation": -1, "popularity": 5 },
-      "result": { "fr": "La formule choc est reprise partout, y compris par ceux qui vous citent mal.",
-                  "en": "The soundbite is repeated everywhere, including by those who misquote you." } },
+      "result": { "fr": "Vous réduisez quinze ans de métier à une comparaison de neuf mots avec une baignoire. Elle est reprise partout, y compris par des gens qui la citent à l'envers, et vous ne pourrez plus jamais la nuancer.",
+                  "en": "You reduce fifteen years of expertise to a nine-word comparison involving a bathtub. It is quoted everywhere, including backwards, and you will never be able to qualify it again." } },
     { "label": { "fr": "Publier une note technique détaillée", "en": "Publish a detailed technical note" },
       "when": { "background": ["academia", "civil"] },
       "effects": { "credibilite": +3, "eloquence": 1, "reputation": 2, "standing": 8, "popularity": -3 },
-      "result": { "fr": "Quinze pages que tous les journalistes citent sans les avoir lues.",
-                  "en": "Fifteen pages every journalist quotes without having read them." } },
+      "result": { "fr": "Quinze pages, onze notes de bas de page et deux graphiques. Le document devient la référence de tout le monde en quarante-huit heures, cité par des journalistes qui en ont lu le résumé et par deux ministères qui n'en citeront pas la source.",
+                  "en": "Fifteen pages, eleven footnotes and two charts. Within forty-eight hours it is everybody's reference, quoted by journalists who have read the summary and by two ministries that will not credit it." } },
     { "label": { "fr": "Proposer votre expertise au gouvernement", "en": "Offer your expertise to the government" },
       "when": { "personality": ["clever"] },
       "roll": { "base": 14, "stat": "reseau", "plus": { "eloquence": 0.4, "standing": 0.04 }, "dice": 16 },
       "success": { "effects": { "credibilite": +2, "reseau": 2, "reputation": 2, "standing": 9, "popularity": 5 },
-        "result": { "fr": "Ils acceptent. Vous êtes désormais celui qu'on appelle quand c'est grave.",
-                    "en": "They accept. You are now the person they call when it is serious." } },
+        "result": { "fr": "Un conseiller vous rappelle à vingt-trois heures et vous êtes en réunion le lendemain à sept heures, sans que rien ne sorte dans la presse. Vous êtes devenu celui qu'on appelle quand c'est grave, ce qui est une position bien plus solide qu'un maroquin.",
+                    "en": "An adviser calls you back at eleven at night and you are in a meeting at seven the next morning, with nothing in the press. You have become the person they call when it is serious, which is a far stronger position than a ministry." } },
       "failure": { "effects": { "credibilite": -1, "standing": -7, "popularity": -3 },
-        "result": { "fr": "Ils refusent poliment et votre camp vous reproche d'avoir proposé.",
-                    "en": "They decline politely and your own side resents you for offering." } } }
+        "result": { "fr": "Le cabinet répond en quatre lignes qu'il dispose des compétences nécessaires en interne. Votre propre camp, lui, apprend que vous avez proposé vos services à ceux qu'il combat, et cela circule plus vite que la réponse.",
+                    "en": "The minister's office replies in four lines that it has the necessary expertise in house. Your own side, meanwhile, learns that you offered your services to the people it is fighting, and that travels faster than the reply." } } }
   ]
 },
 
@@ -397,18 +397,18 @@ const EV_divers = [
   "when": { "personality": ["provocative"] },
   "tag": { "fr": "Tempérament", "en": "Temperament" },
   "text": {
-    "fr": "On vous tend un micro après une décision impopulaire du gouvernement. Vous savez déjà ce que vous allez dire.",
-    "en": "A microphone is pushed at you after an unpopular government decision. You already know what you will say."
+    "fr": "Sortie de séance, huit micros tendus, une décision du gouvernement que personne ne défend et une question ouverte comme une porte de grange. La phrase est déjà formée dans votre tête, vous savez exactement ce qu'elle coûtera, et vous savez aussi qu'elle passera au journal de vingt heures.",
+    "en": "Coming out of the chamber, eight microphones held up, a government decision nobody is defending and a question as wide open as a barn door. The sentence is already formed in your head, you know exactly what it will cost, and you also know it will lead the evening news."
   },
   "choices": [
     { "label": { "fr": "Lâcher la phrase qui fâche", "en": "Say the line that will hurt" },
       "effects": { "axis": "self", "notoriete": 3, "reputation": -2, "popularity": 14, "standing": -9 },
-      "result": { "fr": "Trois jours de polémique et votre nom dans toutes les bouches.",
-                  "en": "Three days of outrage and your name in every mouth." } },
+      "result": { "fr": "Trois jours de polémique, quatre plateaux et une tribune signée par onze personnes qui demandent votre exclusion. Votre nom est dans toutes les bouches, y compris celles qui ne le prononçaient jamais, et c'est très exactement ce que vous étiez venu chercher.",
+                  "en": "Three days of outrage, four studio appearances and an open letter signed by eleven people demanding your expulsion. Your name is in every mouth, including the ones that never said it, and that is precisely what you came for." } },
     { "label": { "fr": "Vous retenir, pour une fois", "en": "Hold back, for once" },
       "effects": { "sangfroid": 2, "standing": 8, "popularity": -4, "reputation": 1 },
-      "result": { "fr": "Vous vous surprenez vous-même. Vos conseillers respirent.",
-                  "en": "You surprise yourself. Your advisers breathe out." } },
+      "result": { "fr": "Vous répondez trois phrases plates et vous montez en voiture. Votre attachée de presse vous regarde comme si vous étiez malade, et vous mettez deux jours à comprendre que vous n'avez rien perdu du tout.",
+                  "en": "You give three flat sentences and get into the car. Your press officer looks at you as though you were ill, and it takes you two days to realise you have lost nothing at all." } },
     { "label": { "fr": "Lâcher la phrase, puis s'excuser à moitié", "en": "Say it, then half-apologise" },
       "effects": { "notoriete": 2, "popularity": 5, "standing": -3, "reputation": -1, "strike": "menteur" },
       "result": { "fr": "Vous regrettez « la forme, pas le fond ». Les deux camps y trouvent leur compte, ce qui est le but.",
@@ -422,23 +422,23 @@ const EV_divers = [
   "when": { "position": ["chef"], "minTurn": 48 },
   "tag": { "fr": "Usure", "en": "Wear and tear" },
   "text": {
-    "fr": "Vous dirigez le parti depuis longtemps. Les mêmes réunions, les mêmes visages, les mêmes phrases.",
-    "en": "You have led the party for a long time. The same meetings, the same faces, the same sentences."
+    "fr": "Douze ans à la tête de la maison. Le bureau politique du mardi se tient dans la même salle avec les mêmes onze personnes, et vous avez commencé à reconnaître vos propres formules dans la bouche de gens qui croient les inventer.",
+    "en": "Twelve years at the head of the house. Tuesday's executive meets in the same room with the same eleven people, and you have started to recognise your own phrases in the mouths of people who think they are coining them."
   },
   "choices": [
     { "label": { "fr": "Renouveler tout l'état-major", "en": "Replace the entire leadership team" },
       "roll": { "chance": 0.55 },
       "success": { "effects": { "reseau": 1, "energie": 1, "standing": 10, "appeal": { "self": 5 } },
-        "result": { "fr": "Le sang neuf redonne un souffle. On reparle de vous au présent.",
-                    "en": "The new blood gives you air. People talk about you in the present tense again." } },
+        "result": { "fr": "Quatre départs annoncés le même matin, avec des remerciements sincères, et quatre arrivées dont trois ont moins de quarante ans. On reparle de la maison au présent, et personne ne dit tout haut que c'est vous qui aviez le plus besoin de ce renouvellement.",
+                    "en": "Four departures announced the same morning, with sincere thanks, and four arrivals, three of them under forty. People talk about the house in the present tense again, and nobody says out loud that you were the one who most needed the renewal." } },
       "failure": { "effects": { "reseau": -2, "standing": -16, "popularity": -5 },
-        "result": { "fr": "Les évincés ne partent pas. Ils s'organisent.",
-                    "en": "Those pushed out do not leave. They organise." } } },
+        "result": { "fr": "Les quatre évincés déjeunent ensemble le jeudi suivant, ce qu'ils n'avaient pas fait depuis dix ans. Ils ne partent pas, ils ne démentent rien, et une motion circule avant l'été.",
+                    "en": "The four who were pushed out have lunch together the following Thursday, something they had not done in ten years. They do not leave, they deny nothing, and a motion is circulating before the summer." } } },
     { "label": { "fr": "Ne rien changer", "en": "Change nothing" },
       "when": { "stat": { "energie": { "min": 8 } } },
       "effects": { "standing": 7, "popularity": -4, "energie": -1 },
-      "result": { "fr": "La maison tourne. Elle tourne un peu à vide.",
-                  "en": "The machine runs. It runs a little empty." } },
+      "result": { "fr": "Le bureau du mardi dure une heure dix, les décisions sont prises, les comptes rendus sont exacts. La maison tourne parfaitement et elle ne produit plus une idée depuis trois ans, ce que personne autour de la table n'a intérêt à remarquer.",
+                  "en": "Tuesday's executive lasts an hour and ten minutes, decisions are taken, the minutes are accurate. The house runs perfectly and has not produced an idea in three years, which nobody around the table has any interest in noticing." } },
     { "label": { "fr": "Un remaniement cosmétique", "en": "A cosmetic reshuffle" },
       "effects": { "standing": 4, "popularity": -3, "reseau": 1, "reputation": -1, "energie": -1 },
       "result": { "fr": "Trois postes échangés, deux communiqués et un séminaire. Rien n'a changé, tout le monde a l'air occupé.",
@@ -452,18 +452,18 @@ const EV_divers = [
   "when": { "stat": { "notoriete": { "min": 4 } } },
   "tag": { "fr": "Sondage", "en": "Polling" },
   "text": {
-    "fr": "Un institut vous teste pour la première fois. Votre cote de confiance est meilleure que prévu.",
-    "en": "A pollster tests your name for the first time. Your approval is better than expected."
+    "fr": "Un institut vous inclut pour la première fois dans son baromètre, en douzième position sur quinze. Le chiffre est meilleur que ce que la maison croyait, il ne veut à peu près rien dire, et il va être lu par onze personnes dont trois décident des investitures.",
+    "en": "A polling firm includes you in its tracker for the first time, twelfth out of fifteen. The figure is better than the party thought, it means almost nothing, and it will be read by eleven people, three of whom decide nominations."
   },
   "choices": [
     { "label": { "fr": "Faire circuler le chiffre", "en": "Circulate the number" },
       "effects": { "notoriete": 1, "reseau": 1, "popularity": 3, "standing": -4, "reputation": -1 },
-      "result": { "fr": "Le chiffre arrive aux bonnes oreilles. On commence à parler de vous.",
-                  "en": "The number reaches the right ears. People are starting to talk." } },
+      "result": { "fr": "Vous l'envoyez à quatre personnes en leur demandant de ne pas le diffuser, ce qui est la façon la plus sûre de le diffuser. En dix jours, deux journalistes vous appellent pour un portrait.",
+                  "en": "You send it to four people asking them not to pass it on, which is the surest way of passing it on. Within ten days two journalists call about a profile." } },
     { "label": { "fr": "Ne rien commenter", "en": "Say nothing" },
       "effects": { "sangfroid": 1, "standing": 6, "notoriete": -1, "popularity": -3 },
-      "result": { "fr": "Les sondages passent. Vous préférez qu'on vous juge sur la durée.",
-                  "en": "Polls come and go. You would rather be judged over time." } },
+      "result": { "fr": "Vous ne le montrez à personne et vous ne le citez pas une fois. Personne au siège n'apprendra qu'il a existé, ce qui est une décision d'une pureté totale et d'une efficacité nulle.",
+                  "en": "You show it to nobody and never quote it once. Nobody at head office will ever learn that it existed, which is a decision of complete purity and no effect whatsoever." } },
     { "label": { "fr": "Faire fuiter un sondage encore meilleur", "en": "Leak an even better poll" },
       "when": { "personality": ["calculating"] },
       "roll": { "base": 14, "stat": "reseau", "plus": { "standing": 0.04 }, "dice": 16 },
@@ -486,22 +486,22 @@ const EV_divers = [
   "id": "tribune",
   "tag": { "fr": "Idées", "en": "Ideas" },
   "text": {
-    "fr": "Un grand quotidien vous offre une tribune. Le sujet est libre, la place est en dernière page.",
-    "en": "A national paper offers you an op-ed. Any subject, back page."
+    "fr": "Un grand quotidien vous offre six mille signes en avant-dernière page, sujet libre, à rendre pour jeudi midi. C'est la place qu'on donne à ceux dont on n'attend rien, et c'est la seule tribune qu'on vous ait proposée cette année.",
+    "en": "A national paper offers you six thousand characters on the second-to-last page, any subject, due Thursday noon. It is the slot given to people nothing is expected from, and it is the only op-ed anybody has offered you this year."
   },
   "choices": [
     { "label": { "fr": "Écrire un texte clivant", "en": "Write something divisive" },
       "roll": { "stat": "eloquence", "base": 14, "dice": 16 },
       "success": { "effects": { "axis": "self", "landscape": { "self": -0.8 }, "notoriete": 2, "reseau": -1, "popularity": 10, "standing": -8 },
-        "result": { "fr": "Le texte fait réagir jusque dans votre camp. On vous lit, c'est déjà ça.",
-                    "en": "The piece angers people, including on your side. At least they read it." } },
+        "result": { "fr": "Le texte est repris par deux radios avant midi et vaut à son auteur douze appels dont trois de son propre camp, tous mécontents. On vous lit, on vous cite, et l'on ne vous mettra plus jamais en avant-dernière page.",
+                    "en": "The piece is picked up by two radio stations before noon and earns its author twelve phone calls, three from his own side, all unhappy. You are read, you are quoted, and you will never be put on the second-to-last page again." } },
       "failure": { "effects": { "notoriete": -1, "popularity": -4, "standing": -4 },
-        "result": { "fr": "Le texte tombe dans le vide. Douloureux pour l'ego.",
-                    "en": "The piece lands in silence. Hard on the ego." } } },
+        "result": { "fr": "Le texte paraît le samedi d'un pont de mai. Aucune reprise, aucun appel, et le service abonnements vous adresse un message automatique pour vous remercier de votre contribution.",
+                    "en": "The piece runs on the Saturday of a bank holiday weekend. No pickup, no calls, and the subscriptions department sends you an automated message thanking you for your contribution." } } },
     { "label": { "fr": "Rester consensuel", "en": "Play it safe" },
       "effects": { "reputation": 1, "standing": 5, "notoriete": -1, "popularity": -3 },
-      "result": { "fr": "Personne ne s'en souviendra, mais personne ne vous en voudra.",
-                  "en": "Nobody will remember it, and nobody will hold it against you." } },
+      "result": { "fr": "Six mille signes sur le lien entre la République et ses territoires, relus par deux personnes du siège qui ont retiré l'adjectif du troisième paragraphe. Personne ne s'en souviendra, et c'était le but recherché par les deux relecteurs.",
+                  "en": "Six thousand characters on the bond between the Republic and its regions, checked by two people at head office who removed the adjective in the third paragraph. Nobody will remember it, which is what both readers were aiming for." } },
     { "label": { "fr": "Une tribune cosignée par des chercheurs", "en": "An op-ed co-signed by academics" },
       "when": { "background": ["academia"] },
       "effects": { "landscape": { "self": 0.6 }, "eloquence": 1, "reputation": 2, "popularity": 6, "standing": 5, "energie": -1 },
@@ -521,18 +521,18 @@ const EV_divers = [
   "when": { "position": ["depute", "ministre", "chef"] },
   "tag": { "fr": "Assemblée", "en": "The chamber" },
   "text": {
-    "fr": "Votre groupe soutient un texte que votre circonscription déteste. La consigne de vote est claire.",
-    "en": "Your group backs a bill your constituents hate. The whip is clear."
+    "fr": "Le texte passe jeudi, votre groupe le soutient, et il ferme un service dont vivent trois cents familles chez vous. La consigne de vote est arrivée par message à sept heures du matin, avec le mot cohésion dedans, et le vote sera public et nominatif.",
+    "en": "The bill comes up on Thursday, your group backs it, and it closes a service that three hundred families in your seat depend on. The whip arrived by message at seven in the morning, with the word cohesion in it, and the vote will be public and recorded."
   },
   "choices": [
     { "label": { "fr": "Voter avec le groupe", "en": "Vote with the group" },
       "effects": { "reseau": 1, "reputation": -1, "appeal": { "self": -11 }, "standing": 15 },
-      "result": { "fr": "L'appareil s'en souviendra. Vos électeurs aussi.",
-                  "en": "The machine will remember. So will your voters." } },
+      "result": { "fr": "Vous levez la main avec les autres et votre nom figure dans le compte rendu, en ligne, consultable pour toujours. L'appareil s'en souviendra pendant deux ans et votre circonscription pendant six.",
+                  "en": "You raise your hand with the rest and your name appears in the record, online, searchable for ever. The machine will remember for two years and your constituency for six." } },
     { "label": { "fr": "Voter contre, en conscience", "en": "Vote your conscience" },
       "effects": { "reputation": 2, "reseau": -2, "popularity": 12, "standing": -18, "appeal": { "self": -7 } },
-      "result": { "fr": "On vous traite de dissident. Sur les marchés, on vous serre la main.",
-                  "en": "They call you a rebel. At the market, people shake your hand." } },
+      "result": { "fr": "Vous votez contre, seul de votre groupe, et le président de séance annonce le résultat sans commenter. On vous appelle dissident à Paris et par votre prénom sur le marché du dimanche, et l'un des deux ne se monnaie nulle part.",
+                  "en": "You vote against, alone in your group, and the chair announces the result without comment. In Paris you are called a rebel, at Sunday's market you are called by your first name, and only one of the two can be cashed in anywhere." } },
     { "label": { "fr": "Faire changer la consigne de vote", "en": "Get the whip changed" },
       "when": { "position": ["chef"] },
       "roll": { "base": 15, "stat": "reseau", "plus": { "standing": 0.05, "eloquence": 0.4 }, "dice": 16 },
@@ -545,8 +545,8 @@ const EV_divers = [
     { "label": { "fr": "Voter contre et l'expliquer au groupe", "en": "Vote against and explain it to the group" },
       "when": { "personality": ["principled"] },
       "effects": { "reputation": 3, "eloquence": 1, "popularity": 12, "standing": -10 },
-      "result": { "fr": "Vous parlez une heure devant vos collègues. Trois vous suivent, les autres vous respectent.",
-                  "en": "You speak for an hour to your colleagues. Three follow you; the rest respect you." } }
+      "result": { "fr": "Une heure devant le groupe, sans notes, à expliquer ce que ferme ce texte et devant qui vous vous êtes engagé. Trois collègues votent avec vous, les autres vous disent en sortant qu'ils auraient aimé pouvoir, ce qui est la phrase la plus honnête et la plus lâche de la maison.",
+                  "en": "An hour in front of the group, without notes, explaining what the bill closes and to whom you gave your word. Three colleagues vote with you, the others tell you on the way out that they wish they could have, which is the most honest and the most cowardly sentence in the building." } }
   ]
 },
 
@@ -556,33 +556,33 @@ const EV_divers = [
   "when": { "stat": { "notoriete": { "min": 8 } } },
   "tag": { "fr": "Notoriété", "en": "Profile" },
   "text": {
-    "fr": "Un grand éditeur vous propose d'écrire un livre. Titre suggéré : votre nom, en gros caractères.",
-    "en": "A major publisher wants you to write a book. Suggested title: your name, in large print."
+    "fr": "Un grand éditeur vous propose un livre pour la rentrée de janvier. Il vous montre la maquette avant le sommaire : votre nom en gros caractères, votre photo en noir et blanc, et un titre en trois mots dont deux sont République et avenir.",
+    "en": "A major publisher offers you a book for the January season. He shows you the cover before the contents: your name in large type, your photograph in black and white, and a three-word title, two of the words being Republic and future."
   },
   "choices": [
     { "label": { "fr": "Écrire le livre", "en": "Write the book" },
       "when": { "stat": { "energie": { "min": 8 } } },
       "effects": { "money": 40000, "notoriete": 1, "energie": -2, "popularity": 8, "standing": 3 },
-      "result": { "fr": "Le livre se vend correctement. Il traîne sur les bonnes tables basses.",
-                  "en": "The book sells decently. It sits on the right coffee tables." } },
+      "result": { "fr": "Quatre mois de nuits et de week-ends pour onze mille exemplaires, ce qui est correct et ne rembourse pas les nuits. Le livre traîne sur les bonnes tables basses et deux journalistes le citent en ayant lu la quatrième de couverture.",
+                  "en": "Four months of nights and weekends for eleven thousand copies, which is respectable and does not pay for the nights. The book sits on the right coffee tables and two journalists quote it having read the back cover." } },
     { "label": { "fr": "Pas le temps", "en": "No time" },
       "effects": { "energie": 1, "popularity": -3 },
-      "result": { "fr": "Vous gardez vos soirées. Le livre attendra une défaite.",
-                  "en": "You keep your evenings. The book can wait for a defeat." } },
+      "result": { "fr": "Vous répondez que vous écrirez quand vous aurez quelque chose à dire, ce que l'éditeur note poliment comme un refus. Tout le monde dans ce métier finit par écrire son livre, et c'est presque toujours après une défaite.",
+                  "en": "You answer that you will write when you have something to say, which the publisher politely notes down as a refusal. Everyone in this trade writes their book in the end, and it is nearly always after a defeat." } },
     { "label": { "fr": "Écrire un vrai essai", "en": "Write a serious essay" },
       "when": { "background": ["academia", "journalism"] },
       "effects": { "money": 20000, "eloquence": 1, "reputation": 2, "energie": -1, "popularity": 5, "standing": 6 },
-      "result": { "fr": "Trois cents pages qui tiennent debout. Il se vend peu et se cite beaucoup.",
-                  "en": "Three hundred pages that hold together. It sells little and is quoted a lot." } },
+      "result": { "fr": "Trois cents pages, quarante pages de notes et pas une anecdote sur vous. Il se vend quatre mille exemplaires, il est cité dans deux thèses et par un ministre en exercice, et l'éditeur ne vous en redemandera pas.",
+                  "en": "Three hundred pages, forty pages of notes and not one anecdote about yourself. It sells four thousand copies, it is cited in two doctoral theses and by a serving minister, and the publisher will not ask you for another." } },
     { "label": { "fr": "Le faire écrire par quelqu'un d'autre", "en": "Have someone else write it" },
       "when": { "minMoney": 100000 },
       "roll": { "chance": 0.7, "chanceBonus": [ { "when": { "personality": ["calculating"] }, "value": 0.15 } ] },
       "success": { "effects": { "money": 55000, "notoriete": 2, "popularity": 7 },
-        "result": { "fr": "Le livre sort à temps, bien écrit, et personne ne sait par qui.",
-                    "en": "The book comes out on time, well written, and nobody knows by whom." } },
+        "result": { "fr": "Six entretiens de deux heures, un manuscrit rendu en dix semaines, et un texte qui vous ressemble plus que ce que vous auriez écrit vous-même. Personne ne saura jamais par qui, et c'est bien pour cela que ce métier existe.",
+                    "en": "Six two-hour interviews, a manuscript delivered in ten weeks, and a text that sounds more like you than anything you would have written yourself. Nobody will ever know by whom, which is precisely why the job exists." } },
       "failure": { "effects": { "reputation": -3, "popularity": -9, "standing": -6 },
-        "result": { "fr": "Le nègre parle à la presse. L'humiliation dure une semaine entière.",
-                    "en": "The ghostwriter talks to the press. The humiliation lasts a full week." } } }
+        "result": { "fr": "La prête-plume raconte tout dans un entretien de quatre pages, avec les dates des six rendez-vous et la phrase que vous lui avez dite sur vos propres électeurs. L'humiliation dure une semaine et le livre continue de se vendre.",
+                    "en": "The ghostwriter tells the whole story in a four-page interview, with the dates of the six meetings and the sentence you said to her about your own voters. The humiliation lasts a week and the book keeps selling." } } }
   ]
 },
 
@@ -592,19 +592,19 @@ const EV_divers = [
   "when": { "position": ["maire", "conseiller"] },
   "tag": { "fr": "Terrain", "en": "On the ground" },
   "text": {
-    "fr": "Une crue soudaine touche la commune. Des familles sont relogées dans un gymnase et les caméras arrivent.",
-    "en": "A flash flood hits the town. Families are sheltering in a gym and the cameras are on their way."
+    "fr": "Cent dix millimètres en quatre heures. Quarante familles dorment au gymnase, la route départementale est coupée en deux endroits, et la première équipe de télévision est arrivée avant les pompiers du département voisin.",
+    "en": "A hundred and ten millimetres in four hours. Forty families are sleeping in the sports hall, the main road is cut in two places, and the first television crew arrived before the fire service from the next department."
   },
   "choices": [
     { "label": { "fr": "Passer trois nuits sur le terrain", "en": "Spend three nights on the ground" },
       "when": { "stat": { "energie": { "min": 8 } } },
       "effects": { "reputation": 2, "notoriete": 1, "energie": -2, "popularity": 16, "standing": 2 },
-      "result": { "fr": "On vous a vu porter des lits de camp. Ça ne s'oublie pas ici.",
-                  "en": "People saw you carrying camp beds. That is not forgotten around here." } },
+      "result": { "fr": "Trois nuits au gymnase, des lits de camp portés à deux et des cafés servis à quatre heures du matin. Personne ne l'a filmé et tout le monde l'a vu, ce qui est la seule forme de communication qui ne se retourne jamais contre personne.",
+                  "en": "Three nights in the sports hall, camp beds carried two at a time and coffee served at four in the morning. Nobody filmed it and everybody saw it, which is the only kind of communication that never turns against anyone." } },
     { "label": { "fr": "Coordonner depuis la mairie", "en": "Coordinate from the town hall" },
       "effects": { "sangfroid": 1, "reputation": -1, "popularity": -7, "standing": 5 },
-      "result": { "fr": "La gestion est propre, mais une photo de votre bureau vide circule.",
-                  "en": "The response is clean, but a photo of your empty office is doing the rounds." } },
+      "result": { "fr": "Cellule de crise, tableau blanc, quatre services coordonnés et pas une famille oubliée. Une photo de la salle des fêtes prise depuis le fond, sans vous dedans, circule le lendemain avec la légende « où était le maire ».",
+                  "en": "A crisis unit, a whiteboard, four services coordinated and not one family forgotten. A photograph of the hall taken from the back, without you in it, does the rounds the next day captioned “where was the mayor”." } },
     { "label": { "fr": "Actionner vos contacts en préfecture", "en": "Call in your contacts at the prefecture" },
       "when": { "background": ["civil"] },
       "effects": { "reseau": -1, "reputation": 1, "popularity": 11, "standing": 8 },
@@ -624,19 +624,19 @@ const EV_divers = [
   "when": { "stat": { "notoriete": { "min": 12 } } },
   "tag": { "fr": "Sécurité", "en": "Security" },
   "text": {
-    "fr": "Des menaces précises visent votre domicile. La police propose une protection permanente, très visible.",
-    "en": "Specific threats have been made against your home. The police offer permanent, highly visible protection."
+    "fr": "Trois messages en dix jours, avec votre adresse, les horaires de l'école de vos enfants et une photo de votre portail prise de la rue. Le service compétent qualifie la menace de crédible et propose une protection permanente, très visible, à compter de lundi.",
+    "en": "Three messages in ten days, with your address, your children's school hours and a photograph of your gate taken from the street. The relevant service rates the threat credible and offers permanent, highly visible protection from Monday."
   },
   "choices": [
     { "label": { "fr": "Accepter la protection", "en": "Accept the protection" },
       "when": { "stat": { "energie": { "min": 8 } } },
       "effects": { "sangfroid": 1, "energie": -1, "popularity": 5, "standing": 6 },
-      "result": { "fr": "Deux voitures vous suivent partout. Votre vie devient un dispositif.",
-                  "en": "Two cars follow you everywhere. Your life becomes a security operation." } },
+      "result": { "fr": "Deux voitures, quatre agents en rotation et un itinéraire communiqué la veille. Vous ne prenez plus un café sans que quelqu'un regarde la salle avant vous, et vos enfants apprennent à dire bonjour à des gens dont ils ne connaissent pas le nom.",
+                  "en": "Two cars, four officers on rotation and a route notified the day before. You no longer have a coffee without somebody checking the room first, and your children learn to say hello to people whose names they do not know." } },
     { "label": { "fr": "Refuser et continuer normalement", "en": "Refuse and carry on" },
       "effects": { "strike": "intrepide", "reputation": 1, "notoriete": 1, "popularity": 7, "sangfroid": -2, "energie": -1 },
-      "result": { "fr": "Le courage est remarqué. Votre famille, elle, ne dort plus.",
-                  "en": "The courage is noticed. Your family stops sleeping." } },
+      "result": { "fr": "Vous répondez qu'on ne fait pas de politique derrière une vitre blindée, et la phrase est reprise partout, parce qu'elle est bonne. Chez vous, on se lève désormais deux fois par nuit pour vérifier le portail.",
+                  "en": "You answer that you cannot do politics from behind armoured glass, and the line is quoted everywhere, because it is a good one. At home, somebody now gets up twice a night to check the gate." } },
     { "label": { "fr": "En faire un sujet politique", "en": "Make it a political subject" },
       "when": { "personality": ["provocative"] },
       "effects": { "notoriete": 3, "popularity": 7, "standing": -6, "sangfroid": -1 },
@@ -709,8 +709,8 @@ const EV_divers = [
                   "en": "Four families rehoused and a lot of letters left unanswered. Word of mouth does the rest." } },
     { "label": { "fr": "Confier la permanence à votre équipe", "en": "Hand the office to your staff" },
       "effects": { "energie": 1, "reseau": 1, "popularity": -3 },
-      "result": { "fr": "Vos collaborateurs s'en sortent bien. Les gens remarquent que ce n'était pas vous.",
-                  "en": "Your staff handle it well. People notice it was not you." } }
+      "result": { "fr": "Vos deux collaborateurs répondent mieux et plus vite que vous ne l'auriez fait. Les lettres repartent signées de votre nom, et la dame du deuxième étage explique à tout l'immeuble qu'elle ne vous a jamais vu.",
+                  "en": "Your two staffers answer better and faster than you would have. The letters go back out with your name at the bottom, and the woman on the second floor tells the whole building that she has never once seen you." } }
   ]
 },
 

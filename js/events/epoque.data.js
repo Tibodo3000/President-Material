@@ -108,7 +108,7 @@ const EV_epoque = [
   "tag": { "fr": "Plus une goutte", "en": "Not a drop" },
   "text": {
     "fr": "La commune est en tension depuis onze jours : coupures de sept heures à midi, citernes sur la place, et une école qui ferme faute de sanitaires. À quatre kilomètres, le golf privé arrose ses dix-huit trous tous les matins, au titre d'une dérogation préfectorale accordée pour « préservation d'un patrimoine paysager ».",
-    "en": "The town has been rationed for eleven days: cuts from seven in the morning until noon, water tankers on the square, and a school closed for want of working lavatories. Four kilometres away, the private golf course waters its eighteen holes every morning, under a prefectural exemption granted for the \"preservation of landscape heritage\"."
+    "en": "The town has been rationed for eleven days: cuts from seven in the morning until noon, water tankers on the square, and a school closed for want of working lavatories. Four kilometres away, the private golf course waters its eighteen holes every morning, under a prefectural exemption granted for the “preservation of landscape heritage”."
   },
   "choices": [
     { "label": { "fr": "Prendre un arrêté municipal et couper l'eau du golf", "en": "Issue a municipal order and cut the golf course off" },
@@ -210,7 +210,7 @@ const EV_epoque = [
   "tag": { "fr": "L'œuvre", "en": "The artwork" },
   "text": {
     "fr": "Deux cent mille euros de crédits d'investissement viennent d'être engagés pour une sculpture de six mètres intitulée « Neutralité carbone », installée sur la place centrale. Elle est en acier corten importé, elle a été livrée par camion, et le dossier de presse précise qu'elle interroge notre rapport au vivant.",
-    "en": "Two hundred thousand euros of capital budget have just been committed to a six-metre sculpture entitled \"Carbon Neutrality\", installed on the main square. It is made of imported corten steel, it arrived by lorry, and the press pack explains that it questions our relationship with the living world."
+    "en": "Two hundred thousand euros of capital budget have just been committed to a six-metre sculpture entitled “Carbon Neutrality”, installed on the main square. It is made of imported corten steel, it arrived by lorry, and the press pack explains that it questions our relationship with the living world."
   },
   "choices": [
     { "label": { "fr": "Le dire tout haut, avec le montant", "en": "Say it out loud, with the figure" },
@@ -266,7 +266,7 @@ const EV_epoque = [
       "success": { "effects": { "popularity": 11, "notoriete": 4, "standing": -3, "credibilite": -1,
                                 "landscape": { "self": 0.6 } },
         "result": { "fr": "« La ville la plus triste de France, et on vous attend. » Le panneau est repeint le samedi, les tee-shirts sont en vente le lundi, et trois reportages viennent filmer des gens qui rient très fort pour prouver le contraire.",
-                    "en": "\"The saddest town in France, and we are expecting you.\" The sign is repainted on the Saturday, the tee-shirts are on sale by the Monday, and three film crews come to record people laughing very loudly to prove the opposite." } },
+                    "en": "“The saddest town in France, and we are expecting you.” The sign is repainted on the Saturday, the tee-shirts are on sale by the Monday, and three film crews come to record people laughing very loudly to prove the opposite." } },
       "failure": { "effects": { "popularity": -7, "standing": -6, "reputation": -1 },
         "result": { "fr": "L'autodérision tombe à plat devant des gens qui viennent de voir la valeur de leur maison baisser. On vous explique en réunion publique que ce n'est pas drôle, et l'on a raison.",
                     "en": "The self-mockery falls flat in front of people who have just watched the value of their house drop. You are told at a public meeting that it is not funny, and they are right." } } },
