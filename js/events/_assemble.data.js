@@ -302,6 +302,13 @@
  *          débat ou une trahison compte pour le pays et pas seulement pour
  *          vous : au-delà de deux points, on déplace une élection.
  *
+ *   "nominate": "europeennes"                            L'INVESTITURE DU PARTI
+ *          pour un scrutin précis. Elle NE DONNE PAS LA FONCTION : elle donne
+ *          le droit de la disputer, sans que l'appareil puisse encore dire
+ *          non, et dans une position favorable au moment du vote. Elle vaut
+ *          jusqu'au scrutin nommé, et devient caduque après. C'est l'élection
+ *          qui tranche, et c'est la différence entre être investi et être élu.
+ *
  *   "office": "ministre"                                 donne une fonction
  *          sans passer par les urnes : un ministère, une tête de liste
  *          européenne. Le sommet atteint dans la carrière suit tout seul.

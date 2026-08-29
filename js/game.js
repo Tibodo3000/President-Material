@@ -1038,6 +1038,35 @@ function electionAtTurn(turn) {
   return ELECTIONS.find((e) => turn % e.cycle === e.offset) || null;
 }
 
+/* ==========================================================================
+   UNE INVESTITURE N'EST PAS UNE ÉLECTION
+   ==========================================================================
+   La scène de la tête de liste européenne donnait le siège le jour même, par
+   un effet "office" : le joueur devenait député européen sans qu'aucun
+   scrutin ait eu lieu. Une investiture ne donne pas un poste, elle donne le
+   droit de le disputer dans une position favorable, et c'est l'élection qui
+   tranche.
+
+   Le parti investit donc pour un scrutin précis (effet "nominate"), et cela
+   vaut jusqu'à ce scrutin-là : au-delà, l'investiture est caduque, comme dans
+   la vie. Ce qu'elle change au moment du vote se lit dans playerStake().
+   ========================================================================== */
+
+/** Le tour où tombe le prochain scrutin de ce type, s'il en vient un. */
+function turnOfNextElection(id) {
+  for (let ahead = 1; ahead <= 24; ahead++) {
+    const e = electionAtTurn(game.turn + ahead);
+    if (e && e.id === id) return game.turn + ahead;
+  }
+  return null;
+}
+
+/** Le parti vous a-t-il investi pour ce scrutin, et est-ce encore valable ? */
+function nominatedFor(id) {
+  const investi = game.nominated;
+  return Boolean(investi) && investi.election === id && game.turn <= investi.until;
+}
+
 /** La prochaine échéance électorale, pour l'affichage. */
 function nextElection() {
   for (let ahead = 1; ahead <= 24; ahead++) {
@@ -1169,6 +1198,13 @@ function playerStake(electionId) {
        lui, reste bien plus bas que ceux de conquête : garder un siège doit
        être plus facile que d'en prendre un, c'est tout le sujet de
        INCUMBENT_EDGE. */
+    // TÊTE DE LISTE INVESTIE PAR LE PARTI. On dispute le scrutin, on ne le
+    // gagne pas d'avance : le seuil est simplement plus bas que celui d'une
+    // conquête ordinaire, parce qu'être en tête de liste est très exactement
+    // cela, une position favorable.
+    if (nominatedFor("europeennes")) {
+      return { target: "euro", threshold: 38, listHead: true };
+    }
     if (pos === "euro") return { target: "euro", threshold: 40, defense: true };
     if (pos === "maire") return { target: "euro", threshold: 52 };
     if (pos === "conseiller") return { target: "euro", threshold: 46 };

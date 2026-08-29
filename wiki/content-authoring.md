@@ -254,6 +254,11 @@ calculator, ruins someone with an integrity reputation).
 "chain": "event_id"   or   ["id_a","id_b"]      // schedule follow-up(s)
 "landscape": { "self": 2, "scene": -2 }         // shift vote share; targets:
                                                 //   self, scene, ruling, ally, or a party key
+"nominate": "europeennes"                       // the party's nomination for one contest.
+                                                //   NOT the office: the right to run for it,
+                                                //   with the machine unable to block you and
+                                                //   a friendlier threshold on the day. It
+                                                //   lapses once that contest has been held
 "office": "ministre"                            // grant an office (no election)
 "office": "none"                                // leave office → officeAfterDefeat() decides
 "lead": true   or   false                       // give / take back the party leadership.

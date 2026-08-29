@@ -250,12 +250,12 @@ const EV_institutions = [
   "id": "liste_europeenne",
   "once": true,
   "weight": 4,
-  // ON NE COMPOSE PAS UNE LISTE EUROPÉENNE TROIS ANS AVANT LES EUROPÉENNES.
-  // La scène tombait n'importe quand et faisait entrer à Strasbourg le jour
-  // même, sans scrutin nulle part. Elle attend donc que l'échéance soit la
-  // prochaine du calendrier et qu'elle soit proche : la tête de liste se
-  // décide dans les semaines qui précèdent, et l'élection qui suit fait le
-  // reste, comme le dit le texte de résultat.
+  // ON NE COMPOSE PAS UNE LISTE EUROPÉENNE TROIS ANS AVANT LES EUROPÉENNES,
+  // et surtout ON N'ENTRE PAS À STRASBOURG SANS SCRUTIN. La scène tombait
+  // n'importe quand et donnait le siège le jour même, par un effet "office".
+  // Elle attend donc que l'échéance soit proche, et elle donne ce qu'une
+  // direction de parti peut donner : l'investiture. Le scrutin fait le reste,
+  // en position favorable.
   "when": { "position": ["maire", "depute"], "minTurn": 20,
             "nextElection": ["europeennes"], "nextElectionIn": 2 },
   "tag": { "fr": "Tête de liste", "en": "Top of the list" },
@@ -266,18 +266,18 @@ const EV_institutions = [
   },
   "choices": [
     { "label": { "fr": "Accepter la tête de liste", "en": "Take the top spot" },
-      "effects": { "office": "euro", "notoriete": 1, "standing": 6, "popularity": -5, "eloquence": 1 },
-      "result": { "fr": "Vous êtes élu confortablement, sur un scrutin dont personne n'a suivi la campagne. Le soir des résultats, la chaîne consacre quatre minutes au sujet.",
-                  "en": "You are comfortably elected, in a contest whose campaign nobody followed. On results night the channel gives the subject four minutes." } },
+      "effects": { "nominate": "europeennes", "notoriete": 1, "standing": 6, "popularity": -5, "eloquence": 1 },
+      "result": { "fr": "Votre nom est en haut de la liste, à la place qui n'a jamais été battue. Reste le scrutin, dont personne ne suivra la campagne et dont la chaîne parlera quatre minutes le soir des résultats.",
+                  "en": "Your name is at the top of the list, in the slot that has never lost. That leaves the vote itself, whose campaign nobody will follow and which the channel will give four minutes on results night." } },
     { "label": { "fr": "Refuser et rester au pays", "en": "Refuse and stay at home" },
       "effects": { "standing": -9, "popularity": 3, "reputation": 1 },
       "result": { "fr": "Vous répondez que votre travail est ici. La direction note votre réponse dans un carnet qu'elle rouvrira au moment des investitures.",
                   "en": "You answer that your work is here. The leadership notes your reply in a book it will open again when nominations come round." } },
     { "label": { "fr": "Accepter en échange d'une place au bureau politique", "en": "Accept in exchange for a seat on the executive" },
       "roll": { "base": 16, "stat": "reseau", "plus": { "standing": 0.06, "sangfroid": 0.3 }, "dice": 16 },
-      "success": { "effects": { "office": "euro", "standing": 11, "reseau": 1, "popularity": -4 },
-        "result": { "fr": "Vous partez à Bruxelles avec un siège permanent dans l'instance qui décide de tout ici. On voulait vous éloigner, on vous a donné une clé.",
-                    "en": "You leave for Brussels with a permanent seat in the body that decides everything back home. They wanted you out of the way; they gave you a key." } },
+      "success": { "effects": { "nominate": "europeennes", "standing": 11, "reseau": 1, "popularity": -4 },
+        "result": { "fr": "La tête de liste et, en prime, un siège permanent dans l'instance qui décide de tout ici. On voulait vous éloigner de Paris ; on vient de vous en donner la clé, et il reste à gagner le scrutin.",
+                    "en": "The top of the list and, thrown in, a permanent seat on the body that decides everything back home. They wanted you away from Paris; they have just handed you the key to it, and the vote is still to be won." } },
       "failure": { "effects": { "standing": -12, "reputation": -1 },
         "result": { "fr": "On vous répond que la tête de liste est déjà un cadeau. Elle est attribuée le lendemain à quelqu'un qui n'avait rien demandé.",
                     "en": "You are told that the top of the list is already a gift. It goes the next day to somebody who had asked for nothing." } } }

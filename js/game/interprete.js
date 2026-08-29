@@ -723,9 +723,18 @@ function applyEffects(effects, s, soften) {
       });
       return;
     }
-    // Une fonction qui ne s'élit pas : un ministère qu'on vous propose, une
-    // tête de liste européenne dont on veut vous voir occupé, un retour au
-    // groupe après une sortie de route.
+    // L'INVESTITURE DU PARTI POUR UN SCRUTIN. Elle ne donne pas la fonction,
+    // elle donne le droit de la disputer sans que l'appareil puisse encore
+    // dire non, et dans une position favorable. C'est l'élection qui tranche.
+    if (key === "nominate") {
+      const quand = typeof turnOfNextElection === "function" ? turnOfNextElection(value) : null;
+      if (quand === null) return;
+      s.nominated = { election: value, until: quand };
+      changes.push({ kind: "nominate", key: value });
+      return;
+    }
+    // Une fonction qui ne s'élit pas : un ministère qu'on vous propose, un
+    // retour au groupe après une sortie de route.
     if (key === "office") {
       const before = s.position;
       // ON NE RETOMBE JAMAIS. Une fonction se gagne ; elle ne se reçoit pas

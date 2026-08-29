@@ -85,7 +85,7 @@ const WHEN_KEYS = new Set(["party", "position", "origin", "background", "persona
   "election", "race", "season", "nextElection", "nextElectionIn"]);
 const FX_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "axis", "appeal", "money", "poll", "score",
   "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "approval", "dissolve",
-  "join", "alliance", "end"]);
+  "join", "alliance", "nominate", "end"]);
 const LANDSCAPE_TARGETS = ["self", "scene", "ruling", "ally", ...PARTIES];
 const APPEAL_TARGETS = ["self", "others", "scene", "ruling", "ally", ...PARTIES];
 
@@ -149,6 +149,8 @@ function checkEffects(deck, id, fx, where) {
       !APPEAL_TARGETS.includes(x) && say(deck, id, where + " électorat inconnu « " + x + " »"));
     if (k === "landscape") Object.keys(fx[k]).forEach((x) =>
       !LANDSCAPE_TARGETS.includes(x) && say(deck, id, where + " cible de paysage inconnue « " + x + " »"));
+    if (k === "nominate" && !ELECTIONS.includes(fx[k]))
+      say(deck, id, where + " scrutin inconnu « " + fx[k] + " »");
     if (k === "office" && fx[k] !== "none" && !POSITIONS.includes(fx[k]))
       say(deck, id, where + " fonction inconnue « " + fx[k] + " »");
   }

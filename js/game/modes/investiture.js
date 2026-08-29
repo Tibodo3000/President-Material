@@ -73,6 +73,10 @@ function inTheRunning(stake) {
 }
 
 function nominationBlocked(stake) {
+  // Une investiture deja accordee ne se refuse pas deux fois : le parti a
+  // donne la tete de liste, il ne peut pas barrer la porte au meme scrutin.
+  if (stake.listHead) return false;
+
   const need = nominationNeed(stake, game);
   if (need === undefined) return false;
   return game.standing < need;

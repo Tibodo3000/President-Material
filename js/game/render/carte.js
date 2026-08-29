@@ -177,6 +177,9 @@ function fxLabel(fx) {
       : fx.base ? t("label_base") : t("party_" + fx.key);
     return quoi + " " + signed(fx.delta);
   }
+  // L'investiture pour un scrutin : ce n'est pas la fonction, c'est le droit
+  // de la disputer, et le joueur doit voir la différence sur la carte.
+  if (fx.kind === "nominate") return t("fx_nominate") + " " + t("elec_" + fx.key);
   if (fx.kind === "office") return t("pos_" + fx.key);
   if (fx.kind === "lead") return (fx.on ? "" : "✕ ") + t("pos_chef");
   if (fx.kind === "party") return t("fx_join") + " " + t("party_" + fx.key);
@@ -216,6 +219,7 @@ function fxDirection(fx) {
     return mine === (fx.delta > 0) ? "up" : "down";
   }
   if (fx.kind === "appeal") return fx.delta > 0 ? "up" : "down";
+  if (fx.kind === "nominate") return "up";
   if (fx.kind === "office") return fx.up ? "up" : "down";
   if (fx.kind === "lead") return fx.on ? "up" : "down";
   if (fx.kind === "party") return "up";
