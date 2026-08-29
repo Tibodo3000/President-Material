@@ -2135,6 +2135,23 @@ function switchParty(s, key) {
   addTrait(s, "renegat");
   s.standing = clamp100(Math.min(s.standing, 30) + 6);
 
+  /* UN MINISTÈRE NE TRAVERSE PAS. On est ministre parce qu'un gouvernement
+     vous a nommé, et un gouvernement appartient à un camp : le jour où l'on
+     change de camp, on rend les clés et la voiture. Le moteur le savait déjà
+     quand le camp PERDAIT le pouvoir, et pas quand c'est le joueur qui s'en
+     va. Le mandat élu, lui, suit : on ne démissionne pas de l'Assemblée en
+     changeant de groupe, c'est toute la différence entre les deux. */
+  if (s.position === "ministre" || s.position === "premier") {
+    const matignon = s.position === "premier";
+    setOffice(s, officeAfterDefeat(s));
+    if (typeof ensureGovernment === "function") ensureGovernment();
+    addLog(matignon
+      ? { fr: "Vous quittez Matignon le jour même : on ne dirige pas le gouvernement d'un camp que l'on vient de quitter.",
+          en: "You leave the prime minister's office the same day: nobody runs the government of a camp they have just walked out of." }
+      : { fr: "Votre ministère ne vous suit pas. La passation se fait en quarante minutes, sans discours, et votre nom disparaît de l'organigramme avant le soir.",
+          en: "Your ministry does not come with you. The handover takes forty minutes, with no speeches, and your name is off the chart before the evening." });
+  }
+
   /* ET SIX ÉLECTORATS QUI L'APPRENNENT LE JOUR MÊME. Ceux qu'on laisse le
      prennent de plein fouet, ceux qui accueillent prennent la recrue sans
      prendre l'homme, et les autres notent qu'on peut partir. Sans cela, le
@@ -3356,7 +3373,7 @@ function leadershipText(res) {
  */
 function snapshot(s) {
   return { popularity: s.popularity, standing: s.standing, money: s.money,
-           partyLead: Boolean(s.partyLead),
+           partyLead: Boolean(s.partyLead), position: s.position,
            appeal: s.appeal ? { ...s.appeal } : null,
            stats: { ...s.stats } };
 }

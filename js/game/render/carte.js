@@ -385,6 +385,12 @@ function diffSince(before, s) {
   if (Boolean(s.partyLead) !== Boolean(before.partyLead)) {
     changes.push({ kind: "lead", on: Boolean(s.partyLead) });
   }
+  // La fonction non plus ne se lisait nulle part : une carte qui vous fait
+  // rendre un ministère le disait dans sa prose et pas dans ses pastilles.
+  if (s.position !== before.position) {
+    changes.push({ kind: "office", key: s.position,
+                   up: LADDER.indexOf(s.position) > LADDER.indexOf(before.position) });
+  }
   return changes;
 }
 

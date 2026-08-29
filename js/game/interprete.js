@@ -776,8 +776,15 @@ function applyEffects(effects, s, soften) {
       // choix ne s'afficherait sur aucune pastille.
       const avantPop = s.popularity;
       const avantAppeal = s.appeal ? { ...s.appeal } : null;
+      const avantPoste = s.position;
       if (switchParty(s, party)) {
         changes.push({ kind: "party", key: party });
+        // Un ministère ne traverse pas (voir switchParty) : la perte du poste
+        // est la conséquence la plus lourde du choix, elle doit se voir.
+        if (s.position !== avantPoste) {
+          changes.push({ kind: "office", key: s.position,
+                         up: LADDER.indexOf(s.position) > LADDER.indexOf(avantPoste) });
+        }
         pushAppealChanges(changes, avantAppeal, s, avantPop);
       }
       return;

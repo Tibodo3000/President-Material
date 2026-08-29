@@ -103,7 +103,7 @@ has to remember them.
 
 | Moment | What moves |
 |---|---|
-| **crossing the floor** (`switchParty`) | the camp you leave, at once: `DEFECTION_HOME` = −22. The camp taking you in: `DEFECTION_WELCOME` = +6, they take the recruit, not the man. Everybody else: −2, a weathervane is visible from a distance |
+| **crossing the floor** (`switchParty`) | the camp you leave, at once: `DEFECTION_HOME` = −22. The camp taking you in: `DEFECTION_WELCOME` = +6, they take the recruit, not the man. Everybody else: −2, a weathervane is visible from a distance. **A government post does not cross with you**: a minister or a prime minister hands the keys back the same day, through `officeAfterDefeat()`, exactly as when their camp loses power. An elected mandate does follow — you do not resign from parliament by changing groups, and that is the whole difference between the two |
 | **signing a pact** (`setAlliance`) | the ally's electorate `ALLIANCE_WARMTH` = +7, your own base `ALLIANCE_PURISTS` = −3 |
 | **breaking it** | the camp you drop, `ALLIANCE_BREAK` = −7 |
 
