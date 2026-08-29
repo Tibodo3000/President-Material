@@ -16,18 +16,67 @@
  * plus ancien.
  */
 
-/* La flèche se lit sur un an, et le panneau le dit : sans repère de durée,
-   « ▲2,1 » ne veut rien dire du tout. Voir recordLandscape() dans js/game.js. */
-function trendHTML(key) {
-  const avant = landscapeYearAgo(key);
-  if (avant === undefined) return "";
+/* ==========================================================================
+   QUI MONTE, QUI DESCEND, SANS AVOIR À LIRE UN CHIFFRE
+   ==========================================================================
+   Une flèche de six pixels à côté d'un pourcentage arrondi, c'était toute
+   l'information de mouvement du panneau, et il fallait la chercher. On voyait
+   un classement, on ne voyait pas une dynamique : le camp qui vient de perdre
+   quatre points et celui qui vient d'en gagner quatre s'affichaient de la
+   même façon, à la même place, dans la même couleur.
 
-  const delta = game.landscape[key] - avant;
-  if (Math.abs(delta) < 0.5) return "";
+   La barre porte donc le mouvement elle-même. Elle est remplie à la teinte du
+   parti jusqu'au NIVEAU LE PLUS BAS de l'année, puis l'écart est peint par
+   dessus : en vert ce qui a été gagné, en rouge ce qui a été perdu. Une barre
+   à queue verte monte, une barre à queue rouge descend, et cela se lit sans
+   lire. Le chiffre reste, pour ceux qui veulent le compte exact.
+   ========================================================================== */
+
+/** La virgule décimale du français, comme partout ailleurs dans le jeu. */
+function localNumber(text) {
+  return currentLang === "fr" ? String(text).replace(".", ",") : String(text);
+}
+
+/** L'écart d'un camp sur un an, ou undefined si l'on n'a pas de quoi le dire. */
+function yearDelta(key) {
+  const avant = landscapeYearAgo(key);
+  if (avant === undefined) return undefined;
+  return game.landscape[key] - avant;
+}
+
+function trendHTML(key) {
+  const delta = yearDelta(key);
+  if (delta === undefined || Math.abs(delta) < 0.5) return "";
 
   return '<span class="force-trend ' + (delta > 0 ? "is-up" : "is-down") +
     '" title="' + t("force_trend_hint") + '">' +
-    (delta > 0 ? "▲" : "▼") + Math.abs(delta).toFixed(1) + "</span>";
+    (delta > 0 ? "▲" : "▼") + localNumber(Math.abs(delta).toFixed(1)) + "</span>";
+}
+
+/** L'échelle de la barre : la même pour tout le monde, sinon on ne compare rien. */
+function forceWidth(share) {
+  return Math.round(Math.min(100, Math.max(0, share) * 2.4) * 10) / 10;
+}
+
+/**
+ * La barre et sa queue. Le socle va jusqu'au plus bas des deux niveaux, la
+ * queue peint la différence, et sa couleur dit le sens.
+ */
+function forceTrackHTML(key, share) {
+  const delta = yearDelta(key);
+  const bouge = delta !== undefined && Math.abs(delta) >= 0.5;
+  const socle = bouge ? Math.min(share, share - delta) : share;
+  const queue = bouge
+    ? Math.round((forceWidth(Math.max(share, share - delta)) - forceWidth(socle)) * 10) / 10
+    : 0;
+
+  return '<span class="force-track">' +
+    '<span class="force-fill" style="width:' + forceWidth(socle) + '%"></span>' +
+    (queue > 0
+      ? '<span class="force-delta ' + (delta > 0 ? "is-up" : "is-down") +
+        '" style="width:' + queue + '%" title="' + t("force_trend_hint") + '"></span>'
+      : "") +
+  "</span>";
 }
 
 const HEMICYCLE_ORDER = ["radical_left", "socdem", "centrists", "liberals", "conservatives", "identitarians"];
@@ -222,6 +271,7 @@ function renderLandscape() {
 
     return (
       '<div class="force-row' + (mine ? " is-mine" : "") +
+        (Math.abs(yearDelta(key) || 0) >= 0.5 ? (yearDelta(key) > 0 ? " is-rising" : " is-falling") : "") +
         '" data-party="' + key + '" style="--tint:var(--p-' + key + ')">' +
         '<div class="force-head">' +
           '<span class="force-party">' + t("party_" + key) +
@@ -230,8 +280,7 @@ function renderLandscape() {
           "</span>" +
           '<span class="force-share">' + trendHTML(key) + Math.round(share) + "%</span>" +
         "</div>" +
-        '<span class="force-track"><span class="force-fill" style="width:' +
-          Math.min(100, share * 2.4) + '%"></span></span>' +
+        forceTrackHTML(key, share) +
         '<button type="button" class="force-toggle">' + t("force_people") +
           " (" + people.length + ")</button>" +
         '<div class="force-people">' +

@@ -1768,10 +1768,10 @@ body {
 .force-trend.is-down { color: var(--red); }
 
 .force-track {
-  display: block;
-  height: 5px;
+  display: flex;
+  height: 7px;
   margin: 0.35rem 0 0.4rem;
-  border-radius: 3px;
+  border-radius: 4px;
   background: var(--bg);
   border: 1px solid var(--line);
   overflow: hidden;
@@ -1782,6 +1782,52 @@ body {
   height: 100%;
   background: linear-gradient(90deg, var(--blue), var(--gold));
 }
+
+/* LA QUEUE DE LA BARRE : ce que l'année a donné ou repris. Elle se pose au
+   bout du socle, dans le sens de la lecture, et sa couleur dit le sens du
+   mouvement. Une queue verte pousse la barre vers la droite, une queue rouge
+   montre la place que le camp occupait encore il y a un an. */
+.force-delta {
+  display: block;
+  height: 100%;
+  flex: 0 0 auto;
+}
+
+.force-delta.is-up {
+  background: repeating-linear-gradient(115deg,
+    var(--green) 0 4px, color-mix(in srgb, var(--green) 62%, transparent) 4px 8px);
+}
+
+.force-delta.is-down {
+  background: repeating-linear-gradient(115deg,
+    color-mix(in srgb, var(--red) 78%, transparent) 0 4px,
+    color-mix(in srgb, var(--red) 26%, transparent) 4px 8px);
+}
+
+/* LA PASTILLE DU MOUVEMENT. Une flèche nue de six pixels se cherchait ; une
+   pastille pleine se voit sans qu'on la cherche, et les deux couleurs se
+   distinguent aussi en niveaux de gris parce que le fond change avec. */
+.force-trend {
+  display: inline-block;
+  padding: 0.08rem 0.32rem;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+.force-trend.is-up {
+  background: color-mix(in srgb, var(--green) 18%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--green) 40%, transparent);
+}
+
+.force-trend.is-down {
+  background: color-mix(in srgb, var(--red) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 38%, transparent);
+}
+
+/* Le camp qui monte porte son nom en clair : c'est la deuxième lecture, celle
+   qu'on fait en parcourant la colonne des noms sans regarder les barres. */
+.force-row.is-rising .force-share { color: var(--ink); }
+.force-row.is-falling .force-party { opacity: 0.82; }
 
 /* L'or du parti du joueur est parti avec le code couleur : voir plus bas,
    « LE CAMP DU JOUEUR ». L'or ne désigne plus que la personne. */
