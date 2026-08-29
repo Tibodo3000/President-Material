@@ -32,7 +32,8 @@ actually knows, in both languages, and prints one line per problem.
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
-| `events` | Ordinary turns (259 events) | the full schema below |
+| `events` | Ordinary turns (273 events) | the full schema below |
+| ↳ *the player against their own camp* | inside `events`, in [arbitrages.data.js](../js/events/arbitrages.data.js) | nothing new in the schema, one rule in the writing: **every choice moves `landscape`, and never in the same direction as the career**. A choice that pays in standing *and* in vote share is not an arbitration, it is a reward, and it belongs in another file |
 | ↳ *end-of-career scenes* | inside `events`, in [declin.data.js](../js/events/declin.data.js) | `"decline": 1\|2\|3` marks which of the body's three warnings a scene is. `"weight": 0` is **required** — the engine schedules them itself (`scheduleDecline`), they must never come out of a random draw. Keep **one scene per stage with no `when` at all**: if none matched, nothing would be scheduled and the exits would stay shut forever |
 | `campaign` | The 6 steps before the first round, when the player runs (26) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
 | `runoff` | The 3 steps between the two rounds (12) | `poll` moves the head-to-head; `cast: "eliminated"` |

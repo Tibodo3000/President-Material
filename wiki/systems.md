@@ -393,6 +393,23 @@ Rupture camps still win only ~1% of presidential elections. That is a different 
 and a deliberate one: `rejectionRate` in the runoff is what stops them, which is the
 *front républicain* doing its job.
 
+### The player's hand on it
+
+Four forces moved the table and none of them was a decision. The
+[arbitrages](../js/events/arbitrages.data.js) deck is the fifth: nine scenes whose only
+subject is **the moment where the player's interest and their camp's are not the same
+thing** — the prime-time slot you take instead of the spokesperson, the unwinnable seat you
+refuse, the three-way race you stay in, the defector who brings two branches and will want
+your job, the government commission that makes you serious and them look open. Every choice
+in that file moves `landscape`, and never in the same direction as the career: an option
+that pays in standing *and* in vote share is a reward, not an arbitration.
+
+Taking the camp's side in all nine is worth up to about ten points of national weight;
+playing for yourself costs it five or six. Not every career draws all nine and rolls fail,
+so the real figure is smaller — but the order of magnitude is that of a party's whole-career
+amplitude (6 to 10 points depending on the camp), which is the point: the table is no longer
+only weather.
+
 The landscape decides the strength of presidential rivals and gives the player a readout of
 the game: who they're fighting and whether their camp is rising or collapsing.
 
