@@ -82,7 +82,7 @@ const WHEN_KEYS = new Set(["party", "position", "origin", "background", "persona
   "stat", "flag", "trait", "anyTrait", "notTrait", "ruling", "allied", "partyLead", "minShare", "maxShare", "minCampaignSpend", "yearEnd", "rulingClose",
   "belowPeak", "legal", "comms", "majority", "minApproval", "maxApproval", "inCoalition", "firstGroup", "pivot",
   "minSeats", "maxSeats", "dissolved", "outshinePresident", "foeIncumbent", "foeParty", "foeFar", "minorClose",
-  "election", "race", "season"]);
+  "election", "race", "season", "nextElection", "nextElectionIn"]);
 const FX_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "axis", "appeal", "money", "poll", "score",
   "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "approval", "dissolve",
   "join", "alliance", "end"]);
@@ -119,6 +119,7 @@ function checkWhen(deck, id, w, where) {
     const inVocab = (vocab, what) => list.forEach((x) =>
       !vocab.includes(x) && say(deck, id, where + " " + what + " « " + x + " »"));
 
+    if (k === "nextElection") inVocab(ELECTIONS, "scrutin inconnu");
     if (k === "party" || k === "foeParty") inVocab(PARTIES, "parti inconnu");
     if (k === "position") inVocab(POSITIONS, "fonction inconnue");
     if (k === "origin") inVocab(ORIGINS, "origine inconnue");

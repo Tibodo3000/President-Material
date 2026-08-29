@@ -182,6 +182,23 @@ function eventMatches(ev, s) {
     if (dernier !== w.yearEnd) return false;
   }
 
+  /* CE QUI VIENT, ET DANS COMBIEN DE TEMPS. Une scène peut parler d'une
+     échéance précise : on ne compose pas une liste européenne trois ans avant
+     les européennes, et l'événement qui le proposait tombait n'importe quand,
+     à n'importe quelle distance du scrutin.
+
+       "nextElection": ["europeennes"]   la prochaine échéance du calendrier
+       "nextElectionIn": 3               et elle tombe dans trois tours au plus
+
+     Les deux se lisent séparément : la première dit laquelle, la seconde dit
+     à quelle distance, et une scène peut ne poser que l'une des deux. */
+  if (w.nextElection || w.nextElectionIn !== undefined) {
+    const suivante = typeof nextElection === "function" ? nextElection() : null;
+    if (!suivante) return false;
+    if (w.nextElection && !w.nextElection.includes(suivante.election.id)) return false;
+    if (w.nextElectionIn !== undefined && suivante.inTurns > w.nextElectionIn) return false;
+  }
+
   /* LA SAISON, pour ce qui n'arrive qu'à un moment de l'année. Une nappe
      phréatique ne se vide pas en février et une rentrée scolaire n'a pas lieu
      en juin. L'année commence au printemps, comme le calendrier électoral.

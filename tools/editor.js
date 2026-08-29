@@ -48,6 +48,7 @@ const ORIGINS = Object.keys(STAT_MODIFIERS.origin);
 const BACKGROUNDS = Object.keys(STAT_MODIFIERS.background);
 const PERSONALITIES = Object.entries(TRAIT_DATA).filter(([, d]) => d.family === "caractere").map(([id]) => id);
 const POSITIONS = Object.keys(trFR).filter((k) => k.startsWith("pos_") && !k.endsWith("_low")).map((k) => k.slice(4));
+const ELECTION_KEYS = Object.keys(trFR).filter((k) => k.startsWith("elec_")).map((k) => k.slice(5));
 const FLAGS = Object.keys(trFR).filter((k) => k.startsWith("flag_")).map((k) => k.slice(5));
 const ELECTION_IDS = Object.keys(trFR).filter((k) => k.startsWith("elec_") && !k.endsWith("_low")).map((k) => k.slice(5));
 const END_TYPES = ["victory", "retire", "withdrawal", "death", "conviction"];
@@ -69,7 +70,7 @@ const WHEN_KEYS = new Set(["party","position","origin","background","personality
   // moteur et manquaient ici : l'éditeur signalait donc « condition inconnue »
   // sur des conditions parfaitement valides.
   "partyLead","majority","inCoalition","firstGroup","pivot","minSeats","maxSeats","outshinePresident","foeIncumbent","foeParty","foeFar",
-  "minApproval","maxApproval","dissolved","belowPeak","season"]);
+  "minApproval","maxApproval","dissolved","belowPeak","season","nextElection","nextElectionIn"]);
 const ALL_IDS = {};
 for (const arr of Object.values(DECKS)) arr.forEach((e) => { ALL_IDS[e.id] = (ALL_IDS[e.id] || 0) + 1; });
 
@@ -87,6 +88,7 @@ const WHEN_SPEC = {
   minSeats:{t:"num"}, maxSeats:{t:"num"}, minApproval:{t:"num"}, maxApproval:{t:"num"},
   dissolved:{t:"bool"}, belowPeak:{t:"bool"},
   season:{t:"multi",v:["printemps","ete","automne","hiver"]},
+  nextElection:{t:"multi",v:ELECTION_KEYS}, nextElectionIn:{t:"num"},
 };
 const EFFECT_SPEC = {};
 STAT_KEYS.forEach((s) => EFFECT_SPEC[s] = {t:"num"});
@@ -145,6 +147,8 @@ const WHEN_HELP = {
   minApproval:"Cote du gouvernement min.", maxApproval:"Cote du gouvernement max.",
   dissolved:"Législatives anticipées après dissolution.",
   belowPeak:"La fonction actuelle est sous le sommet atteint.",
+  nextElection:"La prochaine échéance du calendrier. Pour ce qui ne se décide qu'à l'approche d'un scrutin précis.",
+  nextElectionIn:"Distance maximale à cette échéance, en tours.",
   season:"La saison du tour. Pour ce qui n'arrive qu'à un moment de l'année : une sécheresse, une rentrée.",
 };
 const FX_HELP = {

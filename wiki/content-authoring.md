@@ -115,6 +115,10 @@ no longer drawn, it is scripted.
 "season": ["ete"]                      // "printemps" | "ete" | "automne" | "hiver"; a list is
                                        //   an OR. A turn is a season and the year opens in
                                        //   spring: a water table does not run dry in February
+"nextElection": ["europeennes"]        // the next contest on the calendar is this one
+"nextElectionIn": 2                    // …and it falls in at most this many turns. Anything
+                                       //   that is decided in the run-up to a vote needs both:
+                                       //   a European list is not drawn up three years ahead
 "stat": { "notoriete": { "min": 6 }, "energie": { "max": 4 } }   // remember: 0..20 scale
 "flag": { "dirtyMoney": true, "onTrial": false }
 "trait": ["orateur","teflon"]          // ALL of these traits

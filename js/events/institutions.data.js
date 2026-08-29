@@ -250,7 +250,14 @@ const EV_institutions = [
   "id": "liste_europeenne",
   "once": true,
   "weight": 4,
-  "when": { "position": ["maire", "depute"], "minTurn": 20 },
+  // ON NE COMPOSE PAS UNE LISTE EUROPÉENNE TROIS ANS AVANT LES EUROPÉENNES.
+  // La scène tombait n'importe quand et faisait entrer à Strasbourg le jour
+  // même, sans scrutin nulle part. Elle attend donc que l'échéance soit la
+  // prochaine du calendrier et qu'elle soit proche : la tête de liste se
+  // décide dans les semaines qui précèdent, et l'élection qui suit fait le
+  // reste, comme le dit le texte de résultat.
+  "when": { "position": ["maire", "depute"], "minTurn": 20,
+            "nextElection": ["europeennes"], "nextElectionIn": 2 },
   "tag": { "fr": "Tête de liste", "en": "Top of the list" },
   "text": {
     "fr": "La direction cherche une tête de liste aux européennes. On vous parle de dimension internationale, de dossiers d'avenir et de reconnaissance. Le poste est à Bruxelles, et vos électeurs sont ici."
