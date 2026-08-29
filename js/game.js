@@ -666,6 +666,7 @@ function allyParty() {
 function driftLandscape() {
   const ruling = rulingParty();
   const ally = allyParty();
+  const avant = { ...game.landscape };
 
   Object.keys(game.landscape).forEach((key) => {
     // L'AIR DU TEMPS. Il valait 0,9, et le tableau ne bougeait plus : mesurée
@@ -704,6 +705,7 @@ function driftLandscape() {
   });
 
   normalizeLandscape(game.landscape);
+  noteLandscape(game, avant, "drift");
   reportLandscape();
 }
 
@@ -776,12 +778,14 @@ function reportLandscape() {
  * tableau ramené à cent. Les autres partis reculent d'autant : le paysage est
  * un gâteau, il ne grandit pas.
  */
-function moveShare(s, partyKey, amount) {
+function moveShare(s, partyKey, amount, cause) {
   if (!partyKey || !s.landscape || s.landscape[partyKey] === undefined) return 0;
 
+  const avant = { ...s.landscape };
   const before = s.landscape[partyKey];
   s.landscape[partyKey] = Math.max(LANDSCAPE_FLOOR, before + amount);
   normalizeLandscape(s.landscape);
+  noteLandscape(s, avant, cause || "drift");
   return s.landscape[partyKey] - before;
 }
 
@@ -802,10 +806,35 @@ function moveShare(s, partyKey, amount) {
    est pris.
    ========================================================================== */
 
+/* D'OÙ VIENT CE QUI BOUGE. Une flèche qui dit « plus quatre » ne dit pas la
+   chose la plus intéressante du tableau : est-ce le joueur qui a fait ça, un
+   scrutin qui est tombé, ou l'air du temps ? Chaque déplacement est donc
+   imputé à sa cause au moment où il est fait, et le compte est tenu par tour,
+   ce qui permet de le lire sur la même fenêtre d'un an que la flèche.
+
+   Le relevé porte sur TOUS les camps à chaque fois, et pas seulement sur
+   celui qu'on visait : deux points donnés à un parti en retirent un peu aux
+   cinq autres au moment de la normalisation, et ce petit peu vient de la même
+   cause. C'est à cette condition que la somme des causes fait exactement le
+   mouvement affiché. */
+const LANDSCAPE_CAUSES = ["choice", "election", "drift"];
+
+/** Impute à une cause ce qui vient de changer dans le tableau. */
+function noteLandscape(s, avant, cause) {
+  if (!s.landscapeLedger) s.landscapeLedger = {};
+  Object.keys(s.landscape).forEach((key) => {
+    const delta = s.landscape[key] - (avant[key] || 0);
+    if (Math.abs(delta) < 0.001) return;
+    const compte = (s.landscapeLedger[key] = s.landscapeLedger[key] || {});
+    compte[cause] = (compte[cause] || 0) + delta;
+  });
+}
+
 /** Enregistre le tableau du tour. Appelé une fois par tour, et à l'ouverture. */
 function recordLandscape(s) {
   if (!s.landscapeTrail) s.landscapeTrail = [];
-  s.landscapeTrail.push({ ...s.landscape });
+  s.landscapeTrail.push({ shares: { ...s.landscape }, ledger: s.landscapeLedger || {} });
+  s.landscapeLedger = {};
   while (s.landscapeTrail.length > TURNS_PER_YEAR + 1) s.landscapeTrail.shift();
 }
 
@@ -813,12 +842,28 @@ function recordLandscape(s) {
 function landscapeYearAgo(key) {
   const trail = game.landscapeTrail;
   if (!trail || !trail.length) return undefined;
-  return trail[0][key];
+  return trail[0].shares ? trail[0].shares[key] : trail[0][key];
+}
+
+/**
+ * Ce qui a déplacé un camp sur l'année, cause par cause : les tours qui ont
+ * suivi le plus vieux relevé, plus ce que le tour en cours a déjà produit. La
+ * somme des trois vaut exactement l'écart que la flèche affiche.
+ */
+function landscapeCauses(key) {
+  const total = { choice: 0, election: 0, drift: 0 };
+  (game.landscapeTrail || []).slice(1).forEach((entree) => {
+    const compte = (entree.ledger || {})[key] || {};
+    LANDSCAPE_CAUSES.forEach((c) => { total[c] += compte[c] || 0; });
+  });
+  const encours = (game.landscapeLedger || {})[key] || {};
+  LANDSCAPE_CAUSES.forEach((c) => { total[c] += encours[c] || 0; });
+  return total;
 }
 
 /** Fait bouger le paysage après un résultat : gagner déplace les lignes. */
-function shiftLandscape(partyKey, amount) {
-  return moveShare(game, partyKey, amount);
+function shiftLandscape(partyKey, amount, cause) {
+  return moveShare(game, partyKey, amount, cause || "election");
 }
 
 /**
@@ -1994,8 +2039,8 @@ function maybeDefection() {
   // avec un siège qu'on n'a pas gagné là-bas.
   if (figure.position === "chef") figure.position = "cadre";
 
-  moveShare(game, from, -weight);
-  moveShare(game, to, +weight * 0.8);
+  moveShare(game, from, -weight, "drift");
+  moveShare(game, to, +weight * 0.8, "drift");
   ensureLeaders();
 
   addLog(to === game.party
@@ -2034,8 +2079,8 @@ function switchParty(s, key) {
   addTrait(s, "renegat");
   s.standing = clamp100(Math.min(s.standing, 30) + 6);
 
-  moveShare(s, from, -2.5);
-  moveShare(s, key, +2);
+  moveShare(s, from, -2.5, "choice");
+  moveShare(s, key, +2, "choice");
   ensureLeaders();
 
   addLog({

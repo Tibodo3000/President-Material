@@ -339,7 +339,30 @@ game (`driftLandscape` in [game.js](../js/game.js)). Four forces move it: **incu
 erosion**, **popular figures** pulling their party up, **the player** (more so at exposed
 offices), and **random drift**. Events move it too, via the `landscape` effect, and they are
 the only force that anybody *decides*.
-`landscapeTrail` keeps the last four turns of the table, so the panel can show a ▲/▼ trend **over a year, events included**. It used to compare with the previous turn only, and the snapshot was taken at the top of the turn, i.e. *after* the choice just made: what an event moved was already inside the reference, so the player saw the quarter's random drift and never the consequence of their own decision.
+`landscapeTrail` keeps the last four turns of the table, so the panel can show a ▲/▼ trend
+**over a year, events included**. It used to compare with the previous turn only, and the
+snapshot was taken at the top of the turn, i.e. *after* the choice just made: what an event
+moved was already inside the reference, so the player saw the quarter's random drift and
+never the consequence of their own decision.
+
+### Every move is filed under its cause
+
+`moveShare()` takes a cause — `choice`, `election` or `drift` — and `noteLandscape()` files
+the resulting movement **for all six camps**, not just the one aimed at: two points given to
+a party take a little from the other five at normalisation time, and that little comes from
+the same cause. The ledger is kept per turn inside the trail, so `landscapeCauses(key)` reads
+it over the same one-year window as the arrow, and the three figures add up to exactly the
+delta the arrow shows.
+
+The panel prints them under the bar, in the order they interest the player: **vos choix**
+(gold, the only line they have a hand on), **urnes**, **époque**. Anything under 0.2 point is
+dropped, and a camp that has not moved gets no line at all.
+
+| Call site | Cause |
+|---|---|
+| the `landscape` effect of an event, and the player crossing the floor (`switchParty`) | `choice` |
+| a presidential result, a background election, the campaign gap (`campaignGap`) | `election` |
+| `driftLandscape()`, and a figure defecting on their own (`maybeDefection`) | `drift` |
 
 ### There is no baseline, and that is the design
 

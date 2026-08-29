@@ -699,7 +699,7 @@ function applyEffects(effects, s, soften) {
       Object.entries(value).forEach(([token, amount]) => {
         const party = landscapeTarget(s, token);
         if (!party) return;
-        const moved = moveShare(s, party, amount);
+        const moved = moveShare(s, party, amount, "choice");
         if (Math.abs(moved) >= 0.05) {
           changes.push({ kind: "landscape", key: party, delta: Math.round(moved * 10) / 10 });
         }

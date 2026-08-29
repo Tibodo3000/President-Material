@@ -44,6 +44,28 @@ function yearDelta(key) {
   return game.landscape[key] - avant;
 }
 
+/**
+ * D'OÙ VIENT LE MOUVEMENT. Trois causes, dans l'ordre où elles intéressent le
+ * joueur : ce qu'il a décidé, ce que les urnes ont donné, ce que l'époque a
+ * fait toute seule. On n'écrit que celles qui pèsent, et la ligne disparaît
+ * quand rien n'a bougé : un tableau calme n'a pas à porter trois zéros.
+ */
+function causesHTML(key) {
+  // Pas de ventilation sur une ligne qui n'a pas bougé : le seuil est celui
+  // de la flèche, sinon on explique un mouvement qu'on n'affiche pas.
+  const delta = yearDelta(key);
+  if (delta === undefined || Math.abs(delta) < 0.5) return "";
+
+  const causes = landscapeCauses(key);
+  const parts = ["choice", "election", "drift"]
+    .filter((c) => Math.abs(causes[c]) >= 0.2)
+    .map((c) =>
+      '<span class="force-cause is-' + c + '">' + t("force_cause_" + c) + " " +
+      (causes[c] > 0 ? "+" : "−") + localNumber(Math.abs(causes[c]).toFixed(1)) + "</span>");
+
+  return parts.length ? '<div class="force-causes">' + parts.join("") + "</div>" : "";
+}
+
 function trendHTML(key) {
   const delta = yearDelta(key);
   if (delta === undefined || Math.abs(delta) < 0.5) return "";
@@ -53,9 +75,24 @@ function trendHTML(key) {
     (delta > 0 ? "▲" : "▼") + localNumber(Math.abs(delta).toFixed(1)) + "</span>";
 }
 
-/** L'échelle de la barre : la même pour tout le monde, sinon on ne compare rien. */
+/**
+ * L'ÉCHELLE DES BARRES. Elle valait 2,4 fois la part, donc elle saturait à
+ * quarante-deux pour cent : depuis que le tableau peut porter un camp à
+ * quarante-cinq, la barre du premier touchait le bout, ne disait plus s'il
+ * pesait quarante ou soixante, et surtout ne laissait plus la place de
+ * dessiner sa queue de mouvement.
+ *
+ * Elle se cale donc sur le premier du tableau, avec un peu de marge à droite,
+ * et un plancher pour qu'un pays très partagé ne fasse pas six barres pleines.
+ * La même pour tous les camps, sinon on ne compare plus rien.
+ */
+function forceScale() {
+  const parts = Object.values(game.landscape || {});
+  return Math.max(28, (parts.length ? Math.max(...parts) : 0) * 1.12);
+}
+
 function forceWidth(share) {
-  return Math.round(Math.min(100, Math.max(0, share) * 2.4) * 10) / 10;
+  return Math.round(Math.min(100, Math.max(0, share) / forceScale() * 100) * 10) / 10;
 }
 
 /**
@@ -273,14 +310,21 @@ function renderLandscape() {
       '<div class="force-row' + (mine ? " is-mine" : "") +
         (Math.abs(yearDelta(key) || 0) >= 0.5 ? (yearDelta(key) > 0 ? " is-rising" : " is-falling") : "") +
         '" data-party="' + key + '" style="--tint:var(--p-' + key + ')">' +
+        // Le nom, les étiquettes et le chiffre sont trois blocs distincts :
+        // dans une colonne étroite, c'est le nom qui doit céder, pas
+        // l'étiquette « au pouvoir » qui doit tomber à la ligne toute seule.
         '<div class="force-head">' +
-          '<span class="force-party">' + t("party_" + key) +
-            (key === ruling ? ' <span class="force-tag">' + t("force_ruling") + "</span>" : "") +
-            (key === ally ? ' <span class="force-tag is-ally">' + t("force_ally") + "</span>" : "") +
-          "</span>" +
+          '<span class="force-party">' + t("party_" + key) + "</span>" +
+          (key === ruling || key === ally
+            ? '<span class="force-flags">' +
+              (key === ruling ? '<span class="force-tag">' + t("force_ruling") + "</span>" : "") +
+              (key === ally ? '<span class="force-tag is-ally">' + t("force_ally") + "</span>" : "") +
+              "</span>"
+            : "") +
           '<span class="force-share">' + trendHTML(key) + Math.round(share) + "%</span>" +
         "</div>" +
         forceTrackHTML(key, share) +
+        causesHTML(key) +
         '<button type="button" class="force-toggle">' + t("force_people") +
           " (" + people.length + ")</button>" +
         '<div class="force-people">' +

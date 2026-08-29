@@ -1711,12 +1711,22 @@ body {
 .force-row { padding: 0.55rem 0; border-bottom: 1px solid var(--line); }
 .force-row:last-child { border-bottom: 0; }
 
+/* Trois blocs : le nom, ses étiquettes, son chiffre. Le nom est le seul qui
+   accepte de rétrécir, et il coupe proprement plutôt que de renvoyer
+   l'étiquette « au pouvoir » sur une deuxième ligne, ce qu'elle faisait dès
+   que la colonne se resserrait. */
 .force-head {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0.8rem;
+  flex-wrap: wrap;
+  gap: 0.45rem;
 }
+
+.force-party { flex: 0 1 auto; min-width: 0; }
+
+.force-flags { flex: 0 0 auto; white-space: nowrap; }
+.force-flags .force-tag { margin-left: 0; }
+.force-flags .force-tag + .force-tag { margin-left: 0.3rem; }
 
 .force-party { font-size: 0.78rem; font-weight: 600; color: var(--ink); }
 
@@ -1737,6 +1747,9 @@ body {
 }
 
 .force-share {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-left: 0.6rem;
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--muted);
@@ -1823,6 +1836,24 @@ body {
   background: color-mix(in srgb, var(--red) 16%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 38%, transparent);
 }
+
+/* D'OÙ VIENT LE MOUVEMENT, sous la barre. Trois libellés courts, en petit,
+   et une couleur par cause : l'or pour ce que le joueur a décidé, parce que
+   c'est la seule ligne du panneau sur laquelle il a la main. */
+.force-causes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.1rem 0.7rem;
+  margin: -0.15rem 0 0.35rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--faint, var(--muted));
+}
+
+.force-cause.is-choice { color: var(--gold-2); font-weight: 600; }
+.force-cause.is-election { color: var(--muted); }
+.force-cause.is-drift { color: var(--faint, var(--muted)); opacity: 0.85; }
 
 /* Le camp qui monte porte son nom en clair : c'est la deuxième lecture, celle
    qu'on fait en parcourant la colonne des noms sans regarder les barres. */
