@@ -59,7 +59,7 @@ State is handed between pages through `localStorage`, not a router or framework.
 ### Content (pure data — edit freely, no code needed)
 | File | Contains |
 |------|----------|
-| [js/events/](../js/events/) | **387 events** across 7 decks (`events`, `campaign`, `runoff`, `nomination`, `support`, `aside`, `races`). Split by theme into 15 files (`debuts`, `medias`, `argent`, `appareil`, `arbitrages`, `epoque`, `chaines`, `assemblee`, …) plus one file per auxiliary deck, all reassembled into `EVENT_DATA` by `_assemble.data.js`. The engine still reads a single `EVENT_DATA`. |
+| [js/events/](../js/events/) | **385 events** across 7 decks (`events`, `campaign`, `runoff`, `nomination`, `support`, `aside`, `races`). Split by theme into 15 files (`debuts`, `medias`, `argent`, `appareil`, `arbitrages`, `epoque`, `chaines`, `assemblee`, …) plus one file per auxiliary deck, all reassembled into `EVENT_DATA` by `_assemble.data.js`. The engine still reads a single `EVENT_DATA`. |
 | [js/traits.data.js](../js/traits.data.js) | All traits (character, physical, talent, party, reputation, money) |
 | [js/endings.data.js](../js/endings.data.js) | The narrated end-of-game screens, chosen by final state |
 | [js/budget.data.js](../js/budget.data.js) | Salaries, lifestyle, and the adjustable spending tiers |

@@ -447,16 +447,22 @@ party and being electable are two different things, and the game is built on the
 ### The player's hand on it
 
 Four forces moved the table and none of them was a decision. The
-[arbitrages](../js/events/arbitrages.data.js) deck is the fifth: nine scenes whose only
+[arbitrages](../js/events/arbitrages.data.js) deck is the fifth: seven scenes whose only
 subject is **the moment where the player's interest and their camp's are not the same
-thing** — the prime-time slot you take instead of the spokesperson, the unwinnable seat you
-refuse, the three-way race you stay in, the defector who brings two branches and will want
-your job, the government commission that makes you serious and them look open. Every choice
-in that file moves `landscape`, and never in the same direction as the career: an option
-that pays in standing *and* in vote share is a reward, not an arbitration.
+thing** — the prime-time slot you take instead of the spokesperson, the unwinnable seat
+somebody has to go and lose, the defector who brings two branches and will want your job, the
+government commission that makes you serious and them look open. Every choice in that file
+moves `landscape`, and never in the same direction as the career: an option that pays in
+standing *and* in vote share is a reward, not an arbitration.
 
-Taking the camp's side in all nine is worth up to about ten points of national weight;
-playing for yourself costs it five or six. Not every career draws all nine and rolls fail,
+**A scene in this deck may not assume an election is under way.** It is drawn on an ordinary
+turn, so a second-round three-way race or a Sunday-night list merger lands outside any
+campaign, and the player reads runoff arithmetic on a spring Tuesday with no election
+anywhere. Two scenes were removed for exactly that; what is decided during a campaign belongs
+to the campaign decks.
+
+Taking the camp's side in all seven is worth up to about eight points of national weight;
+playing for yourself costs it four or five. Not every career draws all seven and rolls fail,
 so the real figure is smaller — but the order of magnitude is that of a party's whole-career
 amplitude (6 to 10 points depending on the camp), which is the point: the table is no longer
 only weather.

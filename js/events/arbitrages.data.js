@@ -7,16 +7,16 @@
  * point ou deux au passage. Le joueur le REGARDAIT bouger sans jamais avoir
  * la main dessus, ce qui en faisait un décor animé plutôt qu'un enjeu.
  *
- * Ce paquet ne raconte donc qu'une chose, sous neuf formes : LES MOMENTS OÙ
+ * Ce paquet ne raconte donc qu'une chose, sous sept formes : LES MOMENTS OÙ
  * L'INTÉRÊT DU JOUEUR ET CELUI DE SON CAMP NE SONT PAS LE MÊME. Ils existent
  * dans la vraie vie politique à peu près toutes les semaines, et ce sont eux
  * qui décident si l'on finit par peser sur un parti ou par en vivre.
  *
  * QUATRE FORMES, ET IL EN FAUT DES QUATRE :
  *   1. Bon pour moi, mauvais pour les miens. Prendre l'antenne à la place du
- *      porte-parole, garder sa liste, refuser la circonscription perdue.
- *   2. Bon pour les miens, mauvais pour moi. Se désister, laisser la place,
- *      accueillir celui qui prendra la vôtre dans trois ans.
+ *      porte-parole, refuser la circonscription perdue, sortir un dossier.
+ *   2. Bon pour les miens, mauvais pour moi. Aller perdre là où il faut bien
+ *      que quelqu'un aille, accueillir celui qui prendra votre place.
  *   3. Bon pour moi ET pour le camp d'en face. La mission que le gouvernement
  *      vous confie, le face-à-face qui vous expose et les installe.
  *   4. Bon pour tout le monde, mais cela se paie ailleurs : en argent, en
@@ -28,6 +28,13 @@
  * une récompense, et elle n'a rien à faire ici. Les montants restent entre un
  * demi-point et deux points et demi : au-delà, on ne déplace plus une
  * élection, on la décide.
+ *
+ * CE QUI N'A PAS SA PLACE ICI : une scène qui suppose un scrutin EN COURS. Le
+ * paquet sort à un tour ordinaire, donc une triangulaire du second tour ou une
+ * fusion de listes le dimanche soir y tombent hors de toute campagne, et le
+ * joueur lit une arithmétique de désistement un mardi de printemps sans
+ * élection nulle part. Deux scènes sont parties pour cette raison ; ce qui se
+ * décide pendant une campagne appartient aux paquets de campagne.
  *
  * Le schéma complet est en tête de js/events/_assemble.data.js.
  * ============================================================================
@@ -98,38 +105,6 @@ const EV_arbitrages = [
       "failure": { "effects": { "popularity": -5, "standing": -3, "credibilite": -1, "landscape": { "self": -0.5 } },
         "result": { "fr": "Vous récitez. Le présentateur vous laisse finir, puis demande si vous croyez vous-même à ce que vous venez de dire, et les quatre secondes suivantes tournent jusqu'au dimanche.",
                     "en": "You recite. The presenter lets you finish, then asks whether you believe what you have just said, and the next four seconds circulate until Sunday." } } }
-  ]
-},
-
-{
-  "id": "arb_desistement",
-  "weight": 4,
-  "cast": "neighbour",
-  "when": { "position": ["conseiller", "maire", "depute"], "minTurn": 18 },
-  "tag": { "fr": "Triangulaire", "en": "Three-way race" },
-  "text": {
-    "fr": "Trois candidats se maintiennent au second tour et l'arithmétique est publique : à deux, le siège se gagne, à trois il se perd. {rival} a fait quatre voix de moins que vous dimanche et n'a manifestement pas l'intention d'en tirer la conclusion.",
-    "en": "Three candidates are staying in for the second round and the arithmetic is public: two of them win the seat, three of them lose it. {rival} finished four votes behind you on Sunday and clearly has no intention of drawing the obvious conclusion."
-  },
-  "choices": [
-    { "label": { "fr": "Vous désister", "en": "Stand down" },
-      "effects": { "popularity": 5, "reputation": 2, "credibilite": 2, "standing": -10,
-                   "landscape": { "scene": 1.5, "self": -0.7 } },
-      "result": { "fr": "Vous l'annoncez le lundi à onze heures, sans conditions et sans amertume affichée. Le siège gagne un siège qui n'est pas le sien, votre fédération apprend la nouvelle par la presse, et vous n'aurez plus jamais à prouver que vous savez perdre.",
-                  "en": "You announce it on Monday at eleven, with no conditions and no visible bitterness. The bloc gains a seat that is not yours, your local branch learns the news from the press, and you will never again have to prove that you know how to lose." } },
-    { "label": { "fr": "Vous maintenir", "en": "Stay in" },
-      "effects": { "standing": 8, "appeal": { "self": 6 }, "popularity": -5, "reputation": -1,
-                   "landscape": { "self": 1.1, "scene": -1.5 } },
-      "result": { "fr": "Vous expliquez que vos électeurs ne sont pas une monnaie d'échange, ce qui est la phrase qu'on prononce quand on va faire perdre son camp. Le siège est perdu pour tout le monde et votre fédération vous porte en triomphe.",
-                  "en": "You explain that your voters are not small change, which is the sentence people use when they are about to make their side lose. The seat is lost for everyone and your local branch carries you shoulder-high." } },
-    { "label": { "fr": "Négocier votre retrait contre la circonscription voisine", "en": "Trade your withdrawal for the seat next door" },
-      "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.35, "standing": 0.04 }, "dice": 16 },
-      "success": { "effects": { "standing": 5, "reseau": 3, "credibilite": 1, "landscape": { "scene": 1.2 } },
-        "result": { "fr": "Un accord de quatre lignes, signé un lundi soir dans une salle de permanence, qui vous promet la circonscription d'à côté au prochain coup. Elle est meilleure que la vôtre et deux personnes seulement savent pourquoi vous vous êtes retiré.",
-                    "en": "A four-line agreement, signed on a Monday evening in a back room, promising you the seat next door next time. It is a better one than yours, and only two people know why you withdrew." } },
-      "failure": { "effects": { "standing": -8, "reputation": -2, "reseau": -1, "landscape": { "self": -0.8 } },
-        "result": { "fr": "La négociation fuite avant d'aboutir, avec le nom de la circonscription. Vous vous retirez quand même, et vous le faites désormais sous le regard de gens qui savent exactement ce que vous aviez demandé.",
-                    "en": "The negotiation leaks before it concludes, with the name of the seat in it. You withdraw anyway, and you now do it in front of people who know exactly what you had asked for." } } }
   ]
 },
 
@@ -311,37 +286,4 @@ const EV_arbitrages = [
   ]
 },
 
-{
-  "id": "arb_fusion_liste",
-  "weight": 3,
-  "cast": "neighbour",
-  "when": { "position": ["conseiller", "maire", "cadre"], "minTurn": 12 },
-  "tag": { "fr": "Fusion", "en": "Merger" },
-  "text": {
-    "fr": "Dimanche soir, vous êtes en tête de votre camp et derrière la liste de {rival}. La fusion se décide avant mardi midi : ensemble la ville se gagne, séparément elle est perdue, et la place de troisième adjoint est celle qu'on vous propose.",
-    "en": "On Sunday evening you are ahead within your own camp and behind {rival}'s list. The merger has to be settled by Tuesday noon: together the town is winnable, separately it is lost, and third deputy is the job on offer."
-  },
-  "choices": [
-    { "label": { "fr": "Fusionner et prendre la troisième place", "en": "Merge and take third place" },
-      "effects": { "reseau": 2, "standing": 6, "credibilite": 1, "notoriete": -1,
-                   "landscape": { "self": 0.7, "scene": 0.7 } },
-      "result": { "fr": "La ville bascule le dimanche suivant et vous héritez de la voirie et des marchés. Ce sont les deux délégations dont personne ne veut et les deux seules que les habitants remarquent.",
-                  "en": "The town changes hands the following Sunday and you inherit roads and markets. They are the two portfolios nobody wants and the only two the residents ever notice." } },
-    { "label": { "fr": "Maintenir votre liste jusqu'au bout", "en": "Keep your list in to the end" },
-      "effects": { "appeal": { "self": 7 }, "notoriete": 2, "standing": -6, "credibilite": -1,
-                   "landscape": { "self": -1.0, "scene": -0.5 } },
-      "result": { "fr": "Vous faites onze pour cent et vous faites perdre la ville, ce qui se dit de deux façons selon l'endroit où l'on se trouve. Votre nom, lui, est resté en haut de l'affiche, et il y sera encore dans six ans.",
-                  "en": "You get eleven per cent and you cost your side the town, which can be phrased two ways depending on where you are standing. Your name, though, stayed at the top of the poster, and it will still be there in six years." } },
-    { "label": { "fr": "Fusionner, mais en exigeant la tête de liste", "en": "Merge, but demand the top of the list" },
-      "roll": { "base": 17, "stat": "charisme", "plus": { "reseau": 0.4, "popularity": 0.05 }, "dice": 16 },
-      "success": { "effects": { "standing": 9, "notoriete": 2, "credibilite": 2,
-                                "landscape": { "self": 1.5, "scene": -0.4 } },
-        "result": { "fr": "Vous obtenez la tête de liste à trente-six heures du dépôt, parce que l'autre camp avait encore plus à perdre que vous. La ville est gagnée sous votre nom et l'on ne vous reparlera plus jamais de vos onze pour cent.",
-                    "en": "You get the top of the list thirty-six hours before nominations close, because the other camp had even more to lose than you. The town is won under your name and nobody will ever mention your eleven per cent again." } },
-      "failure": { "effects": { "standing": -9, "reputation": -1, "reseau": -1,
-                                "landscape": { "self": -1.3, "scene": -0.6 } },
-        "result": { "fr": "Personne ne fusionne, la liste sortante est réélue au premier tour du second, et les deux camps passent six ans à expliquer que c'était la faute de l'autre. Ils ont raison tous les deux.",
-                    "en": "Nobody merges, the sitting list is re-elected in a canter, and the two camps spend six years explaining that it was the other one's fault. They are both right." } } }
-  ]
-}
 ];
