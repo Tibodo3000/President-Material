@@ -427,6 +427,21 @@ const ALLIANCE_BREAK = 7;
    pas ses favoris en fonction de leur commodité.
    -------------------------------------------------------------------------- */
 
+/*
+ * LE CAMP QUI TIENT L'ÉLYSÉE AU PREMIER TOUR.
+ *
+ * C'est un état de départ, pas une loi du jeu. Une partie s'ouvre sur un pays
+ * qu'on reconnaît — le centre au pouvoir, l'usure qui commence — et tout ce
+ * qui suit est libre : le sortant peut se faire battre au premier scrutin, son
+ * camp peut s'effondrer, et rien ne le ramènera jamais. Fixer le point de
+ * départ n'est pas fixer un niveau ; c'est décider d'où l'on part.
+ *
+ * Ce qui reste tiré, et c'est l'essentiel : COMBIEN ce camp pèse ce jour-là,
+ * et comment les cinq autres se répartissent derrière. Deux parties ne
+ * s'ouvrent donc pas sur le même pays, elles s'ouvrent sur le même pouvoir.
+ */
+const OPENING_RULING = "centrists";
+
 /** Le haut de l'ancre d'ouverture, pour un parti de difficulté nulle. */
 const OPENING_ANCHOR = 21;
 

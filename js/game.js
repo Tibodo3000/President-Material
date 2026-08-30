@@ -310,6 +310,23 @@ function initialLandscape() {
   Object.keys(PARTIES).forEach((key) => {
     shares[key] = Math.max(3, openingAnchor(key) * Math.exp(bellDraw() * OPENING_SPREAD));
   });
+
+  /* LE PAYS EST TIRÉ, LE POUVOIR NE L'EST PAS.
+     Le président sortant est le chef du premier camp du tableau (voir plus
+     bas) : pour qu'une partie s'ouvre toujours sur le même pouvoir, il suffit
+     que ce camp-là soit en tête le premier jour. On ÉCHANGE donc sa part avec
+     la plus haute au lieu de la forcer : le pays garde exactement la forme
+     qu'on vient de lui tirer — un pays très partagé le reste, un pays dominé
+     aussi — et seul le nom du camp qui la porte change. Ce que le centre pèse
+     ce jour-là varie donc d'une partie à l'autre, et tout ce qui suit lui
+     échappe complètement. */
+  const tete = leadingParty(shares);
+  if (tete !== OPENING_RULING && shares[OPENING_RULING] !== undefined) {
+    const haut = shares[tete];
+    shares[tete] = shares[OPENING_RULING];
+    shares[OPENING_RULING] = haut;
+  }
+
   return normalizeLandscape(shares);
 }
 
