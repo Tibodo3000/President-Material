@@ -129,6 +129,25 @@ const DRIFT = 0.15;
  * huit au tour suivant, sans que rien ne l'annonce ni ne l'explique. Ce
  * qu'on a gagné doit s'user, pas fondre — sinon aucun coup d'éclat ne vaut
  * la peine et le joueur a le sentiment de vider un seau percé.
+ *
+ * LA DETTE LAISSÉE PAR LA SAISON, ET OÙ ELLE TOMBE VRAIMENT. En passant d'un
+ * tour par semestre à un tour par saison, les deux coefficients ont été
+ * convertis pour qu'une ANNÉE fasse le même chemin qu'avant : le rappel annuel
+ * n'a pas bougé, mais les événements tombent un par tour et leur apport annuel
+ * a doublé. Une jauge s'immobilise là où l'apport des scènes égale le rappel,
+ * donc à un écart au repos deux fois plus grand, et personne ne l'avait
+ * décidé. Le commentaire de DRIFT le signalait comme « un réglage
+ * d'équilibrage à reprendre à part ».
+ *
+ * Repris, et mesuré : la dette ne tombe pas ici. Doubler ce coefficient ne
+ * change presque rien à la popularité — écart au repos de 3,9 avant comme
+ * après — parce que la popularité n'est plus une jauge mais six électorats,
+ * que ce rappel-là ne touche que le sien, et surtout parce que bumpAppeal()
+ * freine déjà les gains par des rendements décroissants. Toute la dette était
+ * donc sur la COTE AU PARTI, qui n'avait aucun frein : elle est payée dans
+ * bumpStanding(). Doubler le rappel en plus faisait tomber la cote médiane
+ * d'un joueur qui joue bien de 59 à 46, et l'Élysée de 25 carrières sur 200 à
+ * 14 : deux freins pour une seule dette.
  */
 const DRIFT_DOWN = 0.09;   // même conversion : 1 − √0,83
 

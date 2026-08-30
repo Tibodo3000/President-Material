@@ -334,9 +334,42 @@ function applyPositionedPopularity(s, amount, brut) {
   return bouge;
 }
 
-/** Coup immédiat sur la cote au sein du parti. */
+/**
+ * Coup immédiat sur la cote au sein du parti, AVEC LES MÊMES RENDEMENTS
+ * DÉCROISSANTS QUE L'OPINION.
+ *
+ * La popularité les avait, la cote non : un service rendu à l'appareil valait
+ * six points qu'on soit inconnu du siège ou déjà le deuxième homme du parti,
+ * et rien ne freinait jamais rien. Mesuré sur quarante carrières menées par un
+ * joueur qui prend à chaque fois le meilleur choix offert : la cote vivait
+ * quinze points au-dessus de son point de repos — la popularité, quatre —,
+ * dépassait soixante dès la dixième année et culminait à quatre-vingt-six.
+ * L'appareil se conquérait en une décennie et ne se reperdait plus.
+ *
+ * MAIS PAS LA MÊME COURBE QUE LA POPULARITÉ. Celle de l'opinion freine dès le
+ * premier point : un inconnu qui gagne trente de popularité n'en encaisse que
+ * vingt-quatre. Appliquée telle quelle à la cote, elle rendait le milieu de
+ * carrière aussi lourd que le sommet, et c'est le sommet qui disparaissait :
+ * la direction du parti, qui se prend à soixante et onze, passait de sept
+ * carrières sur quarante à deux.
+ *
+ * Il y a donc une zone franche. Jusqu'à quarante-cinq, l'appareil donne sans
+ * compter : on rend des services, on est noté, rien ne freine — c'est la
+ * montée ordinaire d'un cadre, et elle ne pose aucun problème. Au-delà, chaque
+ * point coûte plus cher que le précédent : les places sont prises, et ceux qui
+ * les tiennent vous doivent déjà tout. À soixante-dix, un gain vaut les trois
+ * quarts ; à quatre-vingt-dix, la moitié.
+ *
+ * Les mauvaises nouvelles, elles, se paient plein tarif.
+ */
+function standingGainRate(standing) {
+  if (standing <= 45) return 1;
+  return Math.max(0.25, 1 - (standing - 45) / 90);
+}
+
 function bumpStanding(state, delta) {
-  state.standing = clamp100(state.standing + delta);
+  const d = delta > 0 ? delta * standingGainRate(state.standing) : delta;
+  state.standing = clamp100(state.standing + d);
 }
 
 /** Ajoute ou retire de l'argent, plancher à zéro. */
