@@ -40,10 +40,39 @@ function seasonLabel() {
  * existait déjà et qui fonctionnait : un trait sur la barre, et une phrase au
  * survol qui dit ce que c'est.
  */
+/**
+ * LA JAUGE QUI VIENT DE BOUGER S'ALLUME.
+ *
+ * La barre glissait déjà vers sa nouvelle valeur, mais rien ne reliait la
+ * pastille « popularité +6 », à droite sous la carte, à la jauge concernée,
+ * à gauche sur la fiche : le joueur lisait un chiffre et devait aller
+ * chercher la barre lui-même. On compare donc à ce qui était AFFICHÉ — pas à
+ * l'état du jeu, qui a déjà changé — et on pose une classe le temps d'une
+ * demi-seconde. Le reste est dans la feuille de style.
+ */
+function flashGauge(key, value) {
+  const val = document.getElementById("gauge-" + key + "-value");
+  if (!val) return;
+
+  const avant = Number(val.dataset.shown);
+  val.dataset.shown = value;
+  if (!Number.isFinite(avant) || avant === value) return;
+
+  const boite = (val.closest && val.closest(".gauge")) || val.parentElement;
+  if (!boite || !boite.classList) return;
+
+  boite.classList.remove("is-up", "is-down");
+  // Relance l'animation : sans cette lecture, réappliquer la même classe au
+  // tour suivant ne redéclencherait rien.
+  void boite.offsetWidth;
+  boite.classList.add(value > avant ? "is-up" : "is-down");
+}
+
 function renderGauge(key, value, labelKey, target) {
   document.getElementById("gauge-" + key + "-label").textContent = t(labelKey);
   document.getElementById("gauge-" + key + "-fill").style.width = value + "%";
   document.getElementById("gauge-" + key + "-value").textContent = value;
+  flashGauge(key, value);
 
   const bar = document.getElementById("gauge-" + key + "-fill").parentElement;
   if (target === undefined) return;

@@ -1452,6 +1452,19 @@ body {
 /* L'HÉMICYCLE. Cinq cent soixante-dix-sept bancs, rangés de la gauche vers
    la droite comme dans la vraie salle : c'est la seule disposition qui
    laisse voir d'un coup d'œil où une majorité peut se trouver. */
+/* L'HÉMICYCLE SE REMPLIT. Une Assemblée ne se redessine que tous les cinq
+   ans : c'est un des rares moments où le panneau raconte quelque chose, et il
+   arrivait tout fait. Il monte maintenant d'un cran en s'ouvrant, une fois,
+   sans toucher aux cinq cent soixante-dix-sept sièges un par un — un
+   mouvement d'ensemble coûte un seul calcul, cinq cent soixante-dix-sept
+   animations en coûtent autant. */
+@keyframes hemicycle-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+.hemicycle { animation: hemicycle-in 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
 .hemicycle {
   display: block;
   width: 100%;
@@ -2112,6 +2125,93 @@ body {
 
 .event-card { animation: card-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
+/* ---------- LA CARTE S'ASSEMBLE ----------
+   Une partie dure cent cinquante tours et la carte est la même boîte à
+   chaque fois : c'est la longueur qu'il faut combattre, pas la sobriété. On
+   ne change donc rien au dessin, on change l'ORDRE D'ARRIVÉE. Le texte
+   d'abord, les choix ensuite, décalés de quatre centièmes : l'œil descend
+   tout seul là où il faut lire, au lieu de trouver un bloc déjà posé.
+
+   Court exprès. Tout doit être fini avant qu'une main rapide n'ait cliqué,
+   sinon on a fabriqué une attente au lieu d'un rythme. */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.event-card .event-text,
+.event-card .event-choices > * {
+  animation: rise-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.event-card .event-text { animation-delay: 0.04s; }
+.event-card .event-choices > *:nth-child(1) { animation-delay: 0.10s; }
+.event-card .event-choices > *:nth-child(2) { animation-delay: 0.14s; }
+.event-card .event-choices > *:nth-child(3) { animation-delay: 0.18s; }
+.event-card .event-choices > *:nth-child(4) { animation-delay: 0.22s; }
+.event-card .event-choices > *:nth-child(n+5) { animation-delay: 0.26s; }
+
+/* ---------- CE QU'ON PRESSE RÉPOND ----------
+   Cent cinquante clics par partie : le bouton doit s'enfoncer. Deux
+   centièmes de course, rien de plus, mais la différence entre une page et
+   une manette se joue là. */
+.event-choice { transition: transform 0.08s ease, border-color var(--transition),
+                            background-color var(--transition), color var(--transition); }
+.event-choice:active { transform: translateY(1px) scale(0.994); }
+
+/* ---------- LES CONSÉQUENCES TOMBENT UNE À UNE ----------
+   Les pastilles d'effets sont la récompense du tour, et elles apparaissaient
+   toutes ensemble, d'un bloc, comme un tableau de résultats. Elles arrivent
+   maintenant en cascade : on lit « popularité +6 » puis « cote −3 » dans
+   l'ordre, et c'est le seul endroit du jeu où l'on s'autorise un rebond. */
+@keyframes fx-in {
+  0%   { opacity: 0; transform: translateY(4px) scale(0.94); }
+  70%  { opacity: 1; transform: translateY(0) scale(1.02); }
+  100% { opacity: 1; transform: none; }
+}
+
+.fx { animation: fx-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.fx-line > .fx:nth-child(1) { animation-delay: 0.06s; }
+.fx-line > .fx:nth-child(2) { animation-delay: 0.12s; }
+.fx-line > .fx:nth-child(3) { animation-delay: 0.18s; }
+.fx-line > .fx:nth-child(4) { animation-delay: 0.24s; }
+.fx-line > .fx:nth-child(5) { animation-delay: 0.30s; }
+.fx-line > .fx:nth-child(n+6) { animation-delay: 0.36s; }
+
+/* ---------- LA JAUGE QUI A BOUGÉ LE DIT ----------
+   La barre glissait déjà, mais rien ne reliait la pastille « popularité +6 »
+   à la jauge concernée : le joueur lisait un chiffre à droite et devait
+   aller chercher lui-même la barre à gauche. Celle qui vient de changer
+   s'allume une demi-seconde, dans la couleur du sens. C'est renderGauge()
+   qui pose la classe, en comparant à ce qui était affiché. */
+/* LA COULEUR EST DANS L'ANIMATION, PAS DANS LA CLASSE. La classe reste posée
+   jusqu'au prochain mouvement : si elle portait la couleur, un chiffre monté
+   une fois resterait vert pour toujours. L'animation part du vert et revient
+   d'elle-même à l'encre ordinaire, ce qui fait un éclair et pas un état. */
+@keyframes gauge-flash-up {
+  0%   { color: var(--green); transform: translateY(-3px) scale(1.08); }
+  100% { color: var(--ink); transform: none; }
+}
+
+@keyframes gauge-flash-down {
+  0%   { color: var(--red); transform: translateY(3px) scale(1.08); }
+  100% { color: var(--ink); transform: none; }
+}
+
+@keyframes gauge-glow {
+  0%   { box-shadow: 0 0 0 0 var(--pulse); }
+  100% { box-shadow: 0 0 0 7px transparent; }
+}
+
+.gauge.is-up { --pulse: rgba(110, 192, 138, 0.30); }
+.gauge.is-down { --pulse: rgba(209, 106, 114, 0.30); }
+
+.gauge.is-up .gauge-value { animation: gauge-flash-up 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+.gauge.is-down .gauge-value { animation: gauge-flash-down 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+
+.gauge.is-up .gauge-track,
+.gauge.is-down .gauge-track { animation: gauge-glow 0.6s ease-out; }
+
 /* ==========================================================================
    LES TEMPS FORTS NE SONT PAS DES CARTES
    ==========================================================================
@@ -2624,6 +2724,20 @@ body[data-moment="summit"] { --party-glow: rgba(233, 200, 119, 0.34); }
 }
 
 .journal-line:first-of-type { color: var(--muted); }
+
+/* LA DERNIÈRE LIGNE DU JOURNAL EST LA NOUVELLE. C'est là que le pays parle :
+   un parti qui perce, un gouvernement qui tombe, quelqu'un qui quitte la vie
+   politique. Elle arrivait dans le tas, au milieu de dix lignes grises, et
+   personne ne la voyait. Elle glisse maintenant depuis la gauche, et son
+   filet s'allume une seconde : c'est le seul mouvement du panneau, donc il
+   suffit. */
+@keyframes journal-in {
+  0%   { opacity: 0; transform: translateX(-6px); border-left-color: var(--gold); }
+  60%  { opacity: 1; transform: none; border-left-color: var(--gold); }
+  100% { opacity: 1; transform: none; border-left-color: var(--line); }
+}
+
+.journal-line:first-of-type { animation: journal-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 .journal-turn {
   flex: none;
