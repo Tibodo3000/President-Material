@@ -104,7 +104,8 @@ function lobbyGain(s) {
    SE PRÉSENTER QUAND MÊME — la candidature dissidente. On y va contre
    l'appareil, le scrutin a lieu pour de bon, et la direction fait payer
    l'affront quoi qu'il arrive. Réservée à ceux qui sont assez près du compte
-   pour que ce ne soit pas ridicule.
+   pour que ce ne soit pas ridicule, et aux scrutins où le pays vote : voir
+   dissidencePossible().
 
    CLAQUER LA PORTE — on ne prend pas la direction d'un parti qui n'en veut
    pas, alors on en change. C'est cher, définitif, et parfois c'est la seule
@@ -124,13 +125,34 @@ function rebelGap(card) {
   return need - game.standing;
 }
 
+/**
+ * UNE DISSIDENCE A BESOIN D'ÉLECTEURS.
+ *
+ * On se présente sans l'investiture parce qu'il existe un bulletin où le pays
+ * peut préférer votre nom à celui que le parti a retenu : la dissidence est
+ * un appel par-dessus l'appareil, et elle suppose quelqu'un à qui faire
+ * appel. La direction du parti ne se prend pas devant le pays. Elle se prend
+ * dans une salle qui appartient au parti, devant des militants qui sont
+ * l'appareil lui-même, et « se présenter sans l'investiture » à son propre
+ * congrès ne veut rien dire : le geste qui y correspond, c'est déposer une
+ * motion sans avoir le compte de signatures, et la scène du congrès le
+ * propose déjà, avec la commission des statuts qui la déclare irrecevable en
+ * douze secondes.
+ *
+ * Quand la maison vous ferme sa direction, il reste la porte.
+ */
+function dissidencePossible(card) {
+  return card.target !== "chef";
+}
+
 function rebellionButtons(card) {
   if (!card.target) return "";
 
   const gap = rebelGap(card);
   let html = "";
 
-  if (gap !== null && gap <= REBEL_REACH && game.popularity >= REBEL_POPULARITY) {
+  if (dissidencePossible(card) &&
+      gap !== null && gap <= REBEL_REACH && game.popularity >= REBEL_POPULARITY) {
     html += '<button type="button" class="event-choice is-unlocked" data-rebel="run">' +
       '<span class="choice-key" aria-hidden="true">◆</span>' +
       '<span class="choice-label">' + t("rebel_run") + "</span>" +
@@ -174,6 +196,31 @@ function rebelRefuge() {
  */
 function blockedPitch(stake) {
   const gap = nominationNeed(stake, game) - game.standing;
+
+  // UN CONGRÈS N'INVESTIT PERSONNE. Ce qui vous barre la route n'est pas une
+  // commission qui choisit un candidat pour un siège, ce sont des secrétaires
+  // de fédération qui ne signent pas votre motion. Le sortant est logé à la
+  // même enseigne : il ne défend pas la maison sans déposer de texte, et
+  // standDown() lui fait déjà rendre la direction faute de motion.
+  if (stake.target === "chef") {
+    if (gap > 16) {
+      return L({
+        fr: "Vous cherchez des signatures pour déposer une motion. Les fédérations vous reçoivent très bien, vous offrent le café et signent chez quelqu'un d'autre.",
+        en: "You go looking for signatures to table a motion. The federations receive you warmly, offer you coffee and sign somebody else's.",
+      });
+    }
+    if (gap > 6) {
+      return L({
+        fr: "Vous réunissez la moitié des signatures qu'exige une motion. On vous dit d'attendre le prochain congrès, du ton dont on l'a dit à tous ceux qui n'y sont jamais revenus.",
+        en: "You gather half the signatures a motion requires. You are told to wait for the next congress, in the tone used on everyone who never came back to one.",
+      });
+    }
+    return L({
+      fr: "Il vous manque deux fédérations pour déposer votre motion. Deux secrétaires qui ne rappellent pas, et la direction se joue sans vous.",
+      en: "You are two federations short of tabling your motion. Two secretaries who do not call back, and the leadership is decided without you.",
+    });
+  }
+
   const role = t("pos_" + stake.target).toLowerCase();
 
   if (gap > 16) {
@@ -249,16 +296,27 @@ function renderNominationCard(host, card) {
   // refusée » sans jamais nommer le scrutin ni le siège.
   const enjeu = card.target
     ? '<p class="event-text nomination-stake">' +
-        fillMarks(L({
-          fr: "Le parti désigne son candidat {pos_low:" + card.target + "}. Ce ne sera pas vous.",
-          en: "The party is picking its candidate for {pos_low:" + card.target + "}. It will not be you.",
-        })) + "</p>"
+        fillMarks(L(card.target === "chef"
+          // Le congrès ne désigne pas un candidat, il désigne un chef, et ce
+          // qui vous en écarte n'est pas une investiture refusée mais une
+          // motion qu'on ne peut pas déposer.
+          ? { fr: "Le congrès va se donner un chef. Sans les signatures qu'exige une motion, ce ne sera pas vous.",
+              en: "The congress is about to give itself a leader. Without the signatures a motion requires, it will not be you." }
+          : { fr: "Le parti désigne son candidat {pos_low:" + card.target + "}. Ce ne sera pas vous.",
+              en: "The party is picking its candidate for {pos_low:" + card.target + "}. It will not be you." })) + "</p>"
     : "";
+
+  // Une scène de l'appareil se joue aussi bien avant un congrès qu'avant une
+  // législative, mais son étiquette, elle, ne voyage pas : « Investiture
+  // refusée » au-dessus d'un congrès nomme une chose qui n'existe pas.
+  const tag = card.election === "congres"
+    ? L({ fr: "Direction refusée", en: "Leadership denied" })
+    : L(ev.tag);
 
   host.innerHTML =
     '<div class="event-card event-card-election">' +
       electionBanner(card.election) +
-      '<p class="event-tag">' + L(ev.tag) + " · " + cardHeader() + "</p>" +
+      '<p class="event-tag">' + tag + " · " + cardHeader() + "</p>" +
       (card.resolved
         ? '<p class="event-text event-result">' + card.resultText + "</p>" +
           changesHTML(card.resultChanges) + continueButton("data-continue")

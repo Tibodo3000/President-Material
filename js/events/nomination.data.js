@@ -54,8 +54,12 @@ const EV_nomination = [
   ]
 },
 
+/* Une investiture qui « passe sous le nez » et qui « va à » quelqu'un suppose
+   qu'on la donne : personne ne donne la direction d'un parti, elle se prend
+   au congrès. La scène vaut donc partout sauf là. */
 {
   "id": "investiture_concurrent",
+  "election": ["municipales", "legislatives", "europeennes", "presidentielle"],
   "weight": 4,
   "cast": "camp_senior",
   "tag": { "fr": "Investiture refusée", "en": "Nomination refused" },
