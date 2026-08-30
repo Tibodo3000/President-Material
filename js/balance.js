@@ -351,8 +351,20 @@ const CREDIBILITY_OVERSHOOT = 4;
    règle à quelle vitesse.
    ========================================================================== */
 
-/** Un parti ne descend jamais tout à fait à zéro : il lui reste ses fidèles. */
-const LANDSCAPE_FLOOR = 1.5;
+/*
+ * IL N'Y A PAS DE SOCLE.
+ *
+ * Il y en avait un : un parti ne descendait jamais sous 1,5 %, « il lui reste
+ * ses fidèles ». C'est une jolie phrase et c'est une main sous le tableau. Un
+ * camp qui s'effondre doit pouvoir s'effondrer pour de bon — le PS a fait
+ * 1,7 % en 2022 — et un plancher, si bas soit-il, dit au joueur que le pays a
+ * une mémoire garantie que rien ne peut effacer. Le rapport de force n'a que
+ * des causes : ce qu'un camp pèse est la somme de ce qui lui est arrivé.
+ *
+ * Ce qui reste n'est pas un réglage, c'est de l'arithmétique : une part ne
+ * peut pas être négative, sinon la normalisation à cent pour cent produit
+ * n'importe quoi. Zéro est donc le seul plancher, et il ne protège personne.
+ */
 
 /* --------------------------------------------------------------------------
    CE QUE COÛTE UNE TRAHISON, LE JOUR MÊME

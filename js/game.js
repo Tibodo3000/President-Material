@@ -866,7 +866,7 @@ function driftLandscape() {
     // ce qui profite un peu aux deux.
     if (ally && (key === ally || key === game.party)) move += 0.075;
 
-    game.landscape[key] = Math.max(LANDSCAPE_FLOOR, game.landscape[key] + move);
+    game.landscape[key] = Math.max(0, game.landscape[key] + move);
   });
 
   normalizeLandscape(game.landscape);
@@ -948,7 +948,7 @@ function moveShare(s, partyKey, amount, cause) {
 
   const avant = { ...s.landscape };
   const before = s.landscape[partyKey];
-  s.landscape[partyKey] = Math.max(LANDSCAPE_FLOOR, before + amount);
+  s.landscape[partyKey] = Math.max(0, before + amount);
   normalizeLandscape(s.landscape);
   noteLandscape(s, avant, cause || "drift");
 
@@ -992,7 +992,17 @@ function moveShare(s, partyKey, amount, cause) {
    mouvement affiché. */
 const LANDSCAPE_CAUSES = ["choice", "election", "drift"];
 
-/** Impute à une cause ce qui vient de changer dans le tableau. */
+/**
+ * Impute à une cause ce qui vient de changer dans le tableau.
+ *
+ * DÉBRANCHÉ DE L'INTERFACE. Ce registre alimentait trois petits chiffres sous
+ * chaque barre du rapport de force — « vos choix +2,1  urnes +1,6  le courant
+ * +0,9 ». Ce qu'on lit d'un camp en parcourant six lignes est une seule
+ * chose : il monte, il descend, ou il ne bouge pas. Le détail est parti, le
+ * registre reste : il est juste, il ne coûte presque rien, et le rebrancher
+ * autrement — au survol, dans une vue dédiée — tient en une ligne. C'est une
+ * décision à prendre, pas un oubli à reconduire.
+ */
 function noteLandscape(s, avant, cause) {
   if (!s.landscapeLedger) s.landscapeLedger = {};
   Object.keys(s.landscape).forEach((key) => {
@@ -2876,7 +2886,7 @@ function drawEvent() {
     if (suite.decline) {
       game.decline = Math.max(game.decline || 0, suite.decline);
       game.declineTurn = game.turn;
-      recordCareer(game, { kind: "decline", stage: suite.decline });
+      recordCareer(game, { kind: "decline", stage: suite.decline, id: suite.id });
     }
     return suite;
   }
