@@ -44,40 +44,34 @@ function yearDelta(key) {
   return game.landscape[key] - avant;
 }
 
-/**
- * D'OÙ VIENT LE MOUVEMENT. Trois causes, dans l'ordre où elles intéressent le
- * joueur : ce qu'il a décidé, ce que les urnes ont donné, ce que l'époque a
- * fait toute seule. On n'écrit que celles qui pèsent, et la ligne disparaît
- * quand rien n'a bougé : un tableau calme n'a pas à porter trois zéros.
+/*
+ * LA VENTILATION PAR CAUSE A QUITTÉ CE PANNEAU.
+ *
+ * Sous chaque barre, trois petits chiffres disaient d'où venait le mouvement
+ * de l'année : « vos choix +2,1  urnes +1,6  le courant +0,9 ». C'est une
+ * information juste, et ce n'est pas celle qu'on cherche en parcourant six
+ * lignes. Ce qu'on veut savoir d'un camp, c'est une seule chose : il monte,
+ * il descend, ou il ne bouge pas. Dix-huit chiffres répartis sous six barres
+ * pour répondre à une question que personne ne pose en passant, cela ressemble
+ * à une sortie de débogage, et la déplacer dans le dépliant des figures ne
+ * faisait que la mettre au mauvais endroit.
+ *
+ * Le moteur continue de tenir le registre des causes (voir noteLandscape),
+ * qui n'est plus lu par personne : c'est une décision à prendre, pas un oubli
+ * à reconduire. Le rebrancher tient en une ligne dans renderLandscape().
  */
-function causesHTML(key) {
-  // Pas de ventilation sur une ligne qui n'a pas bougé : le seuil est celui
-  // de la flèche, sinon on explique un mouvement qu'on n'affiche pas.
-  const delta = yearDelta(key);
-  if (delta === undefined || Math.abs(delta) < 0.5) return "";
 
-  const causes = landscapeCauses(key);
-  const parts = ["choice", "election", "drift"]
-    .filter((c) => Math.abs(causes[c]) >= 0.2)
-    .map((c) =>
-      '<span class="force-cause is-' + c + '">' + t("force_cause_" + c) + " " +
-      (causes[c] > 0 ? "+" : "−") + localNumber(Math.abs(causes[c]).toFixed(1)) + "</span>");
-
-  return parts.length ? '<div class="force-causes">' + parts.join("") + "</div>" : "";
-}
-
-/**
- * LA DYNAMIQUE D'UN CAMP, à côté de l'étiquette du pouvoir et de celle de
- * l'allié. La flèche voisine dit ce que le camp a pris ou perdu dans l'année ;
- * celle-ci dit autre chose, et c'est ce qui manquait : qu'il est DANS une
- * série, et donc qu'il va probablement continuer.
+/*
+ * L'ÉTIQUETTE « EN DYNAMIQUE » A ÉTÉ RETIRÉE D'ICI.
+ *
+ * Elle disait vrai — ce camp est dans une série, il va probablement continuer
+ * — mais elle était le cinquième signe de la même ligne, après la pastille de
+ * tendance, le repère sur la barre, la ventilation par cause et la part. Une
+ * ligne qui crie cinq fois ne se lit plus. La dynamique se voit désormais où
+ * elle se voit le mieux : dans la barre qui avance série après série, et dans
+ * le journal, qui annonce les percées et les décrochages quand ils
+ * s'installent.
  */
-function momentumTagHTML(key) {
-  const m = (game.momentum && game.momentum[key]) || 0;
-  if (Math.abs(m) < MOMENTUM_LOUD) return "";
-  return '<span class="force-tag ' + (m > 0 ? "is-rising" : "is-slump") + '">' +
-    t(m > 0 ? "force_rising" : "force_slump") + "</span>";
-}
 
 function trendHTML(key) {
   const delta = yearDelta(key);
@@ -85,7 +79,7 @@ function trendHTML(key) {
 
   return '<span class="force-trend ' + (delta > 0 ? "is-up" : "is-down") +
     '" title="' + t("force_trend_hint") + '">' +
-    (delta > 0 ? "▲" : "▼") + localNumber(Math.abs(delta).toFixed(1)) + "</span>";
+    (delta > 0 ? "▲" : "▼") + " " + localNumber(Math.abs(delta).toFixed(1)) + "</span>";
 }
 
 /**
@@ -109,23 +103,23 @@ function forceWidth(share) {
 }
 
 /**
- * La barre et sa queue. Le socle va jusqu'au plus bas des deux niveaux, la
- * queue peint la différence, et sa couleur dit le sens.
+ * LA BARRE, ET RIEN DANS LA BARRE.
+ *
+ * Elle a porté deux choses de trop. D'abord une QUEUE hachée, verte ou rouge,
+ * collée au bout de l'aplat pour peindre le mouvement de l'année : une
+ * deuxième couleur dans une barre qui porte déjà celle du parti, et des
+ * hachures qui se lisent comme une incertitude alors qu'elles désignaient une
+ * valeur exacte. Puis, à la place, un REPÈRE fin là où le camp se tenait un an
+ * plus tôt : plus discret, mais il fallait demander ce que c'était, et une
+ * marque qu'on doit expliquer n'a rien à faire dans un tableau qu'on parcourt.
+ *
+ * Un aplat, dans la couleur du camp, et c'est tout. Ce qu'on veut savoir en
+ * passant — il monte, il descend, il ne bouge pas — est écrit à côté du
+ * chiffre, en toutes lettres et une seule fois.
  */
 function forceTrackHTML(key, share) {
-  const delta = yearDelta(key);
-  const bouge = delta !== undefined && Math.abs(delta) >= 0.5;
-  const socle = bouge ? Math.min(share, share - delta) : share;
-  const queue = bouge
-    ? Math.round((forceWidth(Math.max(share, share - delta)) - forceWidth(socle)) * 10) / 10
-    : 0;
-
   return '<span class="force-track">' +
-    '<span class="force-fill" style="width:' + forceWidth(socle) + '%"></span>' +
-    (queue > 0
-      ? '<span class="force-delta ' + (delta > 0 ? "is-up" : "is-down") +
-        '" style="width:' + queue + '%" title="' + t("force_trend_hint") + '"></span>'
-      : "") +
+    '<span class="force-fill" style="width:' + forceWidth(share) + '%"></span>' +
   "</span>";
 }
 
@@ -328,17 +322,15 @@ function renderLandscape() {
         // l'étiquette « au pouvoir » qui doit tomber à la ligne toute seule.
         '<div class="force-head">' +
           '<span class="force-party">' + t("party_" + key) + "</span>" +
-          (key === ruling || key === ally || momentumTagHTML(key)
+          (key === ruling || key === ally
             ? '<span class="force-flags">' +
               (key === ruling ? '<span class="force-tag">' + t("force_ruling") + "</span>" : "") +
               (key === ally ? '<span class="force-tag is-ally">' + t("force_ally") + "</span>" : "") +
-              momentumTagHTML(key) +
               "</span>"
             : "") +
           '<span class="force-share">' + trendHTML(key) + Math.round(share) + "%</span>" +
         "</div>" +
         forceTrackHTML(key, share) +
-        causesHTML(key) +
         '<button type="button" class="force-toggle">' + t("force_people") +
           " (" + people.length + ")</button>" +
         '<div class="force-people">' +

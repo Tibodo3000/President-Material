@@ -102,15 +102,24 @@ function timelineLabel(entry, frise, i) {
                                    .replace("{to}", t("party_" + entry.to)), tone: "side" };
   }
 
-  /* LA FRISE EST UNE LISTE DE FAITS. Ces trois lignes disaient « le corps
-     donne un premier signe », « le corps insiste », « il n'y a plus de
-     discussion » : de belles phrases dans le paquet du déclin, où elles
-     coiffent une scène qu'on vient de lire, et trois énigmes au milieu de
-     « Municipales · élu maire » et « Ministre », où l'on ne sait même pas de
-     quoi elles parlent. Elles nomment donc ce dont il s'agit, et se lisent
-     comme les autres : la catégorie, puis le fait. */
+  /* LA FRISE EST UNE LISTE DE FAITS, ET UNE SEULE LIGNE SUFFIT.
+     Le corps écrivait trois lignes, une par temps, et elles disaient « le
+     corps donne un premier signe », « le corps insiste », « il n'y a plus de
+     discussion ». Trois fois le même flou, au milieu de « Municipales · élu
+     maire » et « Ministre » : on ne savait même pas qu'il s'agissait de
+     santé, et on le lisait trois fois.
+     Une seule ligne reste, la première, et c'est LA SCÈNE qui l'écrit : son
+     champ "frise" dit ce qui s'est réellement passé ce jour-là, un bilan
+     qu'on relit deux fois ou deux étages qu'on ne monte plus d'une traite.
+     Ce n'est donc pas la même ligne d'une partie à l'autre. Une sauvegarde
+     d'avant ce changement n'a pas retenu la scène : elle perd la ligne
+     plutôt que de remettre l'ancien flou. */
   if (entry.kind === "decline") {
-    return { text: t("frise_decline_" + entry.stage), tone: "body" };
+    const premier = frise.find((e) => e.kind === "decline");
+    if (premier !== entry) return null;
+    const scene = entry.id ? eventById(entry.id) : null;
+    if (!scene || !scene.frise) return null;
+    return { text: L(scene.frise), tone: "body" };
   }
 
   return null;

@@ -1770,12 +1770,6 @@ body {
   white-space: nowrap;
 }
 
-/* UNE SÉRIE SE VOIT. Un camp qui perce et un camp qui décroche portent la
-   même étiquette que le pouvoir et l'alliance, au même endroit, parce que
-   c'est la même chose qu'on lit : où en est ce parti en ce moment. */
-.force-tag.is-rising { color: var(--green); border-color: currentColor; }
-.force-tag.is-slump { color: var(--red); border-color: currentColor; }
-
 /* Un parti allié se repère au même endroit que le camp au pouvoir. */
 .force-tag.is-ally { color: var(--gold-2); border-color: var(--gold-2); }
 
@@ -1815,33 +1809,17 @@ body {
   background: linear-gradient(90deg, var(--blue), var(--gold));
 }
 
-/* LA QUEUE DE LA BARRE : ce que l'année a donné ou repris. Elle se pose au
-   bout du socle, dans le sens de la lecture, et sa couleur dit le sens du
-   mouvement. Une queue verte pousse la barre vers la droite, une queue rouge
-   montre la place que le camp occupait encore il y a un an. */
-.force-delta {
-  display: block;
-  height: 100%;
-  flex: 0 0 auto;
-}
-
-.force-delta.is-up {
-  background: repeating-linear-gradient(115deg,
-    var(--green) 0 4px, color-mix(in srgb, var(--green) 62%, transparent) 4px 8px);
-}
-
-.force-delta.is-down {
-  background: repeating-linear-gradient(115deg,
-    color-mix(in srgb, var(--red) 78%, transparent) 0 4px,
-    color-mix(in srgb, var(--red) 26%, transparent) 4px 8px);
-}
-
-/* LA PASTILLE DU MOUVEMENT. Une flèche nue de six pixels se cherchait ; une
-   pastille pleine se voit sans qu'on la cherche, et les deux couleurs se
-   distinguent aussi en niveaux de gris parce que le fond change avec. */
+/* LA PENTE, ET RIEN D'AUTRE.
+   C'est la seule chose qu'on lit d'un camp en parcourant le tableau : il
+   monte, il descend, il ne bouge pas. Tout ce qui disait la même chose une
+   deuxième fois a été retiré de la ligne — la queue hachée de la barre, le
+   repère de l'an dernier, la ventilation par cause. Il ne reste que cette
+   pastille, et elle a le droit d'être franche : un fond coloré se voit sans
+   qu'on le cherche, et les deux couleurs se distinguent aussi en niveaux de
+   gris parce que le fond change avec elles. */
 .force-trend {
   display: inline-block;
-  padding: 0.08rem 0.32rem;
+  padding: 0.08rem 0.36rem;
   border-radius: 999px;
   font-variant-numeric: tabular-nums;
 }
@@ -1855,24 +1833,6 @@ body {
   background: color-mix(in srgb, var(--red) 16%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 38%, transparent);
 }
-
-/* D'OÙ VIENT LE MOUVEMENT, sous la barre. Trois libellés courts, en petit,
-   et une couleur par cause : l'or pour ce que le joueur a décidé, parce que
-   c'est la seule ligne du panneau sur laquelle il a la main. */
-.force-causes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.1rem 0.7rem;
-  margin: -0.15rem 0 0.35rem;
-  font-size: 0.58rem;
-  letter-spacing: 0.02em;
-  font-variant-numeric: tabular-nums;
-  color: var(--faint, var(--muted));
-}
-
-.force-cause.is-choice { color: var(--gold-2); font-weight: 600; }
-.force-cause.is-election { color: var(--muted); }
-.force-cause.is-drift { color: var(--faint, var(--muted)); opacity: 0.85; }
 
 /* Le camp qui monte porte son nom en clair : c'est la deuxième lecture, celle
    qu'on fait en parcourant la colonne des noms sans regarder les barres. */

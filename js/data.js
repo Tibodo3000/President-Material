@@ -479,6 +479,24 @@ function buildStatRows() {
   const host = document.getElementById("sheet-stat-groups");
   if (!host) return;
 
+  /* ON NE RECONSTRUIT PAS CE QUI EST DÉJÀ LÀ.
+     renderAll() appelle cette fonction à chaque tour, et réécrire l'innerHTML
+     fabrique huit barres NEUVES : elles naissent à zéro, puis renderStats()
+     leur pose leur largeur, et la transition CSS les fait toutes se remplir
+     en glissant. Le joueur voyait donc ses statistiques SE RECHARGER à chaque
+     carte, comme un écran de chargement, alors que la seule chose à montrer
+     est le déplacement de celles qui ont bougé — ce que font déjà très bien
+     les deux jauges au-dessus, qui vivent dans le HTML et ne sont jamais
+     recréées.
+     On ne refait donc la structure que si elle manque ou si la langue a
+     changé, les libellés étant traduits ici. Les valeurs, elles, sont posées
+     à chaque tour par renderStats(). */
+  // On teste innerHTML et non children : le harnais de non-régression joue
+  // avec un faux DOM qui n'a pas de collection d'enfants, et lire .length
+  // dessus faisait planter le premier clic de chaque carrière.
+  if (host.dataset.lang === currentLang && host.innerHTML) return;
+  host.dataset.lang = currentLang;
+
   host.innerHTML = STAT_GROUPS.map((group) =>
     '<p class="sheet-group-title' +
       (group.scope === "external" ? " sheet-group-title-ext" : "") + '">' +

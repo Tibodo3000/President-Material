@@ -39,6 +39,7 @@ const EV_declin = [
 
 {
   "id": "declin_1_analyses",
+  "frise": { "fr": "Santé · un bilan que le médecin relit deux fois", "en": "Health · a check-up the doctor reads twice" },
   "decline": 1,
   "weight": 0,
   "delay": [1, 2],
@@ -78,6 +79,7 @@ const EV_declin = [
 
 {
   "id": "declin_1_escalier",
+  "frise": { "fr": "Santé · deux étages qu'on ne monte plus d'une traite", "en": "Health · two flights, no longer in one go" },
   "decline": 1,
   "weight": 0,
   "delay": [1, 2],
@@ -118,6 +120,7 @@ const EV_declin = [
 
 {
   "id": "declin_1_nuit",
+  "frise": { "fr": "Santé · endormi à son bureau entre deux rendez-vous", "en": "Health · asleep at the desk between two meetings" },
   "decline": 1,
   "weight": 0,
   "delay": [1, 2],
@@ -164,6 +167,7 @@ const EV_declin = [
 
 {
   "id": "declin_2_hopital",
+  "frise": { "fr": "Santé · une nuit à l'hôpital, par la porte de service", "en": "Health · a night in hospital, by the service door" },
   "decline": 2,
   "weight": 0,
   "delay": [1, 2],
@@ -208,6 +212,7 @@ const EV_declin = [
 
 {
   "id": "declin_2_mot",
+  "frise": { "fr": "Santé · un nom qui ne revient pas, en direct", "en": "Health · a name that would not come, live on air" },
   "decline": 2,
   "weight": 0,
   "delay": [1, 2],
@@ -249,6 +254,7 @@ const EV_declin = [
 
 {
   "id": "declin_2_agenda",
+  "frise": { "fr": "Santé · l'entourage divise l'agenda par deux", "en": "Health · the staff halve the diary" },
   "decline": 2,
   "weight": 0,
   "delay": [1, 2],
@@ -301,6 +307,7 @@ const EV_declin = [
 
 {
   "id": "declin_3_verdict",
+  "frise": { "fr": "Santé · le spécialiste cesse d'employer le conditionnel", "en": "Health · the specialist stops using the conditional" },
   "decline": 3,
   "weight": 0,
   "delay": [1, 2],
@@ -343,6 +350,7 @@ const EV_declin = [
 
 {
   "id": "declin_3_succession",
+  "frise": { "fr": "Santé · la succession s'organise sans vous", "en": "Health · the succession is organised without you" },
   "decline": 3,
   "weight": 0,
   "delay": [1, 2],
@@ -384,6 +392,7 @@ const EV_declin = [
 
 {
   "id": "declin_3_question",
+  "frise": { "fr": "Santé · « êtes-vous en état d'exercer ? », en direct", "en": "Health · \"are you fit to serve?\", live on air" },
   "decline": 3,
   "weight": 0,
   "delay": [1, 2],
