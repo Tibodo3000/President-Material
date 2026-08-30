@@ -62,7 +62,7 @@ const OFFICE_LIST = [...POSITIONS.filter((p) => p !== "chef"), "none"];
 const ALLIANCE_TARGETS = ["self", "scene", "ruling", "ally", ...PARTY_KEYS, "null"];
 const EFFECT_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "money", "poll", "score",
   "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "join", "alliance",
-  "approval", "dissolve", "end", "axis", "appeal", "nominate"]);
+  "approval", "dissolve", "censure", "end", "axis", "appeal", "nominate"]);
 const WHEN_KEYS = new Set(["party","position","origin","background","personality","minAge","maxAge","minTurn","maxTurn",
   "minPopularity","maxPopularity","minStanding","maxStanding","minMoney","maxMoney","stat","flag","trait","anyTrait",
   "notTrait","ruling","allied","minShare","rulingClose","legal","comms",
@@ -93,7 +93,7 @@ const WHEN_SPEC = {
 const EFFECT_SPEC = {};
 STAT_KEYS.forEach((s) => EFFECT_SPEC[s] = {t:"num"});
 ["popularity","standing","money","poll","score","approval"].forEach((k) => EFFECT_SPEC[k] = {t:"num"});
-EFFECT_SPEC.dissolve = {t:"bool"}; EFFECT_SPEC.lead = {t:"bool"};
+EFFECT_SPEC.dissolve = {t:"bool"}; EFFECT_SPEC.censure = {t:"bool"}; EFFECT_SPEC.lead = {t:"bool"};
 EFFECT_SPEC.trait = EFFECT_SPEC.strike = EFFECT_SPEC.untrait = {t:"trait"};
 EFFECT_SPEC.chain = {t:"idlist"}; EFFECT_SPEC.flags = {t:"flagmap"};
 EFFECT_SPEC.landscape = {t:"nummap",v:LANDSCAPE_TARGETS};
@@ -164,6 +164,7 @@ const FX_HELP = {
   nominate:"L'investiture du parti pour un scrutin : elle ne donne pas la fonction, elle donne le droit de la disputer en position favorable.",
   appeal:"Réaction écrite à la main, électorat par électorat. Cibles : self, others, scene (le camp de la figure en scène), ruling, ally, ou un parti.",
   approval:"Cote du gouvernement (0-100).", dissolve:"Le président dissout : législatives au tour suivant.",
+  censure:"La motion passe : le gouvernement tombe, un autre Premier ministre est nommé, et le joueur ministre rend son portefeuille.",
   lead:"Donne (true) ou retire (false) la direction du parti. Le mandat ne bouge pas.",
 };
 

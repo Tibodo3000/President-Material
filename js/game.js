@@ -646,8 +646,16 @@ function maybeCensure() {
   if (game.dissolution || !game.president) return;
   if (game.approval > CENSURE_APPROVAL) return;
   if (majorityState() === "absolue") return;
+
+  // LE JOUEUR À MATIGNON NE TOMBE PAS EN COULISSES. Sa censure à lui est une
+  // scène — matignon_censure, avec ses trois façons de compter les voix —, et
+  // la lui prendre en arrière-plan reviendrait à lui retirer le poste par une
+  // ligne de journal, sans un choix.
+  if (game.position === "premier") return;
+
   if (Math.random() > CENSURE_CHANCE) return;
 
+  fallGovernment();
   game.dissolution = game.turn + 1;
   game.approval = clamp100(game.approval - 6);
 
@@ -655,6 +663,48 @@ function maybeCensure() {
     fr: "Une motion de censure est adoptée et le gouvernement tombe. Le président dissout l'Assemblée dans la nuit : le pays revote dans six semaines.",
     en: "A no-confidence motion passes and the government falls. The president dissolves the Assembly overnight: the country votes again in six weeks.",
   });
+}
+
+/**
+ * LE GOUVERNEMENT TOMBE.
+ *
+ * Une motion de censure adoptée ne réprimande pas un gouvernement, elle le
+ * renverse : le Premier ministre porte la démission de toute son équipe le
+ * lendemain matin. Le moteur, lui, baissait la cote et dissolvait
+ * l'Assemblée. Les mêmes ministres restaient en place, avec le même chef, et
+ * le député qui venait de conduire la fronde retrouvait au tour suivant
+ * exactement le gouvernement qu'il avait fait tomber.
+ *
+ * On rend donc les clés. Celui qu'on vient de renverser ne retourne pas à
+ * Matignon dans la foulée — ensureGovernment() ne le reprendra pas ce
+ * tour-ci —, et un nouveau gouvernement se compose aussitôt, avec un autre
+ * chef et une équipe qui peut ressembler à l'ancienne : c'est très
+ * exactement ce qu'on appelle un remaniement.
+ */
+function fallGovernment() {
+  const sortant = game.rivals.find((r) => r.position === "premier");
+
+  game.rivals.forEach((r) => {
+    if (r.position === "premier" || r.position === "ministre") r.position = "cadre";
+  });
+  if (sortant) sortant.censured = game.turn;
+
+  // LE JOUEUR EN ÉTAIT. Un ministre censuré rend son portefeuille comme les
+  // autres, et il ne retombe pas sur un mandat : il avait démissionné pour
+  // entrer là. C'est le chemin de setPresident() quand le camp perd le
+  // pouvoir, pour la même raison.
+  if (game.position === "ministre" || game.position === "premier") {
+    setOffice(game, officeAfterDefeat(game));
+    addLog({
+      fr: "Le gouvernement censuré démissionne en entier. Vous rendez votre ministère avec les autres, dans une passation de six minutes.",
+      en: "The censured government resigns as a whole. You hand back your department with the rest of them, in a six-minute handover.",
+    });
+  }
+
+  // Le nouveau gouvernement se compose dans la foulée. La ligne de journal qui
+  // nomme le nouveau Premier ministre est écrite par ensureGovernment(), qui
+  // l'écrit déjà pour toutes les nominations : inutile de la doubler ici.
+  ensureGovernment();
 }
 
 /** Le parti allié au camp du joueur, s'il y en a un. */
@@ -1787,7 +1837,9 @@ function ensureGovernment() {
     // parti et le gouvernement à la fois, cela existe, mais c'est rare et
     // cela ferait disparaître un nom du paysage.
     const pool = game.rivals
-      .filter((r) => r.party === ruling && r.position !== "chef")
+      // Celui que l'Assemblée vient de censurer ne retourne pas à Matignon le
+      // lendemain : c'est la seule chose qu'une motion adoptée garantit.
+      .filter((r) => r.party === ruling && r.position !== "chef" && r.censured !== game.turn)
       .sort((a, b) => b.popularity - a.popularity);
     if (pool.length) {
       pool[0].position = "premier";
@@ -1805,8 +1857,10 @@ function ensureGovernment() {
       // On pioche large : un gouvernement se compose d'élus, mais aussi de
       // gens qu'on va chercher ailleurs et qu'on présente comme la société
       // civile. Sans cela, un parti aux figures jeunes gouvernait à un
-      // ministre.
-      .filter((r) => r.party === ruling && r.position !== "chef" && r.position !== "premier")
+      // ministre. Le censuré du jour, lui, reste dehors : on ne le reprend
+      // pas comme ministre du gouvernement qui remplace le sien.
+      .filter((r) => r.party === ruling && r.position !== "chef" && r.position !== "premier" &&
+                     r.censured !== game.turn)
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, manque)
       .forEach((r) => { r.position = "ministre"; });

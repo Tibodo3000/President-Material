@@ -165,6 +165,7 @@ function fxLabel(fx) {
   if (fx.kind === "poll") return t("label_poll_short") + " " + signed(fx.delta) + " " + t("label_points");
   if (fx.kind === "approval") return t("label_approval") + " " + signed(fx.delta) + " " + t("label_points");
   if (fx.kind === "dissolve") return t("fx_dissolve");
+  if (fx.kind === "censure") return t("fx_censure");
   if (fx.kind === "money") return (fx.delta > 0 ? "+" : "−") + formatMoney(Math.abs(fx.delta));
   // Le rapport de force : le parti concerné, puis ce qu'il gagne ou perd.
   if (fx.kind === "landscape") {
@@ -323,7 +324,7 @@ function traitRowsHTML(list) {
 const FX_FAMILIES = [
   { key: "self",    label: "fx_family_self",    kinds: ["stat", "money", "trait", "strike", "flag"] },
   { key: "opinion", label: "fx_family_opinion", kinds: ["appeal", "gauge", "office", "lead", "party"] },
-  { key: "country", label: "fx_family_country", kinds: ["landscape", "approval", "dissolve", "poll", "alliance"] },
+  { key: "country", label: "fx_family_country", kinds: ["landscape", "approval", "dissolve", "censure", "poll", "alliance"] },
 ];
 
 function fxFamily(fx) {

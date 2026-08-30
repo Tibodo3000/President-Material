@@ -116,9 +116,19 @@ const EV_grandes_decisions = [
                 "plus": { "eloquence": 0.4, "standing": 0.04 },
                 "bonus": [ { "when": { "position": ["chef"] }, "value": 2.5 },
                            { "when": { "minPopularity": 67 }, "value": 2 } ], "dice": 16 },
-      "success": { "effects": { "axis": {"power": -50}, "notoriete": 3, "reseau": 1, "popularity": 16, "standing": 5 },
-        "result": { "fr": "La motion passe à quatre voix. Vous avez fait tomber un gouvernement.",
-                    "en": "The motion passes by four votes. You have brought down a government." } },
+      /* CEUX QU'ON RENVERSE NE VOUS EN SONT PAS RECONNAISSANTS. La réussite
+         ne portait qu'un positionnement — un geste anti-pouvoir, que les
+         électorats les plus éloignés du pouvoir applaudissent — et le camp
+         qui gouvernait n'était nulle part dans le calcul : selon sa place sur
+         l'axe, il GAGNAIT jusqu'à dix points d'estime pour le joueur qui
+         venait de faire tomber son gouvernement. On vise donc ce qu'on vise :
+         "appeal" sur le camp au pouvoir, en plus du positionnement. Et
+         "censure" fait ce que le texte raconte depuis toujours : le
+         gouvernement tombe pour de bon. */
+      "success": { "effects": { "axis": {"power": -50}, "notoriete": 3, "reseau": 1, "popularity": 16,
+                                "appeal": { "ruling": -14 }, "standing": 5, "censure": true },
+        "result": { "fr": "La motion passe à quatre voix. Vous avez fait tomber un gouvernement, et le camp qui le portait ne l'oubliera pas.",
+                    "en": "The motion passes by four votes. You have brought down a government, and the camp that stood behind it will not forget." } },
       "failure": { "effects": { "notoriete": 1, "popularity": -10, "standing": -17 },
         "result": { "fr": "La motion s'effondre. On retiendra que vous l'aviez menée.",
                     "en": "The motion collapses. People will remember you led it." } } },

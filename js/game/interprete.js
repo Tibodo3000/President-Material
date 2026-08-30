@@ -674,6 +674,26 @@ function applyEffects(effects, s, soften) {
       changes.push({ kind: "dissolve" });
       return;
     }
+    /* LA MOTION EST ADOPTÉE, LE GOUVERNEMENT TOMBE. La scène le racontait —
+       « vous avez fait tomber un gouvernement » — et rien ne tombait : les
+       mêmes ministres siégeaient le lendemain, sous le même Premier
+       ministre. C'est le moteur qui sait renverser un gouvernement, pas une
+       ligne d'effets ; on l'appelle, et il nomme la suite. */
+    if (key === "censure") {
+      if (!value || typeof fallGovernment !== "function") return;
+      // Un ministre qui censure son propre gouvernement rend son portefeuille
+      // avec les autres : c'est la conséquence la plus lourde du choix, et
+      // elle passe par setOffice() plutôt que par l'effet "office". On mesure
+      // donc autour, comme le fait "join" quand on change de camp.
+      const avantPoste = s.position;
+      fallGovernment();
+      changes.push({ kind: "censure" });
+      if (s.position !== avantPoste) {
+        changes.push({ kind: "office", key: s.position,
+                       up: LADDER.indexOf(s.position) > LADDER.indexOf(avantPoste) });
+      }
+      return;
+    }
     if (key === "approval") {
       const before = s.approval || 0;
       s.approval = clamp100(before + value);
@@ -830,7 +850,29 @@ function applyEffects(effects, s, soften) {
     if (key === "end") { s.ended = { type: value }; return; }
   });
 
-  return changes;
+  return mergeAppeal(changes);
+}
+
+/**
+ * UN ÉLECTORAT, UNE PASTILLE.
+ *
+ * Le positionnement et la visée se combinent — c'est écrit dans le schéma, et
+ * c'est ce qui permet de dire « le pays approuve, son camp ne le lui
+ * pardonnera pas ». Chacun des deux mesure l'opinion de son côté, si bien que
+ * le camp touché par les deux sortait deux fois : « Conservateurs +8 » puis
+ * « Conservateurs −14 », au joueur de faire l'addition. On l'écrit une fois,
+ * pour le solde, et une pastille qui retombe à zéro disparaît.
+ */
+function mergeAppeal(changes) {
+  const vus = {};
+  const out = [];
+  changes.forEach((c) => {
+    if (c.kind !== "appeal" || c.general || c.key === undefined) { out.push(c); return; }
+    if (vus[c.key]) { vus[c.key].delta += c.delta; return; }
+    vus[c.key] = c;
+    out.push(c);
+  });
+  return out.filter((c) => !(c.kind === "appeal" && !c.general && c.delta === 0));
 }
 
 /**

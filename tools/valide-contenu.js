@@ -84,7 +84,7 @@ const WHEN_KEYS = new Set(["party", "position", "origin", "background", "persona
   "minSeats", "maxSeats", "dissolved", "outshinePresident", "foeIncumbent", "foeParty", "foeFar", "minorClose",
   "election", "race", "season", "nextElection", "nextElectionIn", "seatUp"]);
 const FX_KEYS = new Set([...STAT_KEYS, "popularity", "standing", "axis", "appeal", "money", "poll", "score",
-  "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "approval", "dissolve",
+  "flags", "trait", "strike", "untrait", "chain", "landscape", "office", "lead", "approval", "dissolve", "censure",
   "join", "alliance", "nominate", "end"]);
 const LANDSCAPE_TARGETS = ["self", "scene", "ruling", "ally", ...PARTIES];
 const APPEAL_TARGETS = ["self", "others", "scene", "ruling", "ally", ...PARTIES];

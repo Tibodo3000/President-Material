@@ -333,6 +333,12 @@
  *          gouvernement dans le pays, de 0 à 100.
  *   "dissolve": true                                     le président dissout
  *          l'Assemblée : des législatives au tour suivant, hors calendrier.
+ *   "censure": true                                      LE GOUVERNEMENT TOMBE.
+ *          La motion est adoptée : l'équipe entière rend les clés, celui
+ *          qu'on vient de censurer ne retourne pas à Matignon, un autre
+ *          Premier ministre est nommé dans la foulée, et le joueur ministre
+ *          rend son portefeuille comme les autres. Ne dissout pas : c'est une
+ *          décision du président, pas une conséquence du vote.
  *   "join": "scene"                                      vous changez de parti
  *   "alliance": "scene"                                  signe un pacte
  *   "alliance": null                                     le rompt
