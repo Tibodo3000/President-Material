@@ -199,6 +199,27 @@ function eventMatches(ev, s) {
     if (w.nextElectionIn !== undefined && suivante.inTurns > w.nextElectionIn) return false;
   }
 
+  /* LA FIN DE VOTRE MANDAT, QUI N'EST PAS LA PROCHAINE ÉCHÉANCE.
+     Le calendrier fait passer trois scrutins qui ne vous concernent pas entre
+     deux renouvellements de votre siège : "nextElectionIn" dit quand le pays
+     revote, jamais quand VOUS remettez votre mandat en jeu. Le moteur ne
+     savait donc pas dire « à la fin de votre mandat », et une scène qui
+     s'ouvre sur « le mandat s'achève et il faut dire si vous repartez »
+     tombait n'importe quand, y compris sur un conseiller municipal élu de
+     l'année.
+
+       "seatUp": 2   le scrutin qui renouvelle VOTRE siège tombe dans deux
+                     tours au plus
+
+     Sans siège élu (militant, cadre du parti, ministre nommé), la condition
+     est fausse : on ne finit pas un mandat qu'on n'a pas. */
+  if (w.seatUp !== undefined) {
+    const scrutin = typeof TARGET_ELECTION === "undefined" ? null : TARGET_ELECTION[s.position];
+    if (!scrutin) return false;
+    const tour = typeof turnOfNextElection === "function" ? turnOfNextElection(scrutin) : null;
+    if (tour === null || tour - s.turn > w.seatUp) return false;
+  }
+
   /* LA SAISON, pour ce qui n'arrive qu'à un moment de l'année. Une nappe
      phréatique ne se vide pas en février et une rentrée scolaire n'a pas lieu
      en juin. L'année commence au printemps, comme le calendrier électoral.

@@ -119,6 +119,11 @@ no longer drawn, it is scripted.
 "nextElectionIn": 2                    // …and it falls in at most this many turns. Anything
                                        //   that is decided in the run-up to a vote needs both:
                                        //   a European list is not drawn up three years ahead
+"seatUp": 2                            // the end of YOUR term: the contest that renews the
+                                       //   seat you hold falls in at most this many turns.
+                                       //   False with no elected seat. Not the same as the
+                                       //   next contest on the calendar: three of those go by
+                                       //   between two renewals of a town hall
 "stat": { "notoriete": { "min": 6 }, "energie": { "max": 4 } }   // remember: 0..20 scale
 "flag": { "dirtyMoney": true, "onTrial": false }
 "trait": ["orateur","teflon"]          // ALL of these traits

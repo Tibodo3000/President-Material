@@ -198,8 +198,20 @@ const EV_institutions = [
 
 {
   "id": "coup_de_vieux",
+  /* « Le mandat s'achève et il faut dire si vous repartez » se disait à
+     n'importe quel tour, et le plus souvent à quelqu'un qui venait d'être élu.
+     La scène attend maintenant que le siège occupé soit VRAIMENT sur le point
+     d'être remis en jeu : voir "seatUp".
+
+     ET ELLE PARLE PLUS FORT À MESURE QUE LA DATE APPROCHE. Trois tours sur
+     vingt-quatre, c'est une scène qu'on ne verrait plus jamais si elle gardait
+     le poids ordinaire d'un événement tiré au hasard : la question se pose
+     neuf mois avant, elle devient difficile à éviter le trimestre d'avant, et
+     les deux primes se cumulent au dernier tour. */
   "weight": 7,
-  "when": { "minAge": 62, "notTrait": ["declin"] },
+  "weightBonus": [ { "when": { "seatUp": 2 }, "value": 7 },
+                   { "when": { "seatUp": 1 }, "value": 7 } ],
+  "when": { "minAge": 62, "notTrait": ["declin"], "seatUp": 3 },
   "tag": { "fr": "Fin de mandat", "en": "End of term" },
   "text": {
     "fr": "Le mandat s'achève et il faut dire si vous repartez. Vous vous êtes surpris trois fois ce mois-ci à chercher le nom d'un dossier que vous connaissez par cœur, et votre directeur de cabinet a commencé à finir vos phrases. Personne ne vous a rien demandé. Personne n'aura le courage de vous le demander."

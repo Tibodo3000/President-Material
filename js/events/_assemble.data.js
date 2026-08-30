@@ -145,6 +145,13 @@
  *   "yearEnd": true                               le dernier tour de l'année,
  *                                                 celui où l'on fait ses
  *                                                 comptes
+ *   "seatUp": 2                                   le scrutin qui renouvelle
+ *                                                 VOTRE siège tombe dans deux
+ *                                                 tours au plus. Faux sans
+ *                                                 mandat électif : ce n'est
+ *                                                 pas la prochaine échéance
+ *                                                 du calendrier, c'est la
+ *                                                 fin de votre mandat
  *   "rulingClose": true                           un camp VOISIN gouverne
  *                                                 (proche idéologiquement, et
  *                                                 ce n'est pas le vôtre)
