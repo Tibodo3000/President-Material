@@ -433,6 +433,12 @@ const EV_institutions = [
   "id": "entree_gouvernement",
   "once": true,
   "weight": 6,
+  /* LE TÉLÉPHONE SONNE QUAND LE GOUVERNEMENT SE FORME, pas un an plus tard.
+     Sans délai déclaré, la suite prenait le délai ordinaire — de six mois à
+     un an — et attendait encore la première carte ordinaire : on entrait au
+     gouvernement d'un président élu deux hivers plus tôt. Un remaniement se
+     décide en une semaine ; la scène tombe donc à la première occasion. */
+  "delay": [0, 1],
   "when": { "ruling": true, "position": ["maire", "euro", "depute"], "minStanding": 50, "minTurn": 24 },
   "tag": { "fr": "Le téléphone sonne", "en": "The phone rings" },
   "text": {

@@ -1552,6 +1552,16 @@ function setPresident(who) {
           en: "The government resigns. You hand back your ministry and there is nothing behind it: you had resigned from everything to get in.",
         });
   }
+
+  /* UN GOUVERNEMENT SE COMPOSE LE SOIR MÊME.
+     On ne regardait qui appeler qu'au tour suivant, dans le train-train
+     d'advanceTurn, et la suite programmée mettait encore six mois à un an à
+     tomber. Le joueur voyait donc son camp prendre l'Élysée, lisait dans le
+     journal les noms d'un gouvernement composé sans lui, et recevait le coup
+     de téléphone plus d'un an après — le plus souvent en pesant déjà, à ce
+     moment-là, plus lourd que la moitié de ceux qu'on avait nommés.
+     Un ministère se propose quand il se distribue. */
+  maybeGovernmentCall();
 }
 
 /* --------------------------------------------------------------------------
@@ -1713,12 +1723,20 @@ function outshinesPresident(s) {
 
 function maybeGovernmentCall() {
   if (rulingParty() !== game.party) return;
-  if (!MANDATES.includes(game.position)) return;
-  if (game.standing < GOVERNMENT_CALL_STANDING) return;
 
   // L'offre ne se refait pas : on la refuse une fois pour toutes.
   if (game.seen.entree_gouvernement) return;
   if (pendingChains(game).some((c) => c.id === "entree_gouvernement")) return;
+
+  // ON NE PROGRAMME PAS UNE SCÈNE QUI NE PEUT PAS SE JOUER. On appelait pour
+  // n'importe quel mandat, conseiller municipal compris, que la scène
+  // n'accepte pas : la suite partait alors se garer sept ans dans la file
+  // d'attente — et la garde ci-dessus interdisait de la reprogrammer. On
+  // demande donc à la scène elle-même, ce qui interdit du même coup à ses
+  // conditions et à celles de l'appel de diverger : le seuil de cote et la
+  // liste des sièges sont écrits une seule fois, dans la scène.
+  const scene = eventById("entree_gouvernement");
+  if (!scene || !eventMatches(scene, game)) return;
 
   // ON N'ENTRE PAS AU GOUVERNEMENT PARCE QU'ON EST BON, mais parce qu'on pèse
   // plus que celui qu'on remplacerait. Tant qu'un seul ministre du camp est

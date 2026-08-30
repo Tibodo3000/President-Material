@@ -552,8 +552,11 @@ const DEFECTION_CHANCE = 0.055;
  */
 const GOVERNMENT_SIZE = 3;
 
-/** La cote minimale en dessous de laquelle l'Élysée ne pense pas à vous. */
-const GOVERNMENT_CALL_STANDING = 50;
+/* La cote minimale en dessous de laquelle l'Élysée ne pense pas à vous vivait
+   ici, en double de celle que la scène "entree_gouvernement" déclare déjà
+   dans son "when". Deux fois le même nombre à deux endroits, c'est un nombre
+   qui finira par ne plus être le même : maybeGovernmentCall() interroge
+   désormais la scène, et le seuil n'est plus écrit qu'une fois, avec elle. */
 
 /* ==========================================================================
    LES SCRUTINS : CE QUI PÈSE DANS UN RÉSULTAT
