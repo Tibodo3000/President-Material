@@ -446,8 +446,40 @@ const NEIGHBOUR_DISTANCE = 0.26;
  */
 const COALITION_DISTANCE = NEIGHBOUR_DISTANCE / 2;
 
-/** Ce que gouverner coûte par tour, et de plus en plus au second mandat. */
-const APPROVAL_WEAR = 0.65;
+/*
+ * CE QUE GOUVERNER COÛTE PAR TOUR, ET DE PLUS EN PLUS AU SECOND MANDAT.
+ *
+ * L'USURE ÉTAIT TROP DOUCE. La cote se stabilise à peu près à sa cible moins
+ * APPROVAL_WEAR / APPROVAL_PULL : à 0,65, cela faisait quatorze points sous
+ * une cible qui tourne autour de soixante, donc un gouvernement installé à
+ * quarante-sept, et un premier mandat qui s'achevait au-dessus de cinquante
+ * parce qu'il partait de l'état de grâce. Mesuré sur cinq mille tours : cote
+ * médiane 54, premier quartile 49, quatre pour cent des tours sous quarante,
+ * zéro sous vingt-six. Aucun pouvoir n'était jamais aux abois, la censure —
+ * qui demande vingt-six — ne pouvait littéralement pas se déclencher, et
+ * surtout le pays n'avait jamais de raison de changer de président.
+ *
+ * Une cote de gouvernement de la Ve vit entre vingt-cinq et quarante-cinq,
+ * avec des états de grâce au-dessus de soixante et des traversées à quinze.
+ *
+ * DEUX RÉGLAGES, PAS UN. La cote se stabilise vers APPROVAL_WEAR /
+ * APPROVAL_PULL points sous sa cible, et elle met ln2 / APPROVAL_PULL tours à
+ * parcourir la moitié du chemin. Avec l'ancien rappel, cette moitié demandait
+ * quinze tours, c'est-à-dire presque un quinquennat : l'état de grâce de
+ * soixante-deux ne s'épuisait jamais, et le premier mandat s'achevait plus
+ * haut qu'il n'aurait dû commencer. Augmenter la seule usure n'y changeait
+ * rien — mesuré, la médiane passait de 54 à 52.
+ *
+ * Le rappel se resserre donc, et l'usure suit pour que le niveau descende au
+ * lieu de se contenter d'arriver plus vite : un état de grâce dure deux ans
+ * (huit tours pour la moitié du chemin), et le régime de croisière s'établit
+ * vingt-cinq points sous la cible, soit autour de trente-cinq pour un camp
+ * ordinaire et vingt-huit au second mandat.
+ */
+const APPROVAL_WEAR = 2.1;
+
+/** Ce que le second mandat coûte en plus, par mandat déjà fait. */
+const APPROVAL_WEAR_TERM = 1.0;
 
 /**
  * Vitesse de rappel vers la cote que mérite le parti au pouvoir, et amplitude
@@ -460,9 +492,58 @@ const APPROVAL_WEAR = 0.65;
  * ne sortaient donc jamais. Un rappel plus lâche et un bruit plus large font
  * de vraies traversées du désert, et de vrais états de grâce.
  */
-const APPROVAL_PULL = 0.046;
+const APPROVAL_PULL = 0.085;
 
-const APPROVAL_NOISE = 6.4;   // un tour deux fois plus court : bruit ÷ √2
+const APPROVAL_NOISE = 7.5;   // le rappel resserré tasse la bande : on secoue un peu plus
+
+/*
+ * CE QUE VAUT D'ÊTRE LE SORTANT — ET ÇA DÉPEND DU BILAN.
+ *
+ * Le président sortant multipliait son poids par 1,45, quoi qu'il ait fait :
+ * la même prime à celui que le pays veut garder et à celui qu'il ne supporte
+ * plus. C'est la moitié de la Ve. L'autre moitié est que Giscard et Sarkozy
+ * ont été battus, et que Hollande n'a pas osé se représenter.
+ *
+ * La prime lit donc la cote du gouvernement. Au-dessus du pivot, le sortant
+ * est le candidat à battre et le reste ; en dessous, sortir d'un mandat
+ * devient ce qu'on lui reproche, et la prime devient un handicap.
+ *
+ * Le pivot est calé par la mesure, pas par l'intuition : à 40, un sortant qui
+ * se présentait ne gagnait plus qu'une fois sur deux, ce qui est trop peu
+ * pour la Ve — un président qui y va reste le favori. À 36, avec une pente un
+ * peu plus raide, il gagne cinquante-cinq pour cent du temps et la
+ * présidentielle se solde comme la vraie : un sortant sur trois se succède à
+ * lui-même, tous scrutins confondus.
+ */
+const INCUMBENT_PULL_PIVOT = 36;
+
+const INCUMBENT_PULL_SLOPE = 0.022;
+
+const INCUMBENT_PULL_MAX = 1.45;
+
+const INCUMBENT_PULL_MIN = 0.75;
+
+/*
+ * LA COTE SOUS LAQUELLE UN SORTANT NE SE REPRÉSENTE PAS.
+ *
+ * Le moteur ne connaissait qu'une façon de ne pas repartir : avoir fait ses
+ * deux mandats. Le sortant se représentait donc toujours, quel que soit son
+ * bilan — mille deux cents présidentielles mesurées, un seul renoncement, et
+ * il venait d'une scène jouée par le joueur. La Ve en compte pourtant deux en
+ * vingt ans, et l'un des deux est le plus éloquent de tous : on ne se
+ * représente pas à quinze de cote, son propre camp ne le porte pas.
+ *
+ * En dessous de ce seuil, la probabilité de renoncer monte avec la
+ * dégringolade. Le seuil se lit sur l'échelle du jeu et non sur celle des
+ * instituts : mesurée au moment où les partis désignent, la cote d'un
+ * gouvernement vit ici autour de quarante-deux, et c'est cette médiane-là qui
+ * dit ce qu'est un bilan indéfendable. Un tirage, une fois, au moment de la
+ * désignation : rien à quarante-quatre, un sur cinq à quarante, deux sur cinq
+ * à trente-cinq, deux sur trois à trente.
+ */
+const RENOUNCE_APPROVAL = 44;
+
+const RENOUNCE_SPREAD = 22;
 
 const ASSEMBLY_SEATS = 577;
 

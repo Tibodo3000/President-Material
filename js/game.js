@@ -376,7 +376,7 @@ function driftApproval() {
   if (!game.president) return;
 
   let move = (approvalTarget() - game.approval) * APPROVAL_PULL;
-  move -= APPROVAL_WEAR + (game.presidentTerms - 1) * 0.55;
+  move -= APPROVAL_WEAR + (game.presidentTerms - 1) * APPROVAL_WEAR_TERM;
   move += (Math.random() - 0.5) * APPROVAL_NOISE;
 
   game.approval = clamp100(game.approval + move);
@@ -662,6 +662,34 @@ function maybeCensure() {
   addLog({
     fr: "Une motion de censure est adoptée et le gouvernement tombe. Le président dissout l'Assemblée dans la nuit : le pays revote dans six semaines.",
     en: "A no-confidence motion passes and the government falls. The president dissolves the Assembly overnight: the country votes again in six weeks.",
+  });
+}
+
+/**
+ * LE SORTANT QUI NE SE REPRÉSENTE PAS.
+ *
+ * Il se représentait toujours. Le seul renoncement que le moteur savait
+ * produire venait d'une scène — la fronde du camp, que le joueur mène
+ * lui-même —, et elle demande tant de conditions qu'on l'a vue une fois sur
+ * mille deux cents présidentielles. Un président à vingt de cote repartait
+ * donc pour un tour, et se faisait battre : la Ve, elle, l'aurait poussé
+ * dehors avant, et son camp serait reparti avec un visage neuf.
+ *
+ * La décision se prend une fois, au moment où les partis désignent, et elle
+ * ouvre la porte de l'investiture à tout le monde — au joueur compris, dont
+ * la primaire n'attendait que ça.
+ */
+function maybeIncumbentStandsDown() {
+  if (!game.president || game.president.isPlayer) return;
+  if (game.flags.presidentRenonce || incumbentTermLimited()) return;
+  if (typeof turnsToPresidential !== "function" || turnsToPresidential() !== PRIMARY_LEAD) return;
+  if (game.approval >= RENOUNCE_APPROVAL) return;
+  if (Math.random() > (RENOUNCE_APPROVAL - game.approval) / RENOUNCE_SPREAD) return;
+
+  game.flags.presidentRenonce = true;
+  addLog({
+    fr: game.president.name + " annonce qu'il ne sollicitera pas un nouveau mandat. Personne ne croit aux raisons données, tout le monde a lu les sondages, et l'investiture de son camp est libre.",
+    en: game.president.name + " announces they will not seek another term. Nobody believes the reasons given, everybody has read the polls, and their camp's nomination is open.",
   });
 }
 
@@ -965,7 +993,7 @@ function leaderOf(partyKey) {
  */
 function presidentialCandidate(partyKey) {
   const figures = figuresOf(partyKey);
-  if (!incumbentTermLimited()) return figures[0] || null;
+  if (incumbentRunsAgain()) return figures[0] || null;
 
   const autre = figures.find((f) => !isPresident(f));
   if (autre) return autre;
@@ -1522,6 +1550,21 @@ function incumbentTermLimited() {
   return game.presidentTerms >= MAX_TERMS;
 }
 
+/**
+ * LE SORTANT REPART-IL ?
+ *
+ * Deux façons de ne pas se représenter, et le moteur n'en connaissait qu'une.
+ * Les deux mandats, qu'il vérifiait. Et le renoncement, qu'il ne vérifiait
+ * pas : la fronde du camp arrachait au président l'annonce qu'il ne
+ * solliciterait pas un nouveau mandat, on posait le drapeau, on écrivait
+ * « l'investiture est libre » — et le jour du scrutin, presidentialCandidate()
+ * représentait le même homme. Le joueur qui venait de faire tomber son propre
+ * président le retrouvait candidat.
+ */
+function incumbentRunsAgain() {
+  return !incumbentTermLimited() && !game.flags.presidentRenonce;
+}
+
 /** Le président a toujours un nom : celui du joueur, ou celui d'une figure. */
 function presidentName() {
   if (!game.president) return t("president_vacant");
@@ -1647,10 +1690,21 @@ function playerPull() {
 }
 
 /**
+ * CE QUE VAUT D'ÊTRE LE SORTANT. La prime lit la cote du gouvernement : un
+ * président que le pays veut garder est le candidat à battre, un président
+ * qu'il ne supporte plus traîne son bilan comme un boulet. Le pivot, la pente
+ * et les deux bornes sont dans js/balance.js.
+ */
+function incumbentEdge() {
+  const cote = game.approval === undefined ? 50 : game.approval;
+  return Math.max(INCUMBENT_PULL_MIN,
+    Math.min(INCUMBENT_PULL_MAX, 1 + (cote - INCUMBENT_PULL_PIVOT) * INCUMBENT_PULL_SLOPE));
+}
+
+/**
  * Le multiplicateur d'une figure. La prime au sortant s'applique après le
  * plafond, et pas avant : sortir d'un mandat n'est pas une qualité de plus,
- * c'est un avantage d'une autre nature. Un président sortant qui se
- * représente est le candidat à battre, et il doit le rester.
+ * c'est un avantage d'une autre nature.
  */
 function figurePull(figure, incumbent) {
   const s = figure.stats;
@@ -1662,7 +1716,7 @@ function figurePull(figure, incumbent) {
     PARTIES[figure.party].difficulty * 0.02 +
     (Math.random() - 0.5) * 0.3
   );
-  return incumbent ? pull * 1.45 : pull;
+  return incumbent ? pull * incumbentEdge() : pull;
 }
 
 /* ==========================================================================
@@ -2360,6 +2414,7 @@ function advanceTurn() {
   maybeCensure();
   ensureGovernment();
   maybeGovernmentCall();
+  maybeIncumbentStandsDown();
   maybeDefection();
   applyTraitTurn(game);
 
@@ -2979,8 +3034,8 @@ function backgroundElectionText(electionId) {
     };
   }
 
-  const limited = incumbentTermLimited();
-  const winnerParty = weightedParty(limited ? 0 : 30);
+  // La prime au bilan ne vaut que si le sortant est sur la ligne de départ.
+  const winnerParty = weightedParty(incumbentRunsAgain() ? 30 : 0);
   ensureLeaders();
   // Le camp du sortant peut gagner sans le sortant : s'il a fait ses deux
   // mandats, c'est quelqu'un d'autre qui prend l'Élysée pour lui.
