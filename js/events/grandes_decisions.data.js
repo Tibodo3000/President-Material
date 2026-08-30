@@ -140,51 +140,6 @@ const EV_grandes_decisions = [
 
 
 {
-  "id": "primaire_interne",
-  "when": { "position": ["depute", "maire", "euro"], "minStanding": 40 },
-  "tag": { "fr": "Primaire", "en": "Primary" },
-  "text": {
-    "fr": "Le parti organise une primaire pour désigner sa tête d'affiche. Quatre candidats sont déjà déclarés.",
-    "en": "The party is holding a primary to choose its figurehead. Four candidates have already declared."
-  },
-  "choices": [
-    { "label": { "fr": "Se lancer et faire campagne", "en": "Run and campaign" },
-      "roll": { "base": 21, "stat": "reseau",
-                "plus": { "charisme": 0.4, "standing": 0.05, "popularity": 0.03 },
-                "bonus": [ { "when": { "personality": ["charming", "calculating"] }, "value": 1.5 },
-                           { "when": { "flag": { "dirtyMoney": true } }, "value": -2 } ], "dice": 16 },
-      "success": { "effects": { "notoriete": 2, "standing": 16, "popularity": 10, "energie": -1 },
-        "result": { "fr": "Vous l'emportez au second tour. Le parti a désormais un visage : le vôtre.",
-                    "en": "You win in the second round. The party now has a face: yours." } },
-      "failure": { "effects": { "notoriete": 1, "standing": -10, "energie": -1, "popularity": -4 },
-        "result": { "fr": "Éliminé au premier tour. Trois mois de campagne pour finir quatrième.",
-                    "en": "Knocked out in the first round. Three months of campaigning to finish fourth." } } },
-    { "label": { "fr": "Soutenir le favori", "en": "Back the front-runner" },
-      "effects": { "reseau": 1, "standing": 11, "popularity": -2 },
-      "result": { "fr": "Vous misez juste et vous encaissez la reconnaissance du vainqueur.",
-                  "en": "You back the right horse and collect the winner's gratitude." } },
-    { "label": { "fr": "Soutenir l'outsider", "en": "Back the outsider" },
-      "roll": { "chance": 0.3, "chanceBonus": [ { "when": { "personality": ["calculating"] }, "value": 0.15 } ] },
-      "success": { "effects": { "reseau": 2, "standing": 18, "reputation": 1 },
-        "result": { "fr": "L'outsider gagne contre toute attente. Vous êtes son premier fidèle.",
-                    "en": "The outsider wins against all odds. You are his first loyalist." } },
-      "failure": { "effects": { "standing": -9, "reseau": -1 },
-        "result": { "fr": "Votre poulain fait sept pour cent. On note votre mauvais flair.",
-                    "en": "Your candidate gets seven per cent. Your poor instincts are noted." } } },
-    { "label": { "fr": "Rester neutre et attendre", "en": "Stay neutral and wait" },
-      "effects": { "sangfroid": 1, "standing": -2 },
-      "result": { "fr": "Vous ne froissez personne et n'obligez personne. C'est un choix.",
-                  "en": "You upset nobody and oblige nobody. It is a choice." } },
-    { "label": { "fr": "Financer discrètement deux candidats", "en": "Quietly fund two candidates" },
-      "when": { "minMoney": 400000 },
-      "effects": { "money": -180000, "reseau": 2, "standing": 13, "reputation": -2 },
-      "result": { "fr": "Quel que soit le vainqueur, il vous devra quelque chose. Cynique et efficace.",
-                  "en": "Whoever wins will owe you. Cynical and effective." } }
-  ]
-},
-
-
-{
   "id": "interview_fleuve",
   "when": { "stat": { "notoriete": { "min": 8 } } },
   "tag": { "fr": "Grand entretien", "en": "The long interview" },

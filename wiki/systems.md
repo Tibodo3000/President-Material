@@ -57,7 +57,7 @@ there are two ways to take it:
 | reading | weights | used by |
 |---|---|---|
 | `overallPopularity` → `game.popularity` | `reachWeights`: **your own camp gets `POPULARITY_FOCUS` = 0.66**, the other five split the rest by size × proximity (`REACH_FALLOFF = 3`, so the neighbouring camp counts about eight times the opposite one at equal size) | the gauge on the fiche, event `min/maxPopularity` gates, `REBEL_POPULARITY` |
-| `nationalPopularity` | `electorateWeights`: size only | anything that compares you to the country or to a rival figure — `landscapeDrift`, `playerPull`, `outshinesPresident`, `maybeGovernmentCall`, `primaryWeight`, `rollBase`, and the two panels that list you beside named figures |
+| `nationalPopularity` | `electorateWeights`: size only | anything that compares you to the country or to a rival figure — `landscapeDrift`, `playerPull`, `outshinesPresident`, `maybeGovernmentCall`, `apparatusWeight`, `rollBase`, and the two panels that list you beside named figures |
 
 The headline used to be the size-weighted average, and it read wrong: an identitarian MP
 adored by his own at 77 and refused by liberals at 25 displayed **43** — a number he could

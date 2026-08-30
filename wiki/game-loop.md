@@ -70,6 +70,9 @@ bodyWarning()          → the body may schedule its next warning card (never en
 Then it decides **which card** to show:
 
 ```
+the presidential nomination due (3 turns out)?
+├─ the party opens a primary → a "primaire" card: the members decide, and they weigh the base
+└─ otherwise → a "designation" card: the committee weighs standing — or you demand a primary
 election due this turn?
 ├─ the party congress → straight to enterElection()   (no opening: see below)
 ├─ yes → a "scrutin" card: the election announces itself   (advanceTurn stops here)
@@ -174,7 +177,7 @@ card and its buttons.
 | Run or stand aside · refused nomination | [investiture.js](../js/game/modes/investiture.js) | `election`, `nomination` |
 | Ordinary election campaign · choice of ground | [race.js](../js/game/modes/race.js) | `race`, `seat` |
 | The presidential election you are not in | [soutien.js](../js/game/modes/soutien.js) | `support` |
-| The primary | [primaire.js](../js/game/modes/primaire.js) | `primaire` |
+| Who the party puts up: committee or primary | [primaire.js](../js/game/modes/primaire.js) | `designation`, `primaire` |
 | The card that opens an election | [scrutin.js](../js/game/modes/scrutin.js) | `scrutin` |
 | The ballot that happens without you | [aside.js](../js/game/modes/aside.js) | `aside` |
 

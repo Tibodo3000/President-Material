@@ -1045,6 +1045,61 @@ const PRIMARY_LEAD = 3;
 const PRIMARY_FLOOR = 58;
 
 /* ==========================================================================
+   L'AUTRE PORTE : LA BASE
+   ==========================================================================
+   Une investiture présidentielle se donnait d'une seule façon : l'appareil
+   comptait ses obligés, et qui ne pesait pas assez à l'appareil ne concourait
+   jamais. C'est la moitié de la vérité. L'autre moitié est qu'un parti qui
+   n'a pas de patron évident, ou qu'on pousse à le faire, ouvre une primaire —
+   et une primaire ne compte pas les mêmes gens. Les militants ne votent pas
+   pour celui à qui le siège doit quelque chose, ils votent pour celui qu'ils
+   aiment.
+
+   D'où deux routes vers la même investiture, et deux façons de peser : la
+   cote au parti d'un côté, la base de l'autre. Voir js/game/modes/primaire.js.
+   ========================================================================== */
+
+/*
+ * CE QU'IL FAUT AVOIR DERRIÈRE SOI POUR RÉCLAMER UNE PRIMAIRE.
+ *
+ * On ne demande pas un vote des militants pour savoir s'ils vous aiment : on
+ * le demande parce qu'on sait déjà qu'ils vous aiment. En dessous, la demande
+ * ne se plaide pas, elle se moque, et le jeu ne propose donc pas le bouton.
+ */
+const PRIMARY_CALL_BASE = 66;
+
+/* Et il faut que le parti connaisse votre nom : une cote de rien du tout ne
+   trouve personne pour porter la motion, si aimé qu'on soit dehors. */
+const PRIMARY_CALL_FLOOR = 34;
+
+/* Ce que la demande coûte, gagnée ou perdue. On force la main de l'appareil
+   une fois ; il s'en souvient à chaque investiture suivante. */
+const PRIMARY_CALL_COST = -9;
+
+/*
+ * ET CE QU'ELLE COÛTE DANS L'URNE. Une primaire qu'on a arrachée ne se
+ * dispute pas comme une primaire qu'on vous offre : la machine se range
+ * derrière l'autre, appelle les fédérations une par une et fait voter les
+ * siens. Sans ce handicap, réclamer serait une seconde chance gratuite pour
+ * qui a raté la première, et les deux routes cesseraient d'être un choix.
+ * C'est le REBEL_HANDICAP de la dissidence, pour exactement la même raison.
+ */
+const PRIMARY_CALL_HANDICAP = -5;
+
+/*
+ * QUAND LE PARTI OUVRE UNE PRIMAIRE TOUT SEUL.
+ *
+ * Deux cas, et ce sont les vrais. D'abord l'absence de patron : quand les
+ * deux premiers prétendants se tiennent dans un mouchoir, la direction n'a
+ * personne à imposer et se décharge sur les militants. Ensuite l'époque : un
+ * parti ouvre parfois une primaire parce que le précédent l'a fait et que ne
+ * pas le faire se verrait.
+ */
+const PRIMARY_OPEN_GAP = 5;
+
+const PRIMARY_OPEN_CHANCE = 0.22;
+
+/* ==========================================================================
    LE CORPS : FATIGUE, DÉCLIN, SORTIES
    ==========================================================================
    Ce que l'épuisement coûte, quand le corps prévient, et à quelles conditions

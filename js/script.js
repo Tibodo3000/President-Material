@@ -158,7 +158,9 @@ const translations = {
     support_intro:
       "Vous n'êtes pas candidat. La campagne de votre camp se joue quand même, et ce que vous en faites pèsera un peu sur le résultat.",
     primaire_intro:
-      "Le parti doit désigner son candidat à la présidentielle. Les militants voteront dans trois mois, et pour la première fois de votre carrière votre nom circule sans que vous l'ayez soufflé à personne.",
+      "Le parti ouvre une primaire pour désigner son candidat à la présidentielle. Les militants voteront dans trois mois, et pour la première fois de votre carrière votre nom circule sans que vous l'ayez soufflé à personne.",
+    primaire_intro_called:
+      "La primaire que vous avez réclamée aura lieu. Le siège a cédé en trois jours et en gardera dix ans de rancune, mais ce ne sont plus les mêmes qui votent : ce sont ceux qui collent les affiches.",
     primaire_field: "Ceux qui y vont aussi",
     primaire_run: "Se présenter",
     primaire_run_hard: "Se présenter et y consacrer tout ce que vous avez",
@@ -172,6 +174,18 @@ const translations = {
       "Vous vous rangez derrière {name} avant le premier tour. Le soutien vaut ce qu'il coûte, et il vous coûte d'avoir renoncé sans avoir essayé.",
     primaire_out_result:
       "Vous laissez passer. Le parti désigne quelqu'un d'autre, et personne ne vous demandera pourquoi vous n'y étiez pas.",
+    designation_tag: "Désignation",
+    designation_intro:
+      "Le parti doit se donner un candidat à la présidentielle. Il n'y aura pas de vote : une trentaine de personnes en décideront dans une salle sans fenêtre, et vous les connaissez toutes.",
+    designation_field: "Ceux que la commission regarde",
+    designation_push: "Faire valoir vos titres",
+    designation_call: "Réclamer une primaire des militants",
+    designation_won:
+      "La commission vous désigne. Pas un militant n'aura voté, personne ne s'en plaindra tant que les sondages tiennent, et vous êtes candidat à la présidence de la République.",
+    designation_lost:
+      "{name} est désigné. On vous explique longuement que ce n'était pas contre vous, et c'est vrai : ce n'était pas non plus pour vous.",
+    designation_called:
+      "Vous réclamez publiquement une primaire, ce qui ne se refuse pas deux fois de suite sans que la presse le raconte. Le siège cède, et vous venez de dépenser à l'appareil ce que vous alliez chercher chez les militants.",
     label_poll_before: "Ce que disent les sondages aujourd'hui",
     label_poll_short: "Sondage",
     label_campaign: "Campagne présidentielle",
@@ -679,7 +693,9 @@ const translations = {
     support_intro:
       "You are not the candidate. Your side's campaign happens anyway, and what you do with it will weigh a little on the result.",
     primaire_intro:
-      "The party has to pick its presidential candidate. Members vote in three months, and for the first time in your career your name is going round without you having whispered it to anyone.",
+      "The party is holding a primary to pick its presidential candidate. Members vote in three months, and for the first time in your career your name is going round without you having whispered it to anyone.",
+    primaire_intro_called:
+      "The primary you demanded will be held. Headquarters caved in three days and will hold it against you for ten years, but the people voting are not the same any more: they are the ones who put up the posters.",
     primaire_field: "The others going for it",
     primaire_run: "Stand",
     primaire_run_hard: "Stand, and throw everything you have at it",
@@ -693,6 +709,18 @@ const translations = {
       "You fall in behind {name} before the first round. The endorsement is worth what it costs, and it costs you having given up without trying.",
     primaire_out_result:
       "You let it pass. The party picks somebody else, and nobody will ask you why you were not there.",
+    designation_tag: "Selection",
+    designation_intro:
+      "The party has to give itself a presidential candidate. There will be no vote: some thirty people will decide it in a room with no windows, and you know every one of them.",
+    designation_field: "The ones the committee is looking at",
+    designation_push: "Make your case on your record",
+    designation_call: "Demand a members' primary",
+    designation_won:
+      "The committee picks you. Not one member will have voted, nobody will complain while the polls hold, and you are a candidate for the presidency of the Republic.",
+    designation_lost:
+      "{name} is picked. They explain at length that it was not against you, and it is true: it was not for you either.",
+    designation_called:
+      "You demand a primary in public, which is not something that can be refused twice running without the press telling the story. Headquarters gives way, and you have just spent at the machine what you were going to collect from the members.",
     label_poll_before: "What the polls say today",
     label_poll_short: "Poll",
     label_campaign: "Presidential campaign",

@@ -299,6 +299,23 @@ END_TYPES.forEach((type) => {
     say("fins", ordinaires[0], "fin ordinaire placée avant d'autres fins de la même famille, qui ne joueront jamais");
 });
 
+/* ==========================================================================
+   LES DEUX DICTIONNAIRES DOIVENT AVOIR LES MÊMES CLÉS
+   ==========================================================================
+   Les textes d'interface vivent dans translations.fr et translations.en, et
+   t() rend la CLÉ elle-même quand elle manque : une clé ajoutée d'un seul
+   côté ne casse rien, ne se voit pas, et laisse « designation_call » écrit
+   en toutes lettres sur un bouton pour la moitié des joueurs. Renommer une
+   clé fait la même chose, en pire, puisque la version française continue de
+   marcher. Personne ne le voit sans jouer dans l'autre langue.
+   ========================================================================== */
+Object.keys(FR).forEach((k) => {
+  if (!(k in EN)) say("langue", k, "clé absente du dictionnaire anglais");
+});
+Object.keys(EN).forEach((k) => {
+  if (!(k in FR)) say("langue", k, "clé absente du dictionnaire français");
+});
+
 if (problems.length) {
   console.log(problems.join("\n"));
   console.log("\n" + problems.length + " problème(s).");

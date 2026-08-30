@@ -2318,10 +2318,12 @@ function advanceTurn() {
     return;
   }
 
-  // La primaire tombe quelques mois avant la présidentielle, à un moment où
-  // aucune autre échéance n'occupe le calendrier.
+  // Le parti désigne son candidat quelques mois avant la présidentielle, à un
+  // moment où aucune autre échéance n'occupe le calendrier. Commission ou
+  // primaire : la carte dépend de la route qui s'ouvre, et c'est le temps
+  // fort qui le sait.
   if (primaryDue()) {
-    game.card = { kind: "primaire", resolved: false };
+    game.card = nominationCard();
     return;
   }
 

@@ -205,7 +205,7 @@ resolution, its own card and its own buttons, and each lives in **one file**.
 | [investiture.js](../js/game/modes/investiture.js) | `election`, `nomination` | run or stand aside; and the refused nomination, with the two doors out |
 | [race.js](../js/game/modes/race.js) | `race`, `seat` | the 2–3 step campaign of an ordinary election, and the choice of ground |
 | [soutien.js](../js/game/modes/soutien.js) | `support` | the presidential election you are not in |
-| [primaire.js](../js/game/modes/primaire.js) | `primaire` | who the party puts up |
+| [primaire.js](../js/game/modes/primaire.js) | `designation`, `primaire` | who the party puts up: the committee weighs standing, a primary weighs the base |
 | [scrutin.js](../js/game/modes/scrutin.js) | `scrutin` | the card that opens an election |
 | [aside.js](../js/game/modes/aside.js) | `aside` | the ballot that happens without you |
 
@@ -317,7 +317,7 @@ Every rule reads and mutates it. Key fields:
 
 The `card.kind` is the discriminator that drives `renderCard()`:
 `"scrutin"` (an election announcing itself), `"event"`, `"nomination"`, `"election"`,
-`"aside"`, `"support"`, `"seat"`, `"primaire"`, `"race"`, `"campaign"`, `"info"`, `"end"`.
+`"aside"`, `"support"`, `"seat"`, `"designation"`, `"primaire"`, `"race"`, `"campaign"`, `"info"`, `"end"`.
 
 ---
 
