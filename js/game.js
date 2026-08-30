@@ -1726,15 +1726,13 @@ function maybeGovernmentCall() {
 
   // L'offre ne se refait pas : on la refuse une fois pour toutes.
   if (game.seen.entree_gouvernement) return;
-  if (pendingChains(game).some((c) => c.id === "entree_gouvernement")) return;
+  if (game.govCall) return;
 
-  // ON NE PROGRAMME PAS UNE SCÈNE QUI NE PEUT PAS SE JOUER. On appelait pour
+  // ON NE PROPOSE PAS UNE SCÈNE QUI NE PEUT PAS SE JOUER. On appelait pour
   // n'importe quel mandat, conseiller municipal compris, que la scène
-  // n'accepte pas : la suite partait alors se garer sept ans dans la file
-  // d'attente — et la garde ci-dessus interdisait de la reprogrammer. On
-  // demande donc à la scène elle-même, ce qui interdit du même coup à ses
-  // conditions et à celles de l'appel de diverger : le seuil de cote et la
-  // liste des sièges sont écrits une seule fois, dans la scène.
+  // n'accepte pas. On demande donc à la scène elle-même, ce qui interdit du
+  // même coup à ses conditions et à celles de l'appel de diverger : le seuil
+  // de cote et la liste des sièges sont écrits une seule fois, dans la scène.
   const scene = eventById("entree_gouvernement");
   if (!scene || !eventMatches(scene, game)) return;
 
@@ -1748,7 +1746,14 @@ function maybeGovernmentCall() {
   if (!gouvernement.length) return;
   if (nationalPopularity(game) <= Math.min(...gouvernement.map((r) => r.popularity))) return;
 
-  scheduleChain(game, "entree_gouvernement");
+  /* LE TÉLÉPHONE SONNE, IL NE PREND PAS RENDEZ-VOUS.
+     L'offre était une suite programmée : elle partait dans la file d'attente
+     des chaînes, prenait le délai ordinaire — de six mois à un an — et
+     n'était tirée qu'à la première carte ORDINAIRE, une législative et deux
+     saisons plus tard. Or un gouvernement se compose dans la semaine, et
+     l'appel se passe le dimanche soir. On lève donc un drapeau, que
+     pickTurnCard() ramasse à la carte suivante, quelle qu'elle soit. */
+  game.govCall = true;
 }
 
 function ensureGovernment() {
@@ -2334,6 +2339,30 @@ function advanceTurn() {
     game.ended = { type: "withdrawal" };
     game.card = { kind: "end" };
     return;
+  }
+
+  pickTurnCard();
+}
+
+/**
+ * LA CARTE DE CE TOUR. C'était la fin d'advanceTurn ; c'en est sorti pour
+ * pouvoir être appelé DEUX FOIS dans la même saison. Une carte qui ne coûte
+ * pas un tour — l'offre de ministère, comme la carte d'ouverture d'un
+ * scrutin — se referme en redemandant la carte du tour, qui n'a pas bougé.
+ */
+function pickTurnCard() {
+  /* LE TÉLÉPHONE, AVANT TOUT LE RESTE. Il ne mange pas le tour : la carte
+     porte "sameTurn", et son bouton continuer revient ici au lieu de faire
+     tourner la saison. Sans quoi une offre tombant la veille d'une
+     législative aurait fait sauter la législative. */
+  if (game.govCall) {
+    game.govCall = false;
+    const appel = eventById("entree_gouvernement");
+    if (appel) {
+      setScene(appel);
+      game.card = { kind: "event", id: appel.id, resolved: false, sameTurn: true };
+      return;
+    }
   }
 
   // Le parti désigne son candidat quelques mois avant la présidentielle, à un
@@ -3534,7 +3563,12 @@ function handleClick(event) {
   }
 
   if (target.hasAttribute("data-continue")) {
+    // UNE CARTE QUI NE COÛTE PAS UN TOUR. Elle s'est glissée devant la carte
+    // de la saison, qui l'attend toujours : on la redemande au lieu de faire
+    // avancer le calendrier. C'est ce que fait déjà la carte d'ouverture d'un
+    // scrutin, en passant par enterElection().
     if (game.ended) game.card = { kind: "end" };
+    else if (game.card && game.card.sameTurn) pickTurnCard();
     else advanceTurn();
     saveGame();
     renderAll();
