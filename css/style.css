@@ -1834,6 +1834,14 @@ body {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--red) 38%, transparent);
 }
 
+/* Le camp qui ne bouge pas : même pastille, même place, et un tiret. Il ne
+   crie pas — c'est bien ce qu'il a à dire — mais il est là, sinon la colonne
+   a des trous et l'œil cherche l'information manquante. */
+.force-trend.is-flat {
+  color: var(--faint, var(--muted));
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
 /* Le camp qui monte porte son nom en clair : c'est la deuxième lecture, celle
    qu'on fait en parcourant la colonne des noms sans regarder les barres. */
 .force-row.is-rising .force-share { color: var(--ink); }

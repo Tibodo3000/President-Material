@@ -646,6 +646,14 @@ const FIGURE_RANKS = {
   espoir: { minAge: -2, spread: 13, position: null,   floor: 2, notoriety: 1 },
 };
 
+/*
+ * CE QUE VAUT UNE BARRE PLEINE dans le rapport de force : la moitié du pays.
+ * L'échelle est fixe pour qu'une longueur veuille dire la même chose d'un
+ * tour à l'autre et d'une partie à l'autre. Elle laisse de la marge au-dessus
+ * des percées mesurées, un camp culminant autour de trente-cinq pour cent.
+ */
+const LANDSCAPE_SCALE = 50;
+
 /* ==========================================================================
    LA DYNAMIQUE D'UN PARTI
    ==========================================================================

@@ -73,29 +73,44 @@ function yearDelta(key) {
  * s'installent.
  */
 
+/**
+ * LA PENTE, ET ELLE EST TOUJOURS LÀ.
+ *
+ * La pastille ne s'affichait qu'au-delà d'un demi-point, si bien que la
+ * colonne en portait trois sur six : un camp stable n'avait pas l'air stable,
+ * il avait l'air de manquer une information. Or c'est exactement la question
+ * qu'on pose au tableau, et elle a trois réponses, pas deux. Le camp qui ne
+ * bouge pas porte donc son tiret, dans la même pastille et à la même place.
+ */
 function trendHTML(key) {
   const delta = yearDelta(key);
-  if (delta === undefined || Math.abs(delta) < 0.5) return "";
+  const plat = delta === undefined || Math.abs(delta) < 0.5;
 
-  return '<span class="force-trend ' + (delta > 0 ? "is-up" : "is-down") +
+  return '<span class="force-trend ' +
+    (plat ? "is-flat" : delta > 0 ? "is-up" : "is-down") +
     '" title="' + t("force_trend_hint") + '">' +
-    (delta > 0 ? "▲" : "▼") + " " + localNumber(Math.abs(delta).toFixed(1)) + "</span>";
+    (plat ? "–" : (delta > 0 ? "▲" : "▼") + " " + localNumber(Math.abs(delta).toFixed(1))) +
+    "</span>";
 }
 
 /**
- * L'ÉCHELLE DES BARRES. Elle valait 2,4 fois la part, donc elle saturait à
- * quarante-deux pour cent : depuis que le tableau peut porter un camp à
- * quarante-cinq, la barre du premier touchait le bout, ne disait plus s'il
- * pesait quarante ou soixante, et surtout ne laissait plus la place de
- * dessiner sa queue de mouvement.
+ * L'ÉCHELLE DES BARRES, ET POURQUOI ELLE NE BOUGE PLUS.
  *
- * Elle se cale donc sur le premier du tableau, avec un peu de marge à droite,
- * et un plancher pour qu'un pays très partagé ne fasse pas six barres pleines.
- * La même pour tous les camps, sinon on ne compare plus rien.
+ * Elle se calait sur le premier du tableau, avec un peu de marge : le leader
+ * remplissait donc toujours nonante pour cent de la piste, quel que soit son
+ * score. Deux conséquences, et les deux se voient. Une barre presque pleine
+ * au-dessus du chiffre « 29 % » se lit comme une erreur — c'est proportionnel
+ * entre les camps, ça ne l'est plus avec le nombre écrit à côté. Et l'échelle
+ * changeait à CHAQUE TOUR : un camp qui n'avait pas bougé d'un dixième voyait
+ * sa barre s'allonger parce qu'un autre avait décroché.
+ *
+ * L'échelle est donc fixe. Une longueur veut dire la même chose d'une ligne à
+ * l'autre, d'un tour à l'autre et d'une partie à l'autre. La pleine piste vaut
+ * la moitié du pays, ce qui laisse de la marge au-dessus des percées mesurées
+ * (un camp culmine autour de trente-cinq) sans écraser les petits.
  */
 function forceScale() {
-  const parts = Object.values(game.landscape || {});
-  return Math.max(28, (parts.length ? Math.max(...parts) : 0) * 1.12);
+  return LANDSCAPE_SCALE;
 }
 
 function forceWidth(share) {
