@@ -102,6 +102,13 @@ function timelineLabel(entry, frise, i) {
                                    .replace("{to}", t("party_" + entry.to)), tone: "side" };
   }
 
+  /* LA FRISE EST UNE LISTE DE FAITS. Ces trois lignes disaient « le corps
+     donne un premier signe », « le corps insiste », « il n'y a plus de
+     discussion » : de belles phrases dans le paquet du déclin, où elles
+     coiffent une scène qu'on vient de lire, et trois énigmes au milieu de
+     « Municipales · élu maire » et « Ministre », où l'on ne sait même pas de
+     quoi elles parlent. Elles nomment donc ce dont il s'agit, et se lisent
+     comme les autres : la catégorie, puis le fait. */
   if (entry.kind === "decline") {
     return { text: t("frise_decline_" + entry.stage), tone: "body" };
   }
