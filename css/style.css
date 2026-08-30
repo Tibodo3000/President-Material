@@ -1757,6 +1757,12 @@ body {
   white-space: nowrap;
 }
 
+/* UNE SÉRIE SE VOIT. Un camp qui perce et un camp qui décroche portent la
+   même étiquette que le pouvoir et l'alliance, au même endroit, parce que
+   c'est la même chose qu'on lit : où en est ce parti en ce moment. */
+.force-tag.is-rising { color: var(--green); border-color: currentColor; }
+.force-tag.is-slump { color: var(--red); border-color: currentColor; }
+
 /* Un parti allié se repère au même endroit que le camp au pouvoir. */
 .force-tag.is-ally { color: var(--gold-2); border-color: var(--gold-2); }
 

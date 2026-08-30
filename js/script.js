@@ -111,6 +111,8 @@ const translations = {
     force_president: "Président",
     force_ruling: "Au pouvoir",
     force_ally: "Allié",
+    force_rising: "En dynamique",
+    force_slump: "En déclin",
 
     /* Le pouvoir : sa cote, son Assemblée. */
     label_approval: "Cote du gouvernement",
@@ -647,6 +649,8 @@ const translations = {
     force_president: "President",
     force_ruling: "In office",
     force_ally: "Allied",
+    force_rising: "On the up",
+    force_slump: "Slipping",
 
     /* Power: its standing, its Assembly. */
     label_approval: "Government approval",

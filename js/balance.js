@@ -634,6 +634,69 @@ const FIGURE_RANKS = {
   espoir: { minAge: -2, spread: 13, position: null,   floor: 2, notoriety: 1 },
 };
 
+/* ==========================================================================
+   LA DYNAMIQUE D'UN PARTI
+   ==========================================================================
+   MESURE D'ABORD. Sur quarante parties, la part de chaque camp à l'an 0, 10,
+   20 et 30 : chacun finit à un ou deux points de là où il a commencé,
+   quarante ans plus tard, et l'ÉCART ENTRE PARTIES RÉTRÉCIT avec le temps
+   (centristes 10,3 → 6,4 ; identitaires 7,1 → 4,7). Toute la variété venait
+   du tirage initial, et le jeu la mangeait en marchant. Amplitude d'un camp
+   sur une carrière entière : sept à douze points. Jamais une percée, jamais
+   un effondrement, et deux parties racontaient la même histoire.
+
+   La cause est que le paysage était tiré à neuf chaque tour : du bruit sans
+   mémoire, plus une part tirée par le chef du parti, dont la popularité
+   revient elle-même vers ses statistiques. Un bruit sans mémoire ne fait pas
+   d'histoire — il fait du grésillement autour d'un niveau.
+
+   Un parti porte donc une DYNAMIQUE : une valeur qui persiste d'un tour à
+   l'autre. Ce qui monte continue de monter un moment, ce qui coule continue
+   de couler, et une série finit par se retourner. C'est ce qui produit des
+   percées et des effondrements, donc des parties qui ne se ressemblent pas.
+   ========================================================================== */
+
+/*
+ * CE QU'IL RESTE D'UNE DYNAMIQUE AU TOUR SUIVANT. C'est le seul chiffre qui
+ * compte vraiment : il fixe la durée des séries. À 0,93, une dynamique met
+ * une quinzaine de tours à s'épuiser, soit près de quatre ans — le temps
+ * qu'on met à dire d'un camp qu'il est « en train de prendre ».
+ */
+const MOMENTUM_KEEP = 0.93;
+
+/*
+ * Ce que les semaines ajoutent au hasard, en amplitude. Mesuré : à 0,42, un
+ * camp dépassait 28 % dans trente-neuf parties sur quarante et un autre
+ * tombait sous 6 % dans trente-six. Des percées partout, donc des percées
+ * nulle part : elles doivent rester l'histoire de CERTAINES parties.
+ */
+const MOMENTUM_NOISE = 0.28;
+
+/** Ce que gouverner casse de dynamique, par tour. */
+const MOMENTUM_POWER = 0.035;
+
+/** Ce qu'une dynamique déplace dans le paysage, par tour et à plein régime. */
+const MOMENTUM_PUSH = 0.62;
+
+/*
+ * CE QU'UN MOUVEMENT RÉEL LANCE COMME DYNAMIQUE. Une présidentielle gagnée
+ * déplace le paysage de six points : elle ouvre donc une série de 0,3, qui
+ * durera des années. Une scène qui vaut deux points en lance une petite. Sans
+ * ce lien, la dynamique ne serait qu'un bruit avec de la mémoire ; avec lui,
+ * elle a des causes qu'on peut voir venir et provoquer.
+ */
+const MOMENTUM_FROM_SHIFT = 0.05;
+
+/*
+ * Au-delà, on parle d'un camp qui perce ou qui s'effondre, et le journal le
+ * dit. En dessous de MOMENTUM_QUIET, la série est retombée et l'on pourra en
+ * reparler : sans cette bande morte, une dynamique qui oscille autour du
+ * seuil faisait annoncer une percée tous les quatre tours.
+ */
+const MOMENTUM_LOUD = 0.6;
+
+const MOMENTUM_QUIET = 0.25;
+
 /** Chance, à chaque tour, qu'un ralliement se produise quelque part. */
 const DEFECTION_CHANCE = 0.055;
 

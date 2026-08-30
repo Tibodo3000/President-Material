@@ -170,6 +170,7 @@ function newGame(character) {
     standing: 0,
     rivals,               // une figure par parti
     landscape: {},        // rapport de force entre les partis, en pourcentage
+    momentum: {},         // la dynamique de chaque camp : voir driftMomentum()
     landscapeTrail: [],   // les quatre derniers tours : sert aux tendances
     alliance: null,       // { party, turn } : le pacte en cours, s'il y en a un
     scene: null,          // la figure mise en scène par la carte affichée
@@ -741,6 +742,88 @@ function allyParty() {
 }
 
 /** Un tour de vie du paysage. */
+/**
+ * LA DYNAMIQUE D'UN PARTI, ET POURQUOI ELLE SE SOUVIENT.
+ *
+ * Le paysage était tiré à neuf chaque tour : du bruit sans mémoire autour
+ * d'un niveau, plus la popularité du chef, qui revient elle-même vers ses
+ * statistiques. Résultat mesuré sur quarante parties : aucun camp n'allait
+ * nulle part, et l'écart entre parties RÉTRÉCISSAIT avec le temps.
+ *
+ * Chaque camp porte donc une dynamique qui persiste. Elle garde
+ * MOMENTUM_KEEP de sa valeur d'un tour à l'autre, ce qui fait des séries de
+ * plusieurs années au lieu d'un tirage indépendant ; elle est nourrie par ce
+ * qui arrive vraiment au parti — son chef, l'usure du pouvoir, les soirs
+ * d'élection (voir noteMomentum) — et par une part de hasard, parce qu'une
+ * percée commence toujours par quelque chose que personne n'avait vu venir.
+ */
+function driftMomentum() {
+  if (!game.momentum) game.momentum = {};
+  const ruling = rulingParty();
+
+  Object.keys(PARTIES).forEach((key) => {
+    let m = (game.momentum[key] || 0) * MOMENTUM_KEEP;
+
+    // Un chef qui prend la lumière lance une dynamique ; un chef qu'on
+    // n'écoute plus l'éteint.
+    const chef = leaderOf(key);
+    if (chef) m += (chef.popularity - 50) / 900;
+
+    // GOUVERNER CASSE UNE DYNAMIQUE. C'est la règle la plus constante de la
+    // Ve : on ne perce pas depuis Matignon, on s'y use.
+    if (key === ruling) m -= MOMENTUM_POWER;
+
+    m += (Math.random() - 0.5) * MOMENTUM_NOISE;
+    game.momentum[key] = Math.max(-1, Math.min(1, m));
+  });
+
+  announceMomentum();
+}
+
+/**
+ * Ce qu'un soir d'élection fait à la dynamique d'un camp. On ne juge pas le
+ * score, on juge l'écart entre ce qu'il valait et ce qu'il a fait : c'est
+ * ainsi qu'on parle d'un parti le lendemain, et c'est ce qui décide si la
+ * série s'ouvre ou se referme.
+ */
+function noteMomentum(s, partyKey, amount) {
+  if (!s || !partyKey) return;
+  if (!s.momentum) s.momentum = {};
+  s.momentum[partyKey] =
+    Math.max(-1, Math.min(1, (s.momentum[partyKey] || 0) + amount));
+}
+
+/**
+ * ON DOIT POUVOIR LE LIRE. Une dynamique qu'on ne voit pas est un chiffre
+ * caché de plus : le journal annonce donc les percées et les effondrements
+ * quand ils s'installent, une fois, et pas à chaque tour.
+ */
+function announceMomentum() {
+  if (!game.momentumSaid) game.momentumSaid = {};
+
+  Object.keys(PARTIES).forEach((key) => {
+    const m = game.momentum[key] || 0;
+    const dit = game.momentumSaid[key] || "flat";
+
+    // La bande morte : on n'annonce qu'en franchissant le seuil haut, et l'on
+    // ne se remet à écouter qu'une fois la série vraiment retombée.
+    let etat = dit;
+    if (m >= MOMENTUM_LOUD) etat = "up";
+    else if (m <= -MOMENTUM_LOUD) etat = "down";
+    else if (Math.abs(m) <= MOMENTUM_QUIET) etat = "flat";
+
+    if (etat === dit) return;
+    game.momentumSaid[key] = etat;
+    if (etat === "flat") return;
+
+    addLog(etat === "up"
+      ? { fr: "Les instituts s'accordent : {party_the:" + key + "} sont en train de prendre. Personne ne sait dire depuis quand, tout le monde explique pourquoi.",
+          en: "The pollsters agree: {party_the:" + key + "} are on the way up. Nobody can say since when, everybody explains why." }
+      : { fr: "{party_the:" + key + "} décrochent. Les militants ne renouvellent pas, les invitations se font rares, et l'on commence à parler d'eux au passé.",
+          en: "{party_the:" + key + "} are slipping. Members are not renewing, the invitations dry up, and people start talking about them in the past tense." });
+  });
+}
+
 function driftLandscape() {
   const ruling = rulingParty();
   const ally = allyParty();
@@ -754,6 +837,10 @@ function driftLandscape() {
     // décor. Le bruit reste inférieur à ce que déplacent les événements : le
     // mouvement doit rester causé, il ne doit pas être impossible.
     let move = (Math.random() - 0.5) * 1.15;
+
+    // LA DYNAMIQUE, qui est la seule part de ce mouvement à se souvenir du
+    // tour précédent. C'est elle qui fait les percées et les effondrements.
+    move += (game.momentum && game.momentum[key] ? game.momentum[key] : 0) * MOMENTUM_PUSH;
 
     // GOUVERNER USE, ET DE PLUS EN PLUS. Un premier mandat s'entame
     // doucement, un second se paie plein tarif. Depuis qu'il n'y a plus de
@@ -864,6 +951,14 @@ function moveShare(s, partyKey, amount, cause) {
   s.landscape[partyKey] = Math.max(LANDSCAPE_FLOOR, before + amount);
   normalizeLandscape(s.landscape);
   noteLandscape(s, avant, cause || "drift");
+
+  /* UNE DYNAMIQUE A DES CAUSES. Tout ce qui déplace vraiment le rapport de
+     force passe ici : un soir de présidentielle, un score qui dépasse ce que
+     le camp valait, une scène qui a compté. Ces mouvements-là ne doivent pas
+     être des à-coups isolés — c'est de là que part une série, et c'est ce qui
+     empêche la dynamique de n'être qu'un bruit avec de la mémoire. */
+  if (typeof noteMomentum === "function") noteMomentum(s, partyKey, amount * MOMENTUM_FROM_SHIFT);
+
   return s.landscape[partyKey] - before;
 }
 
@@ -2409,6 +2504,7 @@ function advanceTurn() {
   // d'afficher qui monte et qui descend, la seule information qui rende un
   // paysage lisible d'un coup d'œil.
   recordLandscape(game);
+  driftMomentum();
   driftLandscape();
   driftApproval();
   maybeCensure();
@@ -3748,6 +3844,7 @@ const BUILD = "2026-08-21 11:45";
       game.appeal = {};
       Object.keys(PARTIES).forEach((key) => { game.appeal[key] = game.popularity; });
     }
+    if (!game.momentum) game.momentum = {};
     if (game.strain === undefined) game.strain = 0;
     if (game.strainStruck === undefined) game.strainStruck = 0;
 

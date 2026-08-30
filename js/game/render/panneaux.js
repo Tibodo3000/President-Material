@@ -66,6 +66,19 @@ function causesHTML(key) {
   return parts.length ? '<div class="force-causes">' + parts.join("") + "</div>" : "";
 }
 
+/**
+ * LA DYNAMIQUE D'UN CAMP, à côté de l'étiquette du pouvoir et de celle de
+ * l'allié. La flèche voisine dit ce que le camp a pris ou perdu dans l'année ;
+ * celle-ci dit autre chose, et c'est ce qui manquait : qu'il est DANS une
+ * série, et donc qu'il va probablement continuer.
+ */
+function momentumTagHTML(key) {
+  const m = (game.momentum && game.momentum[key]) || 0;
+  if (Math.abs(m) < MOMENTUM_LOUD) return "";
+  return '<span class="force-tag ' + (m > 0 ? "is-rising" : "is-slump") + '">' +
+    t(m > 0 ? "force_rising" : "force_slump") + "</span>";
+}
+
 function trendHTML(key) {
   const delta = yearDelta(key);
   if (delta === undefined || Math.abs(delta) < 0.5) return "";
@@ -315,10 +328,11 @@ function renderLandscape() {
         // l'étiquette « au pouvoir » qui doit tomber à la ligne toute seule.
         '<div class="force-head">' +
           '<span class="force-party">' + t("party_" + key) + "</span>" +
-          (key === ruling || key === ally
+          (key === ruling || key === ally || momentumTagHTML(key)
             ? '<span class="force-flags">' +
               (key === ruling ? '<span class="force-tag">' + t("force_ruling") + "</span>" : "") +
               (key === ally ? '<span class="force-tag is-ally">' + t("force_ally") + "</span>" : "") +
+              momentumTagHTML(key) +
               "</span>"
             : "") +
           '<span class="force-share">' + trendHTML(key) + Math.round(share) + "%</span>" +
