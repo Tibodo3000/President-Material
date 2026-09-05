@@ -121,7 +121,18 @@ const EV_institutions = [
                     "en": "Eleven members turned in three days, four of them from the opposition. The bill passes by six votes and nobody mentions procedure again." } },
       "failure": { "effects": { "credibilite": -3, "standing": -10, "popularity": -6, "energie": -3, "chain": "matignon_censure" },
         "result": { "fr": "Vous en retournez sept, il en fallait douze. Le vote est perdu en direct, et l'opposition dépose sa motion le soir même.",
-                    "en": "You turn seven; you needed twelve. The vote is lost live on air, and the opposition tables its motion that evening." } } }
+                    "en": "You turn seven; you needed twelve. The vote is lost live on air, and the opposition tables its motion that evening." } } },
+    { "label": { "fr": "Passer les quarante-huit heures dans l'hémicycle, à tenir le texte article par article", "en": "Spend the forty-eight hours in the chamber, holding the text article by article" },
+      "when": { "personality": ["hardworking"] },
+      "roll": { "base": 16, "stat": "energie", "plus": { "eloquence": 0.4, "credibilite": 0.3 }, "dice": 16 },
+      "success": { "effects": { "credibilite": 4, "standing": 5, "popularity": 7, "reputation": 2,
+                                "energie": -5, "eloquence": 1 },
+        "result": { "fr": "Trente et une heures de séance, deux mille deux cents amendements, et un Premier ministre au banc pour à peu près tous. Le texte passe au vote, de neuf voix, et personne ne pourra jamais dire qu'il est passé sans débat.",
+                    "en": "Thirty-one hours of sitting, two thousand two hundred amendments, and a prime minister on the front bench for very nearly all of them. The text goes to a vote and passes by nine, and nobody will ever be able to say it passed without debate." } },
+      "failure": { "effects": { "credibilite": -2, "standing": -8, "popularity": -7, "energie": -5,
+                                "chain": "matignon_censure" },
+        "result": { "fr": "Vous tenez trente et une heures et vous perdez au bout de la trente-deuxième, sur un amendement de suppression que douze de vos propres députés votent en étant rentrés chez eux. L'épuisement se voit à l'écran, et c'est cette image qui reste.",
+                    "en": "You hold out for thirty-one hours and lose in the thirty-second, on a deletion amendment that twelve of your own members vote for from home. The exhaustion shows on screen, and that is the image that stays." } } }
   ]
 },
 
@@ -156,7 +167,8 @@ const EV_institutions = [
                     "en": "You turned an uncertain motion into a certain defeat. That is the precise definition of misplaced courage." } } },
 
     { "label": { "fr": "Laisser le président arbitrer", "en": "Let the president handle it" },
-      "effects": { "credibilite": -2, "standing": -6, "popularity": -4, "reputation": -1 },
+      "effects": { "credibilite": -2, "standing": -6, "popularity": -4, "reputation": -1,
+                   "energie": 2, "sangfroid": 1 },
       "result": { "fr": "L'Élysée passe les coups de fil à votre place et la motion tombe. Tout le monde a compris qui gouvernait, et ce n'était pas vous.",
                   "en": "The presidency makes the calls in your place and the motion falls. Everyone understood who was governing, and it was not you." } }
   ]
@@ -323,7 +335,13 @@ const EV_institutions = [
     { "label": { "fr": "Rentrer tous les jeudis soir et tenir la circonscription", "en": "Fly home every Thursday and hold the constituency" },
       "effects": { "energie": -2, "reseau": 1, "popularity": 4, "standing": -3 },
       "result": { "fr": "Deux vies, deux valises, deux permanences. Vous dormez dans le train et vous êtes le seul de votre promotion à savoir encore le nom du boulanger.",
-                  "en": "Two lives, two suitcases, two offices. You sleep on the train and you are the only one of your intake who still knows the baker's name." } }
+                  "en": "Two lives, two suitcases, two offices. You sleep on the train and you are the only one of your intake who still knows the baker's name." } },
+    { "label": { "fr": "Lire les amendements en entier, tous, avant chaque session", "en": "Read every amendment in full, all of them, before every session" },
+      "when": { "personality": ["hardworking"] },
+      "effects": { "credibilite": 4, "reputation": 2, "reseau": 2, "eloquence": 1, "energie": -4,
+                   "standing": 2, "popularity": -2 },
+      "result": { "fr": "Quatre cents pages par semaine, en trois langues, dont deux que vous lisez mal. À la sixième session, deux rapporteurs vous envoient leurs textes avant de les déposer, pour savoir ce qui cloche. Aucun journal français ne saura jamais que ça existe.",
+                  "en": "Four hundred pages a week, in three languages, two of which you read badly. By the sixth session, two rapporteurs are sending you their drafts before tabling them, to find out what is wrong with them. No French newspaper will ever know this exists." } }
   ]
 },
 
@@ -384,7 +402,12 @@ const EV_institutions = [
       "when": { "minMoney": 90000 },
       "effects": { "money": -55000, "popularity": 5, "reputation": -1 },
       "result": { "fr": "Une permanence rouvre, un compte local publie tous les jours, deux jeunes tiennent les réunions. On vous voit partout et vous n'y êtes jamais.",
-                  "en": "An office reopens, a local account posts every day, two young staffers run the meetings. You are seen everywhere and you are never there." } }
+                  "en": "An office reopens, a local account posts every day, two young staffers run the meetings. You are seen everywhere and you are never there." } },
+    { "label": { "fr": "Publier votre agenda complet, heure par heure, depuis l'élection", "en": "Publish your full diary, hour by hour, since the election" },
+      "when": { "background": ["activism", "civil"] },
+      "effects": { "credibilite": 3, "reputation": 2, "popularity": 5, "notoriete": 1, "energie": -2 },
+      "result": { "fr": "Quatre cent onze réunions, dont trois cent quarante à Bruxelles et Strasbourg, avec les intitulés et les heures. C'est illisible, c'est vrai, et deux autres élus le font le mois suivant en vous citant. Le journal ne fait pas de suite.",
+                  "en": "Four hundred and eleven meetings, three hundred and forty of them in Brussels and Strasbourg, with titles and times. It is unreadable, it is true, and two other members do the same the following month, citing you. The paper does not run a follow-up." } }
   ]
 },
 
@@ -601,7 +624,12 @@ const EV_institutions = [
     { "label": { "fr": "Partir avant d'être remercié", "en": "Leave before you are thanked" },
       "effects": { "office": "none", "reputation": 2, "popularity": 6, "standing": -4, "sangfroid": 1 },
       "result": { "fr": "Vous démissionnez le matin, avant la liste. La formule est reprise partout, et vous redevenez quelqu'un dont on se demande ce qu'il prépare.",
-                  "en": "You resign in the morning, before the list. The phrase is quoted everywhere, and you become somebody people wonder about again." } }
+                  "en": "You resign in the morning, before the list. The phrase is quoted everywhere, and you become somebody people wonder about again." } },
+    { "label": { "fr": "Faire passer un mot par quelqu'un qui dîne à l'Élysée", "en": "Get a word passed on by somebody who dines at the palace" },
+      "when": { "origin": ["dynasty", "bourgeois"] },
+      "effects": { "standing": 7, "reseau": 2, "reputation": -2, "energie": 1, "popularity": -1 },
+      "result": { "fr": "Vous n'appelez personne au gouvernement, vous appelez quelqu'un qui déjeune avec la bonne personne le jeudi. Votre nom passe de la colonne de droite à celle de gauche entre deux plats, et vous n'avez rien demandé, ce qui est la formule exacte que vous emploierez si on vous pose la question.",
+                  "en": "You call nobody in government; you call somebody who lunches with the right person on Thursdays. Your name moves from the right-hand column to the left between two courses, and you asked for nothing, which is the exact form of words you will use if anybody asks." } }
   ]
 },
 

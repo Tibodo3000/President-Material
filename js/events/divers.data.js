@@ -710,7 +710,16 @@ const EV_divers = [
     { "label": { "fr": "Confier la permanence à votre équipe", "en": "Hand the office to your staff" },
       "effects": { "energie": 1, "reseau": 1, "popularity": -3 },
       "result": { "fr": "Vos collaborateurs s'en sortent bien. Les gens remarquent que ce n'était pas vous.",
-                  "en": "Your staff handle it well. People notice it was not you." } }
+                  "en": "Your staff handle it well. People notice it was not you." } },
+    { "label": { "fr": "Prendre les trois dossiers qui peuvent servir d'exemple", "en": "Take the three files that can be made an example of" },
+      "effects": { "popularity": 4, "notoriete": 1, "credibilite": 1, "reputation": -1, "energie": -1 },
+      "result": { "fr": "Trois cas réglés, trois familles soulagées, trois communiqués. Les quatre-vingt-dix autres dossiers attendent, et la pile de la semaine suivante est plus haute, parce qu'on a vu que ça marchait.",
+                  "en": "Three cases settled, three families relieved, three press releases. The other ninety files wait, and next week's pile is higher, because people saw that it worked." } },
+    { "label": { "fr": "Écrire à la préfecture avec les bons articles", "en": "Write to the prefecture citing the right articles" },
+      "when": { "background": ["civil", "law"] },
+      "effects": { "credibilite": 3, "reputation": 2, "popularity": 4, "energie": -2 },
+      "result": { "fr": "Onze dossiers débloqués en six semaines, sans un communiqué, parce que les courriers sont écrits dans la langue que l'administration lit. Personne dans le département ne saura que c'était vous, sauf onze foyers et un chef de bureau.",
+                  "en": "Eleven files unblocked in six weeks, without a press release, because the letters are written in the language the administration reads. Nobody in the area will know it was you, except eleven households and one office head." } }
   ]
 },
 
@@ -733,7 +742,16 @@ const EV_divers = [
     { "label": { "fr": "Couper le ruban et repartir", "en": "Cut the ribbon and leave" },
       "effects": { "energie": 1, "popularity": -3, "standing": 2 },
       "result": { "fr": "Vous êtes ailleurs avant le discours du maire. Cela se remarque, dans un sens comme dans l'autre.",
-                  "en": "You are gone before the mayor's speech. People notice, one way or the other." } }
+                  "en": "You are gone before the mayor's speech. People notice, one way or the other." } },
+    { "label": { "fr": "Repartir avec les onze dossiers qu'on vous a glissés", "en": "Leave with the eleven files people slipped you" },
+      "effects": { "reputation": 2, "popularity": 3, "reseau": 1, "energie": -2 },
+      "result": { "fr": "Onze chemises cartonnées dans le coffre, dont neuf ne relèvent pas de vous. Vous répondez aux onze, ce qui prend trois semaines et ne se saura jamais, sauf des onze.",
+                  "en": "Eleven folders in the boot, nine of which are nothing to do with you. You answer all eleven, which takes three weeks and will never be known, except by the eleven." } },
+    { "label": { "fr": "Faire les deux cents photos qu'on vous demande", "en": "Take all two hundred photographs people ask for" },
+      "when": { "background": ["celebrity", "comms"] },
+      "effects": { "notoriete": 2, "popularity": 6, "energie": -2, "credibilite": -1 },
+      "result": { "fr": "Deux heures debout, le même sourire, la même main sur la même épaule, et deux cents publications le soir même avec votre nom dedans. C'est un travail, personne ne le compte comme tel, et vous êtes le seul dans la salle à savoir exactement combien ça vaut.",
+                  "en": "Two hours on your feet, the same smile, the same hand on the same shoulder, and two hundred posts that evening with your name in them. It is work, nobody counts it as such, and you are the only person in the room who knows exactly what it is worth." } }
   ]
 },
 
@@ -756,7 +774,20 @@ const EV_divers = [
     { "label": { "fr": "La laisser mourir toute seule", "en": "Let it die on its own" },
       "effects": { "sangfroid": 1, "energie": 1, "standing": -2 },
       "result": { "fr": "Trois semaines plus tard, personne ne s'en souvient. Sauf ceux qui l'ont écrite.",
-                  "en": "Three weeks later nobody remembers it. Except the people who wrote it." } }
+                  "en": "Three weeks later nobody remembers it. Except the people who wrote it." } },
+    { "label": { "fr": "Chercher qui l'a écrite", "en": "Find out who wrote it" },
+      "roll": { "base": 15, "stat": "reseau", "plus": { "sangfroid": 0.35 }, "dice": 16 },
+      "success": { "effects": { "reseau": 2, "standing": 4, "sangfroid": 1, "credibilite": 1 },
+        "result": { "fr": "Une tournure de phrase, deux fautes récurrentes et le format du document : trois personnes pouvaient l'écrire, une seule était à Paris cette semaine-là. Vous ne le direz à personne, et elle saura que vous savez.",
+                    "en": "A turn of phrase, two recurring mistakes and the document format: three people could have written it, only one was in Paris that week. You will tell nobody, and she will know that you know." } },
+      "failure": { "effects": { "reseau": -2, "standing": -3, "energie": -1 },
+        "result": { "fr": "Vous posez la question à quatre personnes et les quatre la reposent à d'autres. À la fin de la semaine, la note a moins circulé que le fait que vous cherchiez son auteur.",
+                    "en": "You ask four people and all four pass the question on. By the end of the week, the note has circulated less widely than the fact that you were hunting for its author." } } },
+    { "label": { "fr": "La faire sortir en entier, avec la mise en page d'origine", "en": "Get it out in full, with the original layout" },
+      "when": { "background": ["journalism"] },
+      "effects": { "notoriete": 2, "popularity": 3, "credibilite": 1, "standing": -6, "reputation": -1 },
+      "result": { "fr": "Six pages qui ne disaient rien deviennent six pages que tout le monde lit, parce qu'un document scanné avec son en-tête a l'air d'un secret. La direction passe la semaine à démentir un texte qu'elle a elle-même fait écrire.",
+                  "en": "Six pages that said nothing become six pages everybody reads, because a scanned document with its own letterhead looks like a secret. The leadership spends the week denying a text it commissioned itself." } }
   ]
 }
 ];

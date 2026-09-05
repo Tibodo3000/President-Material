@@ -217,7 +217,18 @@ const EV_debuts = [
                     "en": "A half-time project officer contract, paid by the federation. The job exists, more or less." } },
       "failure": { "effects": { "standing": -4, "energie": -1 },
         "result": { "fr": "On vous répond que la fédération n'est pas une agence d'intérim. Vous poserez des jours de congé, comme tout le monde.",
-                    "en": "You are told the federation is not a temp agency. You will take annual leave, like everybody else." } } }
+                    "en": "You are told the federation is not a temp agency. You will take annual leave, like everybody else." } } },
+    { "label": { "fr": "Expliquer à votre supérieur que vous ne lâcherez ni l'un ni l'autre", "en": "Tell your manager you will drop neither" },
+      "when": { "origin": ["modest", "middle"] },
+      "effects": { "energie": -3, "standing": 4, "reputation": 2, "credibilite": 2, "sangfroid": 1 },
+      "result": { "fr": "Vous lui dites ce que la politique paie à votre échelon, ce qui est vite fait, et pourquoi vous ne pouvez pas vous permettre de choisir. Il ne compte plus vos absences. Il ne vous augmente pas non plus.",
+                  "en": "You tell him what politics pays at your level, which does not take long, and why you cannot afford to choose. He stops counting your absences. He does not give you a rise either." } },
+    { "label": { "fr": "Démissionner sans y penser deux fois", "en": "Resign without thinking twice" },
+      "when": { "origin": ["bourgeois", "dynasty"] },
+      "effects": { "energie": 2, "standing": 8, "reseau": 2, "money": -22000, "reputation": -1,
+                   "popularity": -2 },
+      "result": { "fr": "Vous posez votre démission un mardi et vous êtes en réunion de section le mercredi. La question du loyer ne s'est pas posée une seconde, ce qui vous donne deux ans d'avance sur des gens qui travaillent autant que vous et que personne ne remarquera.",
+                  "en": "You resign on a Tuesday and you are at a branch meeting on the Wednesday. The question of the rent never came up for a second, which puts you two years ahead of people who work as hard as you and whom nobody will notice." } }
   ]
 },
 
@@ -275,7 +286,18 @@ const EV_debuts = [
     { "label": { "fr": "Voter avec la majorité sur ce point-là", "en": "Vote with the majority on this one" },
       "effects": { "reseau": 2, "standing": 3, "popularity": -3 },
       "result": { "fr": "Le projet est bon, vous le dites, et vous le votez. Votre groupe vous le reproche pendant deux ans et le maire s'en souviendra plus longtemps.",
-                  "en": "The scheme is a good one, you say so, and you vote for it. Your group holds it against you for two years and the mayor will remember it for longer." } }
+                  "en": "The scheme is a good one, you say so, and you vote for it. Your group holds it against you for two years and the mayor will remember it for longer." } },
+    { "label": { "fr": "Déposer un vœu recevable sur la forme", "en": "Table a motion they cannot rule out of order" },
+      "when": { "background": ["civil", "law"] },
+      "effects": { "credibilite": 3, "reputation": 1, "standing": 2, "popularity": 1, "energie": -1 },
+      "result": { "fr": "Deux pages, les visas dans l'ordre, et rien à redire sur la forme. La majorité est obligée de l'inscrire, de l'examiner et de le rejeter à vingt-trois heures quarante devant onze personnes. Le vœu est au procès-verbal, et le procès-verbal est éternel.",
+                  "en": "Two pages, the legal references in order, and nothing to object to procedurally. The majority is obliged to table it, examine it and reject it at twenty to midnight in front of eleven people. The motion is in the minutes, and the minutes are forever." } },
+    { "label": { "fr": "Rester les six heures et parler sur les vingt-huit points", "en": "Stay all six hours and speak on all twenty-eight items" },
+      "when": { "stat": { "energie": { "min": 12 } } },
+      "effects": { "energie": -3, "credibilite": 3, "reputation": 2, "standing": 5, "popularity": 2,
+                   "eloquence": 1 },
+      "result": { "fr": "Personne ne fait ça. Le directeur général des services vous regarde autrement à partir du point dix-neuf, et c'est lui qui prépare les dossiers de tout le monde, y compris ceux de la majorité.",
+                  "en": "Nobody does that. The chief executive of the council looks at you differently from item nineteen onwards, and he is the one who prepares everybody's papers, the majority's included." } }
   ]
 },
 
@@ -302,7 +324,17 @@ const EV_debuts = [
     { "label": { "fr": "Les mettre à contribution", "en": "Put them to work" },
       "effects": { "reseau": 2, "energie": -1, "reputation": -1, "standing": 3 },
       "result": { "fr": "Votre cousin tient une permanence, votre mère fait les enveloppes, votre beau-frère prête la camionnette. Une famille est un premier réseau, et c'est comme ça que certaines dynasties commencent.",
-                  "en": "Your cousin staffs the office, your mother stuffs envelopes, your brother-in-law lends the van. A family is a first network, and that is how certain dynasties begin." } }
+                  "en": "Your cousin staffs the office, your mother stuffs envelopes, your brother-in-law lends the van. A family is a first network, and that is how certain dynasties begin." } },
+    { "label": { "fr": "Rappeler que personne à cette table n'a jamais fait autre chose", "en": "Point out that nobody at this table has ever done anything else" },
+      "when": { "origin": ["dynasty"] },
+      "effects": { "standing": 4, "reseau": 2, "energie": 1, "reputation": -1 },
+      "result": { "fr": "La question ne sera plus jamais posée. Aucune autre non plus, d'ailleurs, et le déjeuner se termine sur le temps qu'il fait. Deux personnes de la table appellent la fédération dans la semaine pour prendre de vos nouvelles.",
+                  "en": "The question is never asked again. Nor is any other, as it happens, and lunch ends on the weather. Two people at that table ring the federation during the week to ask how you are getting on." } },
+    { "label": { "fr": "Leur dire combien ça paie", "en": "Tell them what it pays" },
+      "when": { "origin": ["modest", "middle"] },
+      "effects": { "reputation": 2, "credibilite": 1, "popularity": 2, "energie": -1 },
+      "result": { "fr": "Vous donnez le montant, brut, et le nombre d'heures. Le chiffre est plus bas que ce qu'ils imaginaient, ce qui les convainc immédiatement, ce qui est une façon assez triste de gagner une discussion.",
+                  "en": "You give the figure, before tax, and the number of hours. It is lower than they had imagined, which convinces them at once, which is a fairly bleak way to win an argument." } }
   ]
 },
 
@@ -328,7 +360,17 @@ const EV_debuts = [
     { "label": { "fr": "Refuser, ce n'est pas votre âge", "en": "Refuse, you are past that" },
       "effects": { "energie": 1, "reputation": 1, "standing": -3 },
       "result": { "fr": "Vous répondez que la place revient à plus jeune que vous. C'est juste, c'est élégant, et celui qui la prend vous doublera dans huit ans.",
-                  "en": "You answer that the place should go to somebody younger. It is fair, it is elegant, and the person who takes it will overtake you in eight years." } }
+                  "en": "You answer that the place should go to somebody younger. It is fair, it is elegant, and the person who takes it will overtake you in eight years." } },
+    { "label": { "fr": "Le prendre, et faire adhérer soixante personnes en trois mois", "en": "Take it, and sign up sixty new members in three months" },
+      "when": { "personality": ["calculating"] },
+      "effects": { "standing": 9, "reseau": 2, "energie": -2, "reputation": -2, "strike": "appareil" },
+      "result": { "fr": "Soixante cartes, soixante voix au congrès, et un fichier que vous êtes seul à tenir à jour. Personne ne vous demandera jamais si ces soixante personnes sont venues à une réunion. La réponse est onze.",
+                  "en": "Sixty cards, sixty votes at conference, and a members' list only you keep up to date. Nobody will ever ask you whether those sixty people have been to a meeting. The answer is eleven." } },
+    { "label": { "fr": "Le prendre et en faire une structure qui vous survivra", "en": "Take it and build something that outlasts you" },
+      "when": { "background": ["activism"] },
+      "effects": { "reseau": 3, "standing": 4, "credibilite": 2, "reputation": 2, "energie": -2 },
+      "result": { "fr": "Un bureau élu, un calendrier, une formation par trimestre et des comptes que personne n'avait tenus depuis huit ans. Trois des trente actifs seront députés. Aucun des trois ne dira que ça a commencé là.",
+                  "en": "An elected committee, a calendar, one training weekend a quarter and accounts nobody had kept for eight years. Three of the thirty active members will end up in parliament. None of the three will say it started here." } }
   ]
 },
 
@@ -374,13 +416,18 @@ const EV_debuts = [
       "result": { "fr": "Quarante personnes dans une église froide, et vous qui racontez une histoire de 1978 qu'on vous avait rapportée. Toute la fédération l'apprend avant le week-end.",
                   "en": "Forty people in a cold church, and you telling a story from 1978 that somebody had passed on to you. The whole federation knows before the weekend." } },
     { "label": { "fr": "Envoyer une gerbe et un mot", "en": "Send flowers and a note" },
-      "effects": { "money": -300, "standing": -2 },
+      "effects": { "money": -300, "standing": -2, "energie": 1 },
       "result": { "fr": "La gerbe est belle et le mot est juste. On note surtout que vous n'y étiez pas, parce que c'est ce qu'on note toujours.",
                   "en": "The flowers are handsome and the note is right. What gets noticed is that you were not there, because that is what always gets noticed." } },
     { "label": { "fr": "Y aller sans parler", "en": "Go, and say nothing" },
       "effects": { "energie": -1, "standing": 4, "reputation": 1, "sangfroid": 1 },
       "result": { "fr": "Vous restez au fond, vous serrez trois mains et vous repartez. C'est exactement ce qu'il fallait faire et personne ne vous en félicitera.",
-                  "en": "You stand at the back, shake three hands and leave. It is exactly the right thing to do, and nobody will congratulate you for it." } }
+                  "en": "You stand at the back, shake three hands and leave. It is exactly the right thing to do, and nobody will congratulate you for it." } },
+    { "label": { "fr": "Y aller, et citer onze prénoms", "en": "Go, and name eleven people" },
+      "when": { "trait": ["memoire_des_noms"] },
+      "effects": { "standing": 11, "reputation": 3, "reseau": 2, "popularity": 1, "energie": -1 },
+      "result": { "fr": "Vous parlez huit minutes sans notes et vous nommez onze personnes de la salle, dans l'ordre où elles sont arrivées à la section. La fédération entière saura avant la fin du week-end que vous vous souvenez de tout le monde, ce qui, dans ce métier, est une forme de pouvoir.",
+                  "en": "You speak for eight minutes without notes and you name eleven people in the room, in the order they joined the branch. The whole federation will know before the weekend is out that you remember everybody, which in this trade is a form of power." } }
   ]
 },
 
@@ -411,7 +458,17 @@ const EV_debuts = [
     { "label": { "fr": "Relire et corriger avant publication", "en": "Ask to check the copy before it runs" },
       "effects": { "sangfroid": 1, "reputation": -1, "reseau": -1, "standing": 2 },
       "result": { "fr": "Vous obtenez la relecture et vous coupez ce qui dépassait. La journaliste le note dans un coin de sa tête pour les dix prochaines années.",
-                  "en": "You get to check it and cut whatever stuck out. The reporter files it away in a corner of her mind for the next ten years." } }
+                  "en": "You get to check it and cut whatever stuck out. The reporter files it away in a corner of her mind for the next ten years." } },
+    { "label": { "fr": "Lui écrire ses réponses telles qu'elle les publiera", "en": "Write her answers the way she will print them" },
+      "when": { "background": ["journalism", "comms"] },
+      "effects": { "notoriete": 2, "popularity": 5, "standing": 2, "credibilite": 1, "reputation": -1 },
+      "result": { "fr": "Deux phrases courtes par question, un chiffre dans la deuxième, et une formule qu'on peut mettre en titre sans la couper. L'article sort tel quel. Elle a gagné vingt minutes, vous avez gagné le titre, et vous savez tous les deux ce qui vient de se passer.",
+                  "en": "Two short sentences per question, a figure in the second, and one line that can be used as a headline without cutting. The piece runs as written. She saved twenty minutes, you got the headline, and you both know exactly what just happened." } },
+    { "label": { "fr": "Lui donner deux heures au lieu de trois questions", "en": "Give her two hours instead of three questions" },
+      "when": { "personality": ["charming"] },
+      "effects": { "reseau": 2, "notoriete": 1, "popularity": 3, "reputation": 1, "energie": -2 },
+      "result": { "fr": "L'article fait quarante lignes de plus que prévu et il est meilleur. Elle sera à la rédaction nationale dans six ans, et pendant six ans elle vous appellera avant d'écrire quoi que ce soit sur vous.",
+                  "en": "The piece runs forty lines longer than planned and it is better for it. She will be on the national desk in six years, and for six years she will call you before writing anything about you." } }
   ]
 },
 
@@ -437,7 +494,12 @@ const EV_debuts = [
     { "label": { "fr": "Écouter le troisième jusqu'au bout", "en": "Hear the third one out" },
       "effects": { "energie": -1, "popularity": 3, "sangfroid": 2 },
       "result": { "fr": "Quarante minutes sur l'état du pays, dont vous ne partagez pas un mot. En partant, il dit que c'est la première fois qu'on l'écoute, et ce n'est probablement pas faux.",
-                  "en": "Forty minutes on the state of the country, not a word of which you share. On the way out he says it is the first time anyone has listened to him, and that is probably true." } }
+                  "en": "Forty minutes on the state of the country, not a word of which you share. On the way out he says it is the first time anyone has listened to him, and that is probably true." } },
+    { "label": { "fr": "Rester jusqu'à midi et prendre les seize suivants", "en": "Stay until noon and take the next sixteen" },
+      "when": { "personality": ["hardworking"] },
+      "effects": { "popularity": 7, "reputation": 3, "credibilite": 2, "reseau": 1, "energie": -3 },
+      "result": { "fr": "Trois heures annoncées, cinq heures faites, seize personnes reçues et onze fiches ouvertes. Le samedi suivant, la file commence à neuf heures moins le quart. Vous ne pourrez plus jamais réduire cette permanence, et vous ne le voudrez pas.",
+                  "en": "Three hours advertised, five hours done, sixteen people seen and eleven files opened. The following Saturday, the queue starts at a quarter to nine. You will never be able to cut this surgery back, and you will not want to." } }
   ]
 },
 
@@ -463,7 +525,12 @@ const EV_debuts = [
     { "label": { "fr": "Laisser tomber, ce n'est pas votre monde", "en": "Leave it, it is not your world" },
       "effects": { "energie": 2, "notoriete": -1, "reputation": 1 },
       "result": { "fr": "Vous fermez le compte et vous retournez aux réunions. Cela vous coûtera exactement une génération d'électeurs.",
-                  "en": "You close the account and go back to the meetings. It will cost you exactly one generation of voters." } }
+                  "en": "You close the account and go back to the meetings. It will cost you exactly one generation of voters." } },
+    { "label": { "fr": "Reprendre ce que vous faisiez avant, en moins drôle", "en": "Go back to what you did before, only less funny" },
+      "when": { "background": ["celebrity", "comms"] },
+      "effects": { "notoriete": 3, "popularity": 4, "credibilite": 1, "standing": -2, "energie": -1 },
+      "result": { "fr": "Vous savez déjà à quelle heure publier, quelle longueur tient, et ce qu'il ne faut jamais écrire un vendredi soir. Vous savez surtout ce que ça coûte, et vous le faites quand même, ce qui est une décision et pas un accident.",
+                  "en": "You already know what time to post, what length holds, and what must never be written on a Friday night. Above all you know what it costs, and you do it anyway, which is a decision rather than an accident." } }
   ]
 },
 
@@ -493,7 +560,13 @@ const EV_debuts = [
     { "label": { "fr": "Recevoir la direction de l'usine à la place", "en": "Meet the plant's management instead" },
       "effects": { "reseau": 2, "standing": 4, "popularity": -5, "sangfroid": 1 },
       "result": { "fr": "Deux heures de réunion, un plan de reprise qui n'existera jamais, et une photo devant l'entrée qui circulera longtemps.",
-                  "en": "A two-hour meeting, a rescue plan that will never exist, and a photograph outside the entrance that will circulate for a long time." } }
+                  "en": "A two-hour meeting, a rescue plan that will never exist, and a photograph outside the entrance that will circulate for a long time." } },
+    { "label": { "fr": "Y aller avec les comptes du repreneur", "en": "Turn up with the buyer's accounts" },
+      "when": { "background": ["business"] },
+      "effects": { "credibilite": 3, "reputation": 2, "popularity": 6, "reseau": 1, "standing": 1,
+                   "energie": -1 },
+      "result": { "fr": "Vous êtes la seule personne devant ces grilles capable de dire si le plan de reprise tient, et il ne tient pas : la trésorerie couvre onze semaines. Vous le dites au mégaphone avec les chiffres, et c'est la direction qui demande à vous voir le lundi.",
+                  "en": "You are the only person outside those gates who can say whether the rescue plan holds, and it does not: the cash covers eleven weeks. You say so on the megaphone, with the figures, and it is management that asks to see you on the Monday." } }
   ]
 }
 ];

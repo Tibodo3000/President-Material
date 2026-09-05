@@ -219,6 +219,19 @@ which is worse.
 PM_CAREERS=60 node tools/regression.js > /dev/null
 ```
 
+If you touched **choices** rather than only prose, add a third:
+
+```bash
+node tools/audit-choix.js
+```
+
+It fails on an option nobody would ever take: every effect negative and nothing
+durable bought with it. It also prints how many options each background, temperament
+and origin unlocks, which is the only measure that says whether character creation
+commits you to anything. A costly option is not a dead one — the moral tension of the
+game depends on gestures that are paid for — so the check only flags paying for
+*nothing at all*.
+
 Loads every script in the order `game.html` declares (read from the file, so the order is
 tested too), then plays whole careers by clicking the **real rendered buttons**.
 

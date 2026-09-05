@@ -397,7 +397,12 @@ const EV_appareil = [
     { "label": { "fr": "Laisser tomber : ce n'est pas votre territoire", "en": "Leave it: it is not your ground" },
       "effects": { "standing": -2, "energie": 2, "reputation": 1 },
       "result": { "fr": "Vous vous en tenez à votre fédération. C'est raisonnable, et dans deux ans quelqu'un d'autre aura six cents adhérents de plus que vous.",
-                  "en": "You stick to your own federation. It is reasonable, and in two years somebody else will have six hundred more members than you." } }
+                  "en": "You stick to your own federation. It is reasonable, and in two years somebody else will have six hundred more members than you." } },
+    { "label": { "fr": "Faire les six cents adhérents au téléphone, un par un", "en": "Phone all six hundred members, one at a time" },
+      "when": { "personality": ["hardworking"] },
+      "effects": { "standing": 14, "reseau": 3, "credibilite": 1, "energie": -5, "popularity": -2 },
+      "result": { "fr": "Onze semaines, quatre soirs sur sept, et un tableau que vous tenez vous-même parce que personne d'autre ne le tiendrait aussi bien. Le congrès est plié avant d'être convoqué. Vous mettez six mois à récupérer, et vous avez la fédération pour vingt ans.",
+                  "en": "Eleven weeks, four evenings out of seven, and a spreadsheet you keep yourself because nobody else would keep it as well. The conference is decided before it is even called. It takes you six months to recover, and you have the federation for twenty years." } }
   ]
 },
 
@@ -1790,7 +1795,8 @@ const EV_appareil = [
   },
   "choices": [
     { "label": { "fr": "Tout reconnaître immédiatement", "en": "Admit everything immediately" },
-      "effects": { "popularity": -8, "reputation": -2, "standing": -6, "credibilite": -1 },
+      "effects": { "popularity": -8, "reputation": -1, "standing": -6, "credibilite": 2,
+                   "sangfroid": 1 },
       "result": { "fr": "Vous ne discutez pas, vous ne téléphonez à personne, et vous publiez un communiqué à sept heures. C'est ce qu'il fallait faire et cela coûte quand même.",
                   "en": "You do not argue, you call nobody, and you put out a statement at seven. It was the right thing to do and it costs all the same." } },
     { "label": { "fr": "Faire jouer vos relations", "en": "Pull some strings" },
@@ -1940,7 +1946,13 @@ const EV_appareil = [
     { "label": { "fr": "Ne rien faire et attendre l'hiver", "en": "Do nothing and wait for winter" },
       "effects": { "energie": 2, "popularity": -4, "sangfroid": 1, "approval": -2 },
       "result": { "fr": "Vous ne dites rien pendant six semaines. Le froid finit toujours par faire ce que les gouvernements n'osent pas faire.",
-                  "en": "You say nothing for six weeks. The cold always ends up doing what governments do not dare to." } }
+                  "en": "You say nothing for six weeks. The cold always ends up doing what governments do not dare to." } },
+    { "label": { "fr": "Aller au service d'ordre du cortège, comme avant", "en": "Join the march stewards, the way you used to" },
+      "when": { "background": ["activism"] },
+      "effects": { "axis": { "economy": -60, "power": -35 }, "popularity": 8, "reseau": 3,
+                   "credibilite": 2, "approval": -5, "standing": -4, "energie": -2 },
+      "result": { "fr": "Chasuble, oreillette, et six heures à tenir un carrefour avec des gens dont vous connaissez les prénoms depuis vingt ans. Aucune photo n'est prise de vous parce que personne ne cherche un élu dans le service d'ordre, et les organisateurs, eux, savent que vous y étiez.",
+                  "en": "A steward's tabard, an earpiece, and six hours holding a junction with people whose first names you have known for twenty years. No photographs are taken of you, because nobody looks for an elected member among the stewards, and the organisers, for their part, know you were there." } }
   ]
 },
 
@@ -1999,7 +2011,17 @@ const EV_appareil = [
     { "label": { "fr": "Ne rien dire et laisser dire", "en": "Say nothing and let it run" },
       "effects": { "sangfroid": 1, "energie": 1, "notoriete": 1, "popularity": -1 },
       "result": { "fr": "Vous rentrez dans l'hémicycle sans un mot pour les caméras. L'affaire dure trente heures au lieu de trois jours.",
-                  "en": "You walk back into the chamber without a word for the cameras. The story lasts thirty hours instead of three days." } }
+                  "en": "You walk back into the chamber without a word for the cameras. The story lasts thirty hours instead of three days." } },
+    { "label": { "fr": "Aller lui serrer la main devant les caméras", "en": "Go and shake his hand in front of the cameras" },
+      "when": { "personality": ["charming"] },
+      "effects": { "popularity": 8, "reputation": 2, "credibilite": 1, "notoriete": 1, "standing": -3 },
+      "result": { "fr": "Onze secondes, une main tendue et deux phrases sur le fond du texte. Il la prend, parce qu'on ne refuse pas une main devant quatorze caméras. Votre groupe trouve ça mou, le pays trouve ça reposant, et le pays est plus nombreux.",
+                  "en": "Eleven seconds, an outstretched hand and two sentences about the substance of the bill. He takes it, because you do not refuse a hand in front of fourteen cameras. Your group finds it feeble, the country finds it restful, and the country is larger." } },
+    { "label": { "fr": "Reprendre la phrase en direct, en trente secondes, face caméra", "en": "Take the sentence back live, in thirty seconds, straight to camera" },
+      "when": { "background": ["celebrity", "comms"] },
+      "effects": { "notoriete": 3, "popularity": 5, "standing": 1, "credibilite": -1, "energie": -1 },
+      "result": { "fr": "Vous savez que le format est trente secondes et que la première phrase est la seule qui sortira, alors vous mettez tout dedans. C'est publié avant que la séance ait repris, et c'est votre version qui est reprise par les autres.",
+                  "en": "You know the format is thirty seconds and that the first sentence is the only one that will be used, so you put everything in it. It is online before the sitting resumes, and it is your version the others pick up." } }
   ]
 },
 

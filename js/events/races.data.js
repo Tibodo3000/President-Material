@@ -122,9 +122,13 @@ const EV_races = [
       "result": { "fr": "La salle est pleine, les caméras sont là, et la moitié des questions portent sur lui. Vous gagnez des voix et vous perdez la campagne, qui devient la sienne.",
                   "en": "The hall is full, the cameras are there, and half the questions are about him. You gain votes and lose the campaign, which becomes his." } },
     { "label": { "fr": "Faire campagne seul", "en": "Campaign alone" },
-      "effects": { "score": -2, "standing": -5 },
-      "result": { "fr": "Ni logo, ni parrain, ni affiche nationale. On vous reproche votre distance à la direction, et on vote pour vous à cause d'elle.",
-                  "en": "No logo, no patron, no national poster. You are criticised for your distance from the leadership, and voted for because of it." } },
+      "roll": { "base": 15, "stat": "notoriete", "plus": { "popularity": 0.06, "charisme": 0.3 }, "dice": 16 },
+      "success": { "effects": { "score": 3, "credibilite": 2, "reputation": 1, "standing": -5 },
+        "result": { "fr": "Ni logo, ni parrain, ni affiche nationale. On vous reproche votre distance à la direction, et on vote pour vous à cause d'elle.",
+                    "en": "No logo, no patron, no national poster. You are criticised for your distance from the leadership, and voted for because of it." } },
+      "failure": { "effects": { "score": -4, "standing": -5, "popularity": -2, "energie": -1 },
+        "result": { "fr": "Ni logo, ni parrain, ni affiche nationale, et personne pour remplir la salle à votre place. On retient surtout que la direction n'est pas venue, ce qui n'était pourtant pas la question.",
+                    "en": "No logo, no patron, no national poster, and nobody to fill the room for you. What people take away is that the leadership did not come, which was not the question." } } },
     { "label": { "fr": "Le faire venir et le laisser parler du national", "en": "Bring him in and let him talk national" },
       "effects": { "score": 1, "energie": 1, "popularity": -4 },
       "result": { "fr": "Il fait quarante minutes de politique nationale devant des électeurs venus parler de leur rue. La fédération est ravie.",
@@ -147,7 +151,7 @@ const EV_races = [
       "result": { "fr": "Vous répondez point par point sur quatre pages. Ceux qui lisent les quatre pages avaient déjà décidé de voter pour vous.",
                   "en": "You answer point by point over four pages. The people who read all four pages had already decided to vote for you." } },
     { "label": { "fr": "Porter plainte et le faire savoir", "en": "File a complaint and say so" },
-      "effects": { "score": -3, "popularity": -2 },
+      "effects": { "score": -2, "popularity": -2, "credibilite": 2, "reputation": 2 },
       "result": { "fr": "La plainte fait trois lignes dans le journal, le tract en a fait dix mille dans les boîtes. Mais la prochaine fois, ils hésiteront.",
                   "en": "The complaint gets three lines in the paper; the leaflet got ten thousand copies through letterboxes. But next time they will hesitate." } },
     { "label": { "fr": "Trouver qui l'a payé", "en": "Find out who paid for it" },
@@ -178,7 +182,8 @@ const EV_races = [
       "result": { "fr": "Quatre pages qui ne fâchent personne et qu'aucun militant ne relira. Deux courants s'y retrouvent, ce qui était tout l'objectif.",
                   "en": "Four pages that upset nobody and that no member will read twice. Two factions can live with it, which was the entire point." } },
     { "label": { "fr": "Écrire ce que vous pensez vraiment", "en": "Write what you actually think" },
-      "effects": { "score": -6, "standing": -2 },
+      "effects": { "score": -4, "standing": -2, "credibilite": 2, "reputation": 2, "notoriete": 1,
+                   "appeal": { "self": 8 } },
       "result": { "fr": "Un texte clair, tranchant, qui fait le tour de la presse et perd deux fédérations en une matinée.",
                   "en": "A clear, sharp text that goes round the press and loses two federations in a morning." } },
     { "label": { "fr": "Reprendre le texte du sortant en changeant trois mots", "en": "Take the incumbent's text and change three words" },
@@ -211,7 +216,12 @@ const EV_races = [
     { "label": { "fr": "Rester dans la salle et travailler le texte", "en": "Stay in the hall and work on the text" },
       "effects": { "score": -2, "energie": 1 },
       "result": { "fr": "Vous suivez les débats, vous prenez des notes et vous êtes le seul candidat à savoir ce qui a été voté. Ça ne sert à rien ce week-end.",
-                  "en": "You follow the debates, you take notes and you are the only candidate who knows what was voted. It is of no use whatsoever this weekend." } }
+                  "en": "You follow the debates, you take notes and you are the only candidate who knows what was voted. It is of no use whatsoever this weekend." } },
+    { "label": { "fr": "Faire le tour des quatre mille avec votre carnet", "en": "Work all four thousand with your address book" },
+      "when": { "trait": ["reseauteur"] },
+      "effects": { "score": 6, "reseau": 2, "standing": 3, "energie": -2 },
+      "result": { "fr": "Vous ne cherchez personne : vous savez déjà qui tient quelle fédération, qui lui doit quoi, et lequel des deux a été humilié au congrès précédent. Deux jours, cent quarante conversations, aucune promesse.",
+                  "en": "You are not looking for anybody: you already know who runs which federation, who owes whom, and which of the two was humiliated at the last conference. Two days, a hundred and forty conversations, not one promise." } }
   ]
 },
 
@@ -277,7 +287,13 @@ const EV_races = [
                     "en": "He takes third place and two portfolios. His neighbourhood swings with him, and you already know what he will cost you in three years." } },
       "failure": { "effects": { "score": -5, "energie": -1, "reputation": -1 },
         "result": { "fr": "Il refuse, puis raconte votre visite en détail sur la radio locale. Vous avez fait sa campagne en une matinée.",
-                    "en": "He refuses, then describes your visit in detail on local radio. You made his campaign in a single morning." } } }
+                    "en": "He refuses, then describes your visit in detail on local radio. You made his campaign in a single morning." } } },
+    { "label": { "fr": "Aller chercher les noms qui ouvrent des portes", "en": "Go after the names that open doors" },
+      "when": { "origin": ["bourgeois", "dynasty"] },
+      "effects": { "score": 5, "reseau": 3, "money": 15000, "standing": -3, "popularity": -3,
+                   "reputation": -1 },
+      "result": { "fr": "Un notaire, une présidente de club-service, le fils d'un ancien sénateur et la belle-sœur du président de l'agglomération. Ils apportent onze mille euros de dons plafonnés, quatre cents contacts et zéro militant. La liste est très bien, et personne dans la permanence ne la trouve belle.",
+                  "en": "A solicitor, the chair of a service club, a former senator's son and the sister-in-law of the head of the joint authority. They bring eleven thousand euros in capped donations, four hundred contacts and not one activist. The list is excellent, and nobody at the party office finds it beautiful." } }
   ]
 },
 
@@ -306,7 +322,12 @@ const EV_races = [
     { "label": { "fr": "Répondre par le passé de votre adversaire", "en": "Answer with your opponent's own record" },
       "effects": { "score": 4, "reputation": -2, "strike": "intrepide" },
       "result": { "fr": "Vous rappelez qu'il a été candidat dans deux autres villes avant celle-ci. C'est vrai, c'est bas, et la campagne devient une affaire de cadastre.",
-                  "en": "You point out that he stood in two other towns before this one. It is true, it is cheap, and the campaign becomes an argument about land registry." } }
+                  "en": "You point out that he stood in two other towns before this one. It is true, it is cheap, and the campaign becomes an argument about land registry." } },
+    { "label": { "fr": "Emmener la presse là où vous avez grandi", "en": "Take the press to where you grew up" },
+      "when": { "origin": ["modest", "middle"] },
+      "effects": { "score": 6, "popularity": 4, "reputation": 2, "energie": -1 },
+      "result": { "fr": "L'immeuble, l'école, le nom sur la boîte aux lettres du troisième, et une voisine qui se souvient de vous à huit ans. L'affichette est retirée des boîtes en quatre jours par ceux-là mêmes qui l'avaient fait imprimer.",
+                  "en": "The block, the school, the name still on the third-floor letterbox, and a neighbour who remembers you at eight years old. The leaflet is pulled from letterboxes within four days by the very people who had it printed." } }
   ]
 },
 
@@ -335,7 +356,16 @@ const EV_races = [
     { "label": { "fr": "Prendre publiquement vos distances avec la direction", "en": "Publicly distance yourself from the leadership" },
       "effects": { "score": 5, "standing": -11, "appeal": { "self": -4,  "others": 5 }, "strike": "intrepide" },
       "result": { "fr": "Vous dites tout haut ce que vos électeurs pensent de votre propre camp. Ils vous réélisent, et la direction vous fait payer pendant cinq ans.",
-                  "en": "You say out loud what your voters think of your own side. They re-elect you, and the leadership makes you pay for five years." } }
+                  "en": "You say out loud what your voters think of your own side. They re-elect you, and the leadership makes you pay for five years." } },
+    { "label": { "fr": "Faire de la vague votre sujet, et la retourner", "en": "Make the wave your subject, and turn it round" },
+      "when": { "personality": ["clever"] },
+      "roll": { "base": 16, "stat": "eloquence", "plus": { "credibilite": 0.4, "notoriete": 0.2 }, "dice": 16 },
+      "success": { "effects": { "score": 8, "credibilite": 2, "notoriete": 2, "standing": -2 },
+        "result": { "fr": "Vous ouvrez chaque réunion en disant que ce scrutin ne parle pas de la commune, et vous expliquez pourquoi, avec le calendrier et les compétences. Les gens repartent en ayant compris quelque chose, ce qui est rare, et ils s'en souviennent le dimanche.",
+                    "en": "You open every meeting by saying that this election is not about the town, and you explain why, with the timetable and the powers involved. People leave having understood something, which is rare, and they remember it on the Sunday." } },
+      "failure": { "effects": { "score": -4, "energie": -2, "popularity": -2 },
+        "result": { "fr": "Expliquer à quelqu'un qu'il se trompe de colère est une chose vraie et une chose qu'on n'entend jamais. La salle vous écoute poliment et vote comme elle avait prévu.",
+                    "en": "Telling somebody they are angry about the wrong thing is a true thing and a thing nobody ever hears. The room listens politely and votes exactly as it had planned." } } }
   ]
 },
 
@@ -387,7 +417,12 @@ const EV_races = [
     { "label": { "fr": "Transformer le scrutin en sanction du gouvernement", "en": "Turn the election into a verdict on the government" },
       "effects": { "score": 8, "reputation": -2, "landscape": { "ruling": -1.2 } },
       "result": { "fr": "Vous ne parlez pas une fois de l'Europe en cinq semaines. C'est la meilleure façon de gagner une européenne, et tout le monde le sait depuis quarante ans.",
-                  "en": "You do not mention Europe once in five weeks. It is the best way to win a European election, and everybody has known it for forty years." } }
+                  "en": "You do not mention Europe once in five weeks. It is the best way to win a European election, and everybody has known it for forty years." } },
+    { "label": { "fr": "Aller chercher bureau par bureau ceux qui n'ont pas voté depuis deux scrutins", "en": "Go polling station by polling station after those who have not voted in two elections" },
+      "when": { "background": ["academia", "civil"] },
+      "effects": { "score": 5, "credibilite": 3, "reputation": 2, "energie": -3 },
+      "result": { "fr": "Les listes d'émargement sont consultables et personne ne les consulte. Vous en tirez quatre mille noms, onze bureaux prioritaires et un plan de porte-à-porte qui n'a rien d'idéologique. Votre directeur de campagne trouve ça d'un ennui mortel, et ça marche.",
+                  "en": "The signed electoral rolls are open to inspection and nobody inspects them. You get four thousand names out of them, eleven priority stations and a canvassing plan with nothing ideological about it. Your campaign manager finds it crushingly dull, and it works." } }
   ]
 },
 
@@ -436,7 +471,7 @@ const EV_races = [
   },
   "choices": [
     { "label": { "fr": "Faire le meeting quand même, à fond", "en": "Do the rally anyway, full force" },
-      "effects": { "score": 3, "energie": -2 },
+      "effects": { "score": 3, "energie": -2, "eloquence": 1, "notoriete": 1 },
       "result": { "fr": "Vous parlez cinquante minutes comme s'ils étaient quatre cents. Les soixante en parleront pendant un mois, chacun à vingt personnes.",
                   "en": "You speak for fifty minutes as if there were four hundred of them. The sixty will talk about it for a month, each to twenty people." } },
     { "label": { "fr": "Descendre de scène et faire un cercle", "en": "Come down from the platform and form a circle" },
@@ -472,7 +507,12 @@ const EV_races = [
     { "label": { "fr": "Lui promettre de garder ses équipes", "en": "Promise to keep his people" },
       "effects": { "score": 9, "standing": 3, "reputation": -2, "strike": "menteur" },
       "result": { "fr": "Vous garantissez leurs postes à ses quatre fidèles. Vous en garderez deux, et les deux autres l'apprendront par un communiqué.",
-                  "en": "You guarantee the jobs of his four loyalists. You will keep two, and the other two will find out from a press release." } }
+                  "en": "You guarantee the jobs of his four loyalists. You will keep two, and the other two will find out from a press release." } },
+    { "label": { "fr": "Lui dire en face ce que vous direz en public", "en": "Tell him to his face what you will say in public" },
+      "when": { "personality": ["principled"] },
+      "effects": { "score": 2, "reputation": 3, "credibilite": 2, "standing": -3, "sangfroid": 1 },
+      "result": { "fr": "Une heure dans son bureau, sans témoin, et vous lui annoncez le passage du discours qui portera sur son bilan. En partant, il ne dit rien de vous, ni en bien ni en mal, ce qui de sa part est la chose la plus rare qu'il ait faite en vingt ans.",
+                  "en": "An hour in his office, with no witnesses, and you tell him which passage of the speech will deal with his record. On his way out he says nothing about you, good or bad, which coming from him is the rarest thing he has done in twenty years." } }
   ]
 },
 

@@ -50,7 +50,13 @@ const EV_nomination = [
                     "en": "You let it be understood that others are waiting for you. They check, it is true, and the committee meets again the following week." } },
       "failure": { "effects": { "standing": -10, "strike": "traitre" },
         "result": { "fr": "Ils vous répondent d'y aller. Vous restez, et la phrase circule dans toutes les fédérations avant la fin du mois.",
-                    "en": "They tell you to go ahead. You stay, and the line goes round every branch before the month is out." } } }
+                    "en": "They tell you to go ahead. You stay, and the line goes round every branch before the month is out." } } },
+    { "label": { "fr": "Publier le compte rendu de leurs quatre derniers dîners", "en": "Publish the minutes of their last four dinners" },
+      "when": { "background": ["journalism", "academia"] },
+      "effects": { "standing": -8, "popularity": 7, "notoriete": 2, "credibilite": 2, "reputation": 1,
+                   "appeal": { "self": 7 } },
+      "result": { "fr": "Ce ne sont pas des comptes rendus, ce sont les réservations : quatre dates, quatre additions, quatre listes de convives, tout cela public et consultable par n'importe qui depuis toujours. Personne n'avait jamais pris la peine de les mettre côte à côte.",
+                  "en": "They are not minutes, they are the bookings: four dates, four bills, four guest lists, all of it public and available to anybody, and always has been. Nobody had ever taken the trouble to put them side by side." } }
   ]
 },
 
@@ -83,7 +89,13 @@ const EV_nomination = [
     { "label": { "fr": "Aller voir ailleurs pendant qu'{il} fait campagne", "en": "Look elsewhere while {he} campaigns" },
       "effects": { "standing": 2, "reseau": 2, "energie": -1, "appeal": { "self": 2 } },
       "result": { "fr": "Vous passez la campagne dans deux autres fédérations, où l'on ne vous doit rien et où l'on vous découvre. {Il} gagne, et vous aussi, ailleurs.",
-                  "en": "You spend the campaign in two other federations, where nobody owes you anything and where people discover you. {He} wins, and so do you, elsewhere." } }
+                  "en": "You spend the campaign in two other federations, where nobody owes you anything and where people discover you. {He} wins, and so do you, elsewhere." } },
+    { "label": { "fr": "{Lui} proposer de tenir sa campagne", "en": "Offer to run {his} campaign" },
+      "when": { "personality": ["charming"] },
+      "effects": { "reseau": 3, "standing": 6, "credibilite": 1, "energie": -2,
+                   "appeal": { "self": -2 } },
+      "result": { "fr": "{Il} accepte, parce qu'on n'a jamais assez de bras et parce que le refus aurait fait désordre. Vous tenez le fichier, les réunions et le calendrier pendant quatre mois. Quoi qu'il arrive dimanche, la moitié de sa campagne vous connaît par votre prénom.",
+                  "en": "{He} accepts, because you never have enough hands and because refusing would have looked bad. You hold the file, the meetings and the diary for four months. Whatever happens on Sunday, half that campaign knows you by your first name." } }
   ]
 },
 
@@ -111,7 +123,13 @@ const EV_nomination = [
     { "label": { "fr": "Attendre le prochain congrès", "en": "Wait for the next conference" },
       "effects": { "energie": 2, "appeal": { "self": -3 }, "standing": 2, "sangfroid": 1, "strike": "lache" },
       "result": { "fr": "Vous ne faites rien du tout et vous vous en tirez avec une année de repos. Personne ne vous en veut, ce qui est bien le problème.",
-                  "en": "You do nothing at all and come away with a year of rest. Nobody holds it against you, which is precisely the problem." } }
+                  "en": "You do nothing at all and come away with a year of rest. Nobody holds it against you, which is precisely the problem." } },
+    { "label": { "fr": "Appeler les onze mille, section par section, jusqu'au congrès", "en": "Call all eleven thousand, branch by branch, right up to conference" },
+      "when": { "personality": ["hardworking"] },
+      "effects": { "standing": 9, "reseau": 3, "credibilite": 2, "energie": -5, "reputation": 1,
+                   "appeal": { "self": 6 } },
+      "result": { "fr": "Personne n'avait jamais appelé ces gens, et c'est précisément pour cela que ça marche. Neuf cents conversations de quatre minutes, un fichier à jour pour la première fois depuis huit ans, et la direction qui découvre le résultat en même temps que vous.",
+                  "en": "Nobody had ever rung these people, and that is exactly why it works. Nine hundred four-minute conversations, a membership file up to date for the first time in eight years, and a leadership that discovers the result at the same moment you do." } }
   ]
 },
 
@@ -359,7 +377,13 @@ const EV_nomination = [
     { "label": { "fr": "Déposer quand même, sans le compte", "en": "Table it anyway, short of the count" },
       "effects": { "popularity": 2, "notoriete": 1, "standing": -7, "sangfroid": 1 },
       "result": { "fr": "La motion est déclarée irrecevable en douze secondes par une commission des statuts qui n'a jamais autant travaillé. La presse en parle, ce qui était le seul objectif atteignable.",
-                  "en": "The motion is ruled out of order in twelve seconds by a rules committee that has never worked so hard. The press covers it, which was the only achievable objective." } }
+                  "en": "The motion is ruled out of order in twelve seconds by a rules committee that has never worked so hard. The press covers it, which was the only achievable objective." } },
+    { "label": { "fr": "Publier la liste de ceux qui attendent", "en": "Publish the list of those who are waiting" },
+      "when": { "personality": ["provocative"] },
+      "effects": { "standing": -9, "popularity": 6, "notoriete": 2, "reputation": 1, "credibilite": 1,
+                   "appeal": { "self": 8 } },
+      "result": { "fr": "Onze noms, onze fédérations, et la mention de la date à laquelle chacun a été sollicité. Trois signent dans les quarante-huit heures pour ne pas rester sur la liste. Les huit autres ne vous le pardonneront pas, et ils voteront deux fois dans votre carrière.",
+                  "en": "Eleven names, eleven federations, and the date each of them was asked. Three sign within forty-eight hours simply to get off the list. The other eight will never forgive you, and they will vote twice in your career." } }
   ]
 },
 
@@ -391,7 +415,13 @@ const EV_nomination = [
     { "label": { "fr": "Ne rien dire et préparer le congrès suivant", "en": "Say nothing and prepare the next congress" },
       "effects": { "sangfroid": 2, "reseau": 2, "credibilite": 1, "standing": -2, "energie": -1 },
       "result": { "fr": "Vous applaudissez au bon moment et vous passez l'année dans les fédérations. Un dauphin dure en moyenne un mandat ; les fédérations, elles, restent.",
-                  "en": "You applaud at the right moment and spend the year in the federations. An anointed successor lasts about one term; the federations stay." } }
+                  "en": "You applaud at the right moment and spend the year in the federations. An anointed successor lasts about one term; the federations stay." } },
+    { "label": { "fr": "Proposer un vote sur la ligne, pas sur les personnes", "en": "Propose a vote on the line, not on the people" },
+      "when": { "personality": ["clever"] },
+      "effects": { "credibilite": 3, "standing": 2, "reseau": 1, "notoriete": 1,
+                   "appeal": { "self": 5 } },
+      "result": { "fr": "Personne ne peut refuser un vote qui ne menace personne, et le congrès l'adopte à main levée en onze minutes. Le texte est de vous. La nouvelle direction passera quatre ans à devoir s'y référer, et deux ans à essayer de le faire réécrire.",
+                  "en": "Nobody can refuse a vote that threatens nobody, and conference adopts it by a show of hands in eleven minutes. The text is yours. The new leadership will spend four years having to refer to it, and two years trying to get it rewritten." } }
   ]
 },
 
@@ -423,7 +453,13 @@ const EV_nomination = [
     { "label": { "fr": "Ne pas venir, sans prévenir", "en": "Not turn up, without warning" },
       "effects": { "standing": -9, "reputation": 1, "sangfroid": 1, "notoriete": 1, "appeal": { "self": 2 } },
       "result": { "fr": "Votre absence au deuxième rang se voit plus que votre présence ne se serait vue. On ne vous demandera rien, on ne vous proposera rien non plus, et pendant six mois vous serez libre.",
-                  "en": "Your absence from the second row is more visible than your presence would have been. Nobody will ask you for anything, nobody will offer you anything either, and for six months you will be free." } }
+                  "en": "Your absence from the second row is more visible than your presence would have been. Nobody will ask you for anything, nobody will offer you anything either, and for six months you will be free." } },
+    { "label": { "fr": "Demander par écrit la définition d'un candidat naturel", "en": "Ask in writing for a definition of a natural candidate" },
+      "when": { "personality": ["clever"] },
+      "effects": { "credibilite": 3, "notoriete": 1, "standing": -3, "reputation": 1,
+                   "appeal": { "self": 6 } },
+      "result": { "fr": "Une lettre de quatre lignes à la commission des candidatures, très polie, qui demande sur quel article des statuts la formule s'appuie. La réponse met onze jours et n'en cite aucun. Les deux documents circulent ensemble, et personne n'a eu besoin de crier.",
+                  "en": "A four-line letter to the candidacies committee, perfectly polite, asking which article of the party rules the phrase rests on. The answer takes eleven days and cites none. The two documents circulate together, and nobody had to raise their voice." } }
   ]
 },
 

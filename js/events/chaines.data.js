@@ -225,7 +225,8 @@ const EV_chaines = [
   },
   "choices": [
     { "label": { "fr": "Payer le redressement sans discuter", "en": "Pay the assessment without arguing" },
-      "effects": { "money": -180000, "popularity": -4, "standing": -2 },
+      "effects": { "money": -180000, "popularity": -4, "standing": -2, "credibilite": 2,
+                   "sangfroid": 1, "flags": { "dirtyMoney": false } },
       "result": { "fr": "La somme part en une fois. C'est cher, c'est fini, et personne n'en parlera plus jamais.",
                   "en": "The money goes in one payment. It is expensive, it is over, and nobody will ever mention it again." } },
 
