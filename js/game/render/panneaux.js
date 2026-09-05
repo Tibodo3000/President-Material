@@ -303,6 +303,26 @@ function renderAssembly() {
     '<div class="seat-list">' + lignes + "</div>";
 }
 
+/*
+ * POURQUOI LA PART S'ÉCRIT AVEC UNE DÉCIMALE.
+ *
+ * Elle était arrondie à l'entier. Un choix qui donnait neuf dixièmes de point
+ * à son camp affichait donc une pastille « votre parti +0,9 point » sous la
+ * carte, et un tableau qui continuait d'indiquer 14 %. Le joueur lisait une
+ * conséquence annoncée et un rapport de force immobile, et concluait que
+ * l'effet ne servait à rien. Il servait : c'est l'affichage qui l'avalait.
+ *
+ * Mesuré sur les 314 déplacements écrits dans le contenu : médiane 0,8 point,
+ * 64 % sous le point, et environ un quart d'entre eux ne franchissaient aucune
+ * borne d'entier, donc ne se voyaient pas du tout. Les trois autres quarts se
+ * voyaient mal : un mouvement de six dixièmes faisait sauter l'affichage d'un
+ * point entier, ce qui est un autre mensonge.
+ *
+ * Les montants sont volontairement petits — un demi-point à deux points et
+ * demi, parce qu'au-delà on ne déplace plus une élection, on la décide. La
+ * décimale n'est donc pas du détail : c'est l'échelle à laquelle les choix du
+ * joueur existent, et c'est aussi celle des sondages réels.
+ */
 function renderLandscape() {
   const pane = document.getElementById("pane-landscape");
   if (!pane) return;
@@ -343,7 +363,8 @@ function renderLandscape() {
               (key === ally ? '<span class="force-tag is-ally">' + t("force_ally") + "</span>" : "") +
               "</span>"
             : "") +
-          '<span class="force-share">' + trendHTML(key) + Math.round(share) + "%</span>" +
+          '<span class="force-share">' + trendHTML(key) +
+            localNumber(share.toFixed(1)) + "%</span>" +
         "</div>" +
         forceTrackHTML(key, share) +
         '<button type="button" class="force-toggle">' + t("force_people") +

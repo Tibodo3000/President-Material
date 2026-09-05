@@ -19,7 +19,31 @@
  *      chaque grandeur et mieux sur au moins une. Là non plus, le choix ne se
  *      pose pas : il n'y a qu'une réponse.
  *
- *   3. CE QUE CHAQUE PROFIL DÉBLOQUE. Le nombre d'options réservées à chaque
+ *   3. L'OPTION QUI GAGNE QUOI QU'ON PRIVILÉGIE. La mesure qui compte le
+ *      plus, et la plus difficile à voir à l'œil. On tire huit cents barèmes
+ *      au hasard sur les monnaies du jeu — un joueur qui joue la popularité,
+ *      un autre la cote, un autre l'argent, un autre l'énergie — et l'on
+ *      compte sous combien d'entre eux chaque option sort première. Une
+ *      option qui gagne sous quatre-vingts pour cent des barèmes n'est pas un
+ *      choix : c'est la réponse, et les autres branches sont du décor.
+ *
+ *      Le défaut typique n'est pas qu'une option soit trop forte, c'est que
+ *      l'option prudente ne renonce à RIEN : elle gagne sur cinq axes et n'en
+ *      cède aucun, pendant que l'option risquée est un pari dont la réussite
+ *      dépasse à peine cette certitude. Corriger se fait presque toujours du
+ *      côté prudent : la hauteur doit coûter la notoriété qu'elle ne prend
+ *      pas, la base qu'elle déçoit, ou l'adversaire qu'elle laisse intact.
+ *
+ *   4. CE QUI ENTRE DANS UN JET. Un jet qui ne lit qu'une statistique ne
+ *      récompense qu'un profil. Le parcours, les traits et la situation
+ *      doivent peser sur la probabilité, pas seulement ouvrir des options.
+ *
+ *   5. LE RAPPORT DE FORCE. Combien de branches le déplacent, et combien le
+ *      déplacent CONTRE la carrière ou au profit d'un camp concurrent. C'est
+ *      ce second chiffre qui fait qu'un choix est un arbitrage et pas une
+ *      récompense.
+ *
+ *   6. CE QUE CHAQUE PROFIL DÉBLOQUE. Le nombre d'options réservées à chaque
  *      parcours, tempérament et origine. C'est la mesure la plus utile du
  *      lot : elle dit si la création de personnage engage à quelque chose.
  *      Mesuré la première fois, « Acharné » ouvrait UNE option dans tout le
@@ -50,11 +74,13 @@ const morceaux = fs.readdirSync(dossier)
   .filter((f) => f.endsWith(".data.js") && f !== "_assemble.data.js")
   .map((f) => fs.readFileSync(path.join(dossier, f), "utf8"));
 morceaux.push(fs.readFileSync(path.join(dossier, "_assemble.data.js"), "utf8"));
-morceaux.push("globalThis.__decks = EVENT_DATA;");
+morceaux.push(fs.readFileSync(path.join(ROOT, "js/traits.data.js"), "utf8"));
+morceaux.push("globalThis.__decks = EVENT_DATA; globalThis.__traits = TRAIT_DATA;");
 const bac = { console };
 vm.createContext(bac);
 vm.runInContext(morceaux.join("\n;\n"), bac);
 const DECKS = bac.__decks;
+const TRAITS = bac.__traits;
 
 /* Dans quel fichier vit chaque scène, pour pouvoir aller la corriger. */
 const fichierDe = {};
@@ -127,6 +153,146 @@ if (!SEULEMENT_PROFILS) {
     "« " + d.perd + " »  écrasée par  « " + d.gagne + " »"));
   console.log("");
   problemes = vides.length + dominees.length;
+}
+
+/* --- L'option qui gagne quel que soit le barème ---------------------------- */
+const MONNAIES = ["popularity", "standing", "score", "approval", "money", "energie",
+  "charisme", "eloquence", "sangfroid", "reseau", "notoriete", "reputation",
+  "credibilite", "durable"];
+
+/* Un point de statistique ne vaut pas un point de jauge : les statistiques
+   sont permanentes, les jauges glissent vers leur cible à chaque tour. */
+const ECHELLE = { popularity: 1, standing: 1, score: 1.4, poll: 1.4, approval: 0.5,
+  money: 1 / 9000, energie: 2.2, charisme: 3.4, eloquence: 3.4, sangfroid: 3.4,
+  reseau: 2.8, notoriete: 2.6, reputation: 3, credibilite: 3.4 };
+
+function vecteur(e) {
+  const v = {};
+  MONNAIES.forEach((a) => (v[a] = 0));
+  if (!e) return v;
+  for (const [k, x] of Object.entries(e)) {
+    if (k === "poll") { v.score += x * ECHELLE.poll; continue; }
+    if (ECHELLE[k] !== undefined && typeof x === "number") { v[k] += x * ECHELLE[k]; continue; }
+    // Un cran vers un atout est un gain : "intrepide" se gagne en cherchant
+    // le conflit, et le compter comme une punition fausse toute la mesure.
+    if (k === "trait") v.durable += TRAITS[x] && TRAITS[x].kind === "mark" ? -9 : 9;
+    else if (k === "untrait") v.durable += TRAITS[x] && TRAITS[x].kind === "mark" ? 7 : -7;
+    else if (k === "strike") v.durable += TRAITS[x] && TRAITS[x].kind === "mark" ? -4 : 3;
+    else if (k === "flags") {
+      v.durable += Object.entries(x).reduce((a, [f, b]) =>
+        a + (["dirtyMoney", "onTrial", "investigated"].includes(f) ? (b ? -16 : 12) : 0), 0);
+    } else if (k === "lead") v.durable += x ? 16 : -16;
+    else if (k === "office") v.durable += x === "none" ? -13 : 11;
+    else if (k === "nominate") v.durable += 9;
+    else if (k === "end") v.durable += -40;
+    else if (k === "appeal") v.popularity += Object.values(x).reduce((a, b) => a + b, 0) * 0.3;
+    else if (k === "landscape") v.durable += (x.self || 0) * 3;
+  }
+  return v;
+}
+
+function vecteurChoix(c) {
+  if (!c.roll) return vecteur(c.effects);
+  const p = c.roll.chance !== undefined ? c.roll.chance : 0.55;
+  const a = vecteur(c.success && c.success.effects);
+  const b = vecteur(c.failure && c.failure.effects);
+  const v = {};
+  MONNAIES.forEach((x) => (v[x] = p * a[x] + (1 - p) * b[x]));
+  return v;
+}
+
+if (!SEULEMENT_PROFILS) {
+  /* Aléa seedé : la mesure doit donner le même chiffre deux fois de suite. */
+  let graine = 12345;
+  const tirage = () => { graine = (graine * 1103515245 + 12345) & 0x7fffffff; return graine / 0x7fffffff; };
+  const baremes = [];
+  for (let i = 0; i < 800; i++) {
+    const w = {};
+    MONNAIES.forEach((a) => (w[a] = Math.pow(tirage(), 2)));
+    baremes.push(w);
+  }
+
+  const ecrasantes = [];
+  let scenes = 0;
+  for (const [deck, liste] of Object.entries(DECKS)) {
+    for (const ev of liste) {
+      const libres = (ev.choices || []).filter((c) => !c.when);
+      if (libres.length < 2) continue;
+      scenes++;
+      const V = libres.map(vecteurChoix);
+      const gains = new Array(libres.length).fill(0);
+      for (const w of baremes) {
+        let meilleur = -1e9, lequel = 0;
+        V.forEach((v, i) => {
+          const note = MONNAIES.reduce((a, x) => a + v[x] * w[x], 0);
+          if (note > meilleur) { meilleur = note; lequel = i; }
+        });
+        gains[lequel]++;
+      }
+      const part = gains.map((g) => g / baremes.length);
+      const max = Math.max(...part);
+      if (max >= 0.8) {
+        ecrasantes.push({ id: ev.id, max, label: libres[part.indexOf(max)].label.fr });
+      }
+    }
+  }
+  ecrasantes.sort((a, b) => b.max - a.max);
+  console.log("== UNE OPTION GAGNE SOUS AU MOINS 80 % DES BARÈMES (" +
+    ecrasantes.length + " scènes sur " + scenes + ") ==");
+  ecrasantes.slice(0, 25).forEach((e) => console.log("   " +
+    (e.id + " [" + fichierDe[e.id] + "]").padEnd(40) +
+    Math.round(e.max * 100) + "%  « " + e.label + " »"));
+  if (ecrasantes.length > 25) console.log("   … et " + (ecrasantes.length - 25) + " autres");
+  console.log("");
+
+  /* --- Ce qui entre dans un jet ------------------------------------------- */
+  let jets = 0, avecBonus = 0, maigres = 0;
+  for (const liste of Object.values(DECKS)) {
+    for (const ev of liste) {
+      for (const c of ev.choices || []) {
+        if (!c.roll) continue;
+        jets++;
+        const bonus = (c.roll.bonus || c.roll.chanceBonus || []).length;
+        if (bonus) avecBonus++;
+        const entrees = (c.roll.stat ? 1 : 0) + Object.keys(c.roll.plus || {}).length;
+        if (!bonus && entrees <= 2) maigres++;
+      }
+    }
+  }
+  console.log("== CE QUI ENTRE DANS LES JETS ==");
+  console.log("   jets écrits                        : " + jets);
+  console.log("   portant un bonus conditionnel      : " + avecBonus +
+    "  (" + Math.round((100 * avecBonus) / jets) + " %)");
+  console.log("   deux entrées au plus, aucun bonus  : " + maigres +
+    "  (" + Math.round((100 * maigres) / jets) + " %)   <-- ne récompensent qu'un profil");
+  console.log("");
+
+  /* --- Le rapport de force ------------------------------------------------ */
+  let branches = 0, avecPaysage = 0, arbitrage = 0, profiteAutre = 0;
+  for (const liste of Object.values(DECKS)) {
+    for (const ev of liste) {
+      for (const c of ev.choices || []) {
+        for (const b of ["effects", "success", "failure", "triumph", "debacle"]) {
+          const e = b === "effects" ? c[b] : c[b] && c[b].effects;
+          if (!e) continue;
+          branches++;
+          if (!e.landscape) continue;
+          avecPaysage++;
+          const self = e.landscape.self || 0;
+          const carriere = (e.standing || 0) + (e.popularity || 0) * 0.5;
+          if (self && carriere && Math.sign(self) !== Math.sign(carriere)) arbitrage++;
+          if (Object.entries(e.landscape).some(([t, n]) => t !== "self" && n > 0)) profiteAutre++;
+        }
+      }
+    }
+  }
+  console.log("== LE RAPPORT DE FORCE ==");
+  console.log("   branches d'effets                  : " + branches);
+  console.log("   qui le déplacent                   : " + avecPaysage +
+    "  (" + Math.round((100 * avecPaysage) / branches) + " %)");
+  console.log("   dont il va CONTRE la carrière      : " + arbitrage);
+  console.log("   dont un autre camp y gagne aussi   : " + profiteAutre);
+  console.log("");
 }
 
 /* --- Ce que chaque profil débloque --------------------------------------- */

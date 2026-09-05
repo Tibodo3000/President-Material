@@ -226,11 +226,18 @@ node tools/audit-choix.js
 ```
 
 It fails on an option nobody would ever take: every effect negative and nothing
-durable bought with it. It also prints how many options each background, temperament
-and origin unlocks, which is the only measure that says whether character creation
-commits you to anything. A costly option is not a dead one — the moral tension of the
-game depends on gestures that are paid for — so the check only flags paying for
-*nothing at all*.
+durable bought with it. A costly option is not a dead one, so the check only flags
+paying for *nothing at all*.
+
+Read the rest of its output rather than only its exit code. The measure that matters
+most is **the option that wins whatever you value**: if one branch takes eighty per
+cent of eight hundred random weightings, the scene has one answer and the others are
+scenery. The fix is almost always on the cautious side — the option that gains on five
+axes and gives up none. Make it give up the notoriety it does not take, the base it
+disappoints, or the opponent it leaves intact. The tool also reports what feeds each
+roll (a roll reading one stat rewards one profile) and how often a choice moves the
+balance of power against the career, which is what separates an arbitration from a
+reward.
 
 Loads every script in the order `game.html` declares (read from the file, so the order is
 tested too), then plays whole careers by clicking the **real rendered buttons**.
