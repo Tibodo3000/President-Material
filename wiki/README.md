@@ -35,22 +35,25 @@ what the rules are, and how to add content without touching engine code.
 
 ## Page flow
 
-The game is four pages the player walks through in order, plus the landing page:
+The game is four pages the player walks through in order, plus the landing page and the honours cabinet hanging off it:
 
 ```
 index.html ──▶ create.html ──▶ party.html ──▶ tirage.html ──▶ game.html
  (landing)     (character)      (party)        (the draw)      (the loop)
+     │
+     └──▶ achievements.html   (the honours cabinet, a dead end by design)
 ```
 
 State is handed between pages through `localStorage`, not a router or framework.
 
 | Page | Role | Controller |
 |------|------|-----------|
-| [index.html](../index.html) | Landing / pitch, plus the honours cabinet | [script.js](../js/script.js) + [achievements.js](../js/achievements.js) |
+| [index.html](../index.html) | Landing / pitch | [script.js](../js/script.js) only |
 | [create.html](../create.html) | Build the character (identity, origin, background, personality) | [create.js](../js/create.js) |
 | [party.html](../party.html) | Pick a starting party; see fit & difficulty | [party.js](../js/party.js) |
 | [tirage.html](../tirage.html) | Reveal the two random birth traits + chosen character trait | [tirage.js](../js/tirage.js) |
 | [game.html](../game.html) | The turn-by-turn game loop | [game.js](../js/game.js) |
+| [achievements.html](../achievements.html) | The honours cabinet, reached by a button on the landing page. Off the flow: it is not a step, and nothing leads back into one from it | [achievements.js](../js/achievements.js) |
 
 ---
 
@@ -87,7 +90,7 @@ State is handed between pages through `localStorage`, not a router or framework.
 | [js/game/registry.js](../js/game/registry.js) | `MODES` — the set-piece registry the engine consults instead of naming each mode |
 | [js/game/modes/](../js/game/modes/) | One file per set piece, each owning its state, draw, resolution, card and buttons: `presidentielle`, `investiture`, `race`, `soutien`, `primaire`, `scrutin`, `aside` |
 | [js/script.js](../js/script.js) | The i18n dictionary (`translations`) + language switch + `t()` / `L()` |
-| [js/achievements.js](../js/achievements.js) | Draws the honours cabinet on the landing page, and remembers what was earned. Knows what is on the wall, never what deserves to be |
+| [js/achievements.js](../js/achievements.js) | Draws the honours cabinet on `achievements.html`, and remembers what was earned. Knows what is on the wall, never what deserves to be |
 | [js/create.js](../js/create.js) · [party.js](../js/party.js) · [tirage.js](../js/tirage.js) | Thin per-page glue |
 | [css/style.css](../css/style.css) | All styling; party colors are driven by a single `data-party` attribute |
 

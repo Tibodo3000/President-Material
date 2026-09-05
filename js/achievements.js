@@ -8,9 +8,9 @@
  * seulement laquelle est déjà au mur. C'est le moteur qui décerne, en
  * appelant `unlockAchievement()`.
  *
- * Chargé par index.html après script.js, pour que `L()` soit disponible.
- * game.html ne le charge pas encore : il le fera le jour où le moteur aura
- * quelque chose à décerner.
+ * Chargé par achievements.html après script.js, pour que `L()` soit
+ * disponible. game.html ne le charge pas encore : il le fera le jour où le
+ * moteur aura quelque chose à décerner.
  */
 
 /* Une quatrième clé de stockage, à côté de pm-lang, pm-character et pm-game.
@@ -102,7 +102,8 @@ function achievementSlot() {
 
 /**
  * Redessine la vitrine. Appelée au chargement et à chaque changement de
- * langue, puisque tous les textes viennent des données.
+ * langue, puisque tous les textes viennent des données. Sort tout de suite
+ * sur les pages qui n'en portent pas.
  */
 function renderAchievements() {
   const grille = document.getElementById("ach-grid");

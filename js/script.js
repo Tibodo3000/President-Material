@@ -19,8 +19,9 @@ const translations = {
     desc_2:
       "Construisez votre carrière, gagnez vos élections, choisissez vos alliés et vos combats. Aucune ascension ne se ressemble.",
     cta_start: "Commencez votre ascension",
+    cta_achievements: "Distinctions",
+    back_to_home: "Revenir à l'accueil",
     footer_text: "© 2026 President Material",
-    scroll_cue: "Descendre",
 
     /* La vitrine des distinctions. Les noms des médailles vivent dans
        js/achievements.data.js ; ici, seulement le décor de la vitrine. */
@@ -36,6 +37,7 @@ const translations = {
     page_title_create: "Création de personnage · President Material",
     page_title_party: "Choix du parti · President Material",
     page_title_draw: "Le tirage · President Material",
+    page_title_achievements: "Distinctions · President Material",
     page_title_game: "En campagne · President Material",
 
     /* Fil des étapes */
@@ -559,8 +561,9 @@ const translations = {
     desc_2:
       "Build your career, win your elections, choose your allies and your battles. No two rises to power are the same.",
     cta_start: "Start your journey",
+    cta_achievements: "Honours",
+    back_to_home: "Back to the home page",
     footer_text: "© 2026 President Material",
-    scroll_cue: "Scroll down",
 
     /* The honours cabinet. The names on the medals live in
        js/achievements.data.js; only the cabinet itself is described here. */
@@ -576,6 +579,7 @@ const translations = {
     page_title_create: "Character creation · President Material",
     page_title_party: "Choosing a party · President Material",
     page_title_draw: "The draw · President Material",
+    page_title_achievements: "Honours · President Material",
     page_title_game: "On the trail · President Material",
 
     /* Step indicator */

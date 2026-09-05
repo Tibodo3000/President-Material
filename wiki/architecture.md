@@ -257,7 +257,7 @@ State travels in `localStorage` under four keys:
 | `pm-lang` | [script.js](../js/script.js) | every page | `"fr"` or `"en"` |
 | `pm-character` (`CHARACTER_KEY`) | create.js / party.js | party, tirage, game | the character choices + the dealt `draw` |
 | `pm-game` (`GAME_KEY`) | game.js | game.js | the entire in-progress game `state` |
-| `pm-achievements` (`ACHIEVEMENT_KEY`) | achievements.js | index.html | the ids of the honours earned. The one key a new game does **not** clear |
+| `pm-achievements` (`ACHIEVEMENT_KEY`) | achievements.js | achievements.html | the ids of the honours earned. The one key a new game does **not** clear |
 
 The flow of the character object:
 

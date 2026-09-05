@@ -127,21 +127,111 @@ body {
               filter var(--transition), border-color var(--transition);
 }
 
+/* --------------------------------------------------------------------------
+   Le bouton d'or
+   --------------------------------------------------------------------------
+   C'est le seul aplat d'or de tout le site, et il ouvre une partie : il est
+   traité comme une pièce frappée, pas comme un rectangle coloré. Trois
+   couches, et chacune fait un travail :
+
+     le dégradé oblique   donne un sens à la lumière, là où un dégradé
+                          vertical faisait un bouton d'interface de 2010 ;
+     les liserés intérieurs  un trait clair en haut, un trait sombre en bas :
+                          c'est ce qui creuse le métal au lieu de le peindre ;
+     le filet en retrait  le cercle intérieur d'une médaille, gravé à trois
+                          pixels du bord.
+
+   Le reflet ne passe qu'au survol, une fois, et de biais.
+   -------------------------------------------------------------------------- */
+
 .btn-primary {
-  background: linear-gradient(180deg, var(--gold-2), var(--gold));
-  color: #14161a;
-  box-shadow: 0 8px 24px -10px rgba(201, 162, 75, 0.5);
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(152deg, #f3dc9c 0%, var(--gold-2) 24%, var(--gold) 58%, #a37c2c 100%);
+  color: #191307;
+  text-shadow: 0 1px 0 rgba(255, 246, 220, 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 248, 226, 0.8),
+    inset 0 -1px 0 rgba(84, 59, 12, 0.4),
+    0 0 0 1px rgba(201, 162, 75, 0.32),
+    0 10px 28px -12px rgba(201, 162, 75, 0.6);
+}
+
+/* Le filet gravé en retrait. */
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(70, 50, 8, 0.13);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* Le reflet, qui traverse au survol. */
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  top: -60%;
+  bottom: -60%;
+  left: 0;
+  width: 45%;
+  background: linear-gradient(
+    100deg,
+    transparent,
+    rgba(255, 252, 240, 0.55),
+    transparent
+  );
+  transform: translateX(-260%) rotate(8deg);
+  pointer-events: none;
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  filter: brightness(1.06);
-  box-shadow: 0 12px 30px -10px rgba(201, 162, 75, 0.65);
+  filter: brightness(1.04);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 250, 232, 0.9),
+    inset 0 -1px 0 rgba(84, 59, 12, 0.45),
+    0 0 0 1px rgba(201, 162, 75, 0.5),
+    0 16px 36px -12px rgba(201, 162, 75, 0.75);
+}
+
+.btn-primary:hover::after {
+  animation: gold-sheen 0.75s cubic-bezier(0.35, 0, 0.2, 1);
+}
+
+@keyframes gold-sheen {
+  from { transform: translateX(-260%) rotate(8deg); }
+  to   { transform: translateX(560%) rotate(8deg); }
 }
 
 .btn-primary:active { transform: translateY(0); }
 
+/* Le second chemin d'une page : le même gabarit, mais un filet au lieu de
+   l'or. Deux boutons pleins se disputeraient l'œil. */
+.btn-outline {
+  background: none;
+  border-color: var(--line-2);
+  color: var(--muted);
+}
+
+.btn-outline:hover {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.btn-outline:active { transform: translateY(0); }
+
 .btn-xl { padding: 1.1rem 3rem; font-size: 0.85rem; }
+
+.btn-sm {
+  min-height: 38px;
+  padding: 0.5rem 1.4rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  border-radius: 6px;
+}
 
 .btn-block { width: 100%; }
 
@@ -208,9 +298,9 @@ body {
 /* ==========================================================================
    Page d'accueil
    --------------------------------------------------------------------------
-   Trois temps, chacun sur son fond : l'ouverture qui prend l'écran entier,
-   les trois colonnes de ce que le jeu demande, la vitrine des distinctions.
-   Rien n'est dans une boîte, tout est séparé par un filet.
+   Une couverture, pas une page : la marque prend tout l'écran, le reste est
+   posé dessous. Trois choses portent le style, et rien d'autre ne bouge :
+   le sceau, le titre en deux corps, et le filet qui traverse la signature.
    ========================================================================== */
 
 .page-landing {
@@ -219,194 +309,210 @@ body {
   position: relative;
 }
 
-/* Cadre filet, comme une couverture de dossier officiel. Il est fixe : le
-   contenu défile à l'intérieur, la page reste dans sa chemise. */
+/* Repères d'angle, comme sur une épreuve d'imprimeur. Ils tiennent la page
+   par les quatre coins au lieu de l'enfermer dans un cadre, et laissent la
+   composition respirer jusqu'au bord. */
 .page-landing::after {
   content: "";
   position: fixed;
-  inset: 14px;
-  border: 1px solid rgba(41, 52, 80, 0.55);
-  border-radius: 2px;
+  inset: clamp(14px, 2.2vw, 26px);
   pointer-events: none;
   z-index: 10;
+  --tick: clamp(18px, 3vw, 34px);
+  background-image:
+    linear-gradient(var(--gold-dim), var(--gold-dim)),
+    linear-gradient(var(--gold-dim), var(--gold-dim)),
+    linear-gradient(var(--gold-dim), var(--gold-dim)),
+    linear-gradient(var(--gold-dim), var(--gold-dim)),
+    linear-gradient(var(--gold-dim), var(--gold-dim)),
+    linear-gradient(var(--gold-dim), var(--gold-dim)),
+    linear-gradient(var(--gold-dim), var(--gold-dim)),
+    linear-gradient(var(--gold-dim), var(--gold-dim));
+  background-repeat: no-repeat;
+  background-size:
+    1px var(--tick), var(--tick) 1px,   /* haut gauche  */
+    1px var(--tick), var(--tick) 1px,   /* haut droit   */
+    1px var(--tick), var(--tick) 1px,   /* bas gauche   */
+    1px var(--tick), var(--tick) 1px;   /* bas droit    */
+  background-position:
+    left top, left top,
+    right top, right top,
+    left bottom, left bottom,
+    right bottom, right bottom;
 }
-
-/* --------------------------------------------------------------------------
-   L'ouverture
-   -------------------------------------------------------------------------- */
 
 .landing {
   position: relative;
-  min-height: 100svh;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(5rem, 14vh, 8rem) 1.5rem clamp(5rem, 12vh, 7rem);
+  padding: clamp(4.5rem, 13vh, 7.5rem) 1.5rem clamp(3rem, 8vh, 4.5rem);
   overflow: hidden;
 }
 
-/* Colonnes en filigrane, derrière le titre seulement. */
+/* Colonnes en filigrane, comme un papier réglé sous la composition. */
 .landing::before {
   content: "";
   position: absolute;
   inset: 0;
   background-image: repeating-linear-gradient(
     90deg,
-    transparent 0 130px,
-    rgba(201, 162, 75, 0.045) 130px 131px
+    transparent 0 128px,
+    rgba(201, 162, 75, 0.05) 128px 129px
   );
-  mask-image: radial-gradient(ellipse 58% 52% at 50% 44%, #000, transparent 75%);
-  -webkit-mask-image: radial-gradient(ellipse 58% 52% at 50% 44%, #000, transparent 75%);
+  mask-image: radial-gradient(ellipse 60% 55% at 50% 46%, #000, transparent 74%);
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 46%, #000, transparent 74%);
   pointer-events: none;
+}
+
+/* Une étoile immense en creux, derrière le titre. C'est elle qui donne à la
+   page sa profondeur : sans elle, le bloc de texte flotte dans du noir. */
+.landing::after {
+  content: "★";
+  position: absolute;
+  top: 42%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* Bornée par la largeur autant que par la hauteur : sur un écran étroit,
+     une étoile calée sur la hauteur venait se poser en plein sur le texte. */
+  font-size: min(46vh, 74vw, 34rem);
+  line-height: 1;
+  color: rgba(201, 162, 75, 0.032);
+  /* Les pointes doivent se perdre dans le noir, sinon ce n'est plus un
+     filigrane, c'est une forme posée derrière les mots. */
+  mask-image: radial-gradient(ellipse 62% 62% at 50% 46%, #000 15%, transparent 72%);
+  -webkit-mask-image: radial-gradient(ellipse 62% 62% at 50% 46%, #000 15%, transparent 72%);
+  pointer-events: none;
+  user-select: none;
 }
 
 .landing-inner {
   position: relative;
   text-align: center;
-  max-width: 660px;
+  max-width: 640px;
 }
 
-/* L'étoile posée sur un filet qui traverse, comme un en-tête de papier à
-   lettres officiel. Le filet s'efface vers les bords : il ouvre la page, il
-   ne l'encadre pas. */
-.brand-rule {
+/* Le sceau : l'étoile n'est plus posée sur la page, elle est frappée dedans. */
+.brand-seal {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.1rem;
-  margin: 0 0 1.6rem;
-  line-height: 1;
+  width: 3.1rem;
+  height: 3.1rem;
+  margin: 0 auto 2rem;
+  border: 1px solid var(--gold-dim);
+  border-radius: 50%;
+  box-shadow: 0 0 34px -8px rgba(201, 162, 75, 0.55),
+              inset 0 0 18px -8px rgba(201, 162, 75, 0.8);
 }
 
-.brand-rule::before,
-.brand-rule::after {
-  content: "";
-  width: clamp(2.5rem, 9vw, 5.5rem);
-  height: 1px;
-}
-
-.brand-rule::before { background: linear-gradient(90deg, transparent, var(--gold-dim)); }
-.brand-rule::after  { background: linear-gradient(90deg, var(--gold-dim), transparent); }
-
-.brand-star {
+.brand-seal span {
   color: var(--gold);
   font-size: 0.95rem;
   line-height: 1;
-  text-shadow: 0 0 22px rgba(201, 162, 75, 0.55);
+  text-shadow: 0 0 16px rgba(201, 162, 75, 0.7);
 }
 
-.brand { margin: 0 0 1.1rem; font-weight: 400; }
+/* Le titre en deux corps : le nom pose, le mot qui compte domine. C'est le
+   seul endroit de la page où l'or a le droit d'être plus gros que l'encre. */
+.brand {
+  margin: 0 0 1.9rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 0.86;
+}
 
 .brand-name {
   display: block;
-  font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(2.9rem, 9vw, 5.4rem);
-  line-height: 0.94;
+  font-size: clamp(2.4rem, 7.4vw, 4.4rem);
   letter-spacing: -0.035em;
+  color: var(--ink);
 }
 
-.brand-name em {
+.brand-em {
   display: block;
   font-style: italic;
   font-weight: 400;
-  letter-spacing: -0.02em;
-  background: linear-gradient(100deg, var(--gold-2), var(--gold) 45%, #977631);
+  font-size: clamp(3.3rem, 10.6vw, 6.4rem);
+  letter-spacing: -0.03em;
+  padding-bottom: 0.08em;
+  background: linear-gradient(100deg, var(--gold-2), var(--gold) 42%, #8d6d2c);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 
+/* La signature sur un filet qui traverse toute la largeur du bloc. */
 .brand-sub {
-  font-size: 0.63rem;
+  display: flex;
+  align-items: center;
+  gap: clamp(0.9rem, 3vw, 1.6rem);
+  margin: 0 0 2.4rem;
+}
+
+.brand-sub::before,
+.brand-sub::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+}
+
+.brand-sub::before { background: linear-gradient(90deg, transparent, var(--gold-dim)); }
+.brand-sub::after  { background: linear-gradient(90deg, var(--gold-dim), transparent); }
+
+.brand-sub span {
+  flex: none;
+  font-size: 0.62rem;
   font-weight: 600;
-  letter-spacing: 0.42em;
+  letter-spacing: 0.36em;
   text-transform: uppercase;
   color: var(--gold);
-  margin: 0 0 2.4rem;
   /* La lettre espacée pousse le mot vers la droite ; on lui rend son centre. */
-  text-indent: 0.42em;
+  text-indent: 0.36em;
 }
 
 .landing-desc { margin-bottom: 2.6rem; }
 
 .landing-desc p {
   color: var(--muted);
-  font-size: 1rem;
-  max-width: 470px;
+  font-size: 0.97rem;
+  max-width: 460px;
   margin: 0 auto;
 }
 
 .landing-lead {
   font-family: var(--font-display);
-  font-size: clamp(1.2rem, 2.6vw, 1.45rem);
-  line-height: 1.35;
+  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
+  line-height: 1.4;
   color: var(--ink);
-  margin-bottom: 1rem !important;
+  margin-bottom: 0.9rem !important;
 }
 
-/* La flèche de bas de page : deux traits, et une descente lente qui dit
-   qu'il y a autre chose dessous. */
-.scroll-cue {
-  position: absolute;
-  left: 50%;
-  bottom: clamp(1.6rem, 4vh, 2.6rem);
-  transform: translateX(-50%);
-  width: 44px;
-  height: 44px;
+/* Deux chemins, deux poids et deux rangs : l'or ouvre une partie, le filet
+   mène au mur des distinctions et se tient sous lui, en plus petit. */
+.landing-actions {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 1.1rem;
 }
 
-.scroll-cue span {
-  width: 9px;
-  height: 9px;
-  border-right: 1px solid var(--line-2);
-  border-bottom: 1px solid var(--line-2);
-  transform: rotate(45deg);
-  animation: cue-drop 2.4s ease-in-out infinite;
-  transition: border-color var(--transition);
-}
-
-.scroll-cue:hover span { border-color: var(--gold); }
-
-@keyframes cue-drop {
-  0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 0.55; }
-  50%      { transform: rotate(45deg) translate(3px, 3px); opacity: 1; }
-}
-
-/* --------------------------------------------------------------------------
-   La vitrine des distinctions
-   -------------------------------------------------------------------------- */
-
-.board {
+.landing-footer {
   position: relative;
-  border-top: 1px solid var(--line);
-  padding: clamp(3.4rem, 8vh, 5.4rem) 0 clamp(3.8rem, 9vh, 6rem);
-  scroll-margin-top: 2rem;
-}
-
-.board-head {
   text-align: center;
-  max-width: 620px;
-  margin: 0 auto clamp(2rem, 4vw, 2.8rem);
+  padding: 1.7rem;
+  color: var(--faint);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
 }
 
-.board-title {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: clamp(1.8rem, 4.5vw, 2.5rem);
-  line-height: 1.12;
-  letter-spacing: -0.02em;
-  margin: 0 0 0.9rem;
-}
+.landing-footer p { margin: 0; }
 
-.board-sub {
-  color: var(--muted);
-  font-size: 0.94rem;
-  margin: 0;
-}
+/* ==========================================================================
+   La vitrine des distinctions (achievements.html)
+   ========================================================================== */
 
 /* Le compteur : un chiffre, un filet qui se remplit, un mot. */
 /* `display: flex` l'emporterait sur le display:none de l'attribut hidden :
@@ -472,8 +578,8 @@ body {
   align-items: center;
   text-align: center;
   gap: 0.5rem;
-  min-height: 11.5rem;
-  padding: 1.6rem 1.1rem;
+  min-height: 9.6rem;
+  padding: 1.4rem 1.1rem;
   background: var(--surface);
   transition: background var(--transition);
 }
@@ -550,17 +656,10 @@ body {
   font-size: 0.85rem;
 }
 
-.landing-footer {
-  position: relative;
-  border-top: 1px solid var(--line);
+.ach-back {
+  margin: clamp(1.5rem, 3.5vw, 2.1rem) 0 0;
   text-align: center;
-  padding: 1.7rem;
-  color: var(--faint);
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
 }
-
-.landing-footer p { margin: 0; }
 
 /* ==========================================================================
    Header des pages du flux
@@ -1314,7 +1413,7 @@ body {
   /* La vitrine passe à deux colonnes. Une seule ferait huit écrans de
      défilement pour un mur de médailles. */
   .ach-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .ach-tile { min-height: 10.5rem; padding: 1.3rem 0.9rem; }
+  .ach-tile { min-height: 9.2rem; padding: 1.2rem 0.9rem; }
 }
 
 @media (max-width: 620px) {

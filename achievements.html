@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Distinctions · President Material</title>
+  <meta name="description" content="Les distinctions décernées par President Material.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='78' font-size='80' text-anchor='middle' fill='%23c9a24b'%3E%E2%98%85%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="page-achievements" data-page-title="page_title_achievements">
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="index.html">
+        <span class="logo-star" aria-hidden="true">★</span>
+        <span class="logo-text">President Material</span>
+      </a>
+
+      <span></span>
+
+      <nav class="lang-switch" aria-label="Language switch">
+        <button type="button" class="lang-btn is-active" data-lang="fr">FR</button>
+        <span class="lang-sep" aria-hidden="true">/</span>
+        <button type="button" class="lang-btn" data-lang="en">EN</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-main">
+    <div class="container">
+
+      <div class="page-head">
+        <p class="eyebrow" data-i18n="ach_eyebrow">Palmarès</p>
+        <h1 class="page-title" data-i18n="ach_title">Distinctions</h1>
+      </div>
+
+      <div class="ach-meter" id="ach-meter" hidden>
+        <span class="ach-count">0 / 0</span>
+        <span class="ach-bar"><span class="ach-bar-fill"></span></span>
+        <span class="ach-meter-label" data-i18n="ach_meter_label">obtenues</span>
+      </div>
+
+      <ul class="ach-grid" id="ach-grid"></ul>
+
+      <p class="ach-empty" id="ach-empty" data-i18n="ach_empty" hidden>
+        Les vitrines attendent leurs premières médailles.
+      </p>
+
+      <p class="ach-back">
+        <a href="index.html" class="btn btn-outline" data-i18n="back_to_home">Revenir à l'accueil</a>
+      </p>
+
+    </div>
+  </main>
+
+  <script src="js/script.js"></script>
+  <script src="js/achievements.data.js"></script>
+  <script src="js/achievements.js"></script>
+</body>
+</html>

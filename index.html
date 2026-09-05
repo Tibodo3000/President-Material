@@ -16,17 +16,17 @@
     <button type="button" class="lang-btn" data-lang="en">EN</button>
   </nav>
 
-  <!-- ===== Ouverture ===== -->
-  <header class="landing">
+  <main class="landing">
     <div class="landing-inner">
 
-      <p class="brand-rule" aria-hidden="true"><span class="brand-star">★</span></p>
+      <p class="brand-seal" aria-hidden="true"><span>★</span></p>
 
       <h1 class="brand">
-        <span class="brand-name">President <em>Material</em></span>
+        <span class="brand-name">President</span>
+        <span class="brand-em">Material</span>
       </h1>
 
-      <p class="brand-sub" data-i18n="brand_sub">Jeu de stratégie politique</p>
+      <p class="brand-sub"><span data-i18n="brand_sub">Jeu de stratégie politique</span></p>
 
       <div class="landing-desc">
         <p class="landing-lead" data-i18n="desc_1">
@@ -38,43 +38,16 @@
         </p>
       </div>
 
-      <a href="create.html" class="btn btn-primary btn-xl" data-i18n="cta_start">
-        Commencez votre ascension
-      </a>
+      <div class="landing-actions">
+        <a href="create.html" class="btn btn-primary btn-xl" data-i18n="cta_start">
+          Commencez votre ascension
+        </a>
+        <a href="achievements.html" class="btn btn-outline btn-sm" data-i18n="cta_achievements">
+          Distinctions
+        </a>
+      </div>
 
     </div>
-
-    <a class="scroll-cue" href="#achievements" data-i18n-aria="scroll_cue" aria-label="Descendre">
-      <span aria-hidden="true"></span>
-    </a>
-  </header>
-
-  <main>
-
-    <!-- ===== La vitrine ===== -->
-    <section class="board" id="achievements">
-      <div class="container">
-
-        <div class="board-head">
-          <p class="eyebrow" data-i18n="ach_eyebrow">Palmarès</p>
-          <h2 class="board-title" data-i18n="ach_title">Distinctions</h2>
-        </div>
-
-        <div class="ach-meter" id="ach-meter" hidden>
-          <span class="ach-count">0 / 0</span>
-          <span class="ach-bar"><span class="ach-bar-fill"></span></span>
-          <span class="ach-meter-label" data-i18n="ach_meter_label">obtenues</span>
-        </div>
-
-        <ul class="ach-grid" id="ach-grid"></ul>
-
-        <p class="ach-empty" id="ach-empty" data-i18n="ach_empty" hidden>
-          Les vitrines attendent leurs premières médailles.
-        </p>
-
-      </div>
-    </section>
-
   </main>
 
   <footer class="landing-footer">
@@ -82,7 +55,5 @@
   </footer>
 
   <script src="js/script.js"></script>
-  <script src="js/achievements.data.js"></script>
-  <script src="js/achievements.js"></script>
 </body>
 </html>
