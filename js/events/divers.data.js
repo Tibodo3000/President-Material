@@ -319,7 +319,8 @@ const EV_divers = [
   },
   "choices": [
     { "label": { "fr": "Emprunter à un proche fortuné", "en": "Borrow from a wealthy friend" },
-      "effects": { "money": 120000, "standing": 2, "flags": { "dirtyMoney": true } },
+      "effects": { "money": 120000, "standing": 2, "reputation": -1, "energie": -1,
+                   "flags": { "dirtyMoney": true } },
       "result": { "fr": "Le prêt est amical, sans papier et sans intérêt. C'est exactement le problème.",
                   "en": "The loan is friendly, undocumented and interest-free. That is exactly the problem." } },
     { "label": { "fr": "Faire campagne sans un sou", "en": "Campaign without a penny" },
@@ -328,7 +329,8 @@ const EV_divers = [
       "result": { "fr": "Tracts photocopiés et salles municipales. On vous trouve authentique, et fauché.",
                   "en": "Photocopied leaflets and municipal halls. People find you authentic, and broke." } },
     { "label": { "fr": "Prendre une place dans un conseil d'administration", "en": "Take a seat on a company board" },
-      "effects": { "money": 90000, "reseau": 2, "reputation": -2, "popularity": -6, "flags": { "dirtyMoney": true } },
+      "effects": { "money": 160000, "reseau": 3, "credibilite": 1, "reputation": -2, "popularity": -6,
+                   "flags": { "dirtyMoney": true } },
       "result": { "fr": "Quatre réunions par an, un jeton de présence confortable et un conflit d'intérêts que personne ne relèvera avant longtemps.",
                   "en": "Four meetings a year, a comfortable attendance fee and a conflict of interest nobody will notice for a long time." } }
   ]

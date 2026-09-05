@@ -325,13 +325,15 @@ const EV_aside = [
   },
   "choices": [
     { "label": { "fr": "Prendre le micro et tout assumer, sans une réserve", "en": "Take the microphone and own all of it, without a qualifier" },
-      "effects": { "credibilite": 3, "reputation": 3, "standing": 6, "popularity": -2, "energie": -1 },
+      "effects": { "credibilite": 3, "reputation": 3, "standing": 6, "popularity": -2, "energie": -1,
+                   "appeal": { "self": -8 }, "landscape": { "self": -0.7 } },
       "result": { "fr": "Quatre minutes sans un « mais ». C'est le seul soir où assumer coûte quelque chose et c'est le seul soir où cela s'achète : dans dix ans, on se souviendra de ces quatre minutes et pas du score.",
                   "en": "Four minutes without a single qualification. It is the one evening when owning it costs something and the one evening it can be bought: in ten years they will remember those four minutes and not the number." } },
 
     { "label": { "fr": "Mettre en cause la campagne, jamais la ligne", "en": "Blame the campaign, never the line" },
       "roll": { "base": 15, "stat": "eloquence", "plus": { "sangfroid": 0.4, "standing": 0.03 }, "dice": 16 },
-      "success": { "effects": { "standing": 8, "credibilite": 1, "reputation": -2, "popularity": -3 },
+      "success": { "effects": { "standing": 12, "credibilite": 1, "reputation": -2, "popularity": -3,
+                                "appeal": { "self": 5 }, "landscape": { "self": 0.5 } },
         "result": { "fr": "Vous expliquez que le fond était juste et que l'exécution ne l'était pas. Votre directeur de campagne comprend en direct qu'il a fini, et vous avez gagné deux ans.",
                     "en": "You explain that the substance was right and the execution was not. Your campaign director works out live on air that he is finished, and you have bought yourself two years." } },
       "failure": { "effects": { "standing": -11, "reputation": -3, "credibilite": -2, "popularity": -4, "strike": "menteur" },

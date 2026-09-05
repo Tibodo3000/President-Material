@@ -150,7 +150,8 @@ const EV_institutions = [
   "choices": [
     { "label": { "fr": "Les recevoir un par un à Matignon", "en": "See them one by one" },
       "roll": { "base": 15, "stat": "reseau", "plus": { "standing": 0.05, "charisme": 0.3 }, "dice": 16 },
-      "success": { "effects": { "credibilite": 3, "standing": 5, "energie": -3 },
+      "success": { "effects": { "credibilite": 3, "standing": 11, "reseau": 3, "energie": -3,
+                                "reputation": -1 },
         "result": { "fr": "Sept viennent, six repartent convaincus, et le septième obtient une sous-préfecture pour sa circonscription. La motion tombe de quatre voix.",
                     "en": "Seven come, six leave convinced, and the seventh gets a public office moved to his constituency. The motion falls by four votes." } },
       "failure": { "effects": { "credibilite": -4, "energie": -3, "popularity": -8, "standing": -12, "office": "none", "trait": "ancien_premier" },

@@ -216,7 +216,15 @@ if (!SEULEMENT_PROFILS) {
   let scenes = 0;
   for (const [deck, liste] of Object.entries(DECKS)) {
     for (const ev of liste) {
-      const libres = (ev.choices || []).filter((c) => !c.when);
+      /* Une option qui ARRÊTE la partie ne se compare pas aux autres sur des
+         monnaies de carrière : se retirer n'est pas une mauvaise affaire, c'est
+         une autre partie. On la sort de la comparaison plutôt que de signaler
+         éternellement les scènes qui offrent une sortie. */
+      const finit = (c) => ["effects", "success", "failure"].some((b) => {
+        const e = b === "effects" ? c[b] : c[b] && c[b].effects;
+        return e && e.end;
+      });
+      const libres = (ev.choices || []).filter((c) => !c.when && !finit(c));
       if (libres.length < 2) continue;
       scenes++;
       const V = libres.map(vecteurChoix);

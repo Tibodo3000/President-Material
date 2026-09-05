@@ -423,7 +423,7 @@ const EV_argent = [
     { "label": { "fr": "Nier connaître la fondation", "en": "Deny knowing the foundation" },
       "roll": { "chance": 0.45, "chanceBonus": [ { "when": { "trait": ["teflon"] }, "value": 0.2 },
                                                  { "when": { "stat": { "sangfroid": { "min": 14 } } }, "value": 0.15 } ] },
-      "success": { "effects": { "popularity": -4, "standing": 4, "strike": "menteur" },
+      "success": { "effects": { "popularity": -1, "standing": 8, "sangfroid": 1, "strike": "menteur" },
         "result": { "fr": "Le sujet s'éteint faute de pièces. Il reste dans une note de bas de page, et dans la mémoire du journaliste.",
                     "en": "The story dies for lack of documents. It survives in a footnote, and in the reporter's memory." } },
       "failure": { "effects": { "popularity": -14, "standing": -10, "reputation": -2, "strike": "casserole",
@@ -437,7 +437,8 @@ const EV_argent = [
       "result": { "fr": "L'argent repart d'où il vient, avec des frais. Personne ne vous félicitera jamais pour ça.",
                   "en": "The money goes back where it came from, minus fees. Nobody will ever congratulate you for it." } },
     { "label": { "fr": "Attaquer le journaliste et son journal", "en": "Go after the reporter and his paper" },
-      "effects": { "notoriete": 2, "popularity": -13, "standing": 4, "reputation": -2, "chain": "commission_enquete" },
+      "effects": { "notoriete": 2, "popularity": -13, "standing": 4, "reputation": -2,
+                   "credibilite": -3, "chain": "commission_enquete" },
       "result": { "fr": "Votre avocat parle d'atteinte à la présomption d'innocence. Quatre rédactions décident de s'y intéresser de près.",
                   "en": "Your lawyer talks about the presumption of innocence. Four newsrooms decide to take a closer look." } }
   ]
