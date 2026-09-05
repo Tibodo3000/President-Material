@@ -1033,4 +1033,66 @@ const EV_assemblee = [
                   "en": "You pass every request to the group chair without answering any of them yourself. It is beyond reproach, it deprives you of everything those meetings teach, and your group will trust you for a long time." } }
   ]
 }
+,
+
+{
+  "id": "depute_diner_lassay",
+  "weight": 3,
+  "when": { "position": ["depute"] },
+  "tag": { "fr": "Vingt-quatre couverts", "en": "Twenty-four covers" },
+  "text": {
+    "fr": "Le président de l'Assemblée vous invite à l'un de ses dîners, un mardi à vingt heures, dans ses appartements de fonction. Vingt-quatre couverts, l'argenterie de la maison, homard, et des vins sortis d'une cave dont l'inventaire n'a jamais été publié. Le carton décrit les autres invités comme des personnalités des mondes économique et culturel. Les frais de représentation couvrent l'ensemble, et le cabinet précise que ce sont des dîners de travail, sans préciser sur quoi.",
+    "en": "The Speaker of the Assembly invites you to one of his dinners, a Tuesday at eight, in his official apartments. Twenty-four covers, the house silver, lobster, and wines from a cellar whose inventory has never been published. The card describes the other guests as figures from the worlds of business and culture. Entertainment expenses cover the whole thing, and his office points out that these are working dinners, without specifying on what."
+  },
+  "choices": [
+    { "label": { "fr": "Y aller, et travailler la salle", "en": "Go, and work the room" },
+      "roll": { "base": 18, "stat": "charisme", "plus": { "reseau": 0.45, "standing": 0.03 }, "dice": 16 },
+      "success": { "effects": { "reseau": 3, "standing": 4, "credibilite": 1, "notoriete": 1,
+                                "reputation": -1, "energie": -1 },
+        "result": { "fr": "Trois cartes de visite, dont une qui valait la soirée : votre voisine de table préside une fondation qui finance les déplacements d'étude de cinq de vos collègues. On ne parle de travail à aucun moment, ce qui est précisément la définition d'un dîner de travail.",
+                    "en": "Three business cards, one of which was worth the evening: the woman seated next to you chairs a foundation that funds the study trips of five of your colleagues. Work is not mentioned once, which is precisely the definition of a working dinner." } },
+      "failure": { "effects": { "reseau": 1, "standing": -2, "reputation": -1, "popularity": -2,
+                                "energie": -1 },
+        "result": { "fr": "Placement en bout de table, entre un directeur de cabinet qui regarde ailleurs et un homme dont vous n'avez pas compris le nom. Vous partez à vingt-deux heures quarante. La photo de la table existe, elle vous montre à droite, un peu flou.",
+                    "en": "Seated at the far end, between a chief of staff looking elsewhere and a man whose name you did not catch. You leave at twenty to eleven. The photograph of the table exists, and you are on the right of it, slightly out of focus." } } },
+
+    { "label": { "fr": "Dénoncer le dîner publiquement", "en": "Denounce the dinner publicly" },
+      "roll": { "base": 17, "stat": "eloquence", "plus": { "credibilite": 0.45, "notoriete": 0.2 }, "dice": 16 },
+      "success": { "effects": { "axis": { "power": -70 }, "popularity": 13, "notoriete": 3, "credibilite": 2,
+                                "standing": -11, "reseau": -4, "landscape": { "self": 0.7 } },
+        "result": { "fr": "Le carton, le menu et la ligne budgétaire, publiés le même matin. La questure annonce dans la journée un audit des frais de représentation, qui conclura six semaines plus tard à leur parfaite régularité. C'est exact, et c'est tout le sujet.",
+                    "en": "The invitation card, the menu and the budget line, published on the same morning. The finance office announces an audit of entertainment expenses within the day, which will conclude six weeks later that they are entirely in order. That is true, and that is the whole point." } },
+      "failure": { "effects": { "popularity": -5, "standing": -9, "reseau": -4, "credibilite": -2,
+                                "reputation": -1, "energie": -1 },
+        "result": { "fr": "Vous n'avez aucun document, seulement un carton d'invitation. La présidence répond que ce sont des dîners de travail et que vous étiez invité à l'un d'eux, ce que personne n'avait demandé et que tout le monde retient.",
+                    "en": "You have no documents, only an invitation card. The presidency answers that these are working dinners and that you were invited to one of them, which nobody had asked and everybody remembers." } },
+      "debacle": { "effects": { "popularity": -8, "standing": -12, "reseau": -5, "credibilite": -3,
+                                "reputation": -1, "energie": -1, "strike": "menteur" },
+        "result": { "fr": "Vous avancez un chiffre pour la cave, de mémoire, parce qu'il fallait un chiffre. La questure publie l'inventaire le lendemain : le vrai montant est plus élevé que le vôtre, et c'est votre erreur qui fait le titre, pas la cave.",
+                     "en": "You put a figure on the cellar, from memory, because a figure was needed. The finance office publishes the inventory the next day: the real amount is higher than yours, and it is your mistake that makes the headline, not the cellar." } } },
+
+    { "label": { "fr": "Décliner poliment, sans le dire à personne", "en": "Decline politely, and tell nobody" },
+      "effects": { "reputation": 1, "energie": 1, "standing": -2, "reseau": -2 },
+      "result": { "fr": "Deux lignes au cabinet, une réponse en trois lignes, et vous ne serez pas réinvité. Personne ne le saura, à commencer par les gens que cela aurait impressionnés.",
+                  "en": "Two lines to his office, a three-line reply, and you will not be asked again. Nobody will know, starting with the people it would have impressed." } },
+
+    { "label": { "fr": "Y aller, et demander à table qui paie", "en": "Go, and ask at the table who is paying" },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "eloquence": 0.4 }, "dice": 16 },
+      "success": { "effects": { "reputation": 2, "credibilite": 2, "popularity": 5, "notoriete": 1,
+                                "standing": -5, "reseau": -3 },
+        "result": { "fr": "Un silence de deux secondes, puis la réponse, qui est franche : le budget de l'Assemblée, et c'est dans les comptes. C'est dans les comptes. Trois convives le notent, dont un journaliste qui n'était pas là comme journaliste et qui ne l'écrira jamais.",
+                    "en": "Two seconds of silence, then the answer, which is candid: the Assembly's budget, and it is in the accounts. It is in the accounts. Three guests make a note of it, one of them a journalist who was not there as a journalist and who will never write it up." } },
+      "failure": { "effects": { "reseau": -3, "standing": -4, "reputation": -1, "credibilite": -1,
+                                "popularity": -2, "energie": -1 },
+        "result": { "fr": "La question tombe entre deux plats et personne ne la relève, parce que la réponse est connue et ennuyeuse. Ce qui circule dans le groupe le lendemain, c'est qu'un député a passé le dîner à parler de l'addition.",
+                    "en": "The question lands between two courses and nobody picks it up, because the answer is known and dull. What goes round the group the next day is that a member spent the dinner talking about the bill." } } },
+
+    { "label": { "fr": "Y aller, et faire sortir la carte du menu trois semaines plus tard", "en": "Go, and get the menu card out three weeks later" },
+      "when": { "background": ["journalism", "comms"] },
+      "effects": { "axis": { "power": -55 }, "popularity": 9, "notoriete": 3, "credibilite": 1,
+                   "standing": -8, "reseau": -3, "reputation": -1 },
+      "result": { "fr": "Trois semaines, c'est exactement le délai qui rend une source introuvable et une information crédible. Vous étiez à cette table, personne ne le cherchera, et le chiffre qui fait le titre n'est pas celui du homard mais celui des vins.",
+                  "en": "Three weeks is exactly the delay that makes a source untraceable and a story credible. You were at that table, nobody will go looking, and the figure that makes the headline is not the one for the lobster but the one for the wine." } }
+  ]
+}
 ];
