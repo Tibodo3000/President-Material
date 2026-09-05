@@ -692,4 +692,64 @@ const EV_vie_privee = [
                   "en": "You take not one day off, and nobody in the entire machine tells you it is a mistake. Quite the opposite: they point it out admiringly, and that is how these things end." } }
   ]
 }
+,
+
+{
+  "id": "premier_jet_match",
+  "weight": 4,
+  "when": { "position": ["premier"] },
+  "tag": { "fr": "Motif du déplacement", "en": "Purpose of travel" },
+  "text": {
+    "fr": "Le Conseil européen s'achève à dix-sept heures quarante à Bruxelles. Le match est à vingt et une heures, à six cents kilomètres de là, et vous aviez promis à votre fils d'y être. En voiture et en train c'est impossible. Le Falcon de l'escadron de transport le fait en une heure quinze, à neuf mille deux cents euros de l'heure, et le formulaire de mise à disposition comporte une case intitulée motif du déplacement. Votre directeur de cabinet propose d'y écrire déplacement en circonscription et de caler une visite quelque part le lendemain matin.",
+    "en": "The European Council ends at twenty to six in Brussels. The match kicks off at nine, six hundred kilometres away, and you had promised your son you would be there. By road and rail it cannot be done. The government jet does it in an hour and a quarter, at nine thousand two hundred euros an hour, and the requisition form has a box headed purpose of travel. Your chief of staff suggests writing constituency visit in it and fixing up an engagement somewhere the next morning."
+  },
+  "choices": [
+    { "label": { "fr": "Prendre l'avion, et laisser remplir la case", "en": "Take the plane, and let them fill in the box" },
+      "roll": { "base": 20, "stat": "sangfroid", "plus": { "reseau": 0.4, "standing": 0.04 }, "dice": 16 },
+      "success": { "effects": { "energie": 2, "popularity": 3, "approval": 1, "reputation": -1 },
+        "result": { "fr": "Vingt heures cinquante-deux en tribune, sans photographe convoqué et sans écharpe. Votre fils filme le deuxième but et ne le publie pas. Le formulaire part au classement et personne ne le lira avant le prochain contrôle, dans quatre ans.",
+                    "en": "In the stand at eight fifty-two, with no photographers called and no scarf. Your son films the second goal and does not post it. The form goes into the file and nobody will read it before the next audit, in four years." } },
+      "failure": { "effects": { "popularity": -12, "approval": -5, "credibilite": -2, "reputation": -2,
+                                "standing": -4, "notoriete": 2 },
+        "result": { "fr": "Le registre des vols est un document communicable et quelqu'un l'a demandé. Le tarif horaire est dans le titre, la case déplacement en circonscription est au troisième paragraphe, et le match est dans la première phrase.",
+                    "en": "The flight log is a public document and somebody asked for it. The hourly rate is in the headline, the constituency visit box is in the third paragraph, and the match is in the opening sentence." } },
+      "debacle": { "effects": { "popularity": -15, "approval": -7, "credibilite": -3, "reputation": -2,
+                                "standing": -5, "notoriete": 3, "money": -23000, "strike": "casserole" },
+        "result": { "fr": "Vous remboursez onze jours plus tard, ce qui est un aveu, et la somme remboursée est plus petite que ce que les onze jours ont coûté. La visite du lendemain matin, elle, avait bien eu lieu, et c'est le détail qui achève de tout expliquer.",
+                     "en": "You repay it eleven days later, which is an admission, and the sum repaid is smaller than what those eleven days cost. The next morning's engagement, for its part, did take place, and it is that detail which finishes off the explanation." } } },
+
+    { "label": { "fr": "Prendre l'avion, écrire le vrai motif et rembourser le soir même", "en": "Take the plane, write the real reason and repay it that evening" },
+      "effects": { "money": -23000, "credibilite": 3, "reputation": 2, "popularity": -5, "approval": -2,
+                   "standing": -3, "energie": 1 },
+      "result": { "fr": "Vous écrivez match, promesse familiale dans la case, et vous mettez l'avis de virement en ligne à vingt-trois heures. La moitié du pays trouve le procédé honnête. L'autre moitié retient un chiffre, et un chiffre voyage plus loin qu'un reçu.",
+                  "en": "You write match, family promise in the box, and you put the transfer receipt online at eleven at night. Half the country finds that honest. The other half remembers a figure, and a figure travels further than a receipt." } },
+
+    { "label": { "fr": "Renoncer, et l'appeler à la mi-temps", "en": "Give it up, and call him at half-time" },
+      "roll": { "base": 16, "stat": "charisme", "plus": { "eloquence": 0.4 }, "dice": 16 },
+      "success": { "effects": { "energie": 1, "sangfroid": 1, "reputation": 1, "approval": 1 },
+        "result": { "fr": "Onze minutes de téléphone dans un couloir de Bruxelles, pendant lesquelles il vous raconte la première période comme si vous y étiez. Vous lui devez quelque chose qui ne se remboursera pas cette année.",
+                    "en": "Eleven minutes on the phone in a Brussels corridor, during which he tells you about the first half as though you had been there. You owe him something that will not be repaid this year." } },
+      "failure": { "effects": { "popularity": -10, "notoriete": 2, "reputation": -1, "energie": -2,
+                                "approval": -2 },
+        "result": { "fr": "Il publie à vingt et une heures quatorze la photo du siège vide à côté du sien, sans légende. Rien n'y est faux et rien n'y vise personne, ce qui est exactement pour cette raison que le pays entier l'a vue avant le petit-déjeuner.",
+                    "en": "At fourteen minutes past nine he posts a photograph of the empty seat beside him, with no caption. Nothing in it is untrue and nothing in it is aimed at anybody, which is exactly why the whole country has seen it before breakfast." } } },
+
+    { "label": { "fr": "Envoyer votre directeur adjoint de cabinet à votre place", "en": "Send your deputy chief of staff instead" },
+      "effects": { "energie": 1, "standing": 1, "popularity": -2, "reputation": -2 },
+      "result": { "fr": "Ils s'entendent très bien. À la mi-temps, on vous envoie une photo des deux, prise par un voisin de tribune. Vous la gardez, et vous ne la montrez à personne.",
+                  "en": "The two of them get on very well. At half-time somebody sends you a photograph of them both, taken by a neighbour in the stand. You keep it, and you show it to nobody." } },
+
+    { "label": { "fr": "Quitter le Conseil avant les conclusions", "en": "Leave the Council before the conclusions" },
+      "effects": { "approval": -4, "credibilite": -2, "standing": -3, "popularity": 2, "energie": 1 },
+      "result": { "fr": "La France est représentée cinquante minutes par son représentant permanent, ce qui est prévu par les textes et ne se fait jamais. Le texte final comporte une clause agricole qui aurait été discutée. Ce n'est pas une catastrophe : c'est seulement qu'il n'y avait personne pour dire non.",
+                  "en": "France is represented for fifty minutes by its permanent representative, which the rules provide for and which is never done. The final text carries an agricultural clause that would have been fought over. It is not a disaster; it is simply that there was nobody in the room to say no." } },
+
+    { "label": { "fr": "Prendre l'avion, et programmer une visite au centre de formation du club", "en": "Take the plane, and schedule a visit to the club's academy" },
+      "when": { "background": ["comms"] },
+      "effects": { "approval": 1, "notoriete": 1, "popularity": 4, "credibilite": -2, "reputation": -2,
+                   "energie": -2 },
+      "result": { "fr": "La visite est réelle, le communiqué est réel, les onze apprentis sont réels, et le vol a désormais un motif qui tiendra devant n'importe quel contrôle. Vous n'avez rien inventé : vous avez mis les choses dans l'ordre où elles se justifient, et c'est tout le métier.",
+                  "en": "The visit is real, the press release is real, the eleven apprentices are real, and the flight now has a purpose that will stand up to any audit. You invented nothing: you simply put things in the order in which they justify themselves, and that is the whole trade." } }
+  ]
+}
 ];
