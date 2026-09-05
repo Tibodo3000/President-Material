@@ -115,7 +115,7 @@ body {
   min-height: 48px;
   padding: 0.85rem 2rem;
   border: 1px solid transparent;
-  border-radius: 7px;
+  border-radius: 4px;
   font-family: var(--font-body);
   font-size: 0.8rem;
   font-weight: 700;
@@ -130,82 +130,38 @@ body {
 /* --------------------------------------------------------------------------
    Le bouton d'or
    --------------------------------------------------------------------------
-   C'est le seul aplat d'or de tout le site, et il ouvre une partie : il est
-   traité comme une pièce frappée, pas comme un rectangle coloré. Trois
-   couches, et chacune fait un travail :
+   Une première version le traitait comme du métal : dégradé oblique, liserés
+   qui creusent, filet gravé, reflet au survol. Résultat, un lingot. Ce n'est
+   pas le bon registre : rien dans la vie politique ne brille comme ça, et
+   tout y est imprimé, tamponné ou vissé sur une porte.
 
-     le dégradé oblique   donne un sens à la lumière, là où un dégradé
-                          vertical faisait un bouton d'interface de 2010 ;
-     les liserés intérieurs  un trait clair en haut, un trait sombre en bas :
-                          c'est ce qui creuse le métal au lieu de le peindre ;
-     le filet en retrait  le cercle intérieur d'une médaille, gravé à trois
-                          pixels du bord.
-
-   Le reflet ne passe qu'au survol, une fois, et de biais.
+   Il est donc traité comme une plaque : de l'or plat, un angle net, un trait
+   d'ombre sous le bord bas comme une lettre pressée dans le papier, et rien
+   d'autre. Ce qui bouge au survol, c'est la teinte, pas la lumière.
    -------------------------------------------------------------------------- */
 
 .btn-primary {
-  position: relative;
-  overflow: hidden;
-  background:
-    linear-gradient(152deg, #f3dc9c 0%, var(--gold-2) 24%, var(--gold) 58%, #a37c2c 100%);
-  color: #191307;
-  text-shadow: 0 1px 0 rgba(255, 246, 220, 0.35);
+  background: var(--gold);
+  color: #14161a;
+  border-color: rgba(120, 92, 30, 0.55);
   box-shadow:
-    inset 0 1px 0 rgba(255, 248, 226, 0.8),
-    inset 0 -1px 0 rgba(84, 59, 12, 0.4),
-    0 0 0 1px rgba(201, 162, 75, 0.32),
-    0 10px 28px -12px rgba(201, 162, 75, 0.6);
-}
-
-/* Le filet gravé en retrait. */
-.btn-primary::before {
-  content: "";
-  position: absolute;
-  inset: 3px;
-  border: 1px solid rgba(70, 50, 8, 0.13);
-  border-radius: 4px;
-  pointer-events: none;
-}
-
-/* Le reflet, qui traverse au survol. */
-.btn-primary::after {
-  content: "";
-  position: absolute;
-  top: -60%;
-  bottom: -60%;
-  left: 0;
-  width: 45%;
-  background: linear-gradient(
-    100deg,
-    transparent,
-    rgba(255, 252, 240, 0.55),
-    transparent
-  );
-  transform: translateX(-260%) rotate(8deg);
-  pointer-events: none;
+    0 1px 0 rgba(9, 12, 20, 0.55),
+    0 8px 20px -14px rgba(9, 12, 20, 0.9);
 }
 
 .btn-primary:hover {
+  background: var(--gold-2);
+  border-color: rgba(150, 116, 40, 0.6);
   transform: translateY(-1px);
-  filter: brightness(1.04);
   box-shadow:
-    inset 0 1px 0 rgba(255, 250, 232, 0.9),
-    inset 0 -1px 0 rgba(84, 59, 12, 0.45),
-    0 0 0 1px rgba(201, 162, 75, 0.5),
-    0 16px 36px -12px rgba(201, 162, 75, 0.75);
+    0 1px 0 rgba(9, 12, 20, 0.55),
+    0 10px 22px -14px rgba(9, 12, 20, 0.9);
 }
 
-.btn-primary:hover::after {
-  animation: gold-sheen 0.75s cubic-bezier(0.35, 0, 0.2, 1);
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: inset 0 1px 2px rgba(9, 12, 20, 0.35);
 }
-
-@keyframes gold-sheen {
-  from { transform: translateX(-260%) rotate(8deg); }
-  to   { transform: translateX(560%) rotate(8deg); }
-}
-
-.btn-primary:active { transform: translateY(0); }
 
 /* Le second chemin d'une page : le même gabarit, mais un filet au lieu de
    l'or. Deux boutons pleins se disputeraient l'œil. */
@@ -230,7 +186,6 @@ body {
   padding: 0.5rem 1.4rem;
   font-size: 0.68rem;
   letter-spacing: 0.16em;
-  border-radius: 6px;
 }
 
 .btn-block { width: 100%; }
