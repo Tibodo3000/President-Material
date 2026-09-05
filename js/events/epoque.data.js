@@ -499,4 +499,59 @@ const EV_epoque = [
                     "en": "The meeting stops at the fortieth minute, when a resident repeats the line from the petition and finally spells it out. The franchisee walks out, two people follow him to apologise, and the town hall has nothing left to offer anybody." } } }
   ]
 }
+,
+
+{
+  "id": "ep_riviere_baignade",
+  "weight": 3,
+  "when": { "position": ["conseiller", "maire"], "season": ["printemps", "ete"] },
+  "tag": { "fr": "Quatorze prélèvements sur vingt", "en": "Fourteen samples out of twenty" },
+  "text": {
+    "fr": "La ville a construit une base de baignade sur la rivière : ponton, vestiaires, poste de secours et un maître-nageur recruté pour la saison. Elle n'a jamais ouvert. Les analyses relèvent des entérocoques au-dessus du seuil sur quatorze prélèvements sur vingt, l'arrêté préfectoral d'interdiction est reconduit tous les quinze jours depuis 2019, et le dernier communiqué de la ville parle d'une qualité satisfaisante hors épisode pluvieux. Il pleut depuis mercredi.",
+    "en": "The town has built a bathing site on the river: a pontoon, changing rooms, a first-aid post and a lifeguard hired for the season. It has never opened. Testing finds enterococci above the threshold in fourteen samples out of twenty, the prefect's ban has been renewed every fortnight since 2019, and the town's latest statement refers to satisfactory quality outside rainfall events. It has been raining since Wednesday."
+  },
+  "choices": [
+    { "label": { "fr": "Se baigner devant les caméras", "en": "Swim in front of the cameras" },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "popularity": 0.05, "charisme": 0.3 }, "dice": 16 },
+      "success": { "effects": { "popularity": 12, "notoriete": 3, "standing": 2, "credibilite": -1,
+                                "energie": -1 },
+        "result": { "fr": "Quarante mètres, la remontée par l'échelle du ponton, et une phrase courte sur la serviette. La photo est reprise par quatre communes en amont qui ont le même problème et pas de ponton, et personne ne demande à voir le prélèvement du matin.",
+                    "en": "Forty metres, back up the pontoon ladder, and one short sentence with the towel. The photograph is picked up by four towns upstream with the same problem and no pontoon, and nobody asks to see that morning's sample." } },
+      "failure": { "effects": { "popularity": -7, "credibilite": -3, "notoriete": 2, "reputation": -1,
+                                "energie": -3 },
+        "result": { "fr": "Le prélèvement de ce matin-là revient trois jours plus tard, au-dessus du seuil, et il est publié parce que vous aviez fait voter la publication en mars. Les deux images circulent ensemble, celle du plongeon et celle du tableau.",
+                    "en": "That morning's sample comes back three days later, above the threshold, and it is published because you had the publication voted through in March. The two images circulate together, the dive and the table." } },
+      "debacle": { "effects": { "popularity": -9, "credibilite": -3, "notoriete": 4, "reputation": -1,
+                                "energie": -4, "trait": "fragile" },
+        "result": { "fr": "Trente-six heures plus tard, urgences, et quatre jours sans sortir. Le service communication ne dément rien parce qu'il n'y a rien à démentir, et vous découvrez que le conseil municipal peut se tenir sans vous.",
+                     "en": "Thirty-six hours later, accident and emergency, and four days indoors. The press office denies nothing because there is nothing to deny, and you discover that the council can sit without you." } } },
+
+    { "label": { "fr": "Publier toutes les analyses, prélèvement par prélèvement", "en": "Publish every sample, one by one" },
+      "effects": { "credibilite": 3, "reputation": 2, "popularity": -5, "standing": -4 },
+      "result": { "fr": "Vingt lignes en ligne, quatorze points rouges, les dates et les heures. Deux communes voisines cessent de publier les leurs le mois suivant, et l'agence de l'eau vous demande par téléphone si c'était bien nécessaire.",
+                  "en": "Twenty lines online, fourteen red dots, the dates and the times. Two neighbouring towns stop publishing theirs the following month, and the water agency rings to ask whether that was really necessary." } },
+
+    { "label": { "fr": "Voter un plan rivière et reporter l'ouverture", "en": "Vote a river plan through and postpone the opening" },
+      "effects": { "money": -55000, "credibilite": 2, "standing": 3, "popularity": -3, "energie": -1 },
+      "result": { "fr": "Quatre millions deux sur six ans, un comité de pilotage qui se réunit deux fois par an et une ouverture annoncée à l'horizon 2031. Le contrat du maître-nageur n'est pas reconduit, ce qui économise dix-neuf mille euros et ne figure dans aucun des documents votés.",
+                  "en": "Four point two million over six years, a steering committee meeting twice a year and an opening announced for some time in 2031. The lifeguard's contract is not renewed, which saves nineteen thousand euros and appears in none of the documents voted on." } },
+
+    { "label": { "fr": "S'attaquer à l'amont : la station d'épuration de la commune voisine", "en": "Go after the source: the neighbouring town's treatment plant" },
+      "roll": { "base": 16, "stat": "credibilite", "plus": { "reseau": 0.4, "eloquence": 0.3 }, "dice": 16 },
+      "success": { "effects": { "axis": { "economy": -50, "power": -30 }, "popularity": 9, "credibilite": 2,
+                                "reseau": -2, "landscape": { "self": 0.6 }, "energie": -1 },
+        "result": { "fr": "Les rejets sont documentés, datés, et la commune voisine se met en conformité en dix-huit mois sous la pression de deux préfets et d'un reportage. Son maire est du même parti que vous et ne vous adressera plus la parole en réunion d'agglomération.",
+                    "en": "The discharges are documented and dated, and the neighbouring town brings itself into line within eighteen months under pressure from two prefects and one news report. Its mayor is in your own party and will not speak to you again at joint authority meetings." } },
+      "failure": { "effects": { "popularity": -4, "credibilite": -1, "reseau": -3, "standing": -2,
+                                "energie": -1 },
+        "result": { "fr": "On vous répond que la station est aux normes de 1998 et qu'elle y est restée, ce qui est légal. Vous avez ouvert un conflit d'agglomération pour un sujet que personne ne pourra régler avant la fin de votre mandat.",
+                    "en": "You are told the plant meets the 1998 standards and has stayed there, which is lawful. You have opened a fight across the whole joint authority over a matter nobody will be able to settle before your term ends." } } },
+
+    { "label": { "fr": "Faire refaire les analyses par un laboratoire indépendant, et publier le protocole", "en": "Have an independent laboratory redo the testing, and publish the protocol" },
+      "when": { "background": ["academia", "civil"] },
+      "effects": { "money": -18000, "credibilite": 4, "reputation": 1, "popularity": 2, "standing": -3 },
+      "result": { "fr": "Le protocole tient en une page et il est ce qui intéresse tout le monde : les prélèvements de la ville étaient faits le mardi matin, jamais après un week-end pluvieux, et toujours au même point, à quatre-vingts mètres en aval du ponton. Les nouveaux chiffres sont pires. Le protocole, lui, est repris par deux agences.",
+                  "en": "The protocol runs to one page and it is the part everybody cares about: the town's samples were taken on Tuesday mornings, never after a wet weekend, and always at the same spot, eighty metres downstream of the pontoon. The new figures are worse. The protocol is adopted by two agencies." } }
+  ]
+}
 ];

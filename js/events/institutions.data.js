@@ -660,4 +660,60 @@ const EV_institutions = [
                     "en": "The file makes its way to its target, with your name on it. You leave the government on Friday, with no statement." } } }
   ]
 }
+,
+
+{
+  "id": "gouv_visite_terrain",
+  "weight": 3,
+  "when": { "position": ["ministre"] },
+  "tag": { "fr": "Cinq minutes sur place", "en": "Five minutes on the ground" },
+  "text": {
+    "fr": "Le déplacement est calé depuis onze jours : quatre minutes de marche dans le marché couvert, deux étals retenus la veille, un point de trente secondes devant la halle et la voiture qui repart à onze heures douze. À la troisième minute, trois personnes passent le cordon. L'une tient une feuille de paie, la deuxième filme, la troisième vous demande seulement de rester.",
+    "en": "The visit has been locked in for eleven days: four minutes' walk through the covered market, two stalls picked the day before, a thirty-second doorstep outside the hall and the car pulling away at twelve minutes past eleven. Three minutes in, three people come through the cordon. One is holding a payslip, the second is filming, the third only asks you to stay."
+  },
+  "choices": [
+    { "label": { "fr": "Rester, et tant pis pour l'horaire", "en": "Stay, and never mind the schedule" },
+      "roll": { "base": 16, "stat": "sangfroid", "plus": { "charisme": 0.45 }, "dice": 16 },
+      "success": { "effects": { "popularity": 11, "credibilite": 2, "reputation": 1, "notoriete": 2,
+                                "energie": -2, "approval": 3 },
+        "result": { "fr": "Quarante minutes debout, sans cordon et sans fiche. Vous ne promettez rien, vous notez trois noms sur le rabat d'un dossier, et le conseiller en communication regarde sa montre sans oser l'avancer. Les images du soir ne montrent pas un ministre encerclé, elles montrent une conversation.",
+                    "en": "Forty minutes standing, with no cordon and no briefing note. You promise nothing, you write three names on the flap of a folder, and the communications adviser looks at his watch without daring to hold it up. The evening pictures do not show a minister surrounded, they show a conversation." } },
+      "failure": { "effects": { "popularity": -9, "credibilite": -2, "energie": -2, "approval": -3,
+                                "standing": -2 },
+        "result": { "fr": "Vous restez vingt minutes et vous répondez onze fois la même chose, parce que la réponse est la même. La onzième est reprise seule, sans les dix autres, et elle passe pour du mépris là où ce n'était que de la répétition.",
+                    "en": "You stay twenty minutes and give the same answer eleven times, because the answer is the same. The eleventh is used on its own, without the other ten, and it reads as contempt where it was only repetition." } },
+      "debacle": { "effects": { "popularity": -12, "credibilite": -3, "energie": -2, "approval": -5,
+                                "standing": -3, "strike": "menteur" },
+        "result": { "fr": "Au bout de trente minutes vous dites que le dossier sera réglé avant l'été, parce que c'est vrai qu'il faudrait. Bercy l'apprend au journal de vingt heures et le fait démentir le lendemain matin par un communiqué de deux lignes qui ne vous cite pas.",
+                    "en": "After thirty minutes you say the matter will be settled before the summer, because it is true that it ought to be. The finance ministry learns this on the evening news and has it denied the next morning in a two-line statement that does not name you." } } },
+
+    { "label": { "fr": "Tenir le programme et remonter en voiture à onze heures douze", "en": "Keep to the schedule and be back in the car at twelve minutes past eleven" },
+      "effects": { "standing": 4, "approval": 2, "popularity": -8, "reputation": -1, "credibilite": -1 },
+      "result": { "fr": "Le débrief de treize heures conclut que le déplacement s'est bien passé et que le format tient. La vidéo des trois personnes derrière la vitre teintée fait quatre cent mille vues avant la fin de la journée, et le débrief du lendemain conclut qu'il faudra revoir le format.",
+                  "en": "The one o'clock debrief concludes that the visit went well and that the format holds. The video of the three people behind the tinted window gets four hundred thousand views before the day is out, and the next day's debrief concludes that the format will need reviewing." } },
+
+    { "label": { "fr": "Annoncer un dispositif d'urgence sur place", "en": "Announce an emergency scheme on the spot" },
+      "roll": { "base": 17, "stat": "charisme", "plus": { "standing": 0.05, "credibilite": 0.35 }, "dice": 16 },
+      "success": { "effects": { "popularity": 8, "approval": 4, "credibilite": 1, "standing": 2,
+                                "energie": -1 },
+        "result": { "fr": "Vous annoncez un fonds et une date, et vous appelez le directeur de cabinet depuis la voiture pour que les deux existent avant le soir. Ils existent. C'est la seule fois du trimestre où l'ordre des choses aura été celui-là.",
+                    "en": "You announce a fund and a date, and you call the chief of staff from the car so that both exist by the evening. They do. It is the only time this quarter that things will have happened in that order." } },
+      "failure": { "effects": { "approval": -5, "credibilite": -3, "standing": -6, "popularity": -4,
+                                "energie": -1 },
+        "result": { "fr": "L'arbitrage tombe trois jours plus tard et il est négatif. Le cabinet explique que vous avez évoqué une piste de travail, ce qui est la formule employée quand un ministre a parlé trop vite, et tout le monde a compris laquelle des deux choses s'est produite.",
+                    "en": "The decision comes down three days later and it is no. Your office explains that you were floating a line of work, which is the form of words used when a minister has spoken too soon, and everybody understands which of the two things happened." } } },
+
+    { "label": { "fr": "Faire évacuer", "en": "Have yourself extracted" },
+      "effects": { "popularity": -13, "reputation": -2, "standing": 3, "approval": -2, "energie": 1 },
+      "result": { "fr": "Onze secondes entre la première main sur votre épaule et la portière. La note de sécurité rédigée le soir même est exemplaire et sera citée en exemple dans deux autres ministères. Elle décrit une extraction réussie, ce qui est exact, et ne dit pas ce qui a été extrait de quoi.",
+                  "en": "Eleven seconds between the first hand on your shoulder and the car door. The security note written that evening is exemplary and will be held up as a model in two other ministries. It describes a successful extraction, which is accurate, and does not say what was extracted from what." } },
+
+    { "label": { "fr": "Demander la feuille de paie et la lire à voix haute", "en": "Ask for the payslip and read it out loud" },
+      "when": { "background": ["journalism", "comms"] },
+      "effects": { "notoriete": 2, "popularity": 7, "credibilite": 1, "approval": -4, "standing": -5,
+                   "reputation": -1, "energie": -1 },
+      "result": { "fr": "Vous savez exactement où sera la caméra et vous lisez le net à payer, la ligne du dessus et celle du dessous. Le chiffre tient la matinale du lendemain, et c'est votre propre gouvernement qui doit l'expliquer pendant que vous êtes en réunion.",
+                  "en": "You know exactly where the camera will be and you read out the take-home figure, the line above it and the line below. The number carries the next morning's broadcast, and it is your own government that has to account for it while you are in a meeting." } }
+  ]
+}
 ];

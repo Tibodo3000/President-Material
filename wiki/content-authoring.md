@@ -32,13 +32,13 @@ actually knows, in both languages, and prints one line per problem.
 
 | Deck | When it's drawn | Special fields |
 |------|-----------------|----------------|
-| `events` | Ordinary turns (282 events) | the full schema below |
+| `events` | Ordinary turns (285 events) | the full schema below |
 | ↳ *what the era does to people* | inside `events`, in [epoque.data.js](../js/events/epoque.data.js) | nothing new in the schema, one rule in the writing: **the satire aims at the machine handling the scene, never at the people it happens to**. Describe, do not comment: the exact figure, the exact hour, the name of the procedure. No option is clean |
 | ↳ *the player against their own camp* | inside `events`, in [arbitrages.data.js](../js/events/arbitrages.data.js) | nothing new in the schema, one rule in the writing: **every choice moves `landscape`, and never in the same direction as the career**. A choice that pays in standing *and* in vote share is not an arbitration, it is a reward, and it belongs in another file |
 | ↳ *end-of-career scenes* | inside `events`, in [declin.data.js](../js/events/declin.data.js) | `"decline": 1\|2\|3` marks which of the body's three warnings a scene is. `"weight": 0` is **required** — the engine schedules them itself (`scheduleDecline`), they must never come out of a random draw. Keep **one scene per stage with no `when` at all**: if none matched, nothing would be scheduled and the exits would stay shut forever |
-| `campaign` | The 6 steps before the first round, when the player runs (26) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
+| `campaign` | The 6 steps before the first round, when the player runs (27) | effects use `poll`; bigger swings; `moment`, `required`, `cast: "minor"` |
 | `runoff` | The 3 steps between the two rounds (12) | `poll` moves the head-to-head; `cast: "eliminated"` |
-| `support` | The 3 steps of a presidential campaign the player is not in (16) | effects use `score`, which moves your camp's line in a poll the player watches for three scenes |
+| `support` | The 3 steps of a presidential campaign the player is not in (17) | effects use `score`, which moves your camp's line in a poll the player watches for three scenes |
 | `aside` | An ordinary election that happens without the player (12) | ordinary effects, no `score`. Split in two halves by `partyLead` (6 and 6): an election you merely watch is a different evening when you are the one who signed every nomination — **keep both halves populated**, `drawAside()` falls back to the whole deck when nothing matches |
 | `nomination` | When the party refuses to nominate you (14) | rewards `standing` different ways. `"election": ["municipales","legislatives","europeennes"]` restricts a scene to the contests it makes sense in — the same idea as `race` in the `races` deck. Anything about lists, constituencies or a candidate parachuted in by head office needs it: nobody parachutes a party leader, and a congress has no list to balance. Scenes about the machine itself carry no `election` and play everywhere |
 | `races` | Steps of an ordinary election campaign (22) | effects use `score`; `race: [...]`, `moment` |

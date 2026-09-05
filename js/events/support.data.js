@@ -577,4 +577,60 @@ const EV_support = [
   ]
 }
 
+,
+
+{
+  "id": "sup_barricade",
+  "when": { "partyLead": false, "maxShare": 17,
+            "position": ["conseiller", "maire", "euro", "depute", "ministre"] },
+  "tag": { "fr": "Porte fermée à clé", "en": "The door locked from inside" },
+  "text": {
+    "fr": "Votre camp n'a jamais été aussi bas et le premier tour est dans cinq semaines. Le président du parti annonce un accord avec un autre parti dans un communiqué de quatre lignes, sans bureau politique et sans avoir prévenu personne. Les cadres demandent une réunion, il ne répond pas. À dix-huit heures on apprend qu'il est dans son bureau au siège, porte fermée à clé, et qu'il a demandé aux services généraux de ne pas couper le chauffage.",
+    "en": "Your side has never been this low and the first round is five weeks away. The party chairman announces a pact with another party in a four-line statement, with no board meeting and without warning anybody. The senior figures ask for a meeting; he does not reply. At six in the evening word gets out that he is in his office at headquarters, the door locked from inside, and that he has asked the building staff not to turn the heating off."
+  },
+  "choices": [
+    { "label": { "fr": "Monter au siège et rester derrière la porte le temps qu'il faudra", "en": "Go to headquarters and stay outside that door for as long as it takes" },
+      "roll": { "base": 18, "stat": "charisme", "plus": { "reseau": 0.45, "standing": 0.04 }, "dice": 16 },
+      "success": { "effects": { "score": 4, "standing": 6, "reseau": 2, "credibilite": 1, "energie": -2 },
+        "result": { "fr": "Il ouvre à une heure vingt du matin. L'accord devient une discussion, la discussion devient un communiqué commun, et le communiqué commun ne dit rien du tout. Il reste président du parti et vous êtes la seule personne à qui il ait parlé ce soir-là, ce que huit personnes ont vu.",
+                    "en": "He opens the door at twenty past one in the morning. The pact becomes a discussion, the discussion becomes a joint statement, and the joint statement says nothing at all. He stays chairman and you are the only person he spoke to that night, which eight people saw." } },
+      "failure": { "effects": { "score": -3, "standing": -3, "popularity": -3, "energie": -2,
+                                "landscape": { "self": -1.2 } },
+        "result": { "fr": "Il n'ouvre pas. Vous êtes photographié dans le couloir à minuit, la main sur une poignée, et la photo devient l'image de la campagne. Il quitte le parti le surlendemain en emportant deux fédérations et le fichier des adhérents.",
+                    "en": "He does not open. You are photographed in the corridor at midnight, hand on a door handle, and the photograph becomes the image of the campaign. He leaves the party two days later, taking two federations and the membership file with him." } } },
+
+    { "label": { "fr": "Réunir le bureau politique et faire annuler l'accord", "en": "Convene the board and have the pact annulled" },
+      "when": { "minStanding": 52 },
+      "roll": { "base": 18, "stat": "sangfroid", "plus": { "standing": 0.08, "reseau": 0.3 }, "dice": 16 },
+      "success": { "effects": { "score": 3, "standing": 8, "credibilite": 2, "reputation": -1,
+                                "landscape": { "self": -1.4 } },
+        "result": { "fr": "Vingt-deux voix contre quatre, dans une salle où il n'est pas venu. L'accord est nul, les statuts le disent, et il l'apprend par le compte rendu. Il part le vendredi et fonde son mouvement le lundi, avec les quatre.",
+                    "en": "Twenty-two votes to four, in a room he did not come to. The pact is void, the party rules say so, and he learns it from the minutes. He leaves on the Friday and founds his movement on the Monday, with the four." } },
+      "triumph": { "effects": { "score": 4, "standing": 10, "credibilite": 2, "reputation": -1,
+                                "landscape": { "self": -1.1 }, "lead": true },
+        "result": { "fr": "Vingt-six voix contre zéro, et la question suivante à l'ordre du jour est celle de la direction du parti à cinq semaines du premier tour. Personne ne veut la poser et tout le monde vous regarde. Vous héritez d'un parti amputé de deux fédérations, en campagne, et vous n'aviez pas prévu de l'avoir aujourd'hui.",
+                     "en": "Twenty-six votes to nil, and the next item on the agenda is the leadership of the party five weeks out from the first round. Nobody wants to raise it and everybody is looking at you. You inherit a party short of two federations, in mid-campaign, and you had not planned on having it today." } },
+      "failure": { "effects": { "score": -4, "standing": -12, "reputation": -1, "energie": -1 },
+        "result": { "fr": "Le bureau politique se réunit et ne conclut rien, parce que onze personnes sur vingt-six ont calculé qu'il valait mieux voir. Vous êtes celui qui a convoqué, et l'on retient qu'il a fallu une réunion pour ne rien décider.",
+                    "en": "The board meets and concludes nothing, because eleven people out of twenty-six have worked out that it is better to wait and see. You are the one who called it, and what is remembered is that a meeting was needed in order to decide nothing." } } },
+
+    { "label": { "fr": "Soutenir l'accord publiquement", "en": "Back the pact publicly" },
+      "effects": { "score": 5, "standing": -8, "credibilite": -2, "reputation": -1,
+                   "appeal": { "self": -10 }, "landscape": { "self": -0.7 } },
+      "result": { "fr": "Vous expliquez qu'à cinq semaines du premier tour on ne fait pas de procès de forme. C'est exactement ce qu'on dit quand on a perdu sur le fond, tout le monde le sait, et l'accord tient. Votre fédération vous écrit une lettre que vous ne lirez pas en entier.",
+                  "en": "You explain that five weeks from the first round is no time for procedural arguments. That is precisely what people say when they have lost on the substance, everybody knows it, and the pact holds. Your own federation writes you a letter you will not read to the end." } },
+
+    { "label": { "fr": "Ne rien dire et laisser le siège se débrouiller", "en": "Say nothing and let headquarters sort itself out" },
+      "effects": { "score": -3, "standing": -2, "credibilite": -1, "energie": 2 },
+      "result": { "fr": "Quatre jours de silence, deux invitations déclinées et un téléphone éteint le week-end. La crise se règle sans vous, ce qui est reposant, et l'on se souviendra surtout que vous n'étiez nulle part pendant que le parti se coupait en deux.",
+                  "en": "Four days of silence, two invitations declined and a phone switched off at the weekend. The crisis resolves itself without you, which is restful, and what will be remembered is that you were nowhere while the party was cutting itself in half." } },
+
+    { "label": { "fr": "Donner à la presse l'heure exacte à laquelle il s'est enfermé", "en": "Give the press the exact time he locked himself in" },
+      "when": { "personality": ["calculating", "provocative"] },
+      "effects": { "score": -5, "standing": -6, "notoriete": 3, "popularity": 6, "reputation": -2,
+                   "landscape": { "self": -2 }, "strike": "traitre" },
+      "result": { "fr": "Dix-sept heures quarante-huit, le nom du planton, la marque du verrou. Trois rédactions ont la même précision le même soir, ce qui ne trompe personne au siège. Il part en citant votre nom dans sa lettre de démission, et la lettre est publiée en entier.",
+                  "en": "Seventeen forty-eight, the name of the doorman, the make of the lock. Three newsrooms have the same level of detail on the same evening, which fools nobody at headquarters. He leaves quoting your name in his resignation letter, and the letter is published in full." } }
+  ]
+}
 ];

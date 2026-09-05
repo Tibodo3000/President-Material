@@ -791,4 +791,67 @@ const EV_argent = [
                   "en": "You tell them you know perfectly well what it is for, and that this is precisely the problem. They will fund somebody else's foundation, and you will read its papers." } }
   ]
 }
+,
+
+{
+  "id": "chef_perquisition",
+  "weight": 4,
+  "when": { "partyLead": true, "ruling": false, "minTurn": 24, "flag": { "onTrial": false } },
+  "tag": { "fr": "Sept heures dix", "en": "Ten past seven" },
+  "text": {
+    "fr": "Deux équipes, deux adresses : le siège du parti et votre appartement. L'enquête porte sur les comptes de la dernière campagne et sur les contrats de six salariés. Les scellés sont posés sur trois bureaux, les ordinateurs partent dans des cartons numérotés, et une caméra est devant la porte du siège avant les enquêteurs. Le parquet précise que le signalement date de onze mois. Le ministre de l'intérieur déclare qu'il l'a appris par la presse.",
+    "en": "Two teams, two addresses: party headquarters and your flat. The investigation covers the accounts of the last campaign and the contracts of six staff members. Seals go on three offices, the computers leave in numbered boxes, and a television camera is outside the headquarters door before the investigators are. The prosecutor points out that the referral is eleven months old. The interior minister says he learned of it from the press."
+  },
+  "choices": [
+    { "label": { "fr": "Forcer le cordon et hurler devant les caméras", "en": "Push through the cordon and shout in front of the cameras" },
+      "when": { "personality": ["provocative"] },
+      "roll": { "base": 19, "stat": "charisme", "plus": { "notoriete": 0.4, "eloquence": 0.3 }, "dice": 16 },
+      "success": { "effects": { "appeal": { "self": 15, "others": -6 }, "notoriete": 4, "credibilite": -2,
+                                "reputation": -1, "energie": -2, "landscape": { "self": 0.7 } },
+        "result": { "fr": "Onze secondes de cri devant une porte, reprises en boucle pendant quatre jours. Votre base n'a pas été aussi mobilisée depuis six ans et le reste du pays regarde la même vidéo en tirant la conclusion inverse. Les deux camps la partagent, avec le même montage.",
+                    "en": "Eleven seconds of shouting in a doorway, looped for four days. Your base has not been this mobilised in six years and the rest of the country watches the same video and draws the opposite conclusion. Both sides share it, in the same edit." } },
+      "failure": { "effects": { "popularity": -13, "credibilite": -3, "reputation": -2, "notoriete": 3,
+                                "standing": -5, "energie": -2, "appeal": { "self": 4 } },
+        "result": { "fr": "La séquence dure quatre minutes et l'on n'en retient pas une phrase, seulement une main sur un torse et un bras qu'on écarte. Vos propres cadres regardent leurs chaussures dans le hall pendant que vous parlez.",
+                    "en": "The sequence lasts four minutes and not one sentence of it survives, only a hand on a chest and an arm pushed aside. Your own senior figures study their shoes in the lobby while you are speaking." } },
+      "debacle": { "effects": { "popularity": -16, "credibilite": -4, "reputation": -2, "notoriete": 4,
+                                "standing": -6, "energie": -2, "strike": "casserole" },
+        "result": { "fr": "Un procès-verbal est dressé le soir même pour le poignet d'un enquêteur et pour la porte. Vous êtes convoqué pour ça, et non pour les comptes, et c'est désormais la seule chose que les portraits raconteront de cette matinée.",
+                     "en": "A report is filed that same evening over an investigator's wrist and over the door. You are summoned for that, and not for the accounts, and it is now the only thing any profile will tell of that morning." } } },
+
+    { "label": { "fr": "Tout ouvrir, et publier les comptes vous-même le soir même", "en": "Open everything, and publish the accounts yourself that evening" },
+      "effects": { "credibilite": 3, "reputation": 2, "popularity": 6, "standing": -2, "energie": -2,
+                   "appeal": { "self": -7 } },
+      "effectsIf": [
+        { "when": { "flag": { "dirtyMoney": true } },
+          "effects": { "flags": { "onTrial": true }, "chain": "proces", "popularity": -15,
+                       "standing": -12, "reputation": -2, "credibilite": -3 } }
+      ],
+      "result": { "fr": "Vous ouvrez les trois bureaux, y compris celui que personne n'avait demandé, et les comptes sont en ligne à vingt-deux heures avec les annexes. Ce que contiennent les cartons, vous le savez mieux que quiconque, et il n'y a plus qu'à attendre qu'ils soient lus. Vos militants, eux, voulaient qu'on se batte.",
+                  "en": "You open all three offices, including the one nobody had asked for, and the accounts are online by ten at night with the annexes. What the boxes contain, you know better than anyone, and there is nothing left to do but wait for them to be read. Your activists, for their part, wanted a fight." } },
+
+    { "label": { "fr": "Attaquer sur la date : onze mois de signalement, et une descente maintenant", "en": "Go after the timing: eleven months on the referral, and a raid now" },
+      "roll": { "base": 17, "stat": "eloquence", "plus": { "credibilite": 0.4, "notoriete": 0.25 }, "dice": 16 },
+      "success": { "effects": { "axis": { "power": -60 }, "popularity": 10, "notoriete": 2, "credibilite": 1,
+                                "standing": 4, "landscape": { "self": 0.8 } },
+        "result": { "fr": "Vous ne contestez rien du fond et vous ne parlez que du calendrier : la date du signalement, la date de la saisine, la date de la caméra. Personne ne vous répond sur la caméra, et c'est la seule des trois dates que le pays retient.",
+                    "en": "You dispute none of the substance and talk only about the calendar: the date of the referral, the date of the case being opened, the date of the camera. Nobody answers you on the camera, and it is the only one of the three dates the country remembers." } },
+      "failure": { "effects": { "popularity": -7, "credibilite": -2, "standing": -3, "energie": -1 },
+        "result": { "fr": "Le parquet publie une chronologie de deux pages le lendemain matin, avec les numéros de procédure. Elle est ennuyeuse, vérifiable, et elle tient. On retient que vous avez parlé du calendrier pendant huit minutes sans dire un mot des six contrats.",
+                    "en": "The prosecutor publishes a two-page chronology the next morning, with the case numbers. It is dull, checkable, and it holds. What is remembered is that you talked about the calendar for eight minutes without saying a word about the six contracts." } } },
+
+    { "label": { "fr": "Laisser l'avocat parler et ne rien dire pendant quinze jours", "en": "Let the lawyer speak and say nothing for a fortnight" },
+      "effects": { "credibilite": 2, "standing": 2, "energie": 1, "notoriete": -2, "popularity": -5,
+                   "appeal": { "self": -6 } },
+      "result": { "fr": "Trois communiqués en quinze jours, tous exacts, tous illisibles. Le dossier sort du fil d'actualité en huit jours, ce qui est exactement l'objectif, et vos fédérations passent ces huit jours à demander pourquoi personne ne défend le parti.",
+                  "en": "Three statements in a fortnight, all accurate, all unreadable. The story drops out of the news feed within eight days, which is precisely the aim, and your federations spend those eight days asking why nobody is defending the party." } },
+
+    { "label": { "fr": "Prendre le cabinet qui a fait tomber la dernière commission d'enquête", "en": "Hire the firm that took down the last inquiry" },
+      "when": { "minMoney": 250000 },
+      "effects": { "money": -180000, "credibilite": 2, "standing": 4, "reputation": -1, "popularity": -3,
+                   "reseau": 1 },
+      "result": { "fr": "Quatre associés, une note de procédure en soixante-douze heures et trois scellés contestés sur onze. Deux d'entre eux tomberont, ce qui ne change rien au fond et repousse tout de quatorze mois. La facture est réglée par le parti, en trois fois, et figure au compte de l'exercice suivant.",
+                  "en": "Four partners, a procedural opinion within seventy-two hours and three of the eleven seals challenged. Two of them will be quashed, which changes nothing on the substance and pushes everything back by fourteen months. The bill is paid by the party, in three instalments, and appears in the following year's accounts." } }
+  ]
+}
 ];
