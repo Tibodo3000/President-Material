@@ -250,13 +250,14 @@ mode draws and behaves, not of when one begins.
 ## The page handoff (localStorage)
 
 There is no router and no shared runtime between pages — each page is a fresh document.
-State travels in `localStorage` under three keys:
+State travels in `localStorage` under four keys:
 
 | Key | Written by | Read by | Holds |
 |-----|-----------|---------|-------|
 | `pm-lang` | [script.js](../js/script.js) | every page | `"fr"` or `"en"` |
 | `pm-character` (`CHARACTER_KEY`) | create.js / party.js | party, tirage, game | the character choices + the dealt `draw` |
 | `pm-game` (`GAME_KEY`) | game.js | game.js | the entire in-progress game `state` |
+| `pm-achievements` (`ACHIEVEMENT_KEY`) | achievements.js | index.html | the ids of the honours earned. The one key a new game does **not** clear |
 
 The flow of the character object:
 

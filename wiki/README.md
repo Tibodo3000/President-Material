@@ -46,7 +46,7 @@ State is handed between pages through `localStorage`, not a router or framework.
 
 | Page | Role | Controller |
 |------|------|-----------|
-| [index.html](../index.html) | Landing / pitch | [script.js](../js/script.js) only |
+| [index.html](../index.html) | Landing / pitch, plus the honours cabinet | [script.js](../js/script.js) + [achievements.js](../js/achievements.js) |
 | [create.html](../create.html) | Build the character (identity, origin, background, personality) | [create.js](../js/create.js) |
 | [party.html](../party.html) | Pick a starting party; see fit & difficulty | [party.js](../js/party.js) |
 | [tirage.html](../tirage.html) | Reveal the two random birth traits + chosen character trait | [tirage.js](../js/tirage.js) |
@@ -64,6 +64,7 @@ State is handed between pages through `localStorage`, not a router or framework.
 | [js/endings.data.js](../js/endings.data.js) | The narrated end-of-game screens, chosen by final state |
 | [js/budget.data.js](../js/budget.data.js) | Salaries, lifestyle, and the adjustable spending tiers |
 | [js/names.data.js](../js/names.data.js) | Name pools for the random name generator |
+| [js/achievements.data.js](../js/achievements.data.js) | The honours the game awards. Empty for now: the cabinet is built, the medals are not written |
 
 ### Balance & rules (numbers, then the logic that reads them; no DOM in either)
 | File | Contains |
@@ -86,6 +87,7 @@ State is handed between pages through `localStorage`, not a router or framework.
 | [js/game/registry.js](../js/game/registry.js) | `MODES` — the set-piece registry the engine consults instead of naming each mode |
 | [js/game/modes/](../js/game/modes/) | One file per set piece, each owning its state, draw, resolution, card and buttons: `presidentielle`, `investiture`, `race`, `soutien`, `primaire`, `scrutin`, `aside` |
 | [js/script.js](../js/script.js) | The i18n dictionary (`translations`) + language switch + `t()` / `L()` |
+| [js/achievements.js](../js/achievements.js) | Draws the honours cabinet on the landing page, and remembers what was earned. Knows what is on the wall, never what deserves to be |
 | [js/create.js](../js/create.js) · [party.js](../js/party.js) · [tirage.js](../js/tirage.js) | Thin per-page glue |
 | [css/style.css](../css/style.css) | All styling; party colors are driven by a single `data-party` attribute |
 

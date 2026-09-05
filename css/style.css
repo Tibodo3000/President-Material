@@ -207,6 +207,10 @@ body {
 
 /* ==========================================================================
    Page d'accueil
+   --------------------------------------------------------------------------
+   Trois temps, chacun sur son fond : l'ouverture qui prend l'écran entier,
+   les trois colonnes de ce que le jeu demande, la vitrine des distinctions.
+   Rien n'est dans une boîte, tout est séparé par un filet.
    ========================================================================== */
 
 .page-landing {
@@ -215,7 +219,8 @@ body {
   position: relative;
 }
 
-/* Cadre filet, comme une couverture de dossier officiel */
+/* Cadre filet, comme une couverture de dossier officiel. Il est fixe : le
+   contenu défile à l'intérieur, la page reste dans sa chemise. */
 .page-landing::after {
   content: "";
   position: fixed;
@@ -226,17 +231,21 @@ body {
   z-index: 10;
 }
 
+/* --------------------------------------------------------------------------
+   L'ouverture
+   -------------------------------------------------------------------------- */
+
 .landing {
-  flex: 1;
+  position: relative;
+  min-height: 100svh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(4rem, 12vh, 7rem) 1.5rem clamp(2rem, 6vh, 3rem);
-  position: relative;
+  padding: clamp(5rem, 14vh, 8rem) 1.5rem clamp(5rem, 12vh, 7rem);
   overflow: hidden;
 }
 
-/* Colonnes en filigrane */
+/* Colonnes en filigrane, derrière le titre seulement. */
 .landing::before {
   content: "";
   position: absolute;
@@ -254,33 +263,54 @@ body {
 .landing-inner {
   position: relative;
   text-align: center;
-  max-width: 620px;
+  max-width: 660px;
 }
 
-.brand { margin: 0 0 0.9rem; font-weight: 400; }
+/* L'étoile posée sur un filet qui traverse, comme un en-tête de papier à
+   lettres officiel. Le filet s'efface vers les bords : il ouvre la page, il
+   ne l'encadre pas. */
+.brand-rule {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  margin: 0 0 1.6rem;
+  line-height: 1;
+}
+
+.brand-rule::before,
+.brand-rule::after {
+  content: "";
+  width: clamp(2.5rem, 9vw, 5.5rem);
+  height: 1px;
+}
+
+.brand-rule::before { background: linear-gradient(90deg, transparent, var(--gold-dim)); }
+.brand-rule::after  { background: linear-gradient(90deg, var(--gold-dim), transparent); }
 
 .brand-star {
-  display: block;
   color: var(--gold);
-  font-size: 1.35rem;
+  font-size: 0.95rem;
   line-height: 1;
-  margin-bottom: 1.4rem;
-  text-shadow: 0 0 22px rgba(201, 162, 75, 0.5);
+  text-shadow: 0 0 22px rgba(201, 162, 75, 0.55);
 }
+
+.brand { margin: 0 0 1.1rem; font-weight: 400; }
 
 .brand-name {
   display: block;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: clamp(2.7rem, 8.5vw, 5rem);
-  line-height: 0.98;
-  letter-spacing: -0.025em;
+  font-size: clamp(2.9rem, 9vw, 5.4rem);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
 }
 
 .brand-name em {
   display: block;
   font-style: italic;
   font-weight: 400;
+  letter-spacing: -0.02em;
   background: linear-gradient(100deg, var(--gold-2), var(--gold) 45%, #977631);
   -webkit-background-clip: text;
   background-clip: text;
@@ -288,35 +318,243 @@ body {
 }
 
 .brand-sub {
-  font-size: 0.66rem;
+  font-size: 0.63rem;
   font-weight: 600;
-  letter-spacing: 0.34em;
+  letter-spacing: 0.42em;
   text-transform: uppercase;
   color: var(--gold);
-  margin: 0 0 2.6rem;
+  margin: 0 0 2.4rem;
+  /* La lettre espacée pousse le mot vers la droite ; on lui rend son centre. */
+  text-indent: 0.42em;
 }
 
-.landing-desc { margin-bottom: 2.8rem; }
+.landing-desc { margin-bottom: 2.6rem; }
 
 .landing-desc p {
   color: var(--muted);
   font-size: 1rem;
-  max-width: 480px;
-  margin: 0 auto 0.9rem;
+  max-width: 470px;
+  margin: 0 auto;
 }
 
-.landing-desc p:first-child {
+.landing-lead {
   font-family: var(--font-display);
-  font-size: 1.25rem;
+  font-size: clamp(1.2rem, 2.6vw, 1.45rem);
+  line-height: 1.35;
   color: var(--ink);
+  margin-bottom: 1rem !important;
 }
 
-.landing-desc p:last-child { margin-bottom: 0; }
+/* La flèche de bas de page : deux traits, et une descente lente qui dit
+   qu'il y a autre chose dessous. */
+.scroll-cue {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.6rem, 4vh, 2.6rem);
+  transform: translateX(-50%);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroll-cue span {
+  width: 9px;
+  height: 9px;
+  border-right: 1px solid var(--line-2);
+  border-bottom: 1px solid var(--line-2);
+  transform: rotate(45deg);
+  animation: cue-drop 2.4s ease-in-out infinite;
+  transition: border-color var(--transition);
+}
+
+.scroll-cue:hover span { border-color: var(--gold); }
+
+@keyframes cue-drop {
+  0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 0.55; }
+  50%      { transform: rotate(45deg) translate(3px, 3px); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   La vitrine des distinctions
+   -------------------------------------------------------------------------- */
+
+.board {
+  position: relative;
+  border-top: 1px solid var(--line);
+  padding: clamp(3.4rem, 8vh, 5.4rem) 0 clamp(3.8rem, 9vh, 6rem);
+  scroll-margin-top: 2rem;
+}
+
+.board-head {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto clamp(2rem, 4vw, 2.8rem);
+}
+
+.board-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.8rem, 4.5vw, 2.5rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.9rem;
+}
+
+.board-sub {
+  color: var(--muted);
+  font-size: 0.94rem;
+  margin: 0;
+}
+
+/* Le compteur : un chiffre, un filet qui se remplit, un mot. */
+/* `display: flex` l'emporterait sur le display:none de l'attribut hidden :
+   il faut le lui rendre explicitement. */
+.ach-meter[hidden] { display: none; }
+
+.ach-meter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+  max-width: 26rem;
+  margin: 0 auto clamp(1.8rem, 4vw, 2.6rem);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.ach-count {
+  color: var(--gold);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ach-bar {
+  flex: 1;
+  height: 2px;
+  background: var(--line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.ach-bar-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2));
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ach-meter-label { color: var(--faint); font-weight: 600; }
+
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  /* Le fond passe par les gouttières : la vitrine est une grille de filets,
+     pas huit cartes posées côte à côte. */
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ach-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.5rem;
+  min-height: 11.5rem;
+  padding: 1.6rem 1.1rem;
+  background: var(--surface);
+  transition: background var(--transition);
+}
+
+.ach-medal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 0.35rem;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  color: var(--faint);
+  font-size: 0.85rem;
+  line-height: 1;
+  transition: color var(--transition), border-color var(--transition),
+              box-shadow var(--transition);
+}
+
+.ach-name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.98rem;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--muted);
+}
+
+.ach-hint {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--faint);
+}
+
+/* Obtenue : la médaille prend l'or, le nom prend l'encre pleine. */
+.ach-tile.is-earned { background: var(--raised); }
+.ach-tile.is-earned .ach-name { color: var(--ink); }
+
+.ach-tile.is-earned .ach-medal {
+  color: var(--gold);
+  border-color: var(--gold-dim);
+  box-shadow: 0 0 20px -4px rgba(201, 162, 75, 0.45),
+              inset 0 0 12px -6px rgba(201, 162, 75, 0.6);
+}
+
+/* Cachée : le point d'interrogation ne mérite pas la même place que l'étoile. */
+.ach-tile.is-secret .ach-name { font-style: italic; }
+
+/* Emplacement libre : la vitrine est montée, la médaille n'est pas écrite. */
+.ach-tile.is-slot {
+  justify-content: center;
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 7px,
+      rgba(27, 35, 54, 0.55) 7px 8px
+    ),
+    var(--surface);
+}
+
+.ach-tile.is-slot .ach-medal {
+  margin: 0;
+  border-style: dashed;
+  border-color: var(--line);
+  color: var(--line-2);
+}
+
+.ach-empty {
+  margin: 1.4rem 0 0;
+  text-align: center;
+  color: var(--faint);
+  font-size: 0.85rem;
+}
 
 .landing-footer {
   position: relative;
+  border-top: 1px solid var(--line);
   text-align: center;
-  padding: 1.6rem;
+  padding: 1.7rem;
   color: var(--faint);
   font-size: 0.75rem;
   letter-spacing: 0.05em;
@@ -1072,6 +1310,11 @@ body {
   .page-layout { grid-template-columns: 1fr; }
   .sheet { position: static; }
   .identity-grid { grid-template-columns: 1fr; gap: 1.2rem; }
+
+  /* La vitrine passe à deux colonnes. Une seule ferait huit écrans de
+     défilement pour un mur de médailles. */
+  .ach-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ach-tile { min-height: 10.5rem; padding: 1.3rem 0.9rem; }
 }
 
 @media (max-width: 620px) {

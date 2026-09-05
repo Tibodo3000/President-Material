@@ -20,6 +20,16 @@ const translations = {
       "Construisez votre carrière, gagnez vos élections, choisissez vos alliés et vos combats. Aucune ascension ne se ressemble.",
     cta_start: "Commencez votre ascension",
     footer_text: "© 2026 President Material",
+    scroll_cue: "Descendre",
+
+    /* La vitrine des distinctions. Les noms des médailles vivent dans
+       js/achievements.data.js ; ici, seulement le décor de la vitrine. */
+    ach_eyebrow: "Palmarès",
+    ach_title: "Distinctions",
+    ach_meter_label: "obtenues",
+    ach_empty: "Les vitrines attendent leurs premières médailles.",
+    ach_secret_title: "Distinction cachée",
+    ach_secret_hint: "Son nom ne s'écrit qu'une fois gagnée.",
 
     /* Titres affichés dans l'onglet du navigateur */
     page_title_home: "President Material",
@@ -550,6 +560,16 @@ const translations = {
       "Build your career, win your elections, choose your allies and your battles. No two rises to power are the same.",
     cta_start: "Start your journey",
     footer_text: "© 2026 President Material",
+    scroll_cue: "Scroll down",
+
+    /* The honours cabinet. The names on the medals live in
+       js/achievements.data.js; only the cabinet itself is described here. */
+    ach_eyebrow: "Record",
+    ach_title: "Honours",
+    ach_meter_label: "earned",
+    ach_empty: "The cases are still waiting for their first medals.",
+    ach_secret_title: "Hidden honour",
+    ach_secret_hint: "Its name is written only once it is won.",
 
     /* Titles shown in the browser tab */
     page_title_home: "President Material",
