@@ -76,10 +76,13 @@ const EV_divers = [
                   "en": "You say the party fell short, without trying to spread the blame. It is the only sentence of the week that nobody will turn against you." } },
 
     { "label": { "fr": "Défendre la procédure suivie", "en": "Defend the process that was followed" },
-      "effects": { "reputation": -2, "popularity": -13, "standing": 3, "credibilite": -2,
-                   "strike": "menteur", "landscape": { "self": -1.2, "identitarians": 0.5 } },
-      "result": { "fr": "Vous expliquez que les règles ont été respectées. C'est exact, et c'est précisément ce que l'enquête reproche aux règles.",
+      "roll": { "base": 16, "stat": "credibilite", "plus": { "sangfroid": 0.35, "eloquence": 0.25 }, "bonus": [ { "when": { "background": ["law"] }, "value": 2 }, { "when": { "trait": ["intouchable"] }, "value": 1.5 }, { "when": { "personality": ["principled"] }, "value": -1.5 } ], "dice": 16 },
+      "success": { "effects": {"reputation": -2, "popularity": -13, "standing": 4, "credibilite": 2, "strike": "menteur", "landscape": {"self": -1.2, "identitarians": 0.5}},
+        "result": { "fr": "Vous expliquez que les règles ont été respectées. C'est exact, et c'est précisément ce que l'enquête reproche aux règles.",
                   "en": "You explain that the rules were followed. That is true, and it is precisely what the investigation says about the rules." } },
+      "failure": { "effects": {"popularity": -13, "credibilite": -3, "standing": -4, "reputation": -2, "appeal": {"others": -5}},
+        "result": { "fr": "Vous décrivez la procédure : une cellule, un référent, un délai de saisine de quinze jours. Tout est exact. On vous demande combien de signalements la cellule a traités depuis sa création, et la réponse est deux.",
+                    "en": "You describe the procedure: a unit, a designated contact, a fifteen-day window to file. All of it is accurate. You are asked how many reports the unit has handled since it was set up, and the answer is two." } } },
 
     { "label": { "fr": "Faire porter la responsabilité à la direction sortante", "en": "Pin it on the outgoing leadership" },
       "effects": { "popularity": 4, "standing": -10, "reputation": -2, "strike": "traitre",

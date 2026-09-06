@@ -323,9 +323,13 @@ const EV_vie_privee = [
   },
   "choices": [
     { "label": { "fr": "Y aller", "en": "Go ahead" },
-      "effects": { "money": -48000, "trait": "lifting", "popularity": 8, "charisme": 1, "notoriete": 1 },
-      "result": { "fr": "Trois séances, deux semaines de discrétion. Personne ne dit rien pendant un mois, puis un journal met deux photos côte à côte.",
+      "roll": { "base": 13, "stat": "sangfroid", "plus": { "money": 0.35, "reseau": 0.2 }, "bonus": [ { "when": { "minMoney": 300000 }, "value": 2 }, { "when": { "personality": ["calculating"] }, "value": 1.5 }, { "when": { "stat": { "notoriete": { "min": 13 } } }, "value": -2 } ], "dice": 16 },
+      "success": { "effects": {"money": -48000, "trait": "lifting", "popularity": 8, "charisme": 1, "notoriete": 1},
+        "result": { "fr": "Trois séances, deux semaines de discrétion. Personne ne dit rien pendant un mois, puis un journal met deux photos côte à côte.",
                   "en": "Three sessions, two discreet weeks. Nobody says anything for a month, then a paper runs two photographs side by side." } },
+      "failure": { "effects": {"money": -48000, "popularity": -7, "notoriete": 2, "reputation": -2, "trait": "lifting"},
+        "result": { "fr": "Trois séances, un praticien discret et une photo officielle refaite en janvier. Un compte spécialisé met les deux portraits côte à côte en février, avec les dates, et l'on ne parle plus de rien d'autre pendant huit jours.",
+                    "en": "Three sessions, a discreet practitioner and an official portrait redone in January. A specialist account puts the two portraits side by side in February, with the dates, and nothing else is discussed for eight days." } } },
     { "label": { "fr": "Assumer le vieillissement", "en": "Own the ageing" },
       "effects": { "reputation": 3, "sangfroid": 1, "popularity": -2, "notoriete": -1 },
       "result": { "fr": "Vous laissez faire le temps, et vous laissez dire. Dans un métier où tout le monde se retouche, ne rien faire finit par se voir aussi.",
@@ -431,9 +435,13 @@ const EV_vie_privee = [
       "result": { "fr": "Un agenda allégé, un régime, deux rendez-vous par mois. Vous vivrez plus longtemps et vous pèserez moins.",
                   "en": "A lighter diary, a diet, two appointments a month. You will live longer and count for less." } },
     { "label": { "fr": "Cacher le diagnostic", "en": "Hide the diagnosis" },
-      "effects": { "flags": { "frailHealth": true }, "standing": 4, "sangfroid": 1, "strike": "menteur" },
-      "result": { "fr": "Le communiqué parle de fatigue et vous vous y tenez. Trois personnes savent, dont une que vous n'avez pas choisie.",
-                  "en": "The statement says tiredness and you stick to it. Three people know, one of whom you did not choose." } }
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "reseau": 0.3, "credibilite": 0.2 }, "bonus": [ { "when": { "personality": ["calculating"] }, "value": 2 }, { "when": { "trait": ["teflon"] }, "value": 1.5 }, { "when": { "trait": ["fragile"] }, "value": -2.5 } ], "dice": 16 },
+      "success": { "effects": {"flags": {"frailHealth": true}, "standing": 5, "sangfroid": 1, "strike": "menteur"},
+        "result": { "fr": "Le communiqué parle de fatigue et vous vous y tenez. Trois personnes savent, dont une que vous n'avez pas choisie.",
+                  "en": "The statement says tiredness and you stick to it. Three people know, one of whom you did not choose." } },
+      "failure": { "effects": {"popularity": -9, "standing": -7, "credibilite": -3, "energie": -2},
+        "result": { "fr": "Le secret médical protège le dossier, pas l'agenda. Quatre rendez-vous annulés le même jour, trois fois en deux mois, dans un service dont le nom figure sur la plaque : il suffit de savoir lire une plaque.",
+                    "en": "Medical confidentiality protects the file, not the diary. Four appointments cancelled on the same day, three times in two months, at a department whose name is on the brass plate: all it takes is knowing how to read a plate." } } }
   ]
 },
 

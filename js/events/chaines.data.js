@@ -327,9 +327,13 @@ const EV_chaines = [
       "result": { "fr": "La transparence coupe court aux rumeurs. Le parti, lui, cherche déjà un remplaçant.",
                   "en": "The transparency ends the rumours. The party is already looking for a replacement." } },
     { "label": { "fr": "Parler d'un simple coup de fatigue", "en": "Call it simple exhaustion" },
-      "effects": { "popularity": -6, "standing": 9, "reputation": -1, "strike": "menteur" },
-      "result": { "fr": "Personne n'y croit. On commence à compter vos apparitions.",
-                  "en": "Nobody believes it. People start counting your appearances." } }
+      "roll": { "base": 15, "stat": "charisme", "plus": { "sangfroid": 0.3, "credibilite": 0.25 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "personality": ["calculating"] }, "value": 1.5 }, { "when": { "trait": ["menteur"] }, "value": -2.5 } ], "dice": 16 },
+      "success": { "effects": {"popularity": -6, "standing": 4, "reputation": -1, "strike": "menteur"},
+        "result": { "fr": "Personne n'y croit. On commence à compter vos apparitions.",
+                  "en": "Nobody believes it. People start counting your appearances." } },
+      "failure": { "effects": {"popularity": -10, "credibilite": -3, "standing": -6, "strike": "menteur"},
+        "result": { "fr": "Le communiqué parle de fatigue, et deux médecins qui ne vous ont jamais examiné expliquent en plateau ce qu'une fatigue n'est pas. Le mot devient une plaisanterie de fin de journal en quatre jours.",
+                    "en": "The statement says exhaustion, and two doctors who have never examined you explain on air what exhaustion is not. Within four days the word is an end-of-bulletin joke." } } }
   ]
 },
 
