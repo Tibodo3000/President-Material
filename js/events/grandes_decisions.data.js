@@ -231,7 +231,7 @@ const EV_grandes_decisions = [
                   "en": "The classic solution. Expensive, and it settles nothing." } },
     { "label": { "fr": "Retourner la fuite contre son commanditaire", "en": "Turn the leak against whoever ordered it" },
       "when": { "personality": ["calculating"] },
-      "roll": { "base": 19, "stat": "reseau", "plus": { "sangfroid": 0.35, "standing": 0.035 }, "dice": 16 },
+      "roll": { "base": 19, "stat": "reseau", "plus": { "sangfroid": 0.35, "standing": 0.035 }, "bonus": [ { "when": { "trait": ["reseauteur"] }, "value": 2 }, { "when": { "trait": ["memoire_des_noms"] }, "value": 1.5 }, { "when": { "trait": ["appareil"] }, "value": 1.5 }, { "when": { "trait": ["renegat"] }, "value": -1.5 } ], "dice": 16 },
       "success": { "effects": { "reseau": 2, "standing": 15, "notoriete": 1 },
         "result": { "fr": "Vous remontez la chaîne jusqu'à un rival, et vous le faites savoir.",
                     "en": "You trace the chain back to a rival, and you make sure everyone knows." } },

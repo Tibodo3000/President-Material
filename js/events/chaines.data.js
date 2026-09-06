@@ -385,7 +385,7 @@ const EV_chaines = [
   "choices": [
     { "label": { "fr": "Tenir l'hémicycle nuit après nuit", "en": "Hold the chamber night after night" },
       "when": { "stat": { "energie": { "min": 8 } } },
-      "roll": { "stat": "energie", "base": 13, "dice": 16 },
+      "roll": { "base": 13, "stat": "energie", "bonus": [ { "when": { "trait": ["robuste"] }, "value": 2 }, { "when": { "trait": ["athletique"] }, "value": 1.5 }, { "when": { "trait": ["fragile"] }, "value": -2 }, { "when": { "trait": ["epuise"] }, "value": -2 } ], "dice": 16 },
       "success": { "effects": { "notoriete": 2, "eloquence": 1, "energie": -2, "popularity": 12, "standing": 6, "chain": "vote_final" },
         "result": { "fr": "Vous êtes encore debout au petit matin. Les images tournent en boucle.",
                     "en": "You are still standing at dawn. The footage runs on a loop." } },

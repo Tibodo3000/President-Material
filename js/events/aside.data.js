@@ -46,7 +46,7 @@ const EV_aside = [
                   "en": "You spend six weeks in your own markets. Nobody at headquarters notices; your own voters do." } },
 
     { "label": { "fr": "Commenter le scrutin sur les plateaux", "en": "Comment on the race from the studios" },
-      "roll": { "base": 14, "stat": "eloquence", "plus": { "notoriete": 0.35 }, "dice": 15 },
+      "roll": { "base": 14, "stat": "eloquence", "plus": { "notoriete": 0.35 }, "bonus": [ { "when": { "trait": ["orateur"] }, "value": 2 }, { "when": { "trait": ["voix"] }, "value": 1.5 }, { "when": { "trait": ["zozote"] }, "value": -1.5 }, { "when": { "trait": ["anglais_mediocre"] }, "value": -1 } ], "dice": 15 },
       "success": { "effects": { "notoriete": 3, "popularity": 5, "standing": -2 },
         "result": { "fr": "Vous devenez l'invité qu'on rappelle. Six semaines d'antenne gratuite pendant que vos concurrents collent des affiches.",
                     "en": "You become the guest they call back. Six weeks of free airtime while your rivals put up posters." } },
@@ -83,7 +83,7 @@ const EV_aside = [
                   "en": "You cite a diary nobody checks and everybody understands. Nobody will mention it; everybody will remember." } },
 
     { "label": { "fr": "Y aller et faire un discours meilleur que le sien", "en": "Go, and give a better speech than theirs" },
-      "roll": { "base": 17, "stat": "eloquence", "plus": { "charisme": 0.4 }, "dice": 16 },
+      "roll": { "base": 17, "stat": "eloquence", "plus": { "charisme": 0.4 }, "bonus": [ { "when": { "trait": ["orateur"] }, "value": 2 }, { "when": { "trait": ["voix"] }, "value": 1.5 }, { "when": { "trait": ["zozote"] }, "value": -1.5 }, { "when": { "trait": ["anglais_mediocre"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "notoriete": 3, "popularity": 9, "standing": -5, "landscape": { "self": 0.7 } },
         "result": { "fr": "La salle se lève pour vous et se rassoit pour {lui}. C'est la meilleure et la pire chose qui pouvait vous arriver ce soir-là.",
                     "en": "The hall stands for you and sits back down for {him}. It is the best and the worst thing that could have happened to you that evening." } },
@@ -114,7 +114,7 @@ const EV_aside = [
                   "en": "You stay at the back of the room with a drink. It is careful, it is comfortable, and two hundred people saw where you were standing." } },
 
     { "label": { "fr": "Attaquer la ligne du parti dès ce soir", "en": "Attack the party line that very evening" },
-      "roll": { "base": 17, "stat": "sangfroid", "plus": { "standing": 0.05 }, "dice": 16 },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "standing": 0.05 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "standing": 11, "notoriete": 2, "popularity": 4, "reputation": -1 },
         "result": { "fr": "Vous dites à vingt heures trente ce que tout le monde dira dans quinze jours. Quand ils le diront, on se souviendra que vous étiez le premier.",
                     "en": "At half past eight you say what everyone will be saying in a fortnight. When they say it, people will remember you said it first." } },
@@ -135,7 +135,7 @@ const EV_aside = [
   },
   "choices": [
     { "label": { "fr": "Les attaquer frontalement sur leur programme", "en": "Attack them head-on over their programme" },
-      "roll": { "base": 15, "stat": "eloquence", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "credibilite": 0.35 }, "bonus": [ { "when": { "trait": ["orateur"] }, "value": 2 }, { "when": { "trait": ["voix"] }, "value": 1.5 }, { "when": { "trait": ["zozote"] }, "value": -1.5 }, { "when": { "trait": ["anglais_mediocre"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "popularity": 5, "standing": 6, "appeal": { "scene": -6 }, "landscape": { "self": 0.8, "scene": -0.8 } },
         "result": { "fr": "Vous démontez leur chiffrage ligne à ligne pendant quarante minutes devant deux cents personnes. Ils ne reviendront pas dans cette salle, et le marché redevient le vôtre.",
                     "en": "You take their costings apart line by line for forty minutes in front of two hundred people. They will not come back to that hall, and the market is yours again." } },
@@ -143,7 +143,7 @@ const EV_aside = [
         "result": { "fr": "Vous passez quarante minutes à parler d'eux. Deux cents personnes rentrent chez elles en ayant appris leur nom, leur programme et l'adresse de leur permanence.",
                     "en": "You spend forty minutes talking about them. Two hundred people go home having learned their name, their programme and the address of their office." } } },
     { "label": { "fr": "Leur proposer un accord local", "en": "Offer them a local deal" },
-      "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.3 }, "dice": 16 },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "sangfroid": 0.3 }, "bonus": [ { "when": { "trait": ["reseauteur"] }, "value": 2 }, { "when": { "trait": ["memoire_des_noms"] }, "value": 1.5 }, { "when": { "trait": ["appareil"] }, "value": 1.5 }, { "when": { "trait": ["renegat"] }, "value": -1.5 } ], "dice": 16 },
       "success": { "effects": { "standing": 5, "reseau": 2, "landscape": { "self": 0.5, "ally": 0.3 },
                                 "reputation": -1 },
         "result": { "fr": "Un café, deux heures, et une répartition des marchés du dimanche qui ne sera jamais écrite nulle part. Les deux appareils apprendront la nouvelle par leurs militants.",
@@ -175,7 +175,7 @@ const EV_aside = [
   },
   "choices": [
     { "label": { "fr": "Accepter et faire la campagne à sa place", "en": "Accept, and run the campaign for them" },
-      "roll": { "base": 14, "stat": "energie", "plus": { "reseau": 0.4 }, "dice": 16 },
+      "roll": { "base": 14, "stat": "energie", "plus": { "reseau": 0.4 }, "bonus": [ { "when": { "trait": ["robuste"] }, "value": 2 }, { "when": { "trait": ["athletique"] }, "value": 1.5 }, { "when": { "trait": ["fragile"] }, "value": -2 }, { "when": { "trait": ["epuise"] }, "value": -2 } ], "dice": 16 },
       "success": { "effects": { "standing": 12, "reseau": 2, "energie": -3, "notoriete": 1 },
         "result": { "fr": "Vous tenez les réunions publiques que {rival} n'a pas le temps de tenir, et la circonscription apprend votre visage sans jamais lire votre nom sur un bulletin. C'est ainsi qu'on hérite d'un siège.",
                     "en": "You run the public meetings {he} has no time for, and the constituency learns your face without ever reading your name on a ballot. That is how a seat is inherited." } },
@@ -184,7 +184,7 @@ const EV_aside = [
                     "en": "You do six weeks of village halls and {he} wins by twenty points. You are thanked by text on the Sunday evening, and you will not set foot in {his} office again." } } },
     { "label": { "fr": "Accepter, et négocier un écrit", "en": "Accept, and get it in writing" },
       "when": { "background": ["law"] },
-      "roll": { "base": 17, "stat": "sangfroid", "plus": { "credibilite": 0.35 }, "dice": 16 },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "credibilite": 0.35 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "standing": 9, "credibilite": 2, "reseau": 1, "reputation": 1 },
         "result": { "fr": "Trois paragraphes signés qui disent ce qui se passe en cas de remaniement, de démission ou de décès. Personne ne signe jamais ça, et {il} a signé.",
                     "en": "Three signed paragraphs saying what happens in the event of a reshuffle, a resignation or a death. Nobody ever signs that, and {he} signed." } },
@@ -214,7 +214,7 @@ const EV_aside = [
   },
   "choices": [
     { "label": { "fr": "Y aller et rester une heure", "en": "Go, and stay an hour" },
-      "roll": { "base": 15, "stat": "sangfroid", "plus": { "charisme": 0.35 }, "dice": 16 },
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "charisme": 0.35 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "popularity": 8, "notoriete": 2, "standing": -5, "reseau": 2,
                                 "credibilite": 1 },
         "result": { "fr": "Vous serrez des mains chez l'adversaire pendant une heure, à visage découvert, et vous partez avant les résultats. Le pays trouve ça républicain. Votre fédération trouve ça autre chose.",
@@ -267,7 +267,7 @@ const EV_aside = [
                   "en": "Forty towns in six weeks and two nights at home. Your candidates saw you, which matters more to them than anything you could give them later." } },
 
     { "label": { "fr": "Concentrer sur les vingt circonscriptions qui basculent", "en": "Concentrate on the twenty seats that swing" },
-      "roll": { "base": 15, "stat": "reseau", "plus": { "credibilite": 0.4, "standing": 0.03 }, "dice": 16 },
+      "roll": { "base": 15, "stat": "reseau", "plus": { "credibilite": 0.4, "standing": 0.03 }, "bonus": [ { "when": { "trait": ["reseauteur"] }, "value": 2 }, { "when": { "trait": ["memoire_des_noms"] }, "value": 1.5 }, { "when": { "trait": ["appareil"] }, "value": 1.5 }, { "when": { "trait": ["renegat"] }, "value": -1.5 } ], "dice": 16 },
       "success": { "effects": { "standing": 10, "credibilite": 2, "energie": -2, "landscape": { "self": 1.8 } },
         "result": { "fr": "Vous mettez tout l'argent et tout votre temps là où quatre cents voix décident, et vous en gagnez quatorze sur vingt. Personne n'écrira jamais que c'était une décision ; c'en était une.",
                     "en": "You put all the money and all your time where four hundred votes decide, and you take fourteen of the twenty. Nobody will ever write that it was a decision; it was one." } },
@@ -299,7 +299,7 @@ const EV_aside = [
                   "en": "Three minutes, not one more, and you hand the hall back to the person who filled it. A party leader who can keep quiet for one evening makes more debtors than in ten speeches." } },
 
     { "label": { "fr": "Occuper le terrain vous-même, quitte à {le} faire disparaître", "en": "Take the ground yourself, even if it buries {him}" },
-      "roll": { "base": 16, "stat": "charisme", "plus": { "eloquence": 0.45, "notoriete": 0.3 }, "dice": 16 },
+      "roll": { "base": 16, "stat": "charisme", "plus": { "eloquence": 0.45, "notoriete": 0.3 }, "bonus": [ { "when": { "trait": ["beau"] }, "value": 1.5 }, { "when": { "trait": ["stature"] }, "value": 1.5 }, { "when": { "trait": ["ingrat"] }, "value": -1.5 }, { "when": { "trait": ["obese"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "notoriete": 3, "popularity": 8, "landscape": { "self": 1.4 }, "standing": -6 },
         "result": { "fr": "La soirée devient la vôtre, les titres du lendemain aussi, et la campagne repart de deux points. {Il} vous serre la main devant les caméras et ne vous adressera plus la parole en privé.",
                     "en": "The evening becomes yours, so do the next day's headlines, and the campaign gains two points. {He} shakes your hand in front of the cameras and will never speak to you privately again." } },
@@ -331,7 +331,7 @@ const EV_aside = [
                   "en": "Four minutes without a single qualification. It is the one evening when owning it costs something and the one evening it can be bought: in ten years they will remember those four minutes and not the number." } },
 
     { "label": { "fr": "Mettre en cause la campagne, jamais la ligne", "en": "Blame the campaign, never the line" },
-      "roll": { "base": 15, "stat": "eloquence", "plus": { "sangfroid": 0.4, "standing": 0.03 }, "dice": 16 },
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "sangfroid": 0.4, "standing": 0.03 }, "bonus": [ { "when": { "trait": ["orateur"] }, "value": 2 }, { "when": { "trait": ["voix"] }, "value": 1.5 }, { "when": { "trait": ["zozote"] }, "value": -1.5 }, { "when": { "trait": ["anglais_mediocre"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "standing": 12, "credibilite": 1, "reputation": -2, "popularity": -3,
                                 "appeal": { "self": 5 }, "landscape": { "self": 0.5 } },
         "result": { "fr": "Vous expliquez que le fond était juste et que l'exécution ne l'était pas. Votre directeur de campagne comprend en direct qu'il a fini, et vous avez gagné deux ans.",
@@ -341,7 +341,7 @@ const EV_aside = [
                     "en": "Nobody believes for a second that the line had nothing to do with it, because the line is you. Two hundred people watched a party leader look for a culprit inside his own team, live, at half past eight." } } },
 
     { "label": { "fr": "Annoncer une refondation dès ce soir", "en": "Announce a rebuild that very evening" },
-      "roll": { "base": 16, "stat": "charisme", "plus": { "credibilite": 0.45, "standing": 0.03 }, "dice": 16 },
+      "roll": { "base": 16, "stat": "charisme", "plus": { "credibilite": 0.45, "standing": 0.03 }, "bonus": [ { "when": { "trait": ["beau"] }, "value": 1.5 }, { "when": { "trait": ["stature"] }, "value": 1.5 }, { "when": { "trait": ["ingrat"] }, "value": -1.5 }, { "when": { "trait": ["obese"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "standing": 9, "notoriete": 2, "popularity": 6, "credibilite": 2, "energie": -3,
                                 "landscape": { "self": 1.2 } },
         "result": { "fr": "Vous transformez une défaite en calendrier : un congrès, une date, trois chantiers. La salle se lève, et une salle qui se lève un soir de défaite ne se lève pas pour le score.",
@@ -366,7 +366,7 @@ const EV_aside = [
   },
   "choices": [
     { "label": { "fr": "Tout concentrer sur les douze gagnables", "en": "Concentrate everything on the twelve winnable seats" },
-      "roll": { "base": 15, "stat": "credibilite", "plus": { "reseau": 0.35 }, "dice": 16 },
+      "roll": { "base": 15, "stat": "credibilite", "plus": { "reseau": 0.35 }, "bonus": [ { "when": { "trait": ["intouchable"] }, "value": 2 }, { "when": { "trait": ["clairvoyant"] }, "value": 1.5 }, { "when": { "trait": ["casserole"] }, "value": -1.5 }, { "when": { "trait": ["menteur"] }, "value": -1.5 } ], "dice": 16 },
       "success": { "effects": { "standing": 8, "landscape": { "self": 1.0 }, "credibilite": 2,
                                 "reputation": -1 },
         "result": { "fr": "Neuf des douze passent, ce qui est le meilleur rendement de la maison depuis vingt ans. Les vingt-huit autres fédérations ont fait campagne à la photocopieuse et le savent.",
@@ -406,7 +406,7 @@ const EV_aside = [
   },
   "choices": [
     { "label": { "fr": "L'exclure le jour même", "en": "Expel {him} the same day" },
-      "roll": { "base": 15, "stat": "sangfroid", "plus": { "standing": 0.05 }, "dice": 16 },
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "standing": 0.05 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "standing": 9, "credibilite": 2, "landscape": { "self": 0.4 },
                                 "popularity": -3 },
         "result": { "fr": "Bureau politique convoqué à quinze heures, exclusion votée à seize. La maison comprend que la règle existe, ce qu'elle avait cessé de croire.",
@@ -424,7 +424,7 @@ const EV_aside = [
         "result": { "fr": "{Il} fait onze pour cent, prend la circonscription et fonde son mouvement en janvier. Une dissidence qu'on ne combat pas s'appelle un parti six mois plus tard.",
                     "en": "{He} takes eleven per cent, wins the seat and founds a movement in January. A rebellion nobody fights is called a party six months later." } } },
     { "label": { "fr": "Lui proposer autre chose, tout de suite", "en": "Offer {him} something else, immediately" },
-      "roll": { "base": 16, "stat": "reseau", "plus": { "eloquence": 0.35 }, "dice": 16 },
+      "roll": { "base": 16, "stat": "reseau", "plus": { "eloquence": 0.35 }, "bonus": [ { "when": { "trait": ["reseauteur"] }, "value": 2 }, { "when": { "trait": ["memoire_des_noms"] }, "value": 1.5 }, { "when": { "trait": ["appareil"] }, "value": 1.5 }, { "when": { "trait": ["renegat"] }, "value": -1.5 } ], "dice": 16 },
       "success": { "effects": { "standing": 7, "reseau": 2, "landscape": { "self": 0.5 },
                                 "reputation": -1 },
         "result": { "fr": "Vous lui offrez la tête de liste aux européennes avant onze heures. La conférence de presse devient une déclaration de soutien, et deux journalistes repartent sans papier.",
@@ -446,7 +446,7 @@ const EV_aside = [
   },
   "choices": [
     { "label": { "fr": "Assumer le résultat au micro, seul", "en": "Own the result at the microphone, alone" },
-      "roll": { "base": 14, "stat": "sangfroid", "plus": { "eloquence": 0.4 }, "dice": 16 },
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "eloquence": 0.4 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "standing": 10, "credibilite": 2, "popularity": 4, "reputation": 1 },
         "result": { "fr": "Vous descendez à vingt heures dix, sans notes, et vous prenez tout : les circonscriptions perdues, les investitures ratées, la ligne. Personne dans la salle n'attendait ça et tout le monde s'en souviendra.",
                     "en": "You come down at ten past eight, without notes, and you take all of it: the seats lost, the nominations botched, the line. Nobody in the room expected it and everybody will remember it." } },

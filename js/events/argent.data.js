@@ -29,7 +29,7 @@ const EV_argent = [
                   "en": "He signs the donation receipt without argument and thanks you for seeing him. It is a hundredth of what he was offering, it is entirely lawful, and he keeps the other ninety-nine hundredths of his willingness to help you. You will see him again." } },
 
     { "label": { "fr": "Lui demander maintenant ce qu'il voudra plus tard", "en": "Ask him now what he will want later" },
-      "roll": { "base": 15, "stat": "sangfroid", "plus": { "credibilite": 0.35, "reseau": 0.3 }, "dice": 16 },
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "credibilite": 0.35, "reseau": 0.3 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "reseau": 2, "sangfroid": 1, "credibilite": 2, "money": 7500,
                                 "standing": -2 },
         "result": { "fr": "Il répond, ce que personne n'attendait : un permis de construire, dans quatre ans, sur un terrain qu'il n'a pas encore acheté. Vous refusez l'enveloppe, vous prenez les sept mille cinq cents légaux, et vous savez désormais une chose que trois personnes savent dans ce département.",
@@ -54,7 +54,7 @@ const EV_argent = [
 
     { "label": { "fr": "Monter un financement transparent autour de lui", "en": "Build transparent funding around him" },
       "when": { "background": ["business"] },
-      "roll": { "base": 14, "stat": "reseau", "plus": { "sangfroid": 0.4, "standing": 0.03 }, "dice": 16 },
+      "roll": { "base": 14, "stat": "reseau", "plus": { "sangfroid": 0.4, "standing": 0.03 }, "bonus": [ { "when": { "trait": ["reseauteur"] }, "value": 2 }, { "when": { "trait": ["memoire_des_noms"] }, "value": 1.5 }, { "when": { "trait": ["appareil"] }, "value": 1.5 }, { "when": { "trait": ["renegat"] }, "value": -1.5 } ], "dice": 16 },
       "success": { "effects": { "money": 60000, "reseau": 3, "reputation": 2, "credibilite": 1,
                                 "standing": 5 },
         "result": { "fr": "Vous ne prenez pas son argent, vous prenez son carnet d'adresses : onze personnes physiques, sept mille cinq cents euros chacune, tout est déclaré et tout est vrai. Il n'a rien donné et il a tout organisé, ce qui n'est écrit nulle part et ne se poursuit nulle part.",
@@ -179,7 +179,7 @@ const EV_argent = [
                   "en": "Rules are rules. Your backer stops calling, and in two years you will learn who he gives to now." } },
 
     { "label": { "fr": "Trouver un critère technique qui les avantage", "en": "Find a technical criterion that favours them" },
-      "roll": { "stat": "sangfroid", "base": 12, "dice": 14, "plus": { "reseau": 0.3 } },
+      "roll": { "base": 12, "stat": "sangfroid", "plus": { "reseau": 0.3 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 14 },
       "success": { "effects": { "money": 180000, "standing": 8, "reputation": -1, "flags": { "dirtyMoney": true }, "chain": "chantier_suite" },
         "result": { "fr": "Le rapport d'analyse pèse quarante pages et conclut exactement ce qu'il fallait. Le virement, lui, passe par une société de conseil.",
                     "en": "The evaluation report runs to forty pages and concludes exactly what it had to. The payment goes through a consultancy." } },
@@ -286,7 +286,7 @@ const EV_argent = [
                   "en": "It is all legal, all public, and nobody thinks it is normal. That is precisely the definition of the problem." } },
 
     { "label": { "fr": "Accepter sans le déclarer", "en": "Take it, and say nothing" },
-      "roll": { "stat": "sangfroid", "base": 13, "dice": 15, "plus": { "reseau": 0.25 } },
+      "roll": { "base": 13, "stat": "sangfroid", "plus": { "reseau": 0.25 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 15 },
       "success": { "effects": { "money": 260000, "standing": 5, "reputation": -2, "flags": { "dirtyMoney": true }, "chain": "amendements_dictes" },
         "result": { "fr": "Le virement arrive sur une structure luxembourgeoise au nom de votre belle-sœur. À Bruxelles, personne ne regarde ; c'est bien pour cela qu'on vous y a envoyé.",
                     "en": "The payment lands in a Luxembourg vehicle in your sister-in-law's name. In Brussels, nobody looks; that is rather why they sent you there." } },
@@ -313,7 +313,7 @@ const EV_argent = [
                   "en": "Twelve amendments tabled in three minutes, two of which nobody in your group has read. The vote happens on a Thursday evening in an empty chamber." } },
 
     { "label": { "fr": "N'en déposer que les inoffensifs", "en": "Table only the harmless ones" },
-      "roll": { "stat": "eloquence", "base": 12, "dice": 14 },
+      "roll": { "base": 12, "stat": "eloquence", "bonus": [ { "when": { "trait": ["orateur"] }, "value": 2 }, { "when": { "trait": ["voix"] }, "value": 1.5 }, { "when": { "trait": ["zozote"] }, "value": -1.5 }, { "when": { "trait": ["anglais_mediocre"] }, "value": -1 } ], "dice": 14 },
       "success": { "effects": { "money": 40000, "reputation": 1, "standing": 1 },
         "result": { "fr": "Le cabinet compte les amendements et pas les lignes. Vous gardez l'argent et la directive garde ses dents.",
                     "en": "The consultancy counts amendments, not lines. You keep the money and the directive keeps its teeth." } },
@@ -398,7 +398,7 @@ const EV_argent = [
       "result": { "fr": "Vous déclinez poliment. Il ira voir quelqu'un d'autre dans la semaine, et vous saurez qui dans deux ans.",
                   "en": "You decline politely. He will see somebody else within the week, and you will find out who in two years." } },
     { "label": { "fr": "Refuser et le raconter à la presse", "en": "Decline and tell the press" },
-      "roll": { "base": 15, "stat": "reputation", "plus": { "notoriete": 0.5 }, "dice": 16 },
+      "roll": { "base": 15, "stat": "reputation", "plus": { "notoriete": 0.5 }, "bonus": [ { "when": { "trait": ["intouchable"] }, "value": 2 }, { "when": { "trait": ["casserole"] }, "value": -2 }, { "when": { "trait": ["repris_de_justice"] }, "value": -2 } ], "dice": 16 },
       "success": { "effects": { "notoriete": 2, "popularity": 12, "reputation": 2, "standing": -7 },
         "result": { "fr": "Le récit fait la une trois jours. On vous demande pourquoi vous n'avez pas porté plainte, ce qui est une bonne question.",
                     "en": "The story leads the news for three days. People ask why you did not go to the police, which is a fair question." } },
@@ -598,7 +598,7 @@ const EV_argent = [
   },
   "choices": [
     { "label": { "fr": "Assumer une prestation légale de veille", "en": "Call it a legal monitoring service" },
-      "roll": { "base": 17, "stat": "sangfroid", "plus": { "eloquence": 0.4, "standing": 0.03 }, "dice": 16 },
+      "roll": { "base": 17, "stat": "sangfroid", "plus": { "eloquence": 0.4, "standing": 0.03 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "popularity": -5, "standing": 2, "sangfroid": 1 },
         "result": { "fr": "Vous parlez de veille concurrentielle avec un tel sérieux que le sujet devient technique, donc ennuyeux, donc mort.",
                     "en": "You talk about competitive monitoring so earnestly that the story turns technical, therefore boring, therefore dead." } },
@@ -699,7 +699,7 @@ const EV_argent = [
       "result": { "fr": "Vous revenez bronzé et en forme. Une photo du yacht circulera au pire moment, comme toujours.",
                   "en": "You come back tanned and rested. A photo of the yacht will surface at the worst possible moment, as they always do." } },
     { "label": { "fr": "Y aller et parler des prisonniers politiques", "en": "Go, and raise the political prisoners" },
-      "roll": { "base": 16, "stat": "sangfroid", "plus": { "eloquence": 0.4, "reputation": 0.4 }, "dice": 16 },
+      "roll": { "base": 16, "stat": "sangfroid", "plus": { "eloquence": 0.4, "reputation": 0.4 }, "bonus": [ { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "trait": ["intrepide"] }, "value": 1.5 }, { "when": { "trait": ["lache"] }, "value": -2 }, { "when": { "trait": ["tete_en_lair"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "notoriete": 2, "popularity": 10, "reputation": 2, "reseau": -1, "energie": -1 },
         "result": { "fr": "Deux détenus sont libérés le mois suivant. Personne ne saura jamais si c'est grâce à vous, et vous laisserez dire.",
                     "en": "Two detainees are released the following month. Nobody will ever know whether it was thanks to you, and you will let people assume." } },
@@ -857,7 +857,7 @@ const EV_argent = [
   "choices": [
     { "label": { "fr": "Forcer le cordon et hurler devant les caméras", "en": "Push through the cordon and shout in front of the cameras" },
       "when": { "personality": ["provocative"] },
-      "roll": { "base": 19, "stat": "charisme", "plus": { "notoriete": 0.4, "eloquence": 0.3 }, "dice": 16 },
+      "roll": { "base": 19, "stat": "charisme", "plus": { "notoriete": 0.4, "eloquence": 0.3 }, "bonus": [ { "when": { "trait": ["beau"] }, "value": 1.5 }, { "when": { "trait": ["stature"] }, "value": 1.5 }, { "when": { "trait": ["ingrat"] }, "value": -1.5 }, { "when": { "trait": ["obese"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "appeal": { "self": 15, "others": -6 }, "notoriete": 4, "credibilite": -2,
                                 "reputation": -1, "energie": -2, "landscape": { "self": 0.7 } },
         "result": { "fr": "Onze secondes de cri devant une porte, reprises en boucle pendant quatre jours. Votre base n'a pas été aussi mobilisée depuis six ans et le reste du pays regarde la même vidéo en tirant la conclusion inverse. Les deux camps la partagent, avec le même montage.",
@@ -883,7 +883,7 @@ const EV_argent = [
                   "en": "You open all three offices, including the one nobody had asked for, and the accounts are online by ten at night with the annexes. What the boxes contain, you know better than anyone, and there is nothing left to do but wait for them to be read. Your activists, for their part, wanted a fight." } },
 
     { "label": { "fr": "Attaquer sur la date : onze mois de signalement, et une descente maintenant", "en": "Go after the timing: eleven months on the referral, and a raid now" },
-      "roll": { "base": 17, "stat": "eloquence", "plus": { "credibilite": 0.4, "notoriete": 0.25 }, "dice": 16 },
+      "roll": { "base": 17, "stat": "eloquence", "plus": { "credibilite": 0.4, "notoriete": 0.25 }, "bonus": [ { "when": { "trait": ["orateur"] }, "value": 2 }, { "when": { "trait": ["voix"] }, "value": 1.5 }, { "when": { "trait": ["zozote"] }, "value": -1.5 }, { "when": { "trait": ["anglais_mediocre"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "axis": { "power": -60 }, "popularity": 10, "notoriete": 2, "credibilite": 1,
                                 "standing": 4, "landscape": { "self": 0.8 } },
         "result": { "fr": "Vous ne contestez rien du fond et vous ne parlez que du calendrier : la date du signalement, la date de la saisine, la date de la caméra. Personne ne vous répond sur la caméra, et c'est la seule des trois dates que le pays retient.",

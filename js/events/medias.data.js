@@ -75,7 +75,7 @@ const EV_medias = [
                   "en": "You repost it with a worse comment. The country talks about nothing else." } },
     { "label": { "fr": "Noyer l'affaire sous une contre-campagne", "en": "Bury it under a counter-campaign" },
       "when": { "background": ["comms"] },
-      "roll": { "base": 14, "stat": "reseau", "plus": { "eloquence": 0.4 }, "dice": 16 },
+      "roll": { "base": 14, "stat": "reseau", "plus": { "eloquence": 0.4 }, "bonus": [ { "when": { "trait": ["reseauteur"] }, "value": 2 }, { "when": { "trait": ["memoire_des_noms"] }, "value": 1.5 }, { "when": { "trait": ["appareil"] }, "value": 1.5 }, { "when": { "trait": ["renegat"] }, "value": -1.5 } ], "dice": 16 },
       "success": { "effects": { "popularity": 4, "standing": 6, "strike": "menteur" },
         "result": { "fr": "Trois autres sujets sortent le même jour. Le vôtre disparaît du fil.",
                     "en": "Three other stories break the same day. Yours vanishes from the feed." } },
@@ -95,7 +95,7 @@ const EV_medias = [
   },
   "choices": [
     { "label": { "fr": "En rire vous-même", "en": "Laugh at yourself" },
-      "roll": { "stat": "charisme", "base": 13, "dice": 16 },
+      "roll": { "base": 13, "stat": "charisme", "bonus": [ { "when": { "trait": ["beau"] }, "value": 1.5 }, { "when": { "trait": ["stature"] }, "value": 1.5 }, { "when": { "trait": ["ingrat"] }, "value": -1.5 }, { "when": { "trait": ["obese"] }, "value": -1 } ], "dice": 16 },
       "success": { "effects": { "notoriete": 1, "popularity": 9 },
         "result": { "fr": "Votre autodérision désamorce tout. On ne retient que la vanne.",
                     "en": "Your self-mockery defuses it. Only the joke survives." } },
