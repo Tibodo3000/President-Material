@@ -612,9 +612,13 @@ const EV_caractere = [
       "result": { "fr": "Vous le regardez sans répondre jusqu'à ce qu'il change de sujet, ce qui prend onze secondes. Il vous soutiendra quand même, en le racontant autrement.",
                   "en": "You look at him without answering until he changes the subject, which takes eleven seconds. He will back you anyway, and tell the story differently." } },
     { "label": { "fr": "Prendre les devants et en parler publiquement", "en": "Get ahead of it and say it publicly" },
-      "effects": { "notoriete": 2, "popularity": 5, "reputation": 3, "standing": -6 },
-      "result": { "fr": "Une phrase dans une interview, sans emphase, au milieu d'un paragraphe sur autre chose. Elle fait quatre jours de commentaires et vous ne la répéterez plus jamais.",
-                  "en": "One sentence in an interview, no emphasis, in the middle of a paragraph about something else. It runs for four days and you will never repeat it." } }
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "charisme": 0.35, "popularity": 0.05 }, "bonus": [ { "when": { "personality": ["principled"] }, "value": 2 }, { "when": { "background": ["journalism", "comms"] }, "value": 1.5 }, { "when": { "minPopularity": 58 }, "value": 1.5 } ], "dice": 16 },
+      "success": { "effects": {"notoriete": 1, "popularity": 4, "reputation": 3, "standing": -6},
+        "result": { "fr": "Une phrase dans une interview, sans emphase, au milieu d'un paragraphe sur autre chose. Elle fait quatre jours de commentaires et vous ne la répéterez plus jamais.",
+                  "en": "One sentence in an interview, no emphasis, in the middle of a paragraph about something else. It runs for four days and you will never repeat it." } },
+      "failure": { "effects": {"popularity": -6, "standing": -8, "notoriete": 2, "energie": -2},
+        "result": { "fr": "Vous choisissez le moment, le média et les mots, et rien de tout cela ne tient : la séquence dure quatre jours et deux d'entre eux ne parlent que de la date que vous aviez choisie.",
+                    "en": "You choose the moment, the outlet and the words, and none of it holds: the story runs for four days, two of which are about nothing but the date you picked." } } }
   ]
 },
 
@@ -661,9 +665,13 @@ const EV_caractere = [
   },
   "choices": [
     { "label": { "fr": "Il figure, comme tous les autres", "en": "He appears, like everybody else" },
-      "effects": { "popularity": 6, "reputation": 2, "notoriete": 1 },
-      "result": { "fr": "La photo est banale, ce qui est exactement le but. Deux chaînes la commentent pendant quarante minutes, ce qui prouve qu'elle ne l'était pas encore.",
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "charisme": 0.3, "popularity": 0.04 }, "bonus": [ { "when": { "personality": ["charming"] }, "value": 2 }, { "when": { "minPopularity": 58 }, "value": 1.5 }, { "when": { "party": ["identitarians", "conservatives"] }, "value": -1.5 } ], "dice": 16 },
+      "success": { "effects": {"popularity": 6, "reputation": 2, "notoriete": 1},
+        "result": { "fr": "La photo est banale, ce qui est exactement le but. Deux chaînes la commentent pendant quarante minutes, ce qui prouve qu'elle ne l'était pas encore.",
                   "en": "The photograph is unremarkable, which is exactly the point. Two channels discuss it for forty minutes, which proves it was not unremarkable yet." } },
+      "failure": { "effects": {"popularity": -4, "energie": -2, "standing": -5, "notoriete": 2},
+        "result": { "fr": "La photo officielle est publiée sans commentaire, comme les autres, et elle est commentée pendant six jours. Deux fédérations demandent une mise au point, ce qui vous oblige à faire de la vie de quelqu'un une position politique.",
+                    "en": "The official photograph is published without comment, like the others, and is commented on for six days. Two federations ask for clarification, which forces you to turn somebody's life into a political position." } } },
     { "label": { "fr": "Y aller seul, pour ne pas l'exposer", "en": "Go alone, to keep him out of it" },
       "effects": { "standing": 4, "popularity": -2, "energie": -1 },
       "result": { "fr": "Vous lui expliquez que c'est plus simple, il répond que oui, bien sûr, et vous savez tous les deux que vous venez de choisir votre carrière contre lui.",
