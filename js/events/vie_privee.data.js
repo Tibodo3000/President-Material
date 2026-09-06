@@ -73,9 +73,13 @@ const EV_vie_privee = [
   },
   "choices": [
     { "label": { "fr": "Passer le coup de fil", "en": "Make the call" },
-      "effects": { "reseau": 1, "reputation": -2, "standing": 3, "flags": { "dirtyMoney": true } },
-      "result": { "fr": "Cinq minutes de téléphone. Une note de service quelque part porte votre nom.",
+      "roll": { "base": 13, "stat": "reseau", "plus": { "reputation": 0.3, "sangfroid": 0.25 }, "bonus": [ { "when": { "personality": ["charming"] }, "value": 2 }, { "when": { "trait": ["intouchable"] }, "value": -2 }, { "when": { "trait": ["appareil"] }, "value": 2 } ], "dice": 16 },
+      "success": { "effects": {"reseau": 2, "reputation": -2, "standing": 3, "flags": {"dirtyMoney": true}},
+        "result": { "fr": "Cinq minutes de téléphone. Une note de service quelque part porte votre nom.",
                   "en": "Five minutes on the phone. A memo somewhere has your name on it." } },
+      "failure": { "effects": {"reseau": -2, "reputation": -2, "standing": -3, "energie": -1},
+        "result": { "fr": "L'appel dure quatre minutes et il est passé depuis votre ligne, un mardi à dix heures douze. Le service qui reçoit note l'appel dans un tableau, parce que c'est son travail de noter les appels dans un tableau.",
+                    "en": "The call lasts four minutes and is made from your own line, on a Tuesday at twelve minutes past ten. The office that takes it logs the call in a spreadsheet, because logging calls in a spreadsheet is what that office does." } } },
     { "label": { "fr": "Refuser et perdre l'ami", "en": "Refuse and lose the friend" },
       "when": { "stat": { "energie": { "min": 8 } } },
       "effects": { "reputation": 2, "reseau": -1, "popularity": 3, "energie": -2 },
@@ -109,9 +113,13 @@ const EV_vie_privee = [
       "result": { "fr": "L'aveu circule partout. On vous redécouvre.",
                   "en": "The admission travels everywhere. People rediscover you." } },
     { "label": { "fr": "Dérouler le bilan", "en": "Run through the record" },
-      "effects": { "standing": 6, "popularity": -2, "notoriete": 1 },
-      "result": { "fr": "Un entretien correct et parfaitement oubliable.",
+      "roll": { "base": 15, "stat": "eloquence", "plus": { "credibilite": 0.3, "reputation": 0.25 }, "bonus": [ { "when": { "trait": ["orateur"] }, "value": 2 }, { "when": { "minElectionsWon": 3 }, "value": 2 }, { "when": { "trait": ["has_been"] }, "value": -2 } ], "dice": 16 },
+      "success": { "effects": {"standing": 6, "popularity": 6, "notoriete": 2},
+        "result": { "fr": "Un entretien correct et parfaitement oubliable.",
                   "en": "A decent, perfectly forgettable interview." } },
+      "failure": { "effects": {"popularity": -6, "notoriete": 1, "credibilite": -1, "standing": -3},
+        "result": { "fr": "Vous citez onze lois, dont trois abrogées depuis et deux que vous avez votées sans les défendre. L'intervieweur a préparé la liste des trois, et il ne pose la question qu'à la trente-quatrième minute, quand vous avez fini de dérouler.",
+                    "en": "You cite eleven laws, three of them since repealed and two that you voted for without ever defending. The interviewer has the list of the three ready, and only asks about them at the thirty-fourth minute, once you have finished." } } },
     { "label": { "fr": "Publier un livre de souvenirs", "en": "Publish a book of memoirs" },
       "effects": { "money": 40000, "notoriete": 2, "popularity": 4, "energie": -2, "standing": -3 },
       "result": { "fr": "Trois cents pages écrites par quelqu'un d'autre, où vous aviez raison avant tout le monde à chaque chapitre.",
@@ -685,9 +693,13 @@ const EV_vie_privee = [
                   "en": "You give a date, and you know as you give it that there will be another after it. It is the most common promise in politics and the least often kept." } },
 
     { "label": { "fr": "Répondre que c'est le métier", "en": "Answer that this is the job" },
-      "effects": { "sangfroid": -1, "energie": -1, "standing": 3, "popularity": -1 },
-      "result": { "fr": "C'est vrai, et c'est la pire chose à dire. La conversation s'arrête là, et elle ne reprendra pas : on ne discute pas deux fois avec quelqu'un qui a raison.",
-                  "en": "It is true, and it is the worst thing to say. The conversation ends there and will not resume: nobody argues twice with somebody who is right." } }
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "energie": 0.3, "eloquence": 0.25 }, "bonus": [ { "when": { "personality": ["hardworking"] }, "value": 1.5 }, { "when": { "origin": ["dynasty"] }, "value": 2 }, { "when": { "trait": ["epuise"] }, "value": -2 } ], "dice": 16 },
+      "success": { "effects": {"sangfroid": -1, "energie": 1, "standing": 4, "popularity": -1},
+        "result": { "fr": "C'est vrai, et c'est la pire chose à dire. La conversation s'arrête là, et elle ne reprendra pas : on ne discute pas deux fois avec quelqu'un qui a raison.",
+                  "en": "It is true, and it is the worst thing to say. The conversation ends there and will not resume: nobody argues twice with somebody who is right." } },
+      "failure": { "effects": {"energie": -3, "popularity": -3, "reputation": -2, "chain": "rupture"},
+        "result": { "fr": "Vous répondez que c'est le métier, et c'est le métier. La conversation s'arrête là, elle reprendra dans onze mois avec les mêmes mots et une valise dans l'entrée.",
+                    "en": "You answer that it comes with the job, and it does come with the job. The conversation stops there and will resume in eleven months with the same words and a suitcase in the hall." } } }
   ]
 },
 

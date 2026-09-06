@@ -571,13 +571,18 @@ const EV_argent = [
       "result": { "fr": "Le dossier dort dans un coffre. Votre rival ne sait pas pourquoi vous lui souriez comme ça en réunion.",
                   "en": "The file sleeps in a safe. Your rival cannot work out why you smile at him like that in meetings." } },
     { "label": { "fr": "Refuser et le mettre dehors", "en": "Refuse and show him the door" },
-      "effects": { "reputation": 2, "sangfroid": 1, "standing": -4 },
+      "effects": { "reputation": 2, "sangfroid": 1, "standing": -4, "reseau": -2,
+                   "landscape": { "self": -0.4 } },
       "result": { "fr": "Il repart sans insister. Il ira voir votre rival, qui a peut-être un dossier sur vous.",
                   "en": "He leaves without pushing. He will go and see your rival, who may well have a file on you." } },
     { "label": { "fr": "Prévenir votre rival de ce qui circule", "en": "Warn your rival about what is circulating" },
-      "effects": { "reseau": 2, "reputation": 2, "popularity": -3, "standing": -2 },
-      "result": { "fr": "Il vous remercie froidement, comme quelqu'un qui vient de comprendre qu'il vous doit quelque chose.",
-                  "en": "He thanks you coldly, like a man who has just realised he owes you something." } }
+      "roll": { "base": 15, "stat": "sangfroid", "plus": { "reputation": 0.35, "reseau": 0.25 }, "bonus": [ { "when": { "personality": ["principled"] }, "value": 2 }, { "when": { "trait": ["intouchable"] }, "value": 2 }, { "when": { "trait": ["traitre"] }, "value": -2.5 } ], "dice": 16 },
+      "success": { "effects": {"reseau": 4, "reputation": 3, "credibilite": 2, "popularity": -3, "standing": -2},
+        "result": { "fr": "Il vous remercie froidement, comme quelqu'un qui vient de comprendre qu'il vous doit quelque chose.",
+                  "en": "He thanks you coldly, like a man who has just realised he owes you something." } },
+      "failure": { "effects": {"reseau": -2, "standing": -6, "reputation": -1, "notoriete": 1},
+        "result": { "fr": "Il vous remercie, puis il explique à trois personnes que vous saviez. La nuance entre avoir prévenu et avoir su n'existe que pour vous, et le dossier sort quand même en mars, sans votre nom dessus et avec votre nom dedans.",
+                    "en": "He thanks you, then explains to three people that you knew. The difference between having warned him and having known exists only for you, and the file comes out in March anyway, without your name on it and with your name in it." } } }
   ]
 },
 
