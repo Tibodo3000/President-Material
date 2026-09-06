@@ -618,9 +618,13 @@ const EV_vie_privee = [
   },
   "choices": [
     { "label": { "fr": "Appeler le médecin", "en": "Call the doctor" },
-      "effects": { "trait": "drogue", "energie": 4, "money": -3000 },
-      "result": { "fr": "Trois semaines plus tard vous tenez les journées de dix-huit heures sans y penser. C'est exactement ce qu'on vous avait promis, et personne ne vous a promis la suite.",
+      "roll": { "base": 13, "stat": "sangfroid", "plus": { "reputation": 0.3, "credibilite": 0.25 }, "bonus": [ { "when": { "personality": ["principled"] }, "value": 2 }, { "when": { "trait": ["robuste"] }, "value": 1.5 }, { "when": { "trait": ["drogue"] }, "value": -2.5 } ], "dice": 16 },
+      "success": { "effects": {"trait": "drogue", "energie": 3, "money": -3000, "sangfroid": 1},
+        "result": { "fr": "Trois semaines plus tard vous tenez les journées de dix-huit heures sans y penser. C'est exactement ce qu'on vous avait promis, et personne ne vous a promis la suite.",
                   "en": "Three weeks later you are getting through eighteen-hour days without thinking about it. That is exactly what was promised, and nobody promised you what comes after." } },
+      "failure": { "effects": {"energie": 1, "popularity": -5, "standing": -4, "notoriete": 1},
+        "result": { "fr": "Le cabinet est à quatre rues du siège et la salle d'attente donne sur la rue. Personne ne dit rien, personne n'écrit rien, et deux personnes de votre parti savent avant vous que vous y êtes allé.",
+                    "en": "The surgery is four streets from headquarters and the waiting room looks onto the street. Nobody says anything, nobody writes anything, and two people in your party know you went before you get home." } } },
 
     { "label": { "fr": "Rendre la boîte, sans commentaire non plus", "en": "Hand the box back, without comment either" },
       "effects": { "sangfroid": 2, "reputation": 1, "energie": -1 },

@@ -17,9 +17,13 @@ const EV_appareil = [
   },
   "choices": [
     { "label": { "fr": "Accepter son parrainage", "en": "Accept the patronage" },
-      "effects": { "reseau": 2, "standing": 11, "reputation": -1, "popularity": -8, "chain": "mentor_dette" },
-      "result": { "fr": "Les portes s'ouvrent. Vous lui devez quelque chose, désormais.",
+      "roll": { "base": 13, "stat": "charisme", "plus": { "reseau": 0.3, "reputation": 0.25 }, "bonus": [ { "when": { "personality": ["charming"] }, "value": 2 }, { "when": { "origin": ["dynasty"] }, "value": 1.5 }, { "when": { "personality": ["provocative"] }, "value": -2 } ], "dice": 16 },
+      "success": { "effects": {"reseau": 3, "standing": 6, "reputation": -1, "popularity": -8, "chain": "mentor_dette"},
+        "result": { "fr": "Les portes s'ouvrent. Vous lui devez quelque chose, désormais.",
                   "en": "Doors open. You owe them something now." } },
+      "failure": { "effects": {"reseau": 1, "standing": -3, "reputation": -2, "energie": -1},
+        "result": { "fr": "Il vous présente à onze personnes en huit mois, puis il perd son congrès et les onze cessent de rappeler. Vous héritez de ses ennemis sans avoir eu le temps d'hériter de ses amis.",
+                    "en": "He introduces you to eleven people in eight months, then loses his conference and the eleven stop returning calls. You inherit his enemies without having had time to inherit his friends." } } },
     { "label": { "fr": "Faire votre chemin seul", "en": "Make your own way" },
       "effects": { "reputation": 1, "popularity": 3, "standing": -6 },
       "result": { "fr": "On note votre indépendance. Elle plaît dehors et agace dedans.",
@@ -103,9 +107,13 @@ const EV_appareil = [
       "result": { "fr": "Il ira grandir chez un autre. Vous le recroiserez.",
                   "en": "He will grow under someone else. You will meet him again." } },
     { "label": { "fr": "L'embaucher comme collaborateur, payé par l'Assemblée", "en": "Hire him as staff, paid by parliament" },
-      "effects": { "reseau": 1, "energie": 1, "standing": 3, "reputation": -1, "popularity": -4 },
-      "result": { "fr": "Il travaille deux fois plus que vos autres collaborateurs, pour le même salaire public. Vous appelez ça une chance qu'on lui donne.",
-                  "en": "He works twice as hard as your other staff, on the same public salary. You call it giving him a chance." } }
+      "roll": { "base": 14, "stat": "reseau", "plus": { "credibilite": 0.3, "money": 0.35 }, "bonus": [ { "when": { "personality": ["hardworking"] }, "value": 1.5 }, { "when": { "trait": ["memoire_des_noms"] }, "value": 1.5 }, { "when": { "personality": ["calculating"] }, "value": 1.5 } ], "dice": 16 },
+      "success": { "effects": {"reseau": 3, "energie": 2, "standing": 3, "reputation": -1, "popularity": -4},
+        "result": { "fr": "Il travaille deux fois plus que vos autres collaborateurs, pour le même salaire public. Vous appelez ça une chance qu'on lui donne.",
+                  "en": "He works twice as hard as your other staff, on the same public salary. You call it giving him a chance." } },
+      "failure": { "effects": {"money": -22000, "reseau": -1, "energie": -2, "standing": -3},
+        "result": { "fr": "Il tient quatorze mois, apprend tout ce qu'il y avait à apprendre, et part chez quelqu'un qui peut le payer davantage. Il connaît désormais vos dossiers, vos horaires et vos deux ou trois habitudes discutables.",
+                    "en": "He lasts fourteen months, learns everything there was to learn, and leaves for somebody who can pay him more. He now knows your files, your diary and your two or three questionable habits." } } }
   ]
 },
 

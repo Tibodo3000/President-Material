@@ -493,9 +493,13 @@ const EV_argent = [
   },
   "choices": [
     { "label": { "fr": "L'embaucher comme attachée parlementaire", "en": "Hire her as a parliamentary assistant" },
-      "effects": { "money": 90000, "energie": 1, "reputation": -2, "flags": { "dirtyMoney": true }, "chain": "emploi_fictif_presse" },
-      "result": { "fr": "Le contrat est signé un vendredi soir. Elle passera au bureau deux fois en trois ans, dont une pour un pot de départ.",
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "reseau": 0.3, "credibilite": 0.25 }, "bonus": [ { "when": { "personality": ["calculating"] }, "value": 2 }, { "when": { "trait": ["appareil"] }, "value": 1.5 }, { "when": { "minPopularity": 62 }, "value": -1.5 } ], "dice": 16 },
+      "success": { "effects": {"money": 20000, "energie": 1, "reputation": -2, "flags": {"dirtyMoney": true}, "chain": "emploi_fictif_presse"},
+        "result": { "fr": "Le contrat est signé un vendredi soir. Elle passera au bureau deux fois en trois ans, dont une pour un pot de départ.",
                   "en": "The contract is signed on a Friday evening. She will come to the office twice in three years, once for a leaving party." } },
+      "failure": { "effects": {"money": 8000, "popularity": -11, "reputation": -2, "credibilite": -3, "strike": "casserole"},
+        "result": { "fr": "Le contrat est réel, la personne existe, et personne au bureau ne se souvient de l'avoir vue. Il suffit d'un stagiaire du service de presse pour poser la question, et un stagiaire finit toujours par la poser.",
+                    "en": "The contract is real, the person exists, and nobody in the office remembers seeing her. It only takes one press-office intern to ask the question, and an intern always ends up asking it." } } },
     { "label": { "fr": "Embaucher un vrai collaborateur compétent", "en": "Hire an actual competent staffer" },
       "effects": { "money": -40000, "energie": 2, "eloquence": 1, "standing": 2 },
       "result": { "fr": "Vos dossiers sont mieux préparés que ceux de vos collègues. Personne ne s'en apercevra avant longtemps.",
@@ -653,9 +657,13 @@ const EV_argent = [
   },
   "choices": [
     { "label": { "fr": "Garder, et les porter", "en": "Keep them, and wear them" },
-      "effects": { "money": 25000, "charisme": 1, "reputation": -2, "flags": { "dirtyMoney": true } },
-      "result": { "fr": "Vous êtes très bien habillé pendant deux ans. Un photographe finira par s'intéresser à votre poignet.",
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "charisme": 0.3, "notoriete": 0.2 }, "bonus": [ { "when": { "personality": ["provocative"] }, "value": 2 }, { "when": { "trait": ["teflon"] }, "value": 2 }, { "when": { "origin": ["bourgeois", "dynasty"] }, "value": 1.5 } ], "dice": 16 },
+      "success": { "effects": {"money": 25000, "charisme": 1, "reputation": -2, "flags": {"dirtyMoney": true}, "reseau": 1},
+        "result": { "fr": "Vous êtes très bien habillé pendant deux ans. Un photographe finira par s'intéresser à votre poignet.",
                   "en": "You are very well dressed for two years. A photographer will eventually take an interest in your wrist." } },
+      "failure": { "effects": {"popularity": -9, "reputation": -2, "credibilite": -2, "notoriete": 2, "strike": "casserole"},
+        "result": { "fr": "Un journaliste connaît la marque, le modèle et le prix, et il le dit à l'antenne pendant que vous portez le costume. La séquence dure onze secondes et se rejoue à chaque fois que vous parlez de pouvoir d'achat.",
+                    "en": "A journalist knows the brand, the cut and the price, and says so on air while you are wearing the suit. The clip runs for eleven seconds and comes back every time you talk about the cost of living." } } },
     { "label": { "fr": "Renvoyer le tout avec un mot sec", "en": "Send it all back with a curt note" },
       "effects": { "reputation": 2, "reseau": -2, "standing": -3 },
       "result": { "fr": "Il le prend très mal et le raconte partout. Votre réputation d'incorruptible vous coûtera d'autres dîners.",
@@ -790,9 +798,13 @@ const EV_argent = [
       "result": { "fr": "La salle des fêtes le mardi, l'arrière-salle du café le jeudi. On vous trouve si l'on sait où chercher, ce qui écarte à peu près tout le monde.",
                   "en": "The village hall on Tuesday, the back room of the café on Thursday. People can find you if they know where to look, which rules out very nearly everybody." } },
     { "label": { "fr": "Garder l'argent, le mandat ne dure pas", "en": "Keep the money; the mandate will not last" },
-      "effects": { "standing": -3, "reputation": 1 },
-      "result": { "fr": "Vous expliquez à votre équipe qu'on n'achète pas un local pour un mandat qui peut s'arrêter dans trois ans. Ils comprennent l'argument et retiennent que vous avez prévu de perdre.",
-                  "en": "You explain to your team that one does not buy premises for a mandate that may end in three years. They take the point, and they remember that you have planned to lose." } }
+      "roll": { "base": 14, "stat": "sangfroid", "plus": { "reseau": 0.25, "standing": 0.04 }, "bonus": [ { "when": { "personality": ["calculating"] }, "value": 2 }, { "when": { "trait": ["teflon"] }, "value": 1.5 }, { "when": { "personality": ["principled"] }, "value": -2 } ], "dice": 16 },
+      "success": { "effects": {"standing": -3, "reputation": 1, "money": 12000},
+        "result": { "fr": "Vous expliquez à votre équipe qu'on n'achète pas un local pour un mandat qui peut s'arrêter dans trois ans. Ils comprennent l'argument et retiennent que vous avez prévu de perdre.",
+                  "en": "You explain to your team that one does not buy premises for a mandate that may end in three years. They take the point, and they remember that you have planned to lose." } },
+      "failure": { "effects": {"money": 6000, "popularity": -9, "standing": -5, "reputation": -2, "strike": "casserole"},
+        "result": { "fr": "La dotation est destinée à une permanence et il n'y a pas de permanence. Un administré passe à l'adresse indiquée sur vos courriers, trouve un rideau de fer, et prend la photo.",
+                    "en": "The allowance is for a constituency office and there is no constituency office. A constituent calls at the address printed on your letters, finds a shuttered front, and takes the photograph." } } }
   ]
 },
 
