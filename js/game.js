@@ -159,6 +159,7 @@ function newGame(character) {
     career: [],        // la frise : tout ce dont on se souviendra à la fin
     traits: [],        // marques durables laissées par les choix
     strikes: {},       // écarts commis, avant qu'ils ne fassent une réputation
+    statCredit: {},    // fractions de point mises de côté : voir gainStat()
     investments: {},   // niveaux des postes de dépense choisis par le joueur
     seen: {},          // événements déjà joués : ils ne reviendront pas
     pending: [],       // suites programmées, avec le tour où elles tombent
@@ -3532,7 +3533,7 @@ function applyOutcome(electionId, stake, marge, attendu) {
   const vu = electionWeight(electionId);
   if (vu.image >= 0.5) {
     const nom = marge >= 12 ? 2 : marge >= -8 ? 1 : 0;
-    if (nom) bump(game, "notoriete", nom);
+    if (nom) gainStat(game, "notoriete", nom);
   }
 
   // On ne perd pas sa réputation en perdant une élection. On la perd en

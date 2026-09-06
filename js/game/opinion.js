@@ -27,6 +27,64 @@ function bump(state, stat, delta) {
   state.stats[stat] = Math.max(STAT_MIN, Math.min(STAT_MAX, state.stats[stat] + delta));
 }
 
+/**
+ * CE QU'UNE SCÈNE RAPPORTE VRAIMENT, une fois qu'on est déjà haut.
+ *
+ * Le taux appliqué à un gain de statistique, sur le modèle exact de
+ * standingGainRate() : zone franche jusqu'à STAT_FREE_GAIN, puis le prix
+ * monte avec ce qui reste à parcourir. Les pertes ne passent pas par ici et
+ * se paient plein tarif.
+ *
+ * Les chiffres et le pourquoi sont dans js/balance.js, section CE QU'UNE
+ * SCÈNE RAPPORTE EN STATISTIQUE.
+ */
+function statGainRate(value) {
+  if (value <= STAT_FREE_GAIN) return 1;
+  const reste = (STAT_MAX - value) / (STAT_MAX - STAT_FREE_GAIN);
+  return Math.max(STAT_GAIN_FLOOR, Math.pow(reste, STAT_GAIN_CURVE));
+}
+
+/**
+ * Applique un gain de statistique en le freinant, POINT PAR POINT.
+ *
+ * Point par point, parce que le taux dépend du niveau atteint : un « +3 »
+ * donné à quatorze ne se facture pas au même prix sur ses trois points, et
+ * l'appliquer d'un bloc reviendrait à faire payer le troisième au tarif du
+ * premier.
+ *
+ * LA FRACTION NE SE PERD PAS. Ce qui n'atteint pas le point entier reste en
+ * réserve dans state.statCredit et sert au gain suivant. C'est ce qui fait la
+ * différence entre freiner et annuler : à seize, un « +1 » de notoriété vaut
+ * seize centièmes de point, et quatre scènes de plus en font un vrai. Sans
+ * réserve, chacune de ces quatre scènes ne ferait rien du tout, et le joueur
+ * lirait quatre fois « +1 notoriété » sans jamais voir la barre bouger.
+ *
+ * Une sauvegarde d'avant la réserve n'en a pas : elle s'ouvre à zéro, ce qui
+ * ne coûte au joueur qu'une fraction de point.
+ */
+function gainStat(state, stat, delta) {
+  if (!(delta > 0)) { bump(state, stat, delta); return; }
+  if (state.stats[stat] >= STAT_MAX) return;
+  if (!state.statCredit) state.statCredit = {};
+
+  let credit = state.statCredit[stat] || 0;
+  let reste = delta;
+
+  while (reste > 0) {
+    const pas = Math.min(1, reste);
+    reste -= pas;
+    credit += pas * statGainRate(state.stats[stat]);
+    if (credit < 1) continue;
+    credit -= 1;
+    bump(state, stat, +1);
+    // Au plafond, la réserve n'a plus rien à attendre : la garder ferait
+    // tomber un point gratuit le jour où une perte rouvre un cran.
+    if (state.stats[stat] >= STAT_MAX) { credit = 0; break; }
+  }
+
+  state.statCredit[stat] = credit;
+}
+
 
 function statScore(s, key) {
   return s.stats[key] * STAT_SCALE;

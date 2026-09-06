@@ -452,7 +452,7 @@ function campaignGap() {
 
 function concedeElection(winner, share) {
   setPresident({ name: winner.name, party: winner.party, sex: winner.sex });
-  bump(game, "notoriete", +1);
+  gainStat(game, "notoriete", +1);
   bumpPop(game, +6);
 
   /* CE QU'ON REPROCHE À UN CANDIDAT, C'EST L'ÉCART, PAS LA DÉFAITE.
@@ -472,7 +472,7 @@ function concedeElection(winner, share) {
   // installe pour longtemps. Cela s'ajoute à l'écart, cela ne le remplace pas.
   if (share !== undefined) {
     const marge = 50 - share;
-    bump(game, "credibilite", marge <= 2 ? 3 : marge <= 8 ? 2 : 1);
+    gainStat(game, "credibilite", marge <= 2 ? 3 : marge <= 8 ? 2 : 1);
     bumpStanding(game, marge <= 2 ? 8 : marge <= 8 ? 4 : 0);
   }
 

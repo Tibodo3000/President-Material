@@ -225,6 +225,17 @@ If you touched **choices** rather than only prose, add a third:
 node tools/audit-choix.js
 ```
 
+And if you touched anything that hands out **statistics** — a scene's effects, or the
+brake in `gainStat` — add a fourth:
+
+```bash
+node tools/audit-stats.js
+```
+
+It fails on nothing: it measures. Read the curve by age at the bottom. If the median
+bars stop moving before sixty, or if more than one is full at the end of a career, the
+sheet has stopped being a record of what you did.
+
 It fails on an option nobody would ever take: every effect negative and nothing
 durable bought with it. A costly option is not a dead one, so the check only flags
 paying for *nothing at all*.

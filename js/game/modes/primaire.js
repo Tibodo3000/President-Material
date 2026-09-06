@@ -360,7 +360,7 @@ function standBehind(road) {
   const meneur = primaryField(road)[0];
   game.nominee = meneur ? meneur.name : null;
   bumpStanding(game, +10);
-  bump(game, "reseau", +1);
+  gainStat(game, "reseau", +1);
   bumpPop(game, -3);
   return tBoth("primaire_backed", { name: meneur ? meneur.name : "" });
 }
@@ -405,7 +405,7 @@ function designationChoice(target) {
   const res = resolveNomination("appareil", 0);
   if (res.gagne) {
     bumpStanding(game, +6);
-    bump(game, "notoriete", +2);
+    gainStat(game, "notoriete", +2);
     closeCard(before, tBoth("designation_won"), "won");
   } else {
     bumpStanding(game, -4);
@@ -430,12 +430,12 @@ function primaryChoice(target) {
 
   if (res.gagne) {
     bumpStanding(game, +12);
-    bump(game, "notoriete", +2);
+    gainStat(game, "notoriete", +2);
     bumpPop(game, +6);
     closeCard(before, tBoth("primaire_won"), "won");
   } else {
     bumpStanding(game, -8);
-    bump(game, "notoriete", +1);
+    gainStat(game, "notoriete", +1);
     closeCard(before, tBoth("primaire_lost", { name: res.rival ? res.rival.name : "" }), "lost");
   }
 }

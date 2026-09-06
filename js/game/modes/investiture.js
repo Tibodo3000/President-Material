@@ -486,7 +486,7 @@ function electionLobby() {
   // Travailler l'appareil rapporte d'autant moins qu'on y est déjà installé :
   // les dîners de fédération font un inconnu, ils ne font pas un chef.
   bumpStanding(game, lobbyGain(game));
-  bump(game, "reseau", +1);
+  gainStat(game, "reseau", +1);
   bump(game, "energie", -1);
   // Le temps passé dans les fédérations est du temps passé loin du bulletin :
   // un sortant qui ne se représente pas rend son mandat.

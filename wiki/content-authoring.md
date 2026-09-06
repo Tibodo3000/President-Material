@@ -245,6 +245,8 @@ calculator, ruins someone with an integrity reputation).
 ### `effects` — every effect type (all optional)
 ```jsonc
 "charisme" / "eloquence" / … / "credibilite"   // stat deltas, clamped 0..20
+                                              // gains above 14 are braked (see
+                                              // gainStat); losses are full price
 "popularity" / "standing"                       // gauge deltas, clamped 0..100
 "axis": { "social": -70, "economy": -40 }       // WHERE the choice stands (see below)
 "axis": "self"                                  // …or simply: where your own camp stands

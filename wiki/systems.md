@@ -41,6 +41,36 @@ background), and the chosen personality is a *trait* whose stats are applied too
 - **Personality is strictly balanced** — +3 net for every trait.
 - **A lucrative background gives fewer stat points** — money is paid for in points.
 
+### Diminishing returns on stat gains — the third brake
+
+Gains go through `gainStat()` ([opinion.js](../js/game/opinion.js)), never straight to
+`bump()`. Below `STAT_FREE_GAIN` = 14 a scene pays exactly what it declares; above it the
+rate follows what is left to climb, `((20 − v)/6)²`, floored at `STAT_GAIN_FLOOR` = 0.05.
+Losses are never braked — full price, like everywhere else in the game.
+
+This is the same brake the two gauges already had (`bumpAppeal`, `standingGainRate`), and
+it is the last of the three to be paid. A turn used to be six months and now is a season,
+so scenes fall twice as often and their yearly yield doubled; nothing throttled it. Measured
+over forty random careers, a career was *offered* 73 points of notoriety, 53 of network and
+27 of composure on a scale that counts twenty — so composure, network and notoriety hit the
+ceiling around forty-two, and **64 % of the notoriety the game paid out landed nowhere**. A
+forty-year-old's sheet showed four full bars and the next thirty years could not move them.
+
+**Nothing is lost to rounding.** Stats stay whole numbers, so a braked gain would round to
+zero above fifteen and the game's 745 `+1` effects would become no-ops — a lower ceiling
+instead of no ceiling. The fraction that does not make a whole point is kept in
+`state.statCredit` and served to the next gain. It is the difference between slowing a gain
+down and cancelling it.
+
+Two stats are outside the brake, because each already has a regulator of its own and the
+house rule is one brake per debt: **energy** (`energyCeiling` — it is a pool, not something
+you build) and, on the way it is *anchored* rather than braked, **credibility**
+(`credibilityTarget` + `CREDIBILITY_OVERSHOOT`, which pulls it to what the office justifies).
+
+What it did **not** fix, and the audit says so out loud: notoriety is still emitted at 3.7×
+the scale — 864 points given by the content against 68 taken back — for a stat that only five
+rolls ever read. Run [tools/audit-stats.js](../tools/audit-stats.js) for the current ledger.
+
 ---
 
 ## The two career gauges (0–100)

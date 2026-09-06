@@ -604,7 +604,11 @@ function applyEffects(effects, s, soften) {
     }
     if (STAT_KEYS.includes(key)) {
       const before = s.stats[key];
-      bump(s, key, value);
+      // L'ÉNERGIE EST LA SEULE À NE PAS ÊTRE FREINÉE : elle ne se construit
+      // pas, elle se remplit et se vide, et elle a déjà son régulateur à elle
+      // — energyCeiling(). La freiner en plus la freinerait deux fois.
+      if (key === "energie") bump(s, key, value);
+      else gainStat(s, key, value);
       if (s.stats[key] !== before) changes.push({ kind: "stat", key, delta: s.stats[key] - before });
       return;
     }
