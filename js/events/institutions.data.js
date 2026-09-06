@@ -160,7 +160,8 @@ const EV_institutions = [
 
     { "label": { "fr": "Poser la question de confiance vous-même", "en": "Call the confidence vote yourself" },
       "roll": { "base": 18, "stat": "sangfroid", "plus": { "eloquence": 0.45 }, "dice": 16 },
-      "success": { "effects": { "credibilite": 5, "notoriete": 2, "standing": 8, "popularity": 7, "sangfroid": 1 },
+      "success": { "effects": { "credibilite": 5, "notoriete": 2, "standing": 6, "popularity": 7,
+                                "sangfroid": 1, "energie": -3, "approval": -4 },
         "result": { "fr": "Vous allez au-devant du coup et vous le gagnez de vingt voix. On vous découvre une autorité que personne ne vous prêtait, à commencer par le président.",
                     "en": "You meet the blow head-on and win by twenty. People discover an authority nobody credited you with, starting with the president." } },
       "failure": { "effects": { "credibilite": -3, "popularity": -6, "standing": -14, "office": "none", "trait": "ancien_premier" },

@@ -27,6 +27,12 @@
  *      option qui gagne sous quatre-vingts pour cent des barèmes n'est pas un
  *      choix : c'est la réponse, et les autres branches sont du décor.
  *
+ *      CE QUE CETTE MESURE NE VOIT PAS : une option à gros risque et gros
+ *      gain. Elle est comparée sur sa moyenne, donc elle perd contre une
+ *      certitude équivalente, alors qu'elle est le bon choix quand il faut un
+ *      renversement et le mauvais quand on mène. Avant de corriger une scène
+ *      signalée, vérifier si l'option perdante n'est pas simplement le pari.
+ *
  *      Le défaut typique n'est pas qu'une option soit trop forte, c'est que
  *      l'option prudente ne renonce à RIEN : elle gagne sur cinq axes et n'en
  *      cède aucun, pendant que l'option risquée est un pari dont la réussite
@@ -293,6 +299,26 @@ if (!SEULEMENT_PROFILS) {
       }
     }
   }
+  /* --- Combien d'options sont des certitudes ------------------------------ */
+  let optionsTotal = 0, certitudes = 0, sansAucunJet = 0;
+  for (const liste of Object.values(DECKS)) {
+    for (const ev of liste) {
+      let paris = 0;
+      for (const c of ev.choices || []) {
+        optionsTotal++;
+        if (c.roll) paris++; else certitudes++;
+      }
+      if (!paris && (ev.choices || []).length >= 2) sansAucunJet++;
+    }
+  }
+  console.log("== LE RISQUE ==");
+  console.log("   options écrites                    : " + optionsTotal);
+  console.log("   qui sont des certitudes            : " + certitudes +
+    "  (" + Math.round((100 * certitudes) / optionsTotal) + " %)");
+  console.log("   scènes sans un seul pari           : " + sansAucunJet +
+    "   <-- on y choisit sans jamais rien risquer");
+  console.log("");
+
   console.log("== CE QUI ENTRE DANS LES JETS ==");
   console.log("   jets écrits                        : " + jets);
   console.log("   portant un bonus conditionnel      : " + avecBonus +

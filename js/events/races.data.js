@@ -540,10 +540,10 @@ const EV_races = [
   "choices": [
     { "label": { "fr": "Prendre les douze de la fédération", "en": "Take the federation's twelve" },
       "roll": { "chance": 0.7, "chanceBonus": [ { "when": { "trait": ["appareil"] }, "value": 0.15 } ] },
-      "success": { "effects": { "score": 3, "standing": 8, "reseau": 2 },
+      "success": { "effects": { "score": 3, "standing": 6, "reseau": 2, "popularity": -2 },
         "result": { "fr": "La fédération met tout le monde sur le terrain dès le lendemain. Vous aurez un conseil municipal ingérable pendant six ans, ce qui est un problème de gagnant.",
                     "en": "The federation puts everybody on the ground the next day. You will have an ungovernable council for six years, which is a winner's problem." } },
-      "failure": { "effects": { "score": -3, "standing": 3, "popularity": -4, "energie": -1 },
+      "failure": { "effects": { "score": -3, "standing": -2, "popularity": -4, "energie": -1 },
         "result": { "fr": "Deux des douze ont une affaire en cours et un troisième habite à quarante kilomètres. Le quotidien régional publie les trois fiches le même jour.",
                     "en": "Two of the twelve have a case pending and a third lives twenty-five miles away. The regional daily runs all three profiles on the same day." } } },
     { "label": { "fr": "Composer votre liste vous-même", "en": "Pick your own list" },
