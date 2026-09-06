@@ -166,6 +166,20 @@ const ECHELLE = { popularity: 1, standing: 1, score: 1.4, poll: 1.4, approval: 0
   money: 1 / 9000, energie: 2.2, charisme: 3.4, eloquence: 3.4, sangfroid: 3.4,
   reseau: 2.8, notoriete: 2.6, reputation: 3, credibilite: 3.4 };
 
+/* Ce qu'un trait vaut réellement : ses modificateurs permanents de
+   statistiques, plus ce qu'il tire sur les cibles des deux jauges. */
+function valeurTrait(id) {
+  const t = TRAITS[id];
+  if (!t) return 0;
+  let v = 0;
+  for (const [k, x] of Object.entries(t.stats || {})) v += x * (ECHELLE[k] || 0);
+  for (const [k, x] of Object.entries(t.target || {})) v += x * 0.9;
+  // Un trait sans chiffres n'est pas sans effet : il ouvre ou ferme des
+  // scènes. On lui laisse le signe de sa famille, en petit.
+  if (!v) v = t.kind === "mark" ? -4 : 4;
+  return v;
+}
+
 function vecteur(e) {
   const v = {};
   MONNAIES.forEach((a) => (v[a] = 0));
@@ -173,16 +187,28 @@ function vecteur(e) {
   for (const [k, x] of Object.entries(e)) {
     if (k === "poll") { v.score += x * ECHELLE.poll; continue; }
     if (ECHELLE[k] !== undefined && typeof x === "number") { v[k] += x * ECHELLE[k]; continue; }
-    // Un cran vers un atout est un gain : "intrepide" se gagne en cherchant
-    // le conflit, et le compter comme une punition fausse toute la mesure.
-    if (k === "trait") v.durable += TRAITS[x] && TRAITS[x].kind === "mark" ? -9 : 9;
-    else if (k === "untrait") v.durable += TRAITS[x] && TRAITS[x].kind === "mark" ? 7 : -7;
-    else if (k === "strike") v.durable += TRAITS[x] && TRAITS[x].kind === "mark" ? -4 : 3;
+    // UN TRAIT SE PÈSE PAR CE QU'IL CONTIENT, PAS PAR SA COULEUR.
+    //
+    // Il était compté forfaitairement, plus neuf pour un atout et moins neuf
+    // pour une marque. C'est faux pour la moitié d'entre eux : « homme
+    // d'appareil » est rangé dans les atouts et donne moins deux de notoriété
+    // et moins trois sur la cible de popularité. La mesure le payait comme un
+    // cadeau, et signalait donc une scène équilibrée comme écrasée.
+    // On additionne maintenant ses statistiques et ses cibles, ce que le
+    // moteur applique réellement.
+    if (k === "trait") v.durable += valeurTrait(x);
+    else if (k === "untrait") v.durable += -valeurTrait(x);
+    else if (k === "strike") v.durable += valeurTrait(x) / 3;
     else if (k === "flags") {
       v.durable += Object.entries(x).reduce((a, [f, b]) =>
         a + (["dirtyMoney", "onTrial", "investigated"].includes(f) ? (b ? -16 : 12) : 0), 0);
     } else if (k === "lead") v.durable += x ? 16 : -16;
-    else if (k === "office") v.durable += x === "none" ? -13 : 11;
+    // PERDRE UNE FONCTION N'EST PAS UN COÛT UNIQUE, C'EST UN REVENU QUI
+    // S'ARRÊTE. Un ministre gagne de la cote et de l'exposition à chaque tour
+    // où il l'est ; la mesure ne comptait que le jour du départ, et classait
+    // donc « démissionner en choisissant le moment » comme la meilleure
+    // réponse à peu près partout.
+    else if (k === "office") v.durable += x === "none" ? -26 : 20;
     else if (k === "nominate") v.durable += 9;
     else if (k === "end") v.durable += -40;
     else if (k === "appeal") v.popularity += Object.values(x).reduce((a, b) => a + b, 0) * 0.3;

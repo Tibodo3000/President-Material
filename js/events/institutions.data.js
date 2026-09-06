@@ -188,7 +188,8 @@ const EV_institutions = [
   },
   "choices": [
     { "label": { "fr": "Encaisser sans rien dire", "en": "Take it without a word" },
-      "effects": { "credibilite": -2, "popularity": -5, "standing": 4, "sangfroid": 1 },
+      "effects": { "credibilite": -2, "popularity": -5, "standing": 7, "sangfroid": 2,
+                   "energie": 1, "approval": 2 },
       "result": { "fr": "Vous ne répondez pas et vous continuez. C'est ce qu'on attend d'un Premier ministre, et c'est aussi ce qui permet de recommencer le mois suivant.",
                   "en": "You do not answer and you carry on. That is what is expected of a prime minister, and it is also what makes it possible to do it again next month." } },
 
