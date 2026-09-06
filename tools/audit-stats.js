@@ -69,6 +69,7 @@ const CONTENU_SEUL = args.includes("--contenu");
 const ROOT = args.find((a) => !a.startsWith("--")) || path.join(__dirname, "..");
 const CARRIERES = Number(process.env.PM_CARRIERES || 60);
 const PAS_MAX = Number(process.env.PM_PAS || 600);
+const AGE_PROFIL = Number(process.env.PM_AGE || 50);
 
 const STATS = ["charisme", "eloquence", "energie", "sangfroid",
                "reseau", "notoriete", "reputation", "credibilite"];
@@ -311,7 +312,34 @@ const recu = {}, vide = {};
 STATS.forEach((s) => { recu[s] = 0; vide[s] = 0; });
 let jouees = 0, ageFin = [];
 
-function jouer(seed, personnage) {
+/* CE QU'UN PILOTE VEUT. Sans goût, il clique au hasard ; avec, il prend
+   l'option dont les effets déclarés servent le mieux ce qu'il cherche. Le
+   hasard mesure le plancher — ce qu'on obtient sans rien décider. */
+function pilote(ctx, boutons, gout, tire) {
+  if (!gout) return boutons[Math.floor(tire() * boutons.length)];
+  const g = vm.runInContext("game", ctx);
+  const options = boutons.filter((b) => "data-choice" in b);
+  if (options.length < 2 || !g || !g.card || !g.card.id) {
+    return boutons[Math.floor(tire() * boutons.length)];
+  }
+  let ev = null;
+  try { ev = vm.runInContext("eventById", ctx)(g.card.id); } catch (e) { /* pas une scène ordinaire */ }
+  if (!ev || !ev.choices) return boutons[Math.floor(tire() * boutons.length)];
+
+  let meilleur = options[0], note = -Infinity;
+  for (const b of options) {
+    const c = ev.choices[Number(b["data-choice"])];
+    if (!c) continue;
+    let n = 0;
+    const compter = (e) => { if (e) for (const k of Object.keys(gout)) if (e[k]) n += e[k] * gout[k]; };
+    compter(c.effects);
+    if (c.success) compter(c.success.effects);
+    if (n > note) { note = n; meilleur = b; }
+  }
+  return meilleur;
+}
+
+function jouer(seed, personnage, gout, fiches) {
   const { ctx, bac, parId } = demarrer(seed, personnage);
   const tire = mulberry32(seed ^ 0x5f3759df);
   const html = (id) => (parId.has(id) ? String(parId.get(id).innerHTML) : "");
@@ -319,6 +347,10 @@ function jouer(seed, personnage) {
 
   for (let i = 0; i < PAS_MAX; i++) {
     const g = vm.runInContext("game", ctx);
+    if (fiches && g && g.stats && !fiches.pris && g.age >= AGE_PROFIL) {
+      fiches.pris = true;
+      fiches.push({ ...g.stats });
+    }
 
     if (g && g.stats) {
       let seuil = null;
@@ -336,7 +368,7 @@ function jouer(seed, personnage) {
     if (g && g.ended && (!g.card || g.card.kind === "end")) break;
     const dispo = boutons(html("event-area")).filter((b) => !("data-restart" in b));
     if (!dispo.length) break;
-    try { bac.handleClick({ target: fauxBouton(dispo[Math.floor(tire() * dispo.length)]) }); }
+    try { bac.handleClick({ target: fauxBouton(pilote(ctx, dispo, gout, tire)) }); }
     catch (e) { break; }
   }
 
@@ -348,7 +380,8 @@ function jouer(seed, personnage) {
 }
 
 for (let n = 0; n < CARRIERES; n++) {
-  try { jouer(1000 + n, PROFILS[n % PROFILS.length]); } catch (e) { /* une carrière perdue ne fausse rien */ }
+  try { jouer(1000 + n, PROFILS[n % PROFILS.length], null, null); }
+  catch (e) { /* une carrière perdue ne fausse rien */ }
 }
 
 const moyenne = (a) => (a.length ? a.reduce((x, y) => x + y, 0) / a.length : NaN);
@@ -380,3 +413,69 @@ for (const t of TRANCHES) {
   console.log("   " + String(t).padEnd(6) + col(r.n, 3) + "  " + med.map((m) => col(m, 7)).join("") +
     col(med.reduce((x, y) => x + y, 0), 9) + col((r.pleines / r.n).toFixed(2), 10));
 }
+
+/* ==========================================================================
+   5 — DEUX CARRIÈRES DIFFÉRENTES DONNENT-ELLES DEUX FICHES DIFFÉRENTES ?
+   ==========================================================================
+   La mesure qui compte le plus, et la seule qui parle de STYLE DE JEU. Les
+   quatre mesures précédentes regardent la hauteur des barres ; celle-ci
+   regarde leur FORME, et se demande si la fiche se souvient de ce qu'on a
+   joué.
+
+   Quatre pilotes. Trois qui veulent quelque chose — la lumière, l'appareil,
+   la probité — et un qui clique au hasard. Si les quatre finissent avec la
+   même fiche, il n'y a pas de style de jeu : il y a un acquis commun, et
+   choisir ne sert à rien. Si le pilote au hasard a la fiche la PLUS LOURDE,
+   c'est pire encore : se spécialiser est strictement perdant, et le jeu
+   récompense de ne rien décider.
+
+   Les deux colonnes de droite disent l'essentiel. « fortes » compte les
+   barres à quinze ou plus, « faibles » celles à huit ou moins. Un jeu qui
+   marche donne au spécialiste PLUS de fortes ET plus de faibles que le
+   généraliste : il a choisi, il a payé.
+   ========================================================================== */
+
+const GOUTS = {
+  "au hasard": null,
+  "la lumière": { notoriete: 3, popularity: 0.5, charisme: 1, eloquence: 1 },
+  "l'appareil": { reseau: 3, standing: 0.6, credibilite: 1 },
+  "la probité": { reputation: 3, credibilite: 2, sangfroid: 1 },
+};
+
+const BATIES = ["charisme", "eloquence", "sangfroid", "reseau",
+                "notoriete", "reputation", "credibilite"];
+
+const parPilote = {};
+for (const [nom, gout] of Object.entries(GOUTS)) {
+  const fiches = [];
+  for (let n = 0; n < CARRIERES; n++) {
+    fiches.pris = false;
+    try { jouer(3000 + n, PROFILS[n % PROFILS.length], gout, fiches); } catch (e) { /* idem */ }
+  }
+  parPilote[nom] = fiches;
+}
+
+console.log("\n5. DEUX CARRIÈRES DIFFÉRENTES DONNENT-ELLES DEUX FICHES DIFFÉRENTES ?");
+console.log("   (à " + AGE_PROFIL + " ans. « fortes » = barres à 15+, « faibles » = barres à 8−.");
+console.log("   Le spécialiste doit avoir plus des deux que le généraliste : il a choisi.)");
+console.log("\n   pilote        " + BATIES.map((s) => s.slice(0, 6).padStart(7)).join("") +
+  "    total  fortes  faibles");
+for (const [nom, f] of Object.entries(parPilote)) {
+  if (!f.length) continue;
+  const med = BATIES.map((s) => mediane(f.map((x) => x[s])));
+  const fortes = moyenne(f.map((x) => BATIES.filter((s) => x[s] >= 15).length));
+  const faibles = moyenne(f.map((x) => BATIES.filter((s) => x[s] <= 8).length));
+  console.log("   " + nom.padEnd(14) + med.map((m) => col(m, 7)).join("") +
+    col(med.reduce((a, b) => a + b, 0), 9) + col(fortes.toFixed(1), 8) + col(faibles.toFixed(1), 9));
+}
+
+console.log("\n   CE QUE LE PILOTE CHANGE, statistique par statistique :");
+const vises = Object.keys(GOUTS).filter((n) => GOUTS[n]);
+for (const s of BATIES) {
+  const vals = vises.map((n) => mediane(parPilote[n].map((x) => x[s])));
+  const ecart = Math.max(...vals) - Math.min(...vals);
+  console.log("   " + s.padEnd(13) +
+    vises.map((n, i) => (n + " " + vals[i]).padEnd(16)).join("") + "écart " + ecart);
+}
+console.log("\n   Un écart de deux ou moins veut dire que cette statistique ne s'obtient pas,");
+console.log("   elle se reçoit : ni le jeu ni la création n'en font une décision.");

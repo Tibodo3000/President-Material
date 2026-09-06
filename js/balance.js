@@ -98,86 +98,78 @@ const CALENDAR_HORIZON = 52;
 /* ==========================================================================
    CE QU'UNE SCÈNE RAPPORTE EN STATISTIQUE
    ==========================================================================
+   LA CORRECTION PRINCIPALE N'EST PAS ICI, ELLE EST DANS LE CONTENU. Un tour
+   valait six mois, il vaut une saison : les scènes tombent deux fois plus
+   souvent, et les nombres écrits dans leurs résultats avaient été calibrés
+   pour l'ancien rythme. Ils ont donc été divisés par deux — toutes les valeurs
+   de statistique de 2 et plus, signe conservé, dans les 1 470 endroits
+   concernés. Les « +1 » restent des « +1 », faute de pouvoir valoir un demi-
+   point, et l'énergie n'a pas été touchée : elle se dépense, elle ne se
+   construit pas. Le détail est dans wiki/systems.md.
+
+   Mesuré avant et après, sur l'ensemble des paquets :
+
+       statistique    donnés avant   après
+       notoriété           787        526
+       crédibilité         752        482
+       réputation          714        460
+       réseau              585        379
+       sang-froid          205        182
+       éloquence           109        106
+       charisme             48         48
+
+   Les quatre sur-émises redescendent, les trois autres ne bougent pas : c'est
+   la définition de « mieux réparti ». Résultat sur la fiche, à quarante ans et
+   sur quarante carrières jouées au hasard : la notoriété passe de 18 à 14, le
+   réseau de 17 à 14, la crédibilité de 11 à 10. On n'arrive plus au plafond à
+   peine quadragénaire.
+
+   CE QUI RESTE ICI, ET SEULEMENT CELA : le tout dernier bout de l'échelle.
    Les deux jauges freinent depuis longtemps ce qu'on leur donne quand elles
    sont déjà hautes — bumpAppeal() pour l'opinion, standingGainRate() pour la
-   cote. Les statistiques, non : elles encaissaient plein tarif jusqu'au
-   plafond. C'est la dernière des trois familles à payer la dette laissée par
-   la saison, celle que le commentaire de DRIFT annonçait « à reprendre à part ».
-
-   CE QU'ON A MESURÉ (tools/audit-stats.js, quarante carrières jouées au
-   hasard). Un tour valait six mois, il vaut une saison : les scènes tombent
-   deux fois plus souvent, leur apport annuel a doublé, et rien ne freinait
-   celui-là. Une carrière se voyait offrir 73 points de notoriété, 53 de
-   réseau, 27 de sang-froid — sur une échelle qui en compte vingt. Le
-   sang-froid, le réseau et la notoriété touchaient donc le plafond vers
-   quarante-deux ans, et tout ce que le jeu payait ensuite tombait dans le vide :
-   64 % de la notoriété distribuée, 56 % du réseau, 50 % du sang-froid
-   n'arrivaient nulle part. Une fiche de quadragénaire montrait quatre barres
-   pleines, et les trente années suivantes ne pouvaient plus rien y changer.
-
-   LE FREIN. Le même que celui de la cote au parti, transposé sur vingt : une
-   zone franche où l'on monte sans compter, puis un point qui coûte de plus en
-   plus cher. Ce qui se perd, lui, se perd plein tarif — c'est la règle de
-   toute la maison.
+   cote — et les statistiques n'avaient rien. Ce frein-ci ne corrige plus le
+   rythme, c'est le contenu qui s'en charge : il empêche seulement les quatre
+   derniers points d'une barre de se prendre aussi vite que les seize premiers.
 
    ET RIEN NE SE PERD EN CHEMIN. Un gain freiné n'est pas un gain annulé : la
    fraction qui ne fait pas un point entier est mise de côté et resservie au
-   gain suivant (state.statCredit, voir gainStat). Sans cela, les 745 « +1 » du
-   jeu deviendraient de purs zéros passé quinze, ce qui remplacerait un plafond
+   gain suivant (state.statCredit, voir gainStat). Sans cela, les « +1 » du jeu
+   deviendraient de purs zéros passé dix-sept, ce qui remplacerait un plafond
    par un autre, plus bas.
 
-   CE QUE ÇA COÛTE À LA CARRIÈRE, ET POURQUOI ON PAIE CE PRIX-LÀ. Deux cents
-   carrières, même graine, même pilote, à courbe égale :
+   CE QUE ÇA COÛTE. Deux cents carrières, même graine, même pilote, contenu
+   déjà divisé :
 
-                       Élysée  ministre  somme des 8  barres pleines  notoriété
-                                          en fin de vie   par carrière   à 40 ans
-       sans frein         49        61        123            3,3            19
-       zone franche 13    29        39        108            0,7            16
-       zone franche 14    20        48        112            0,8            17
-       zone franche 15    29        57        114            1,0            17
+                              Élysée  ministre  barres pleines  notoriété à 40
+       sans ce frein             35        55        3,2              14
+       zone franche 16           27        55        1,0              14
+       zone franche 14           15        48        0,7              13
 
-   La saturation tombe des trois quarts, ce qui était le but. L'Élysée passe de
-   49 carrières sur 200 à 20 — c'est-à-dire qu'il revient tout près des 25 sur
-   200 où ce fichier l'avait laissé avant que la saison ne double l'apport des
-   scènes, et qu'il reste loin des 14 sur 200 qu'on avait alors jugés excessifs
-   (voir DRIFT_DOWN). Ce n'est donc pas une partie rendue plus dure : c'est la
-   dette de la saison, payée là où elle avait été contractée.
-
-   CE QUE LE FREIN NE RÈGLE PAS, et qu'il faut savoir. La notoriété reste
-   émise à 3,7 fois l'échelle — 864 points donnés par le contenu contre 68
-   repris — pour une statistique que cinq jets seulement consultent. Aucun
-   frein ne rend intéressante une monnaie imprimée en si grand nombre : cela se
-   corrigera dans le contenu, ou en lui donnant un niveau naturel comme la
-   crédibilité en a un. tools/audit-stats.js tient le compte.
+   À seize, la fiche de quarante ans est exactement la même que sans frein —
+   c'est le contenu qui l'a faite — et c'est seulement la fin de carrière qui
+   cesse d'être un mur. À quatorze, le frein reprenait le travail que le
+   contenu fait déjà, et la carrière le payait deux fois.
    ========================================================================== */
 
 /**
  * LA ZONE FRANCHE, où une scène paie exactement ce qu'elle annonce.
  *
- * Quatorze sur vingt. En dessous, c'est la montée ordinaire d'une carrière qui
- * travaille : on se fait un carnet d'adresses, on se fait un nom, on apprend à
- * ne pas trembler, et rien ne doit ralentir cela — un début de partie freiné
- * est un début de partie mort. Le frein commence là où commence la question
- * intéressante : comment on tient un niveau que peu de gens atteignent.
- *
- * Quatorze et non treize : à treize, le frein mord sur le milieu de carrière
- * et c'est le sommet qui disparaît, comme il avait failli disparaître pour la
- * cote au parti — un tiers des ministères en moins pour un point de barre
- * gagné. Quatorze et non quinze : à quinze, un joueur qui choisit bien lit
- * encore dix-neuf de notoriété à quarante ans, ce qui est exactement la fiche
- * qu'on cherchait à corriger.
+ * Seize sur vingt, c'est-à-dire les quatre cinquièmes de l'échelle. Tout ce
+ * qui ressemble à une carrière ordinaire se joue en dessous et ne doit rien
+ * subir : le rythme est déjà réglé par les nombres du contenu, et freiner en
+ * plus reviendrait à facturer deux fois la même chose — mesuré, à quatorze,
+ * l'Élysée tombait de 35 carrières sur 200 à 15 sans que la fiche de quarante
+ * ans y gagne un seul point.
  */
-const STAT_FREE_GAIN = 14;
+const STAT_FREE_GAIN = 16;
 
 /**
  * COMMENT LE PRIX MONTE AU-DESSUS.
  *
  * Le taux suit ce qui reste à parcourir, élevé à cette puissance. À 1, la
- * pente est droite et le haut de l'échelle reste bon marché : mesuré, les
- * mêmes quatre statistiques revenaient au plafond, cinq ans plus tard
- * seulement. Au-delà de 2, on ne freine plus, on mure : à 3 et à 4 la
- * saturation ne baisse presque plus alors que l'Élysée continue de tomber,
- * parce que la présidence se joue précisément dans les points du haut.
+ * pente est droite et les quatre derniers points restent bon marché ; au-delà
+ * de 2, on ne freine plus, on mure, et c'est le sommet des carrières qui
+ * disparaît — la présidence se joue précisément dans ces points-là.
  */
 const STAT_GAIN_CURVE = 2;
 
@@ -187,9 +179,8 @@ const STAT_GAIN_CURVE = 2;
  * Sans lui, les deux derniers points de l'échelle coûteraient plusieurs
  * carrières : vingt ne serait pas rare, il serait faux, et une statistique
  * affichée sur vingt dont personne n'atteint jamais vingt est une échelle qui
- * ment. Avec, il reste atteignable — au prix d'une carrière entière passée à
- * ne poursuivre que cela, ce qui est exactement le statut qu'on veut lui
- * donner.
+ * ment. Avec, il reste atteignable au bout d'une longue carrière, ce qui est
+ * exactement le statut qu'on veut lui donner.
  */
 const STAT_GAIN_FLOOR = 0.05;
 

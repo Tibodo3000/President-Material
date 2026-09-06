@@ -41,35 +41,68 @@ background), and the chosen personality is a *trait* whose stats are applied too
 - **Personality is strictly balanced** — +3 net for every trait.
 - **A lucrative background gives fewer stat points** — money is paid for in points.
 
-### Diminishing returns on stat gains — the third brake
+### What a scene pays, and why it was halved
 
-Gains go through `gainStat()` ([opinion.js](../js/game/opinion.js)), never straight to
-`bump()`. Below `STAT_FREE_GAIN` = 14 a scene pays exactly what it declares; above it the
-rate follows what is left to climb, `((20 − v)/6)²`, floored at `STAT_GAIN_FLOOR` = 0.05.
-Losses are never braked — full price, like everywhere else in the game.
+A turn used to be six months and now is a season: scenes fall twice as often, and the
+numbers written in their results had been calibrated for the old rhythm. So they were
+divided by two — every stat value of 2 or more in an event's `effects` (and in its
+`success` / `failure` / `triumph` / `debacle` branches), sign kept, in the 1,470 places
+concerned. Measured across every deck:
 
-This is the same brake the two gauges already had (`bumpAppeal`, `standingGainRate`), and
-it is the last of the three to be paid. A turn used to be six months and now is a season,
-so scenes fall twice as often and their yearly yield doubled; nothing throttled it. Measured
-over forty random careers, a career was *offered* 73 points of notoriety, 53 of network and
-27 of composure on a scale that counts twenty — so composure, network and notoriety hit the
-ceiling around forty-two, and **64 % of the notoriety the game paid out landed nowhere**. A
-forty-year-old's sheet showed four full bars and the next thirty years could not move them.
+| stat | given before | after |
+|---|---|---|
+| notoriety | 787 | 526 |
+| credibility | 752 | 482 |
+| reputation | 714 | 460 |
+| network | 585 | 379 |
+| composure | 205 | 182 |
+| eloquence | 109 | 106 |
+| charisma | 48 | 48 |
 
-**Nothing is lost to rounding.** Stats stay whole numbers, so a braked gain would round to
-zero above fifteen and the game's 745 `+1` effects would become no-ops — a lower ceiling
-instead of no ceiling. The fraction that does not make a whole point is kept in
-`state.statCredit` and served to the next gain. It is the difference between slowing a gain
-down and cancelling it.
+The four over-emitted ones come down and the three starved ones do not move — that is
+what "better distributed" means here. Two deliberate exceptions:
 
-Two stats are outside the brake, because each already has a regulator of its own and the
-house rule is one brake per debt: **energy** (`energyCeiling` — it is a pool, not something
-you build) and, on the way it is *anchored* rather than braked, **credibility**
-(`credibilityTarget` + `CREDIBILITY_OVERSHOOT`, which pulls it to what the office justifies).
+- **`+1` grants were left alone.** There is no half point on a scale of twenty, and the
+  game has 939 of them; halving them would have meant deleting most, which turns a scene's
+  small reward into nothing at all.
+- **Energy was not touched.** It is spent and refilled, not built, and its costs are what
+  make a choice expensive — they are calibrated against `energyCeiling` and the strain
+  system, not against the length of a career.
 
-What it did **not** fix, and the audit says so out loud: notoriety is still emitted at 3.7×
-the scale — 864 points given by the content against 68 taken back — for a stat that only five
-rolls ever read. Run [tools/audit-stats.js](../tools/audit-stats.js) for the current ledger.
+Measured on forty random careers, a forty-year-old's sheet went from notoriety 18 /
+network 17 / credibility 11 to **14 / 14 / 10**. You no longer top out in your early forties.
+
+**Charisma and eloquence became trainable.** They were read by 158 rolls and paid by ten:
+a birth endowment you spent a whole career using and could never build. In the 77 success
+branches where a charisma-or-eloquence roll paid two or more points of notoriety, one point
+of fame is now one point of the skill the scene actually tested — a re-routing, not an
+inflation. Measured at fifty, the gap between a player who chases the spotlight and one who
+works the machine went from 2 points of charisma to **9**.
+
+### Diminishing returns — the last stretch of a bar only
+
+Gains still go through `gainStat()` ([opinion.js](../js/game/opinion.js)) rather than
+straight to `bump()`, but the brake now covers only the top of the scale: below
+`STAT_FREE_GAIN` = 16 a scene pays exactly what it declares, and above it the rate follows
+what is left to climb, `((20 − v)/4)²`, floored at 0.05. Losses are never braked.
+
+It is deliberately light. The pace is set by the content's numbers now; measured on 200
+careers, a free zone at 14 took the Élysée from 35 careers to 15 **without** improving the
+forty-year-old sheet by a single point — the career was paying twice for one debt. At 16
+the sheet at forty is identical to having no brake at all, and only the end of a long career
+stops being a wall (full bars per career: 3.2 → 1.0).
+
+**Nothing is lost to rounding.** Stats are whole numbers, so a braked gain would round to
+zero and the game's `+1` effects would become no-ops. The fraction that does not make a whole
+point is kept in `state.statCredit` and served to the next gain.
+
+Energy is outside the brake — it has `energyCeiling`, and one regulator per debt is the house
+rule. Credibility keeps its own anchor on top (`credibilityTarget` + `CREDIBILITY_OVERSHOOT`),
+which pulls it toward what the office justifies.
+
+Run [tools/audit-stats.js](../tools/audit-stats.js) for the current ledger. Its fifth measure
+is the one that matters: it plays four pilots who each want something different and asks
+whether the sheet remembers which one you were.
 
 ---
 
