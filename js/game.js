@@ -2229,6 +2229,163 @@ function evolveRivals() {
   ensureLeaders();
 }
 
+/* ==========================================================================
+   LE BILAN ANNUEL D'UN PARTI
+   ==========================================================================
+   evolveRivals() fait vivre les figures UNE PAR UNE : elles vieillissent,
+   leur popularité glisse, elles montent d'un cran quand leur compteur est
+   plein. Ce qu'il ne fait nulle part, c'est regarder un PARTI.
+
+   Il en manquait deux choses, et ce sont les deux moitiés d'une vie de parti.
+
+   UN MANDAT NE SE PERDAIT JAMAIS. L'échelle ne va que vers le haut :
+   militant, conseiller, maire ou Strasbourg, député. Rien ne redescend, sauf
+   un ministre quand son camp tombe. Au bout de quarante ans, presque toute la
+   classe politique du jeu était députée — y compris celle des camps à quatre
+   pour cent —, et le rapport de force affichait une Assemblée que le pays
+   n'avait jamais élue. Les figures traversent donc les scrutins comme le
+   joueur : le nombre de ceux qui tiennent quelque chose suit ce que le parti
+   pèse à l'Assemblée.
+
+   UN CHEF NE SE CONTESTAIT JAMAIS. ensureLeaders() ne remplace une tête que
+   lorsqu'elle se vide — un départ à la retraite, un décès. Personne ne prenait
+   la maison parce qu'il était devenu le plus fort, ce qui est pourtant la
+   seule façon dont cela arrive.
+
+   CE QUE CETTE PASSE NE FAIT PAS. Elle ne tourne qu'UNE FOIS PAR AN, elle ne
+   garde aucune mémoire, aucune file d'attente, et elle s'autorise UN SEUL
+   mouvement de mandat par parti. Six partis, huit figures : le coût est un
+   balayage, et la dérive est assez lente pour qu'on la lise.
+   ========================================================================== */
+
+/** Un mandat qui se vote. Un ministère se donne : il n'est pas de ce ressort. */
+function holdsSeat(figure) {
+  return MANDATES.includes(figure.position);
+}
+
+/**
+ * Combien de figures d'un parti devraient tenir quelque chose.
+ *
+ * ON LIT LE RAPPORT DE FORCE, PAS L'ASSEMBLÉE, et ce n'est pas la même
+ * mesure. computeAssembly() élève les parts à la puissance ASSEMBLY_POWER :
+ * c'est juste pour répartir cinq cent soixante-dix-sept sièges au scrutin
+ * majoritaire, où un camp à dix pour cent n'en gagne presque aucun. Mais un
+ * camp à dix pour cent a bel et bien des conseillers municipaux, des maires
+ * et des cadres connus — ce que compte ce quota. Essayé sur l'Assemblée : la
+ * moitié de la classe politique du jeu se retrouvait sans mandat, et le plus
+ * petit camp tombait à un élu sur huit.
+ *
+ * Le rapport de force suit les scrutins de toute façon : c'est là qu'une
+ * présidentielle gagnée ou une déroute aux législatives se lisent.
+ */
+function seatQuota(key, taille) {
+  const moyenne = 100 / Object.keys(PARTIES).length;
+  const part = game.landscape[key] || 0;
+  return Math.min(taille, Math.round(taille * PARTY_SEATED * (part / moyenne)));
+}
+
+/**
+ * LES SCRUTINS PASSENT PAR LÀ. Un mouvement au plus, dans un sens ou dans
+ * l'autre : c'est le moins connu qui saute quand le camp recule, et le plus
+ * en vue de ceux qui attendent qui entre quand il avance. Rien n'est écrit au
+ * journal — six partis fois quarante ans feraient deux cent quarante lignes
+ * pour des allées et venues que le rapport de force montre déjà.
+ */
+function renewMandates(key, figures) {
+  const quota = seatQuota(key, figures.length);
+  const places = figures.filter((r) => holdsSeat(r) ||
+    r.position === "ministre" || r.position === "premier").length;
+
+  if (places > quota) {
+    const elus = figures.filter(holdsSeat);
+    if (!elus.length) return;
+    const battu = elus.reduce((bas, r) => (r.popularity < bas.popularity ? r : bas));
+    // On perd le siège, pas la maison : un chef battu dans sa circonscription
+    // reste chef, comme le joueur reste chef quand il perd la sienne.
+    battu.position = "cadre";
+    battu.progress = 0;
+    return;
+  }
+
+  if (places < quota) {
+    const attente = figures.filter((r) => r.position === "militant" || r.position === "cadre");
+    if (!attente.length) return;
+    const elu = attente.reduce((haut, r) => (r.popularity > haut.popularity ? r : haut));
+    // On entre par le bas, jamais à l'Assemblée d'un coup : le reste de
+    // l'échelle se monte comme avant, un cran à la fois.
+    elu.position = "conseiller";
+    elu.progress = 0;
+  }
+}
+
+/**
+ * CE QUE QUELQU'UN PÈSE SANS LA MAISON.
+ *
+ * ON NE DÉFEND PAS LA DIRECTION D'UN PARTI AVEC LA DIRECTION DU PARTI. Le
+ * titre vaut LEAD_EXPOSURE d'exposition, soit près de dix points de
+ * popularité : comparer les deux popularités telles quelles revenait à
+ * demander au prétendant d'effacer cette avance AVANT de commencer, et le
+ * chef devenait imprenable. Mesuré : même avec une marge nulle, une seule
+ * maison changeait de main tous les soixante-huit ans de parti.
+ *
+ * On retire donc au chef ce que le titre lui rapporte — calculé avec
+ * figurePopularity() elle-même, pour qu'aucun coefficient ne soit recopié —
+ * et LEAD_CHALLENGE redevient ce qu'il prétend être : une vraie marge.
+ */
+function weightWithoutLead(figure) {
+  if (!leadsParty(figure)) return figure.popularity;
+  const sansTitre = { ...figure, partyPosition: null, partyLead: false };
+  return figure.popularity - (figurePopularity(figure) - figurePopularity(sansTitre));
+}
+
+/**
+ * ON PREND LA MAISON QUAND ON PÈSE PLUS QUE CELUI QUI LA TIENT.
+ *
+ * Le parti que dirige le JOUEUR n'a pas de chef figure : il n'est donc pas
+ * concerné, et la direction ne se lui prend qu'au congrès, sur une carte.
+ */
+function partyLeadership(key, figures) {
+  const chef = figures.find((r) => leadsParty(r));
+  if (!chef) return;
+
+  // Pas depuis un ministère, même règle que ensureLeaders() et même raison.
+  const pretendants = figures.filter((r) => r !== chef &&
+    r.position !== "ministre" && r.position !== "premier");
+  if (!pretendants.length) return;
+
+  const premier = pretendants.reduce((haut, r) => (r.popularity > haut.popularity ? r : haut));
+  if (premier.popularity < weightWithoutLead(chef) + LEAD_CHALLENGE) return;
+
+  setFigureLead(chef, false);
+  setFigureLead(premier, true);
+  addLog({
+    fr: premier.name + " prend la tête {party_of:" + key + "}. " + chef.name +
+      " ne pesait plus assez pour tenir la maison.",
+    en: premier.name + " takes over the leadership of {party_of:" + key + "}. " +
+      chef.name + " no longer weighed enough to hold it.",
+  });
+}
+
+function evolveParties() {
+  Object.keys(PARTIES).forEach((key) => {
+    const figures = game.rivals.filter((r) => r.party === key);
+    if (!figures.length) return;
+
+    renewMandates(key, figures);
+    partyLeadership(key, figures);
+
+    // CEUX QUI MONTENT QUATRE À QUATRE. On ne donne pas la marche, on donne
+    // l'avance qui y mène : la promotion tombe dans evolveRivals(), au tour
+    // suivant, par le même chemin que les autres.
+    figures.forEach((r) => {
+      if (Math.random() < FAST_CLIMB) r.progress += FAST_CLIMB_STEP;
+    });
+  });
+
+  // Un mouvement a pu laisser un parti sans tête, ou avec deux.
+  ensureLeaders();
+}
+
 /**
  * Quelqu'un s'en va, quelqu'un arrive. Un parti ne se vide jamais : la place
  * libérée est reprise par une figure plus jeune, et le journal le raconte.
@@ -2695,6 +2852,11 @@ function advanceTurn() {
   game.peakStanding = Math.max(game.peakStanding || 0, Math.round(game.standing));
   promoteWithinParty();
   evolveRivals();
+  // LE BILAN D'UN PARTI SE FAIT UNE FOIS L'AN, pas tous les trimestres : un
+  // parti ne se réorganise pas quatre fois par an, et le paysage doit dériver
+  // assez lentement pour qu'on puisse le lire.
+  if (game.turn % TURNS_PER_YEAR === 0) evolveParties();
+
   // On garde les quatre derniers tours du tableau : c'est ce qui permet
   // d'afficher qui monte et qui descend, la seule information qui rende un
   // paysage lisible d'un coup d'œil.
