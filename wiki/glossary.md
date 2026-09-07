@@ -118,7 +118,9 @@ country, the career, the maths of an election, the turn, and the boot.
 | `saveGame`, `loadGame`, `GAME_KEY` | `pm-game` persistence (stores card id only) |
 | `init()` (bottom IIFE) | Boot: resume or start, backfill old saves, wire handlers |
 | **Rivals & landscape** | |
-| `makeFigure`, `figurePopularity`, `spawnFigure`, `FIGURE_RANKS` | The named figures |
+| `makeFigure`, `figurePopularity`, `spawnFigure`, `FIGURE_RANKS` | The named figures. Each carries `id`, `position` (mandate only), `partyPosition` (`"chef"` or `null`) and `status` |
+| `setFigureLead` | Take or hand back a figure's party leadership. **The only door**, and it never touches `position` |
+| `takePersonId`, `allPeople`, `personById`, `game.retired` | The character registry. The living stay in `game.rivals` **in draw order** (`anyRival` picks by index); those who left are kept, marked `"retire"`, so any reference still resolves |
 | `initialLandscape`, `openingAnchor`, `leadingParty`, `driftLandscape`, `normalizeLandscape` | Vote-share model. The opening is drawn once; **there is no baseline and no pull**, only causes |
 | `COATTAIL`, `turnsSinceElection` | The wave a legislative gives the camp that just won the Élysée |
 | `moveShare`, `shiftLandscape`, `landscapeTarget` | Landscape mutation + effect targeting |
@@ -126,9 +128,13 @@ country, the career, the maths of an election, the turn, and the boot.
 | **The Assembly** | |
 | `computeAssembly`, `ASSEMBLY_SEATS/MAJORITY/POWER` | The 577 seats, dealt on legislative night |
 | `formCoalition`, `governmentBloc`, `governmentSeats`, `majorityState` | Who backs the government, and how solidly |
-| `partySeats`, `partyIsFirstGroup`, `partyIsPivot` | Where the *player's* party sits in the chamber |
+| `partySeats`, `partyIsFirstGroup`, `partyIsPivot` | Where the *player's* party sits in the chamber. ⚠️ `partySeats` is the player's seat count, read by the `minSeats`/`maxSeats` conditions — not to be confused with `renewMandates`, which is a party's figures |
 | `driftApproval`, `approvalTarget`, `maybeCensure`, `primeMinister`, `governmentKind` | The government's standing and its fall |
-| `evolveRivals`, `retireFigure`, `ensureLeaders`, `ensureGovernment` | Rivals' background life |
+| `evolveRivals`, `retireFigure`, `ensureLeaders`, `ensureGovernment` | Rivals' background life, **every turn** |
+| `evolveParties` | A party's life, **once a year** (`turn % TURNS_PER_YEAR`). Sweep only: no memory, no queue |
+| `renewMandates`, `seatQuota`, `holdsSeat`, `PARTY_SEATED` | How many of a party's figures hold a mandate — its share of the landscape, one move a year |
+| `partyLeadership`, `weightWithoutLead`, `LEAD_CHALLENGE` | A leader can be unseated by the strongest, measured **without** what the title itself is worth |
+| `FAST_CLIMB`, `FAST_CLIMB_STEP` | The rare figure who climbs faster: progress, not the rung |
 | `maybeDefection`, `defectionTarget`, `defectionWeight` | Floor-crossing |
 | `switchParty`, `setAlliance` | Player changes camp / signs a pact |
 | **Calendar & elections** | |
