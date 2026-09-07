@@ -161,10 +161,19 @@ function startCampaign() {
  */
 function campaignFigure(candidate) {
   if (!candidate || !candidate.name) return null;
-  const figure = game.rivals.find((r) => r.name === candidate.name);
+  // ON CHERCHE AUSSI PARMI CEUX QUI SONT PARTIS. Le champ de candidats garde
+  // des noms, et un nom dont la figure a quitté la vie politique entre-temps
+  // ne se résolvait plus : on tombait sur le repli, qui invente un adversaire
+  // sans sexe, donc accordé au masculin. Le registre garde les dossiers, donc
+  // le nom se retrouve.
+  const figure = allPeople(game).find((r) => r.name === candidate.name);
   return figure
-    ? { name: figure.name, party: figure.party, position: figure.position, sex: figure.sex }
-    : { name: candidate.name, party: candidate.party, position: "chef" };
+    ? { name: figure.name, party: figure.party, position: figure.position,
+        partyPosition: figure.partyPosition, sex: figure.sex }
+    // Il reste le cas d'un nom qui n'a jamais été une figure. On le présente
+    // comme ce qu'un parti met sur une affiche : celui qui le dirige.
+    : { name: candidate.name, party: candidate.party, position: "cadre",
+        partyPosition: "chef" };
 }
 
 /**

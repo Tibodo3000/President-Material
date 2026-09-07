@@ -428,7 +428,9 @@ function eventMatches(ev, s) {
  */
 function scenePresentation(scene) {
   const parti = t("party_" + scene.party);
-  const fonction = scene.position ? t("pos_" + scene.position).toLowerCase() : null;
+  // La direction se cumule avec le mandat : positionTitle() sait l'écrire.
+  const fonction = scene.position
+    ? positionTitle(scene.position, leadsParty(scene)).toLowerCase() : null;
   return scene.name + " (" + parti + (fonction ? ", " + fonction : "") + ")";
 }
 
@@ -523,7 +525,8 @@ function fillBoth(obj, s) {
   const scene = s.scene || anyRival(s);
 
   const presentation = scene.name + " ({party:" + scene.party + "}" +
-    (scene.position ? ", {pos_low:" + scene.position + "}" : "") + ")";
+    (scene.position ? ", {pos_low:" + scene.position + "}" : "") +
+    (leadsParty(scene) ? " · {pos_low:chef}" : "") + ")";
 
   const fill = (text) => {
     let premiere = true;

@@ -104,9 +104,17 @@ function officeAfterDefeat(s) {
    ========================================================================== */
 
 
-/** Le joueur dirige-t-il son parti ? */
+/**
+ * Dirige-t-on son parti ? La question vaut pour le joueur ET pour les
+ * figures, qui ont désormais elles aussi un mandat d'un côté et la direction
+ * de l'autre. Deux champs, parce que les deux états n'ont pas la même forme —
+ * le joueur ne dirige qu'un parti et n'a donc qu'un drapeau, une figure porte
+ * un rôle dans l'appareil dont diriger est le premier —, mais un seul
+ * prédicat, pour que exposureOf(), rankOf() et positionTitle() marchent sur
+ * l'un comme sur l'autre.
+ */
 function leadsParty(s) {
-  return Boolean(s && s.partyLead);
+  return Boolean(s && (s.partyLead || s.partyPosition === "chef"));
 }
 
 /**

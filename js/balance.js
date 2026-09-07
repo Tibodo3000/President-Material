@@ -258,18 +258,27 @@ const LEAD_EXPOSURE = 12;
 
 const LEAD_RANK = 4;
 
-/* La clé "chef" sert encore : les figures du jeu, elles, n'ont qu'une case et
-   la direction de leur parti EST leur fonction. Le joueur, lui, passe par
-   exposureOf() et rankOf(), qui savent additionner. */
+/* LA CLÉ "chef" A DISPARU DES DEUX TABLES. Elle y restait pour les figures,
+   qui n'avaient qu'une case : diriger leur parti était leur fonction, donc
+   prendre la maison leur retirait leur siège. Tout le monde passe désormais
+   par exposureOf() et rankOf(), qui ajoutent LEAD_EXPOSURE et LEAD_RANK à ce
+   que vaut le mandat — le joueur le faisait déjà.
+
+   Les deux chiffres retombent où le forfait était : un chef qui siège valait
+   22 d'exposition, il vaut maintenant 26 s'il est député, 22 s'il est maire,
+   20 s'il est au Parlement européen. Côté rang, 7 devient 8, 7 ou 6. Le
+   forfait était donc bien la somme qu'on vient d'écrire, et c'est pour cela
+   que le partage ne déplace presque rien en moyenne : ce qu'il change, c'est
+   qu'un chef sans siège cesse d'exister. */
 const POSITION_EXPOSURE = {
   militant: 0, cadre: 3, conseiller: 4, maire: 10, euro: 8, depute: 14,
-  ministre: 28, chef: 22, premier: 40,
+  ministre: 28, premier: 40,
 };
 
 /** Poids interne de la fonction dans l'appareil du parti. */
 const POSITION_RANK = {
   militant: 0, cadre: 2, conseiller: 1, maire: 3, euro: 2, depute: 4,
-  ministre: 5, chef: 7, premier: 6,
+  ministre: 5, premier: 6,
 };
 
 /* ==========================================================================
@@ -745,9 +754,11 @@ const CENSURE_CHANCE = 0.055;
  *   espoir   le jeune qui monte, encore peu connu
  */
 const FIGURE_RANKS = {
-  chef:   { minAge: 22, spread: 18, position: "chef", floor: 6, notoriety: 6 },
-  cadre:  { minAge: 12, spread: 18, position: null,   floor: 4, notoriety: 3 },
-  espoir: { minAge: -2, spread: 13, position: null,   floor: 2, notoriety: 1 },
+  // Le chef n'a plus de fonction imposée : il tire son mandat comme un cadre,
+  // parce qu'on ne prend pas la maison sans tenir quelque chose quelque part.
+  chef:   { minAge: 22, spread: 18, position: null, floor: 6, notoriety: 6 },
+  cadre:  { minAge: 12, spread: 18, position: null, floor: 4, notoriety: 3 },
+  espoir: { minAge: -2, spread: 13, position: null, floor: 2, notoriety: 1 },
 };
 
 /*
