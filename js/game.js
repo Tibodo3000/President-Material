@@ -30,14 +30,103 @@ let game = null;
  * gens que le pays connaît, et le joueur se compare à eux tout au long de sa
  * carrière. Le parti du joueur a lui aussi sa figure : c'est le concurrent
  * de l'intérieur, celui qu'il faudra écarter pour prendre la direction.
+ *
+ * ---------------------------------------------------------------------------
+ * LE DOSSIER D'UN PERSONNAGE
+ * ---------------------------------------------------------------------------
+ *   id              Un entier, posé à la naissance, JAMAIS réutilisé — pas
+ *                   même après un départ. C'est la seule clé sûre : le nom ne
+ *                   l'est pas, et il l'est de moins en moins à mesure que le
+ *                   paysage se peuple. Voir LE NOM N'EST PAS UNE CLÉ.
+ *   name, sex       Ce qu'on lit et ce qui accorde les textes.
+ *   party           Le camp du moment. Il peut changer.
+ *   position        LE MANDAT : ce que les urnes ou l'Élysée ont donné.
+ *   partyPosition  LE RÔLE DANS L'APPAREIL : ce que le parti donne, et qui
+ *                   ne se confond pas avec le mandat. Voir plus bas.
+ *   status          Ce qu'il ou elle est EN TRAIN DE FAIRE. Voir plus bas.
+ *   age, progress   Le temps qui passe, et l'avancement vers la marche
+ *                   suivante de l'échelle.
+ *   stats           Les cinq statistiques, qui font la popularité.
+ *   popularity      Ce que le pays en pense, de 0 à 100. C'est un chiffre
+ *                   NATIONAL : une figure n'a pas les six électorats du
+ *                   joueur, et tout ce qui les compare le fait sur cette
+ *                   échelle-là.
+ *
+ * LE NOM N'EST PAS UNE CLÉ, et tout le jeu s'en sert encore comme telle : la
+ * campagne présidentielle garde son champ de candidats par nom, `nominee` est
+ * une chaîne, `president` un couple nom/parti, et chaque lecture repasse par
+ * un `find(r => r.name === …)`. Cela tient tant que les patronymes sont
+ * uniques, et ils le sont à quarante-huit figures. Ils ne le seront plus :
+ * une carrière tire déjà quatre-vingt-six noms dans un réservoir de deux cent
+ * quatre-vingt-cinq patronymes, et un paysage plus peuplé le videra. Un
+ * patronyme recyclé fait alors pointer le `find` sur QUELQU'UN D'AUTRE, sans
+ * que rien ne le signale. D'où l'identifiant : il est posé ici et il ne sert
+ * encore à personne, parce que basculer les lecteurs est une passe à part,
+ * qui se relit pour elle-même.
+ *
+ * ---------------------------------------------------------------------------
+ * LE MANDAT ET LE RÔLE SONT DEUX CHOSES
+ * ---------------------------------------------------------------------------
+ * Le joueur a déjà les deux, et le dépôt a payé pour l'apprendre : la
+ * direction du parti était coincée dans l'échelle des fonctions, si bien que
+ * prendre son camp, c'était rendre son siège (voir LA DIRECTION DU PARTI dans
+ * js/game/carriere.js). Elle vit depuis dans `partyLead`, à part.
+ *
+ * LES FIGURES AVAIENT LE MÊME BUG, et il a duré plus longtemps parce qu'on ne
+ * le lisait pas sur sa propre fiche. ensureLeaders() écrivait
+ * `position = "chef"` sur un député : sa circonscription disparaissait, et le
+ * journal annonçait sans broncher qu'on « reste à l'appareil, sans mandat » —
+ * la ligne disait le défaut comme si c'était la règle.
+ *
+ * « CHEF » N'EST DONC PLUS UNE FONCTION. `position` ne contient que des
+ * mandats, exactement l'échelle du joueur (LADDER), et `partyPosition` porte
+ * le rôle dans l'appareil. leadsParty() lit les deux formes, si bien que
+ * exposureOf(), rankOf() et positionTitle() marchent sur une figure comme sur
+ * le joueur : un chef qui siège est « députée · cheffe du parti », et il pèse
+ * ce que pèsent son siège ET sa maison.
+ *
+ * Le vocabulaire de `partyPosition` est court exprès :
+ *
+ *   "chef"   dirige le parti
+ *   null     ne le dirige pas
+ *
+ * Il s'ouvrira quand les partis seront peuplés et qu'un rôle de plus voudra
+ * dire quelque chose. Écrire aujourd'hui « porte-parole » ou « trésorier »
+ * derrière rien du tout serait un vocabulaire qui dérive.
  */
 /** Le nom de famille seul, pour éviter deux homonymes dans le même paysage. */
 function surnameOf(fullName) {
   return String(fullName).slice(String(fullName).indexOf(" ") + 1);
 }
 
+/*
+ * CE QU'UN PERSONNAGE EST EN TRAIN DE FAIRE.
+ *
+ * Le rôle dit ce qu'on est, le statut dit ce qu'on fait, et les deux se
+ * cumulent : un député peut être candidat, un chef de parti peut ne rien
+ * faire de particulier. Le vocabulaire est volontairement court, et il
+ * s'ouvrira quand les scrutins auront des adversaires qui ont un nom :
+ *
+ *   null        rien en cours
+ *   "retire"    a quitté la vie politique
+ *
+ * VIENDRONT : "investi" (porte l'investiture du parti pour un scrutin nommé),
+ * "candidat" (en campagne), "sortant" (défend son siège). Ils ne sont pas
+ * écrits ici tant que rien ne les pose : un vocabulaire qu'aucun code
+ * n'emploie est un vocabulaire qui dérive.
+ */
 
-function makeFigure(partyKey, usedNames, rank) {
+/**
+ * Prendre ou rendre la direction du parti. Elle NE REMPLACE JAMAIS le mandat :
+ * c'est tout l'objet du champ à part, et le seul chemin pour l'écrire.
+ */
+function setFigureLead(figure, leads) {
+  figure.partyPosition = leads ? "chef" : null;
+  return figure;
+}
+
+
+function makeFigure(partyKey, usedNames, rank, id) {
   const model = FIGURE_RANKS[rank] || FIGURE_RANKS.cadre;
   const sex = Math.random() < 0.5 ? "female" : "male";
 
@@ -49,10 +138,12 @@ function makeFigure(partyKey, usedNames, rank) {
   usedNames[surnameOf(name)] = true;
 
   const figure = {
+    id,
     name,
     sex,
     party: partyKey,
     rank,
+    status: null,
     age: Math.max(26, START_AGE + model.minAge + randInt(model.spread)),
     // LE PARLEMENT EUROPÉEN N'ÉTAIT NULLE PART. Aucune figure n'était jamais
     // députée européenne, ni à la création ni par promotion : le joueur
@@ -74,15 +165,61 @@ function makeFigure(partyKey, usedNames, rank) {
       credibilite: model.floor + randInt(4),
     },
   };
+  // Diriger n'est pas une fonction : le chef tire son mandat comme un cadre,
+  // et porte la maison en plus.
+  setFigureLead(figure, rank === "chef");
   figure.popularity = figurePopularity(figure);
   return figure;
 }
 
-/** La popularité d'une figure : ce que le pays pense d'elle, de 0 à 100. */
+/* ==========================================================================
+   LE REGISTRE DES PERSONNAGES
+   ==========================================================================
+   Une petite base de données, pas un second système. Les vivants restent où
+   ils étaient, dans `game.rivals`, ET DANS LE MÊME ORDRE : anyRival() tire
+   par indice, donc toucher à l'ordre changerait le tirage de tout le jeu.
+
+   Ce qui s'ajoute, c'est la mémoire de ceux qui sont partis. retireFigure()
+   les sortait du tableau et ils n'existaient plus nulle part : une campagne
+   ou un sondage qui gardait leur nom ne pouvait plus le résoudre, et
+   campaignFigure() FABRIQUAIT alors un adversaire — promu chef d'office et,
+   faute de sexe, accordé au masculin. Le repli existe parce que le cas
+   arrive. On garde donc les partis dans `game.retired`, marqués "retire" :
+   toute référence redevient résolvable, et le repli pourra disparaître au
+   lieu d'être amélioré.
+   ========================================================================== */
+
+/** Le prochain identifiant libre. Il ne se réutilise jamais. */
+function takePersonId(state) {
+  const s = state || game;
+  s.nextPersonId = (s.nextPersonId || 1) + 1;
+  return s.nextPersonId - 1;
+}
+
+/** Tout le monde, ceux qui ont quitté la vie politique compris. */
+function allPeople(state) {
+  const s = state || game;
+  return (s.rivals || []).concat(s.retired || []);
+}
+
+/** Quelqu'un par son identifiant, vivant ou retiré. */
+function personById(id, state) {
+  if (id == null) return null;
+  return allPeople(state).find((r) => r.id === id) || null;
+}
+
+/**
+ * La popularité d'une figure : ce que le pays pense d'elle, de 0 à 100.
+ *
+ * L'exposition passe par exposureOf(), la fonction du joueur, qui sait
+ * additionner le mandat et la direction du parti. C'est ce qui permet à un
+ * chef de garder son siège : son exposition n'est plus un forfait de 22, elle
+ * est ce que vaut sa circonscription PLUS ce que vaut la maison.
+ */
 function figurePopularity(figure) {
   return clamp100(
     6 + figure.stats.notoriete * 3.4 + figure.stats.charisme * 1.6 +
-    figure.stats.reputation * 1.2 + POSITION_EXPOSURE[figure.position] * 0.8
+    figure.stats.reputation * 1.2 + exposureOf(figure) * 0.8
   );
 }
 
@@ -110,6 +247,9 @@ function newGame(character) {
   // Trois personnalités par parti, dont un chef : à trente ans, on entre
   // toujours dans un paysage déjà occupé, avec ses chefs installés, ses
   // cadres qui attendent leur tour et ses jeunes pressés.
+  // Les identifiants se posent ici, avant l'état : les figures se fabriquent
+  // avant lui, et le compteur part avec state.nextPersonId.
+  let nextId = 1;
   const rivals = [];
   partyKeys.forEach((key) => {
     // Huit figures par parti, ET CE SONT DES PONTES. On est passé de trois à
@@ -124,7 +264,7 @@ function newGame(character) {
     // la place, et deux jeunes qui poussent derrière. Les jeunes montent
     // tout seuls, et les places se libèrent avec les retraites.
     ["chef", "cadre", "cadre", "cadre", "cadre", "cadre", "espoir", "espoir"].forEach((rank) => {
-      rivals.push(makeFigure(key, usedNames, rank));
+      rivals.push(makeFigure(key, usedNames, rank, nextId++));
     });
   });
 
@@ -169,7 +309,9 @@ function newGame(character) {
     appeal: null,
     popularity: 0,
     standing: 0,
-    rivals,               // une figure par parti
+    rivals,               // les personnages vivants, dans l'ordre du tirage
+    retired: [],          // ceux qui ont quitté la vie politique, et qu'on garde
+    nextPersonId: nextId, // le prochain identifiant libre
     landscape: {},        // rapport de force entre les partis, en pourcentage
     momentum: {},         // la dynamique de chaque camp : voir driftMomentum()
     landscapeTrail: [],   // les quatre derniers tours : sert aux tendances
@@ -203,7 +345,7 @@ function newGame(character) {
   // n'existe pas. On entre dans un pays où celui qui gouverne a gagné ; c'est
   // la suite qui dira s'il tient.
   const sortantParti = leadingParty(state.landscape);
-  const sortant = rivals.find((r) => r.party === sortantParti && r.position === "chef") ||
+  const sortant = rivals.find((r) => r.party === sortantParti && leadsParty(r)) ||
     rivals.find((r) => r.party === sortantParti);
   state.president = { name: sortant.name, party: sortantParti };
   state.presidentTerms = 1;
@@ -1091,13 +1233,13 @@ function figuresOf(partyKey) {
   return game.rivals
     .filter((r) => r.party === partyKey)
     .sort((a, b) =>
-      (b.position === "chef") - (a.position === "chef") || b.popularity - a.popularity
+      (leadsParty(b) ? 1 : 0) - (leadsParty(a) ? 1 : 0) || b.popularity - a.popularity
     );
 }
 
 /** Celui ou celle qui dirige le parti, et qui le représentera à l'Élysée. */
 function leaderOf(partyKey) {
-  return game.rivals.find((r) => r.party === partyKey && r.position === "chef") ||
+  return game.rivals.find((r) => r.party === partyKey && leadsParty(r)) ||
     figuresOf(partyKey)[0] || null;
 }
 
@@ -2016,7 +2158,7 @@ function ensureGovernment() {
     const pool = game.rivals
       // Celui que l'Assemblée vient de censurer ne retourne pas à Matignon le
       // lendemain : c'est la seule chose qu'une motion adoptée garantit.
-      .filter((r) => r.party === ruling && r.position !== "chef" && r.censured !== game.turn)
+      .filter((r) => r.party === ruling && !leadsParty(r) && r.censured !== game.turn)
       .sort((a, b) => b.popularity - a.popularity);
     if (pool.length) {
       pool[0].position = "premier";
@@ -2036,7 +2178,7 @@ function ensureGovernment() {
       // civile. Sans cela, un parti aux figures jeunes gouvernait à un
       // ministre. Le censuré du jour, lui, reste dehors : on ne le reprend
       // pas comme ministre du gouvernement qui remplace le sien.
-      .filter((r) => r.party === ruling && r.position !== "chef" && r.position !== "premier" &&
+      .filter((r) => r.party === ruling && !leadsParty(r) && r.position !== "premier" &&
                      r.censured !== game.turn)
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, manque)
@@ -2087,21 +2229,187 @@ function evolveRivals() {
   ensureLeaders();
 }
 
+/* ==========================================================================
+   LE BILAN ANNUEL D'UN PARTI
+   ==========================================================================
+   evolveRivals() fait vivre les figures UNE PAR UNE : elles vieillissent,
+   leur popularité glisse, elles montent d'un cran quand leur compteur est
+   plein. Ce qu'il ne fait nulle part, c'est regarder un PARTI.
+
+   Il en manquait deux choses, et ce sont les deux moitiés d'une vie de parti.
+
+   UN MANDAT NE SE PERDAIT JAMAIS. L'échelle ne va que vers le haut :
+   militant, conseiller, maire ou Strasbourg, député. Rien ne redescend, sauf
+   un ministre quand son camp tombe. Au bout de quarante ans, presque toute la
+   classe politique du jeu était députée — y compris celle des camps à quatre
+   pour cent —, et le rapport de force affichait une Assemblée que le pays
+   n'avait jamais élue. Les figures traversent donc les scrutins comme le
+   joueur : le nombre de ceux qui tiennent quelque chose suit ce que le parti
+   pèse à l'Assemblée.
+
+   UN CHEF NE SE CONTESTAIT JAMAIS. ensureLeaders() ne remplace une tête que
+   lorsqu'elle se vide — un départ à la retraite, un décès. Personne ne prenait
+   la maison parce qu'il était devenu le plus fort, ce qui est pourtant la
+   seule façon dont cela arrive.
+
+   CE QUE CETTE PASSE NE FAIT PAS. Elle ne tourne qu'UNE FOIS PAR AN, elle ne
+   garde aucune mémoire, aucune file d'attente, et elle s'autorise UN SEUL
+   mouvement de mandat par parti. Six partis, huit figures : le coût est un
+   balayage, et la dérive est assez lente pour qu'on la lise.
+   ========================================================================== */
+
+/** Un mandat qui se vote. Un ministère se donne : il n'est pas de ce ressort. */
+function holdsSeat(figure) {
+  return MANDATES.includes(figure.position);
+}
+
+/**
+ * Combien de figures d'un parti devraient tenir quelque chose.
+ *
+ * ON LIT LE RAPPORT DE FORCE, PAS L'ASSEMBLÉE, et ce n'est pas la même
+ * mesure. computeAssembly() élève les parts à la puissance ASSEMBLY_POWER :
+ * c'est juste pour répartir cinq cent soixante-dix-sept sièges au scrutin
+ * majoritaire, où un camp à dix pour cent n'en gagne presque aucun. Mais un
+ * camp à dix pour cent a bel et bien des conseillers municipaux, des maires
+ * et des cadres connus — ce que compte ce quota. Essayé sur l'Assemblée : la
+ * moitié de la classe politique du jeu se retrouvait sans mandat, et le plus
+ * petit camp tombait à un élu sur huit.
+ *
+ * Le rapport de force suit les scrutins de toute façon : c'est là qu'une
+ * présidentielle gagnée ou une déroute aux législatives se lisent.
+ */
+function seatQuota(key, taille) {
+  const moyenne = 100 / Object.keys(PARTIES).length;
+  const part = game.landscape[key] || 0;
+  return Math.min(taille, Math.round(taille * PARTY_SEATED * (part / moyenne)));
+}
+
+/**
+ * LES SCRUTINS PASSENT PAR LÀ. Un mouvement au plus, dans un sens ou dans
+ * l'autre : c'est le moins connu qui saute quand le camp recule, et le plus
+ * en vue de ceux qui attendent qui entre quand il avance. Rien n'est écrit au
+ * journal — six partis fois quarante ans feraient deux cent quarante lignes
+ * pour des allées et venues que le rapport de force montre déjà.
+ */
+function renewMandates(key, figures) {
+  const quota = seatQuota(key, figures.length);
+  const places = figures.filter((r) => holdsSeat(r) ||
+    r.position === "ministre" || r.position === "premier").length;
+
+  if (places > quota) {
+    const elus = figures.filter(holdsSeat);
+    if (!elus.length) return;
+    const battu = elus.reduce((bas, r) => (r.popularity < bas.popularity ? r : bas));
+    // On perd le siège, pas la maison : un chef battu dans sa circonscription
+    // reste chef, comme le joueur reste chef quand il perd la sienne.
+    battu.position = "cadre";
+    battu.progress = 0;
+    return;
+  }
+
+  if (places < quota) {
+    const attente = figures.filter((r) => r.position === "militant" || r.position === "cadre");
+    if (!attente.length) return;
+    const elu = attente.reduce((haut, r) => (r.popularity > haut.popularity ? r : haut));
+    // On entre par le bas, jamais à l'Assemblée d'un coup : le reste de
+    // l'échelle se monte comme avant, un cran à la fois.
+    elu.position = "conseiller";
+    elu.progress = 0;
+  }
+}
+
+/**
+ * CE QUE QUELQU'UN PÈSE SANS LA MAISON.
+ *
+ * ON NE DÉFEND PAS LA DIRECTION D'UN PARTI AVEC LA DIRECTION DU PARTI. Le
+ * titre vaut LEAD_EXPOSURE d'exposition, soit près de dix points de
+ * popularité : comparer les deux popularités telles quelles revenait à
+ * demander au prétendant d'effacer cette avance AVANT de commencer, et le
+ * chef devenait imprenable. Mesuré : même avec une marge nulle, une seule
+ * maison changeait de main tous les soixante-huit ans de parti.
+ *
+ * On retire donc au chef ce que le titre lui rapporte — calculé avec
+ * figurePopularity() elle-même, pour qu'aucun coefficient ne soit recopié —
+ * et LEAD_CHALLENGE redevient ce qu'il prétend être : une vraie marge.
+ */
+function weightWithoutLead(figure) {
+  if (!leadsParty(figure)) return figure.popularity;
+  const sansTitre = { ...figure, partyPosition: null, partyLead: false };
+  return figure.popularity - (figurePopularity(figure) - figurePopularity(sansTitre));
+}
+
+/**
+ * ON PREND LA MAISON QUAND ON PÈSE PLUS QUE CELUI QUI LA TIENT.
+ *
+ * Le parti que dirige le JOUEUR n'a pas de chef figure : il n'est donc pas
+ * concerné, et la direction ne se lui prend qu'au congrès, sur une carte.
+ */
+function partyLeadership(key, figures) {
+  const chef = figures.find((r) => leadsParty(r));
+  if (!chef) return;
+
+  // Pas depuis un ministère, même règle que ensureLeaders() et même raison.
+  const pretendants = figures.filter((r) => r !== chef &&
+    r.position !== "ministre" && r.position !== "premier");
+  if (!pretendants.length) return;
+
+  const premier = pretendants.reduce((haut, r) => (r.popularity > haut.popularity ? r : haut));
+  if (premier.popularity < weightWithoutLead(chef) + LEAD_CHALLENGE) return;
+
+  setFigureLead(chef, false);
+  setFigureLead(premier, true);
+  addLog({
+    fr: premier.name + " prend la tête {party_of:" + key + "}. " + chef.name +
+      " ne pesait plus assez pour tenir la maison.",
+    en: premier.name + " takes over the leadership of {party_of:" + key + "}. " +
+      chef.name + " no longer weighed enough to hold it.",
+  });
+}
+
+function evolveParties() {
+  Object.keys(PARTIES).forEach((key) => {
+    const figures = game.rivals.filter((r) => r.party === key);
+    if (!figures.length) return;
+
+    renewMandates(key, figures);
+    partyLeadership(key, figures);
+
+    // CEUX QUI MONTENT QUATRE À QUATRE. On ne donne pas la marche, on donne
+    // l'avance qui y mène : la promotion tombe dans evolveRivals(), au tour
+    // suivant, par le même chemin que les autres.
+    figures.forEach((r) => {
+      if (Math.random() < FAST_CLIMB) r.progress += FAST_CLIMB_STEP;
+    });
+  });
+
+  // Un mouvement a pu laisser un parti sans tête, ou avec deux.
+  ensureLeaders();
+}
+
 /**
  * Quelqu'un s'en va, quelqu'un arrive. Un parti ne se vide jamais : la place
  * libérée est reprise par une figure plus jeune, et le journal le raconte.
  */
 /** Fabrique une figure de plus, sans jamais deux fois le même nom. */
 function spawnFigure(partyKey, rank) {
+  // ON NE REGARDE QUE LES VIVANTS, comme avant : ajouter les noms de ceux qui
+  // sont partis changerait le nombre de tirages, donc tout l'aléa de la
+  // partie. C'est pourtant ce qu'il faudra faire — voir LE NOM N'EST PAS UNE
+  // CLÉ —, et cela se fera avec le reste de la bascule des noms.
   const usedNames = { [game.character.name || ""]: true };
   game.rivals.forEach((r) => { usedNames[r.name] = true; usedNames[surnameOf(r.name)] = true; });
-  return makeFigure(partyKey, usedNames, rank);
+  return makeFigure(partyKey, usedNames, rank, takePersonId());
 }
 
 function retireFigure(figure, reason) {
-  const heir = spawnFigure(figure.party, figure.position === "chef" ? "cadre" : "espoir");
+  const heir = spawnFigure(figure.party, leadsParty(figure) ? "cadre" : "espoir");
   const at = game.rivals.indexOf(figure);
   game.rivals.splice(at, 1, heir);
+
+  // Il quitte la vie politique, pas la partie : son dossier reste lisible,
+  // pour que ce qui garde son nom quelque part puisse encore le retrouver.
+  figure.status = "retire";
+  (game.retired || (game.retired = [])).push(figure);
 
   addLog(reason === "age"
     ? {
@@ -2131,17 +2439,20 @@ function ensureLeaders() {
       figures = [newcomer];
     }
 
-    const chefs = figures.filter((r) => r.position === "chef");
+    const chefs = figures.filter((r) => leadsParty(r));
     const playerLeads = key === game.party && leadsParty(game);
 
     if (playerLeads) {
       chefs.forEach((r) => {
-        // Perdre la direction ne donne pas un siège : la règle vaut pour les
-        // figures comme pour le joueur, et le rapport de force les affiche.
-        r.position = "cadre";
+        // PERDRE LA DIRECTION NE COÛTE PLUS LE SIÈGE. La ligne disait « reste
+        // à l'appareil, sans mandat » parce que c'est ce que le moteur
+        // faisait : rendre le titre, c'était retomber sur la case « cadre »,
+        // donc perdre la circonscription qu'on avait gagnée. On ne perd que
+        // la maison, et c'est déjà assez.
+        setFigureLead(r, false);
         addLog({
-          fr: r.name + " cède la direction du parti et reste à l'appareil, sans mandat.",
-          en: r.name + " gives up the party leadership and stays at headquarters, with no seat.",
+          fr: r.name + " cède la direction du parti et reste {pos_low:" + r.position + "}.",
+          en: r.name + " gives up the party leadership and remains {pos_low:" + r.position + "}.",
         });
       });
       return;
@@ -2151,13 +2462,24 @@ function ensureLeaders() {
 
     if (chefs.length > 1) {
       // Deux chefs, cela n'existe pas : le plus populaire garde la maison.
+      // Les autres gardent leur mandat, ils ne perdent que la direction.
       chefs.sort((a, b) => b.popularity - a.popularity).slice(1)
-        .forEach((r) => { r.position = "cadre"; });
+        .forEach((r) => { setFigureLead(r, false); });
       return;
     }
 
-    const heir = figures.sort((a, b) => b.popularity - a.popularity)[0];
-    heir.position = "chef";
+    /* ON NE PREND PAS LA MAISON DEPUIS UN MINISTÈRE. ensureGovernment() écarte
+       déjà le chef de Matignon et des ministères — « diriger le parti et le
+       gouvernement à la fois, cela existe, mais c'est rare ». La règle tenait
+       toute seule tant que devenir chef effaçait la fonction ; maintenant que
+       le siège se garde, elle doit être écrite des DEUX côtés, sinon on la
+       contourne par l'autre bout et le cumul cesse d'être rare. Un parti qui
+       n'a que des ministres remonte quand même quelqu'un : mieux vaut un
+       cumul qu'un camp sans tête. */
+    const dehors = figures.filter((r) => r.position !== "ministre" && r.position !== "premier");
+    const heir = (dehors.length ? dehors : figures)
+      .sort((a, b) => b.popularity - a.popularity)[0];
+    setFigureLead(heir, true);
     addLog({
       fr: heir.name + " prend la tête {party_of:" + key + "}.",
       en: heir.name + " takes over the leadership of {party_of:" + key + "}.",
@@ -2225,14 +2547,14 @@ function castFor(ev) {
   const camp = game.rivals.filter((r) => r.party === game.party);
 
   let figure = null;
-  if (cast === "leader") figure = pickByWeight(others.filter((r) => r.position === "chef"));
+  if (cast === "leader") figure = pickByWeight(others.filter((r) => leadsParty(r)));
   // LE CHEF DU CAMP QUI GOUVERNE. C'est lui, et personne d'autre, qui vient
   // chercher les voix qui lui manquent : une négociation de majorité ne se
   // tire pas au sort.
   else if (cast === "ruling") {
     const gouverne = rulingParty();
     figure = gouverne && gouverne !== game.party ? leaderOf(gouverne) : null;
-    if (!figure) figure = pickByWeight(others.filter((r) => r.position === "chef"));
+    if (!figure) figure = pickByWeight(others.filter((r) => leadsParty(r)));
   }
   // LE VOISIN. Le camp le moins éloigné du vôtre, celui avec qui un accord
   // se raconte sans faire rire personne.
@@ -2294,7 +2616,7 @@ function setScene(ev) {
  * séisme.
  */
 function defectionWeight(figure) {
-  const rank = figure.position === "chef" ? 2.2 : 1;
+  const rank = leadsParty(figure) ? 2.2 : 1;
   return rank * (0.5 + figure.popularity / 90);
 }
 
@@ -2340,9 +2662,12 @@ function maybeDefection() {
   const weight = defectionWeight(figure);
 
   figure.party = to;
-  // On n'emporte pas la direction en changeant de camp, et on n'arrive pas
-  // avec un siège qu'on n'a pas gagné là-bas.
-  if (figure.position === "chef") figure.position = "cadre";
+  // On n'emporte pas la direction en changeant de camp : elle appartient à la
+  // maison qu'on quitte. Le MANDAT suit, comme il suit déjà pour les députés
+  // qui traversent — on ne démissionne pas de l'Assemblée en changeant de
+  // groupe, et c'est la règle que le joueur connaît depuis « Un ministère ne
+  // traverse pas ».
+  setFigureLead(figure, false);
 
   moveShare(game, from, -weight, "drift");
   moveShare(game, to, +weight * 0.8, "drift");
@@ -2527,6 +2852,10 @@ function advanceTurn() {
   game.peakStanding = Math.max(game.peakStanding || 0, Math.round(game.standing));
   promoteWithinParty();
   evolveRivals();
+  // LE BILAN D'UN PARTI SE FAIT UNE FOIS L'AN, pas tous les trimestres : un
+  // parti ne se réorganise pas quatre fois par an, et le paysage doit dériver
+  // assez lentement pour qu'on puisse le lire.
+  if (game.turn % TURNS_PER_YEAR === 0) evolveParties();
 
   // On garde les quatre derniers tours du tableau : c'est ce qui permet
   // d'afficher qui monte et qui descend, la seule information qui rende un
@@ -3989,6 +4318,29 @@ const BUILD = "2026-08-21 11:45";
       if (r.popularity === undefined) r.popularity = figurePopularity(r);
     });
 
+    /* UNE SAUVEGARDE D'AVANT LE REGISTRE n'a ni identifiants, ni rôle
+       d'appareil, ni statut, et personne n'y garde la trace de ceux qui sont
+       partis. On les pose dans l'ordre du tableau, ce qui suffit : ce qu'on
+       demande à un identifiant, c'est d'être unique et stable à partir de
+       maintenant, pas de raconter qui est arrivé le premier. Les retirés
+       d'avant, eux, sont perdus pour de bon — ils n'ont jamais été gardés. */
+    if (!Array.isArray(game.retired)) game.retired = [];
+    if (game.nextPersonId === undefined) {
+      let suivant = 1;
+      allPeople(game).forEach((r) => {
+        if (r.id === undefined) r.id = suivant++;
+      });
+      game.nextPersonId = suivant;
+    }
+    allPeople(game).forEach((r) => {
+      if (r.partyPosition === undefined) setFigureLead(r, r.position === "chef");
+      // Un chef d'avant n'avait pas de siège : on ne lui en invente pas un, on
+      // le repose au siège du parti, d'où il dirigeait en réalité. C'est
+      // exactement ce que la migration du joueur a fait en son temps.
+      if (r.position === "chef") r.position = "cadre";
+      if (r.status === undefined) r.status = null;
+    });
+
     // Chaque parti doit compter trois personnalités et un chef : on complète
     // les partis restés vides dans une sauvegarde d'avant.
     const usedNames = { [game.character.name || ""]: true };
@@ -3996,7 +4348,7 @@ const BUILD = "2026-08-21 11:45";
     Object.keys(PARTIES).forEach((key) => {
       const count = game.rivals.filter((r) => r.party === key).length;
       for (let i = count; i < 3; i++) {
-        game.rivals.push(makeFigure(key, usedNames, i === 0 ? "chef" : "espoir"));
+        game.rivals.push(makeFigure(key, usedNames, i === 0 ? "chef" : "espoir", takePersonId()));
       }
     });
     ensureLeaders();

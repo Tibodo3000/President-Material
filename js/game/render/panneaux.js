@@ -344,7 +344,10 @@ function renderLandscape() {
                     age: game.age, popularity: nationalPopularity(game), isPlayer: true });
     }
     figuresOf(key).forEach((figure) => {
+      // La direction se cumule avec le mandat, pour les figures comme pour le
+      // joueur : positionTitle() écrit « députée · cheffe du parti ».
       people.push({ name: figure.name, position: figure.position,
+                    lead: leadsParty(figure),
                     age: figure.age, popularity: figure.popularity });
     });
 
@@ -372,7 +375,7 @@ function renderLandscape() {
         '<div class="force-people">' +
         people.map((p) =>
           '<div class="force-person' + (p.isPlayer ? " is-player" : "") +
-            (p.position === "chef" || p.lead ? " is-leader" : "") + '">' +
+            (p.lead ? " is-leader" : "") + '">' +
             '<span class="force-name">' + p.name +
               // Une petite étoile ne se voyait pas. Le président porte
               // désormais un vrai badge, comme le parti au pouvoir.

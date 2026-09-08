@@ -56,6 +56,8 @@ credibilityDrift()     → stature drifts toward the level of your office
 driftGauges()          → popularity & standing slide toward their stat-based targets
 promoteWithinParty()   → militant↔cadre based on standing (the appareil job)
 evolveRivals()         → figures age, rise, retire; heirs spawn; leaders ensured
+evolveParties()        → ONCE A YEAR: mandates follow the camp's weight, a leader can be
+                         unseated by the strongest, and the rare figure climbs faster
 recordLandscape(); driftLandscape()      → the national vote-share shifts
 ensureGovernment()     → the ruling camp gets a PM + ministers
 maybeDefection()       → someone may cross the floor

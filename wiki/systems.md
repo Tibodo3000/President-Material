@@ -430,6 +430,128 @@ to cross the floor never stages a camp from your history), and `switchParty()` i
 refuses the move outright — the last lock, so the rule holds whatever a future event says.
 Measured over 150 careers: 215 party changes, **zero** returns.
 
+### The figures now have the same two boxes
+
+Everything above described the *player*. The named figures kept a single field, and so they
+kept the bug: `ensureLeaders()` wrote `position = "chef"` on a sitting deputy, their
+constituency vanished, and the journal announced without blinking that they *"stay at
+headquarters, with no seat"* — the line stated the defect as if it were the rule.
+
+**`chef` is no longer an office at all.** `position` holds only mandates — exactly `LADDER` —
+and a new field `partyPosition` holds the role in the machine (`"chef"` or `null`).
+`leadsParty()` reads both shapes, so `exposureOf()`, `rankOf()` and `positionTitle()`, all
+written for the player, work unchanged on a figure. A leader who sits is *"Députée · Cheffe
+du parti"*, and weighs what their seat **and** their house are worth.
+
+The `chef` keys of `POSITION_EXPOSURE` and `POSITION_RANK` are gone, unreachable. The numbers
+land where the flat value was — 22 exposure becomes 26 for a deputy, 22 for a mayor, 20 for
+an MEP; rank 7 becomes 8, 7 or 6 — which is how you can tell the flat value had been
+calibrated as that sum in the first place. Apparatus standing does **not** add up:
+`figureStanding()` takes the higher of the two, the way `CREDIBILITY_LEAD` already does for
+the player's stature, or the house would be paid for twice.
+
+One rule had to be written on both sides. `ensureGovernment()` keeps the leader out of the
+government — *"leading the party and the government at once happens, but it is rare"* — and
+that held on its own only while becoming leader erased the office. Now that the seat is kept,
+`ensureLeaders()` skips ministers in turn.
+
+### Every character has a file, and a registry keeps it
+
+Each figure carries `id`, `partyPosition` and `status`; `game.retired` keeps those who have
+left. `retireFigure()` no longer removes anyone from existence — it used to, and
+`campaignFigure()` then **fabricated** an opponent, promoted to leader by default and, having
+no sex, agreed in the masculine. The fallback existed because the case happened.
+
+**The `id` has no reader yet, and that is deliberate.** The name is the primary key of the
+whole game — a presidential field, `nominee`, `president`, every lookup going through
+`find(r => r.name === …)`. That holds at forty-eight figures. Measured: one career already
+draws eighty-six names from a pool of two hundred and eighty-five surnames, and a more
+populated landscape will drain it. A recycled surname then points the lookup at *somebody
+else*, silently. Switching the readers over is a pass of its own.
+
+---
+
+## The life of a party — the annual pass
+
+`evolveRivals()` lives the figures **one by one**: they age, their popularity drifts, they
+climb a rung when their counter fills. What it never does is look at a *party*.
+
+`evolveParties()` runs **once a year** — `game.turn % TURNS_PER_YEAR === 0` in `advanceTurn` —
+because a party does not reorganise itself every quarter and the landscape has to drift slowly
+enough to be read. It keeps no memory and no queue: it is a sweep of six parties and their
+figures, about 168 operations a year, some 15 % of what `evolveRivals()` already costs every
+turn.
+
+### Elections pass through here
+
+**A mandate was never lost.** The ladder only goes up, and the engine's single step back is a
+minister when their camp falls. Measured over thirty full careers: the country's largest camp
+finished with 6.8 of its eight figures elected, the smallest with 5.7 — the same thing. A camp
+collapsing to four per cent kept as many officeholders as one at thirty-six.
+
+`seatQuota()` now sets how many of a party's figures hold something, from the party's share of
+the landscape:
+
+```
+quota = min(size, round(size × PARTY_SEATED × share / (100 / parties)))
+```
+
+`renewMandates()` moves **one figure per party per year**, no more: the least known loses their
+seat when the camp retreats, the most prominent of those waiting comes in at `conseiller` when
+it advances. Nothing is written to the journal — six parties across forty years would be two
+hundred and forty lines for comings and goings the landscape panel already shows.
+
+**It reads the landscape, not the Assembly.** Tried on the Assembly first: `computeAssembly()`
+raises shares to the power `ASSEMBLY_POWER`, which is right for handing out 577 seats under
+first-past-the-post and wrong here. Half the game's political class ended up with no mandate
+and the smallest camp fell to one elected figure in eight. A camp at ten per cent has almost
+no deputies, but it does have councillors, mayors and known officials — which is what the
+quota counts.
+
+After: largest camp 8.7 elected, smallest 2.7. Checked by playing forty years in the browser —
+the Liberals go from 8 % and 7 elected to 36 % and 11, the Centrists from 36 % and 7 to 0 %
+and 3, and their leader is the only one of the six left without a seat.
+
+### A leader can now be challenged
+
+`ensureLeaders()` only ever replaced a head when it fell vacant — a retirement, a death. Nobody
+took the house for having become the strongest, which is the only way it actually happens.
+
+**You do not defend the leadership of a party with the leadership of the party.** The title is
+worth `LEAD_EXPOSURE`, close to ten points of popularity: comparing raw popularity asked the
+challenger to erase that lead *before starting*. Measured — even with a **zero** margin, a
+house changed hands once every sixty-eight party-years. `weightWithoutLead()` therefore
+subtracts what the title earns the leader, computed with `figurePopularity()` itself so no
+coefficient is copied, and `LEAD_CHALLENGE` becomes a real margin.
+
+| Margin | Challenges per career | A leader lasts |
+|--------|----------------------|----------------|
+| 10 | 2.9 | 21 years |
+| 8 | 5.2 | 13 years |
+| **7** | **8.3** | **10.7 years** |
+| 6 | 16.6 | 7.6 years |
+| 3 | 44.8 | 3.4 years |
+
+Seven: a party leadership lasts about a decade, which is the real order of magnitude, and the
+journal carries eight lines a career rather than forty-five.
+
+### Those who climb four steps at a time
+
+`FAST_CLIMB`, one per cent per figure per year — sixteen times a career across forty-eight
+figures, so roughly one figure in three gets one push, once. It does not hand out the rung, it
+hands out the progress that leads to it, so the promotion still falls through the ordinary path
+in `evolveRivals()`. Measured with and without: the mean age of a deputy-or-better goes from
+62.4 to 61.4, and the share who get there before forty from 2.2 % to 2.7 %.
+
+### A trap this codebase sets
+
+The function was first called `partySeats()` — and one already existed, the one giving the
+*player's* party its seat count, read by the `minSeats` and `maxSeats` content conditions. The
+game has no modules: the fifty-one scripts of `game.html` share a single global scope, and the
+second `function` declaration silently overwrites the first. The crash landed two careers in
+forty, while drawing a card, a long way from the cause. There are **453 top-level functions**
+and no guard rail. Check the name before you add one.
+
 ---
 
 ## The political landscape

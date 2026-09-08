@@ -300,7 +300,9 @@ Every rule reads and mutates it. Key fields:
   seen: {},           // events already played (they don't return)
   pending: [...],     // scheduled chain follow-ups: { id, turn, expires }
   popularity, standing,   // the two career gauges, 0..100
-  rivals: [...],      // the political landscape's named figures (5 per party)
+  rivals: [...],      // the living named figures, 8 per party, IN DRAW ORDER (anyRival picks by index)
+  retired: [...],     // those who left politics, marked status: "retire", kept so references resolve
+  nextPersonId,       // the next free character id; never reused
   landscape: {},      // party → % vote share; landscapeTrail = the last four turns (for trends)
   assembly: {},       // party → seats, out of 577; fixed on each legislative night
   coalition: [...],   // the parties that vote the government's bills
@@ -310,7 +312,8 @@ Every rule reads and mutates it. Key fields:
   scene,              // the figure this card is staging (fixed when the card is drawn)
   race, campaign,     // active ordinary-election / presidential-campaign sub-state
   president,          // { name, party } or { isPlayer: true }; presidentTerms counts consecutive
-  log: [...],         // journal, most-recent first, capped at 8
+  log: [...],         // journal, most-recent first, capped at LOG_MAX (400) — the *panel*
+                      // shows the last 8 (JOURNAL_PANEL); the end screen reads the whole thing
   ended,              // { type } once the game is over
   card,               // the card currently shown on the right: { kind, id, resolved, ... }
 }
@@ -334,6 +337,13 @@ ladder carry `position: "chef"` and therefore no mandate at all. They are conver
 `partyLead: true` with `position: "cadre"` — the leadership is handed back in its own field,
 and the player is put at headquarters, which is where they were actually leading from. The
 engine does not invent a constituency they never won.
+
+The **figures** got the same treatment later, and the backfill mirrors it exactly: a save
+from before the registry has no `id`, no `partyPosition`, no `status` and no `game.retired`.
+Ids are handed out in array order — all that is asked of an id is that it be unique and
+stable *from now on*, not that it say who arrived first — the leadership moves into
+`partyPosition`, and a figure who was `position: "chef"` is put back at `"cadre"`. Those who
+retired before the registry existed are gone for good: they were never kept.
 
 ---
 

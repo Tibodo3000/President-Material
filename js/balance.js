@@ -258,18 +258,27 @@ const LEAD_EXPOSURE = 12;
 
 const LEAD_RANK = 4;
 
-/* La clé "chef" sert encore : les figures du jeu, elles, n'ont qu'une case et
-   la direction de leur parti EST leur fonction. Le joueur, lui, passe par
-   exposureOf() et rankOf(), qui savent additionner. */
+/* LA CLÉ "chef" A DISPARU DES DEUX TABLES. Elle y restait pour les figures,
+   qui n'avaient qu'une case : diriger leur parti était leur fonction, donc
+   prendre la maison leur retirait leur siège. Tout le monde passe désormais
+   par exposureOf() et rankOf(), qui ajoutent LEAD_EXPOSURE et LEAD_RANK à ce
+   que vaut le mandat — le joueur le faisait déjà.
+
+   Les deux chiffres retombent où le forfait était : un chef qui siège valait
+   22 d'exposition, il vaut maintenant 26 s'il est député, 22 s'il est maire,
+   20 s'il est au Parlement européen. Côté rang, 7 devient 8, 7 ou 6. Le
+   forfait était donc bien la somme qu'on vient d'écrire, et c'est pour cela
+   que le partage ne déplace presque rien en moyenne : ce qu'il change, c'est
+   qu'un chef sans siège cesse d'exister. */
 const POSITION_EXPOSURE = {
   militant: 0, cadre: 3, conseiller: 4, maire: 10, euro: 8, depute: 14,
-  ministre: 28, chef: 22, premier: 40,
+  ministre: 28, premier: 40,
 };
 
 /** Poids interne de la fonction dans l'appareil du parti. */
 const POSITION_RANK = {
   militant: 0, cadre: 2, conseiller: 1, maire: 3, euro: 2, depute: 4,
-  ministre: 5, chef: 7, premier: 6,
+  ministre: 5, premier: 6,
 };
 
 /* ==========================================================================
@@ -745,10 +754,80 @@ const CENSURE_CHANCE = 0.055;
  *   espoir   le jeune qui monte, encore peu connu
  */
 const FIGURE_RANKS = {
-  chef:   { minAge: 22, spread: 18, position: "chef", floor: 6, notoriety: 6 },
-  cadre:  { minAge: 12, spread: 18, position: null,   floor: 4, notoriety: 3 },
-  espoir: { minAge: -2, spread: 13, position: null,   floor: 2, notoriety: 1 },
+  // Le chef n'a plus de fonction imposée : il tire son mandat comme un cadre,
+  // parce qu'on ne prend pas la maison sans tenir quelque chose quelque part.
+  chef:   { minAge: 22, spread: 18, position: null, floor: 6, notoriety: 6 },
+  cadre:  { minAge: 12, spread: 18, position: null, floor: 4, notoriety: 3 },
+  espoir: { minAge: -2, spread: 13, position: null, floor: 2, notoriety: 1 },
 };
+
+/* ==========================================================================
+   LE BILAN ANNUEL D'UN PARTI
+   ==========================================================================
+   Une fois par an, pas à chaque tour : un parti ne se réorganise pas tous les
+   trois mois, et le paysage doit bouger doucement pour rester lisible. La
+   passe entière est un balayage des six partis et de leurs figures, sans
+   mémoire ni file d'attente.
+   ========================================================================== */
+
+/*
+ * COMBIEN DES FIGURES D'UN PARTI TIENNENT UN MANDAT, quand ce parti pèse ce
+ * qu'un parti moyen pèse. Le quota se lit sur l'Assemblée, donc il suit les
+ * élections : un camp qui s'effondre n'a plus de députés à présenter, un camp
+ * qui perce en fait élire.
+ *
+ * SANS CELA, UN MANDAT NE SE PERDAIT JAMAIS. Les figures ne montaient que
+ * d'un cran à la fois et ne redescendaient d'aucun : au bout de quarante ans,
+ * presque toute la classe politique était députée, y compris celle des camps
+ * à quatre pour cent — le plus gros camp comptait 6,8 élus sur huit, le plus
+ * petit 5,7, autant dire la même chose. Le paysage racontait une Assemblée
+ * que le pays n'avait jamais élue.
+ *
+ * À 0,75, un camp moyen place six de ses huit figures, un camp à trente pour
+ * cent les place toutes, un camp à cinq pour cent en place deux.
+ */
+const PARTY_SEATED = 0.75;
+
+/*
+ * DE COMBIEN IL FAUT DÉPASSER LE CHEF POUR PRENDRE LA MAISON.
+ *
+ * La marge se prend sur ce que le chef vaudrait SANS le titre — voir
+ * weightWithoutLead(). Comparée aux popularités brutes, elle ne voulait rien
+ * dire : le titre vaut déjà près de dix points, si bien qu'à marge nulle une
+ * maison ne changeait de main qu'une fois tous les soixante-huit ans de parti.
+ *
+ * MESURÉ sur vingt carrières, en comptant les prises de tête des deux causes
+ * — le défi et la place laissée vacante par un départ :
+ *
+ *     marge 10   2,9 défis par carrière    un chef tient 21 ans
+ *     marge  8   5,2                                     13 ans
+ *     marge  7   8,3                                     10,7 ans
+ *     marge  6  16,6                                      7,6 ans
+ *     marge  3  44,8                                      3,4 ans
+ *
+ * Sept, donc : une direction de parti dure une dizaine d'années, ce qui est
+ * l'ordre de grandeur réel, et le journal en porte huit lignes par carrière
+ * plutôt que quarante-cinq.
+ */
+const LEAD_CHALLENGE = 7;
+
+/*
+ * CEUX QUI MONTENT QUATRE À QUATRE. Une carrière politique n'avance pas au
+ * même rythme pour tout le monde : il y a des gens qui sautent une marche, et
+ * ils sont rares. La chance se tire par figure et par an, jamais par tour, et
+ * elle ne donne pas la marche — elle donne l'avance qui y mène, si bien que la
+ * promotion tombe par le chemin ordinaire, dans evolveRivals().
+ *
+ * Un pour cent par an, c'est une seize fois par carrière sur quarante-huit
+ * figures : à peu près une figure sur trois reçoit une poussée, une fois.
+ * MESURÉ sur vingt-cinq carrières, avec et sans : l'âge moyen d'un député ou
+ * mieux passe de 62,4 à 61,4 ans, et la part de ceux qui y sont avant
+ * quarante ans de 2,2 à 2,7 %. C'est visible dans la masse et rare un par un,
+ * ce qui est exactement le dosage demandé.
+ */
+const FAST_CLIMB = 0.01;
+
+const FAST_CLIMB_STEP = 3;
 
 /*
  * CE QUE VAUT UNE BARRE PLEINE dans le rapport de force : la moitié du pays.

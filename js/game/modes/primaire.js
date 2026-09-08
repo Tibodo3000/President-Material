@@ -89,11 +89,23 @@ function playerApparatusWeight() {
 
 const FIGURE_STANDING = { chef: 66, premier: 62, ministre: 54, depute: 46, maire: 44, euro: 42 };
 
+/**
+ * LA COTE D'APPAREIL D'UNE FIGURE. Diriger le parti vaut soixante-six, et ne
+ * s'AJOUTE PAS au mandat : on prend le plus haut des deux, comme la stature du
+ * joueur le fait déjà (voir CREDIBILITY_LEAD dans js/balance.js). Un député
+ * qui prend sa maison pèse ce que pèse un chef de parti, pas davantage — sans
+ * quoi rendre son siège au chef reviendrait à le payer deux fois.
+ */
+function figureStanding(f) {
+  return Math.max(FIGURE_STANDING[f.position] || 36,
+    leadsParty(f) ? FIGURE_STANDING.chef : 0);
+}
+
 function figureApparatusWeight(f) {
   return apparatusWeight(
-    FIGURE_STANDING[f.position] || 36, f.popularity,
+    figureStanding(f), f.popularity,
     (f.stats.credibilite || 5) * 1.7,
-    POSITION_RANK[f.position] || 0
+    rankOf(f)
   );
 }
 
@@ -126,7 +138,7 @@ function figureBase(f) {
 }
 
 function figureBaseWeight(f) {
-  return baseWeight(figureBase(f), f.popularity, POSITION_RANK[f.position] || 0);
+  return baseWeight(figureBase(f), f.popularity, rankOf(f));
 }
 
 function weightOn(road, f) {
@@ -152,7 +164,9 @@ function playerWeightOn(road) {
 function primaryField(road) {
   return game.rivals
     .filter((r) => r.party === game.party &&
-      !["militant", "cadre"].includes(r.position) &&
+      // Celui qui dirige la maison en est, quel que soit son mandat : c'est
+      // même le seul dont la candidature va de soi.
+      (!["militant", "cadre"].includes(r.position) || leadsParty(r)) &&
       !isPresident(r))
     .sort((a, b) => weightOn(road, b) - weightOn(road, a))
     .slice(0, 3);
